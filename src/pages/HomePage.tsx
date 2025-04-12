@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import { Button } from "@/components/ui/button"
+
 
 export default function HomePage() {
     const { t, i18n } = useTranslation();
@@ -8,6 +10,8 @@ export default function HomePage() {
             <h1>{t('welcome')}</h1>
             <button onClick={() => i18n.changeLanguage('vi')}>Tiếng Việt</button>
             <button onClick={() => i18n.changeLanguage('en')}>English</button>
+            <Button>Click me</Button>
+
         </div>
     );
 }
