@@ -1,41 +1,60 @@
 .sidebar {
-    width: 250px;
+    flex: 0 0 15%;
     background-color: #333;
     color: white;
-    height: 100vh;
-    transition: transform 0.3s ease;
-    padding-top: 20px;
-  }
-  
-  .sidebar ul {
-    list-style-type: none;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: flex 0.3s ease, padding 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar.collapsed {
+    flex: 0 0 0%;
     padding: 0;
-    margin: 0;
-  }
-  
-  .sidebar li {
-    padding: 10px 20px;
-  }
-  
-  .sidebar button {
-    width: 100%;
-    text-align: left;
-    background-color: #444;
+}
+
+.sidebar-link {
     color: white;
-    border: none;
-    padding: 10px;
-    font-size: 16px;
+    text-decoration: none;
+    display: block;
+    margin: 10px 0;
+}
+
+.menu-group {
+    margin-top: 20px;
+}
+
+.menu-title {
+    font-weight: bold;
+    margin-bottom: 5px;
     cursor: pointer;
-  }
-  
-  .sidebar button:hover {
-    background-color: #555;
-  }
-  
-  .sidebar ul ul {
-    margin-left: 20px;
-  }
-  
-  .sidebar .collapsed {
-    transform: translateX(-250px);
-  }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submenu {
+    list-style: none;
+    padding-left: 15px;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: height 0.3s ease, opacity 0.3s ease;
+}
+
+.submenu.open {
+    height: auto; 
+    opacity: 1; 
+}
+
+.submenu li {
+    margin: 5px 0;
+}
+
+.submenu-toggle {
+    transition: transform 0.3s ease;
+}
+
+.submenu-toggle.open {
+    transform: rotate(180deg);
+}
