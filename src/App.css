@@ -1,159 +1,19 @@
-
-/* Container layout */
 .app-container {
-  display: flex;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
 }
 
-.sidebar {
-  flex: 0 0 15%;
-  background-color: #333;
-  color: white;
-  padding: 20px;
-  box-sizing: border-box;
-  transition: flex 0.3s ease, padding 0.3s ease;
-  overflow: hidden;
-}
-
-.sidebar.collapsed {
-  flex: 0 0 0%;
-  padding: 0;
-}
-
-/* Main */
 .main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  transition: flex 0.3s ease;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    transition: flex 0.3s ease;
 }
 
-/* Header */
-.header {
-  background-color: #f4f4f4;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Main content below header */
 .main-content {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
 }
-
-/* Sidebar links */
-.sidebar-link {
-  color: white;
-  text-decoration: none;
-  display: block;
-  margin: 10px 0;
-}
-
-/* Toggle button */
-.toggle-btn {
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* Menu cấp 1 */
-.menu-group {
-  margin-top: 20px;
-}
-
-.menu-title {
-  font-weight: bold;
-  margin-bottom: 5px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Cập nhật submenu để có hiệu ứng mượt mà khi mở/đóng */
-.submenu {
-  list-style: none;
-  padding-left: 15px;
-  height: 0; /* Bắt đầu với chiều cao 0 (ẩn) */
-  overflow: hidden;
-  opacity: 0; /* Bắt đầu với độ mờ 0 (ẩn) */
-  transition: height 0.3s ease, opacity 0.3s ease; /* Hiệu ứng mượt mà */
-}
-
-.submenu.open {
-  height: auto; /* Khi mở, tự động chiều cao dựa vào nội dung */
-  opacity: 1; /* Hiển thị submenu */
-}
-
-.submenu li {
-  margin: 5px 0;
-}
-
-/* Icon toggle */
-.submenu-toggle {
-  transition: transform 0.3s ease;
-}
-
-.submenu-toggle.open {
-  transform: rotate(180deg); /* Xoay icon khi mở submenu */
-}
-
-
-
-
-
-
-
-
-
-
-/* #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-} */
-
-
-/* src/routes/AppRoutes.css */

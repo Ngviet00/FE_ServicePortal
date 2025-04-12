@@ -1,52 +1,49 @@
-// Sidebar.tsx
-import React, { useState } from 'react';
-import './Sidebar.css';  // Import file CSS cho Sidebar
+import { Link } from "react-router-dom";
+import "./style.css"
 
-type SubmenusVisible = {
-  user: boolean;
-  category: boolean;
-};
+import { SidebarConfig } from "./TypeSidebar";
 
-const Sidebar = () => {
-  const [submenusVisible, setSubmenusVisible] = useState<SubmenusVisible>({
-    user: false,
-    category: false,
-  });
+type SidebarProps = {
+    config: SidebarConfig
+}
 
-  const toggleSubmenu = (menu: 'user' | 'category') => {
-    setSubmenusVisible((prev) => {
-      const newSubmenus = { ...prev, user: false, category: false };
-      newSubmenus[menu] = !newSubmenus[menu];
-      return newSubmenus;
-    });
-  };
+export default function Sidebar({ config }: SidebarProps) {
 
-  return (
-    <div className="sidebar">
-      <ul>
-        <li>
-          <button onClick={() => toggleSubmenu('user')}>Quản lý User</button>
-          {submenusVisible.user && (
-            <ul>
-              <li>Thêm User</li>
-              <li>Sửa User</li>
-              <li>Danh sách User</li>
-            </ul>
-          )}
-        </li>
-        <li>
-          <button onClick={() => toggleSubmenu('category')}>Quản lý Danh mục</button>
-          {submenusVisible.category && (
-            <ul>
-              <li>Thêm Danh mục</li>
-              <li>Sửa Danh mục</li>
-              <li>Danh sách Danh mục</li>
-            </ul>
-          )}
-        </li>
-      </ul>
-    </div>
-  );
-};
+	const { visible, submenus, toggleSubmenu } = config
 
-export default Sidebar;
+    return (
+		<div className={`sidebar ${visible ? '' : 'collapsed'}`}>
+			<div>
+				<img src="/logo.png" alt="" />
+			</div>
+			<nav>
+				<Link to="/" className="sidebar-link">Dashboard</Link>
+				<Link to="/about" className="sidebar-link">About</Link>
+
+				<div className="menu-group">
+					<div className="menu-title" onClick={() => toggleSubmenu('user')}>
+						<span>Quản lý User</span>
+						<span className={`submenu-toggle ${submenus.user ? 'open' : ''}`}>↓</span>
+					</div>
+					<ul className={`submenu ${submenus.user ? 'open' : ''}`}>
+						<li><Link to="/user/create" className="sidebar-link">Create</Link></li>
+						<li><Link to="/user/edit" className="sidebar-link">Edit</Link></li>
+						<li><Link to="/user/list" className="sidebar-link">List</Link></li>
+					</ul>
+				</div>
+
+				<div className="menu-group">
+					<div className="menu-title" onClick={() => toggleSubmenu('category')}>
+						<span>Quản lý Danh Mục</span>
+						<span className={`submenu-toggle ${submenus.category ? 'open' : ''}`}>↓</span>
+					</div>
+					<ul className={`submenu ${submenus.category ? 'open' : ''}`}>
+						<li><Link to="/category/create" className="sidebar-link">Create</Link></li>
+						<li><Link to="/category/edit" className="sidebar-link">Edit</Link></li>
+						<li><Link to="/category/list" className="sidebar-link">List</Link></li>
+					</ul>
+				</div>
+			</nav>
+      </div>
+	);
+}

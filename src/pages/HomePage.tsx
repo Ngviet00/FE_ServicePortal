@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 import { Button } from "@/components/ui/button"
-
+import { Camera } from 'lucide-react'
 
 export default function HomePage() {
     const { t, i18n } = useTranslation();
@@ -11,22 +11,7 @@ export default function HomePage() {
             <button onClick={() => i18n.changeLanguage('vi')}>Tiếng Việt</button>
             <button onClick={() => i18n.changeLanguage('en')}>English</button>
             <Button>Click me</Button>
-
+            <Camera color="red" size={48} />
         </div>
     );
 }
-
-
-// export default function UserCreate() {
-//     return <div>Create User Page</div>;
-//   }
-  
-//   // UserEdit.tsx
-//   export default function UserEdit() {
-//     return <div>Edit User Page</div>;
-//   }
-  
-//   // UserList.tsx
-//   export default function UserList() {
-//     return <div>List of Users</div>;
-//   }
