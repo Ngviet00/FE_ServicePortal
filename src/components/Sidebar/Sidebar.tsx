@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import "./style.scss"
+import "./style.css"
 
 import { SidebarConfig } from "./TypeSidebar";
 
@@ -15,7 +15,9 @@ export default function Sidebar({ config }: SidebarProps) {
     return (
 		<div className={`sidebar ${visible ? '' : 'collapsed'}`}>
 			<div>
-				<img src="/logo.png" alt="" />
+				<Link to="/">
+					<img src="/logo.png" alt="" />
+				</Link>
 			</div>
 			<nav>
 				<Link to="/" className="sidebar-link">Dashboard</Link>
