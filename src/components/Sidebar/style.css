@@ -1,11 +1,13 @@
 .sidebar {
     flex: 0 0 15%;
-    background-color: #F4F5FF;
+    background-color: #ffffff;
     color: white;
     padding: 0px 5px 5px 10px;
     box-sizing: border-box;
     transition: flex 0.3s ease, padding 0.3s ease;
     overflow: hidden;
+    overflow-y: auto;
+    height: 100vh;
 }
 
 .sidebar.collapsed {
@@ -14,29 +16,35 @@
 }
 
 .sidebar-link {
-    color: black;
     text-decoration: none;
-    display: block;
-    margin: 10px 0;
+    padding: 6px 4px 10px 6px;
+    border-radius: 3px;
+}
+
+.sidebar-link:hover {
+    background: #e3e3e3;
 }
 
 .menu-group {
-    margin-top: 20px;
+    margin-top: 5px;
     color: black;
 }
 
+.menu-title:hover {
+    background: #e3e3e3;
+}
+
 .menu-title {
-    font-weight: bold;
+    padding: 6px 4px;
+    border-radius: 3px;
     margin-bottom: 5px;
     cursor: pointer;
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
 .submenu {
     list-style: none;
-    padding-left: 15px;
     height: 0;
     overflow: hidden;
     opacity: 0;
@@ -45,11 +53,23 @@
 
 .submenu.open {
     height: auto; 
-    opacity: 1; 
+    opacity: 1;
 }
 
 .submenu li {
-    margin: 5px 0;
+    width: 100%;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
+.submenu li:hover {
+    background: #e3e3e3;
+}
+
+.submenu li a {
+    width: 100%;
+    display: flex;
+    padding: 4px 0px;
 }
 
 .submenu-toggle {

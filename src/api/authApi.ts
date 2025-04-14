@@ -1,25 +1,33 @@
-// import axiosClient from './axiosClient';
+import axiosClient from './axiosClient';
 
-// const productApi = {
-//    getAll(params) {
-//       const url = '/products';
-//       return axiosClient.get(url, { params });
-//    },
-//    get(id) {
-//       const url = `/products/${id}`;
-//       return axiosClient.get(url);
-//    },
-//    add(data) {
-//       const url = '/products';
-//       return axiosClient.post(url, data);
-//    },
-//    update(data) {
-//       const url = `/products/${data.id}`;
-//       return axiosClient.patch(url, data);
-//    },
-//    remove(id) {
-//       const url = `/products/${id}`;
-//       return axiosClient.get(url);
-//    }
-// }
-// export default productApi;
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    code: string;
+}
+  
+export interface LoginResponse {
+    user: User;
+    token: string;
+}
+
+const authApi = {
+    login: (data: { user_code : string; password: string }): Promise<LoginResponse> => {
+        return axiosClient.post('/auth/login', data);
+    },
+
+    register(data: { employeeCode: string; password: string }) {
+        return axiosClient.post("/auth/register", data);
+    },
+
+    logout () {
+        return axiosClient.post("/auth/logout");
+    },
+
+    changePassword(data: { new_password: string; confirm_password: string}) {
+        return axiosClient.post("/auth/change-password", data);
+    },
+}
+
+export default authApi;

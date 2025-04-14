@@ -5,5 +5,5 @@ type Props = {
 };
 
 export default function AuthLayout({ children }: Props) {
-  return <div className="login-page">{children}</div>;
+  return <div className="auth-page">{children}</div>;
 }

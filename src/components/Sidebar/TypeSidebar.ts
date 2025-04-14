@@ -3,6 +3,7 @@ export type SidebarConfig = {
 	submenus: {
 		user: boolean
 		category: boolean
+		admin: boolean
 	}
-	toggleSubmenu: (menu: 'user' | 'category') => void
+	toggleSubmenu: (menu: 'user' | 'category' | 'admin') => void
 }

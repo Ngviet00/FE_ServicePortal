@@ -13,8 +13,11 @@
 }
 
 .main-content {
-    padding: 20px;
     overflow-y: auto;
     flex: 1;
     background: white;
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 99%;
+    padding: 10px;
 }
