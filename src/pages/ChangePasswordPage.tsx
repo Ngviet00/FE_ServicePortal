@@ -115,7 +115,7 @@ export default function ChangePasswordPage() {
                             disabled={ loading }
                             className="cursor-pointer flex w-full bg-black hover:bg-gray-800 justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
-                            { loading ? <Spinner size='small' className="text-white"/> : "Login" }
+                            { loading ? <Spinner size='small' className="text-white"/> : "Submit" }
                         </button>
                     </div>
                 </form>

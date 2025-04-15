@@ -1,19 +1,23 @@
 import { Routes, Route, useLocation  } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import UserList from './pages/UserList';
-import UserCreate from './pages/UserCreate';
-import UserEdit from './pages/UserEdit';
 import './App.css'
 
 import AuthLayout from './layouts/AuthLayout';
 import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/LoginPage';
 
-
 import RedirectIfAuthenticated from "./routes/IsAuthenticated";
 import PrivateRoute from "./routes/PrivateRoute";
 import RegisterPage from './pages/RegisterPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import ListRole from './features/Role/List/ListRole';
+import CreateRole from './features/Role/Create/CreateRole';
+import ListDeparment from './features/Deparment/List/ListDeparment';
+import CreateDeparment from './features/Deparment/Create/CreateDeparment';
+import ListPosition from './features/Position/List/ListPosition';
+import CreatePosition from './features/Position/Create/CreatePosition';
+import ListUser from './features/User/List/ListUser';
+import CreateUser from './features/User/Create/CreateUser';
 
 function App() {
 
@@ -30,12 +34,18 @@ function App() {
 	const privateRoutes = [
 		{ path: "/", element: <HomePage /> },
 		{ path: "/change-password", element: <ChangePasswordPage /> },
-		{ path: "/user/create", element: <UserCreate /> },
-		{ path: "/user/edit", element: <UserEdit /> },
-		{ path: "/user/list", element: <UserList /> },
-		{ path: "/category/create", element: <UserCreate /> },
-		{ path: "/category/edit", element: <UserCreate /> },
-		{ path: "/category/list", element: <UserCreate /> },
+		
+		{ path: "/role", element: <ListRole /> },
+		{ path: "/role/create", element: <CreateRole /> },
+
+		{ path: "/deparment", element: <ListDeparment /> },
+		{ path: "/deparment/create", element: <CreateDeparment /> },
+
+		{ path: "/position", element: <ListPosition /> },
+		{ path: "/position/create", element: <CreatePosition /> },
+
+		{ path: "/user", element: <ListUser /> },
+		{ path: "/user/create", element: <CreateUser /> },
 	];
   
 	return (

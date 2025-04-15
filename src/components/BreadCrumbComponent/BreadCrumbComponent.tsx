@@ -12,7 +12,7 @@ import { Link, useLocation } from "react-router-dom";
 import { capitalizeFirstLetter } from "@/ultils";
 
 
-export default function BreadCrumb () {
+export default function BreadCrumbComponent () {
 
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter((x) => x);

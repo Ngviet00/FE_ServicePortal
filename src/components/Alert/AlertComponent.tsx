@@ -14,7 +14,7 @@ export const AlertSuccess = ({message}: AlertSuccessProps ) => {
     return (
         <Alert className="border-green-800">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Success</AlertTitle>
+            <AlertTitle className="text-green-800">Success</AlertTitle>
             <AlertDescription className="text-green-800">
                 {message}
             </AlertDescription>

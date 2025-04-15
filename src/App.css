@@ -13,11 +13,13 @@
 }
 
 .main-content {
+    border-radius: 3px;
+    min-height: 80%;
     overflow-y: auto;
-    flex: 1;
     background: white;
-    margin-left: 10px;
-    margin-top: 10px;
-    width: 99%;
+    margin-left: 20px;
+    margin-top: 25px;
+    width: 97%;
     padding: 10px;
+    box-shadow: 0px 12px 33px 0px #E8EAFC, 0 3px 3px -2px #B2B2B21A, 0 1px 8px 0 #9A9A9A1A;
 }

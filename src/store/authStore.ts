@@ -19,14 +19,17 @@ export const useAuthStore = create<AuthState>()(
         (set) => ({
             user: null,
             isAuthenticated: false,
-            setUser: (user) =>
+            setUser: (user) => {
                 set({
                     user,
-                }),
+                    isAuthenticated: true
+                });
+            },  
             
             logout: () => {
                 set({
                     user: null,
+                    isAuthenticated: false,
                 });
                 localStorage.removeItem('auth-storage');
                 document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

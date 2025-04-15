@@ -24,18 +24,11 @@ export default function LoginPage() {
     
         try {
             const res = await authApi.login({ user_code, password });
-        
             setUser(res.user);
-
             navigate("/")
         } 
         catch (err) {
-            if (axios.isAxiosError(err)) {
-                setErrorMsg(err.response?.data?.message || "Login failed");
-            }
-            else {
-                setErrorMsg("Login failed");
-            }
+            setErrorMsg(axios.isAxiosError(err) ? err.response?.data?.message : "Login failed")
         }
         finally {
             setLoading(false);

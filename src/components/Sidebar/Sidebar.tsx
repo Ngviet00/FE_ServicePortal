@@ -1,20 +1,28 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation  } from "react-router-dom";
+import { ChevronDown, Dot } from "lucide-react";
+import { useSidebarStore } from "@/store/sidebarStore";
+import { SIDEBAR_MENUS } from "@/constants/sidebar";
+import { useEffect } from "react";
 
 import "./style.css"
 
-import { SidebarConfig } from "./TypeSidebar";
-import { ChevronDown, Dot, House, LockKeyhole, Ticket, Users } from "lucide-react";
+export default function Sidebar() {
+	const { isOpen, submenusVisible, toggleSubmenu, closeAllSubmenus, closeMenuIfNotChild } = useSidebarStore();
+	const location = useLocation();
+	const currentPath = location.pathname;
+	const setVisibleSubmenuByPath = useSidebarStore((state) => state.setVisibleSubmenuByPath);
 
-type SidebarProps = {
-    config: SidebarConfig
-}
+	useEffect(() => {
+		setVisibleSubmenuByPath(currentPath);
+		closeMenuIfNotChild(currentPath);
+	}, [currentPath, setVisibleSubmenuByPath, closeMenuIfNotChild]);
 
-export default function Sidebar({ config }: SidebarProps) {
-
-	const { visible, submenus, toggleSubmenu } = config
+	const handleMenuHomeClick = () => {
+		closeAllSubmenus();
+	};
 
     return (
-		<div className={`sidebar ${visible ? '' : 'collapsed'}`}>
+		<div className={`sidebar ${isOpen ? '' : 'collapsed'}`}>
 			<div>
 				<Link to="/">
 					<img src="/logo.png" alt="" style={{ height: '80px'}}/>
@@ -24,92 +32,64 @@ export default function Sidebar({ config }: SidebarProps) {
 			<hr className="mt-1" />
 
 			<nav className="pt-2">
-				<div>
-					<Link to="/" className="sidebar-link flex items-center text-blue-900">
-						<House size={20}/>
-						<span className="pl-5 text-base">
-							Trang chủ
-						</span>
-					</Link>
-				</div>
+				{SIDEBAR_MENUS.map((menu) => {
+					if (!menu.key || !menu.label || !menu.icon) {
+						return null
+					}
 
-				<div className="menu-group">
-					<div className="menu-title flex items-center cursor-pointer text-blue-900" onClick={() => toggleSubmenu('admin')}>
-						<LockKeyhole size={20} />
-						<span className="pl-5 flex-1">Admin</span>
-						<ChevronDown size={18} className={`submenu-toggle transition-transform ${submenus.admin ? 'rotate-180' : ''}`} />
-					</div>	
-					<ul className={`submenu ${submenus.admin ? 'open' : ''}`}>
-						<li className="text-blue-900">
-							<Link to="/user/create" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">Create</span>
-							</Link>
-						</li>
-						<li className="text-blue-900">
-							<Link to="/user/edit" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">Edit</span>
-							</Link>
-						</li>
-						<li className="text-blue-900">
-							<Link to="/user/list" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">List</span>
-							</Link>
-						</li>
-					</ul>
-				</div>
+					const hasChildren = Array.isArray(menu.children) && menu.children.length > 0;
+					const Icon = menu.icon;
 
-				<div className="menu-group">
-					<div className="menu-title flex items-center cursor-pointer text-blue-900" onClick={() => toggleSubmenu('user')}>
-						<Users size={20} />
-						<span className="pl-5 flex-1">User</span>
-						<ChevronDown size={18} className={`submenu-toggle transition-transform ${submenus.user ? 'rotate-180' : ''}`} />
-					</div>	
-					<ul className={`submenu ${submenus.user ? 'open' : ''}`}>
-						<li className="text-blue-900">
-							<Link to="/user/create" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">Create</span>
-							</Link>
-						</li>
-						<li className="text-blue-900">
-							<Link to="/user/edit" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">Edit</span>
-							</Link>
-						</li>
-						<li className="text-blue-900">
-							<Link to="/user/list" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">List</span>
-							</Link>
-						</li>
-					</ul>
-				</div>
+					//home
+					if (!hasChildren && menu.route) {
+						return (
+							<div className="menu-group" key={menu.key}>
+								<Link
+									onClick={() => handleMenuHomeClick()}
+									to={menu.route}
+									className={`sidebar-link flex items-center text-blue-900 ${
+										currentPath === menu.route ? 'bg-[#e3e3e3]' : ''
+									}`}
+								>
+									<Icon size={20} />
+									<span className="pl-5">{menu.label}</span>
+								</Link>
+							</div>
+						);
+					}
 
-				<div className="menu-group">
-					<div className="menu-title flex items-center cursor-pointer text-blue-900" onClick={() => toggleSubmenu('user')}>
-						<Ticket size={20} />
-						<span className="pl-5 flex-1">Nghỉ phép</span>
-						<ChevronDown size={18} className={`submenu-toggle transition-transform ${submenus.user ? 'rotate-180' : ''}`} />
-					</div>	
-					<ul className={`submenu ${submenus.user ? 'open' : ''}`}>
-						<li className="text-blue-900">
-							<Link to="/user/create" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">Xin nghỉ phép</span>
-							</Link>
-						</li>
-						<li className="text-blue-900">
-							<Link to="/user/edit" className="sidebar-link">
-								<Dot/>
-								<span className="pl-8">Danh sách nghỉ phép</span>
-							</Link>
-						</li>
-					</ul>
-				</div>
+					return (
+						<div className="menu-group" key={menu.key}>
+							<div
+								className="menu-title flex items-center cursor-pointer text-blue-900"
+								onClick={() => hasChildren && toggleSubmenu(menu.key!)}
+							>
+								<Icon size={20} />
+								<span className="pl-5 flex-1">{menu.label}</span>
+								{hasChildren && (
+									<ChevronDown
+										size={18}
+										className={`submenu-toggle transition-transform ${
+											submenusVisible[menu.key!] ? "rotate-180" : ""
+										}`}
+									/>
+								)}
+							</div>
+							{hasChildren && (
+								<ul className={`submenu ${submenusVisible[menu.key!] ? "open" : ""}`}>
+									{menu.children?.map((child) => (
+										<li key={child.route} className={`text-blue-900 ${currentPath === `${child.route}` ? 'bg-[#e3e3e3]' : ''}`}>
+											<Link to={child.route} className="sidebar-link flex items-center">
+												<Dot />
+												<span>{child.label}</span>
+											</Link>
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
+					);
+				})}
 			</nav>
       </div>
 	);

@@ -17,7 +17,7 @@
 
 .sidebar-link {
     text-decoration: none;
-    padding: 6px 4px 10px 6px;
+    padding: 6px 4px 10px 4px;
     border-radius: 3px;
 }
 
@@ -70,6 +70,10 @@
     width: 100%;
     display: flex;
     padding: 4px 0px;
+}
+
+.submenu li a span{
+    padding-left: 30px;
 }
 
 .submenu-toggle {
