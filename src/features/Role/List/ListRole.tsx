@@ -26,6 +26,7 @@ import {
   } from "@/components/ui/alert-dialog"
 
 import { ShowToast } from "@/ultils"
+import ModalRole from "../components/ModalRole"
 
 type Role = {
     id: number
@@ -65,7 +66,8 @@ export default function ListRole () {
         <div className="p-4 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">Roles</h3>
-                <Button className="hover:cursor-pointer" onClick={() => navigate("/role/create")}>New Role</Button>
+                <ModalRole/>
+                {/* <Button className="hover:cursor-pointer" onClick={() => navigate("/role/create")}>New Role</Button> */}
             </div>
 
             <div className="flex items-center justify-between">

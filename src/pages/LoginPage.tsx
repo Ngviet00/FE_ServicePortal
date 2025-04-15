@@ -28,7 +28,12 @@ export default function LoginPage() {
             navigate("/")
         } 
         catch (err) {
-            setErrorMsg(axios.isAxiosError(err) ? err.response?.data?.message : "Login failed")
+            const msg =
+                axios.isAxiosError(err)
+                    ? err.response?.data?.message ||
+                      (err.request ? "Server error" : err.message)
+                    : "Login failed";
+            setErrorMsg(msg);
         }
         finally {
             setLoading(false);
