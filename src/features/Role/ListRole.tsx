@@ -106,47 +106,41 @@ export default function ListRole () {
                         </thead>
                         <tbody>
                         {loading ? (
-                                Array.from({ length: roles.length }).map((_, index) => (
-                                    <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <td className="w-[57px] p-4">
-                                            <Skeleton className="h-4 w-[15px]" />
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <Skeleton className="h-4 w-[250px]" />
-                                        </td>
-                                        <td className="px-6 py-4">
+                            Array.from({ length: pageSize }).map((_, index) => ( // Bạn có thể thay 5 bằng số cố định hoặc roles.length tuỳ mục đích
+                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td className="w-[57px] p-4">
+                                        <Skeleton className="h-4 w-[15px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[250px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
                                         <Skeleton className="h-4 w-[80px]" />
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : error ? (
-                                <tr>
-                                    <td colSpan={3} className="text-center py-4 font-bold text-red-700">
-                                        {error}
                                     </td>
                                 </tr>
-                            ) : roles.length === 0 ? (
-                                <tr>
-                                    <td colSpan={3} className="text-center py-4 font-bold text-black">
-                                        No results
+                            ))
+                        ) : error || roles.length === 0 ? (
+                            <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+                                <td colSpan={3} className={`text-center py-4 font-bold ${error ? 'text-red-700' : 'text-black'}`}>
+                                    {error || "No results"}
+                                </td>
+                            </tr>
+                        ) : (
+                            roles.map((role, index) => (
+                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
+                                    <td className="p-4 w-[57px]">
+                                        <Checkbox className="hover:cursor-pointer" />
+                                    </td>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {role.name}
+                                    </th>
+                                    <td className="flex items-center px-4 py-4">
+                                        <UpdateRoleComponent role={role} onSuccess={getRoles} />
+                                        <DeleteRoleComponent role={role} onSuccess={getRoles} />
                                     </td>
                                 </tr>
-                            ) : (
-                                roles.map((role, index) => (
-                                    <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
-                                        <td className="p-4 w-[57px]">
-                                            <Checkbox className="hover:cursor-pointer"/>
-                                        </td>
-                                        <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                            {role.name}
-                                        </th>
-                                        <td className="flex items-center px-4 py-4">
-                                            <UpdateRoleComponent role={role} onSuccess={getRoles}/>
-                                            <DeleteRoleComponent role={role} onSuccess={getRoles} />
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
+                            ))
+                        )}
                         </tbody>
                     </table>
                 </div>

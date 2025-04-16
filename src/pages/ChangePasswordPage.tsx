@@ -61,13 +61,11 @@ export default function ChangePasswordPage() {
     };
 
     return <>
-        <div className="flex min-h-full flex-1 flex-col justify-start py-12 lg:px-8 bg-white">
+        <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white">
+            <h2 className="font-bold text-2xl">Change Password</h2>
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-            {successMsg && <AlertSuccess message={successMsg} />}
-            {errorMsg && <AlertError message={errorMsg} />}
-                <h2 className="mt-2 text-left text-2xl/9 font-bold tracking-tight text-gray-900">
-                    Change Password
-                </h2>
+                {successMsg && <AlertSuccess message={successMsg} />}
+                {errorMsg && <AlertError message={errorMsg} />}
             </div>
         
             <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
