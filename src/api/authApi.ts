@@ -6,14 +6,9 @@ export interface User {
     email: string;
     code: string;
 }
-  
-export interface LoginResponse {
-    user: User;
-    token: string;
-}
 
 const authApi = {
-    login: (data: { user_code : string; password: string }): Promise<LoginResponse> => {
+    login: (data: { user_code : string; password: string }) => {
         return axiosClient.post('/auth/login', data);
     },
 

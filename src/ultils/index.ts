@@ -26,3 +26,7 @@ export const ShowToast = (
         transition: Zoom,
     });
 };
+
+export const ListPerPage = [
+    5, 10, 20, 50
+]

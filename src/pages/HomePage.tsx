@@ -1,6 +1,7 @@
 // import { useTranslation } from 'react-i18next'
 
 export default function HomePage() {
+    console.log('reremder home page');
     // const { t } = useTranslation();
 
     return (

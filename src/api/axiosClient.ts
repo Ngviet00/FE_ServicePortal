@@ -16,23 +16,21 @@ axiosClient.interceptors.request.use(
 	});
 
 axiosClient.interceptors.response.use(
-	response => response.data,
-	// async error => {
-    //     const originalRequest = error.config;
-
-    //     if (error.response?.status === 401 && !originalRequest._retry) {
-    //         originalRequest._retry = true;
-    //         try {
-    //             await axiosClient.get("/auth/refresh-token");
-    //             return axiosClient(originalRequest); 
-    //         } catch (refreshError) {
-    //             window.location.href = "/login"; 
-    //             return Promise.reject(refreshError);
-    //         }
-    //     }
-
-    //     return Promise.reject(error);
-    // }
+	response => response,
+    async err => {
+        const originalRequest = err.config;
+        if (err.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            await axiosClient.post('/auth/refresh-token');
+            return axiosClient(originalRequest);
+          } catch {
+            window.location.href = '/login';
+          }
+        }
+    
+        return Promise.reject(err);
+      }
 );
 
 export default axiosClient;

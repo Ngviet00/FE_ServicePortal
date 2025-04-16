@@ -24,7 +24,7 @@ export default function LoginPage() {
     
         try {
             const res = await authApi.login({ user_code, password });
-            setUser(res.user);
+            setUser(res.data.user);
             navigate("/")
         } 
         catch (err) {

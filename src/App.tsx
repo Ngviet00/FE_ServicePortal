@@ -10,8 +10,7 @@ import RedirectIfAuthenticated from "./routes/IsAuthenticated";
 import PrivateRoute from "./routes/PrivateRoute";
 import RegisterPage from './pages/RegisterPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
-import ListRole from './features/Role/List/ListRole';
-import CreateRole from './features/Role/Create/CreateRole';
+import ListRole from './features/Role/ListRole';
 import ListDeparment from './features/Deparment/List/ListDeparment';
 import CreateDeparment from './features/Deparment/Create/CreateDeparment';
 import ListPosition from './features/Position/List/ListPosition';
@@ -36,7 +35,6 @@ function App() {
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		
 		{ path: "/role", element: <ListRole /> },
-		{ path: "/role/create", element: <CreateRole /> },
 
 		{ path: "/deparment", element: <ListDeparment /> },
 		{ path: "/deparment/create", element: <CreateDeparment /> },
