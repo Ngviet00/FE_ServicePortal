@@ -62,6 +62,11 @@ export default function ListRole () {
         []
     );
 
+    const handlePageSizeChange = (perpage: number) => {
+        setPageSize(perpage)
+        setCurrentPage(1)
+    }
+
     useEffect(() => {
         return () => {
             debounceFilter.cancel();
@@ -75,7 +80,7 @@ export default function ListRole () {
     }, [getRoles]);
 
     return (
-        <div className="p-4 pt-0 space-y-4">
+        <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">Roles</h3>
                 <CreateRoleComponent onSuccess={getRoles}/>
@@ -151,9 +156,9 @@ export default function ListRole () {
                     totalPages={totalPages}
                     pageSize={pageSize}
                     onPageChange={setCurrentPage}
-                    onPageSizeChange={setPageSize}
+                    onPageSizeChange={handlePageSizeChange}
                 />) : (null)
             }
-    </div>
+        </div>
     )
 }

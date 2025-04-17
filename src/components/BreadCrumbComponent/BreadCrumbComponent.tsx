@@ -7,7 +7,6 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-import "./style.css"
 import { Link, useLocation } from "react-router-dom";
 import { capitalizeFirstLetter } from "@/ultils";
 
@@ -18,7 +17,7 @@ export default function BreadCrumbComponent () {
     const pathnames = location.pathname.split("/").filter((x) => x);
 
     return (
-        <div className="breadcrumb">
+        <div className="p-[10px] pl-[15px] rounded-[3px] bg-white mt-[15px] ml-[15px] shadow-[0px 12px 33px 0px #E8EAFC, 0 3px 3px -2px #B2B2B21A, 0 1px 8px 0 #9A9A9A1A]" >
             <Breadcrumb>
                 <BreadcrumbList className="text-sm">
                     <BreadcrumbItem>

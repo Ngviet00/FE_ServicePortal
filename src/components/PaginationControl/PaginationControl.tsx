@@ -7,7 +7,7 @@ import {
 	PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Label } from "@/components/ui/label";
 import React from "react";
 
@@ -18,25 +18,39 @@ type PaginationWithPageSizeProps = {
 	totalPages: number;
 	pageSize: number; //perpage
 	onPageChange: (page: number) => void; //when click button previous, next, page 1 2 5
-	onPageSizeChange: (size: number) => void; //onPageSizeChange
+	onPageSizeChange: (size: number) => void; //onPageSizeChange 5 10 20 50
 };
 
 const getVisiblePages = (currentPage: number, totalPages: number): (number | "...")[] => {
-	const visible: (number | "...")[] = [];
+	const pages: (number | "...")[] = [];
 
-	if (totalPages <= 7) {
-		return Array.from({ length: totalPages }, (_, i) => i + 1);
+	pages.push(1);
+
+	if (currentPage > 3) {
+		pages.push("...");
 	}
 
-	if (currentPage <= 4) {
-		visible.push(1, 2, 3, 4, "...", totalPages);
-	} else if (currentPage >= totalPages - 3) {
-		visible.push(1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-	} else {
-		visible.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+	if (currentPage > 2) {
+		pages.push(currentPage - 1);
 	}
 
-	return visible;
+	if (currentPage !== 1 && currentPage !== totalPages) {
+		pages.push(currentPage);
+	}
+
+	if (currentPage < totalPages - 1) {
+		pages.push(currentPage + 1);
+	}
+
+	if (currentPage < totalPages - 2) {
+		pages.push("...");
+	}
+
+	if (totalPages > 1) {
+		pages.push(totalPages);
+	}
+
+	return pages;
 };
 
 const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({
@@ -46,6 +60,11 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({
 	onPageChange,
 	onPageSizeChange,
 }) => {
+	const [editingDotIndex, setEditingDotIndex] = useState<number | null>(null);
+	const [inputValue, setInputValue] = useState("");
+
+	const visiblePages = getVisiblePages(currentPage, totalPages);
+
 	return (
 		<div className="flex items-center justify-between mt-4">
 			<div className="flex-1 flex justify-center">
@@ -59,10 +78,47 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({
 							/>
 						</PaginationItem>
 
-						{getVisiblePages(currentPage, totalPages).map((page, idx) => (
+						{visiblePages.map((page, idx) => (
 							<PaginationItem key={idx}>
 								{page === "..." ? (
-									<span className="px-2 text-gray-500 select-none">...</span>
+									editingDotIndex === idx ? (
+										<input
+											type="text"
+											className="w-12 text-center border rounded outline-none"
+											value={inputValue}
+											autoFocus
+											onChange={(e) => {
+											const val = e.target.value;
+											if (/^\d*$/.test(val)) {
+												setInputValue(val);
+											}
+											}}
+											onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												const page = parseInt(inputValue, 10);
+												if (!isNaN(page) && page >= 1 && page <= totalPages) {
+												onPageChange(page);
+												}
+												setEditingDotIndex(null);
+												setInputValue("");
+											} else if (e.key === "Escape") {
+												setEditingDotIndex(null);
+												setInputValue("");
+											}
+											}}
+											onBlur={() => {
+												setEditingDotIndex(null);
+												setInputValue("");
+											}}
+										/>
+									) : (
+										<button
+											onClick={() => setEditingDotIndex(idx)}
+											className="hover:cursor-pointer px-2 hover:bg-gray-300 rounded text-gray-500 select-none"
+										>
+											...
+										</button>
+									)
 								) : (
 									<button
 										onClick={() => onPageChange(Number(page))}
@@ -72,13 +128,13 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({
 									>
 										{page}
 									</button>
-								)}
+								)
+							}
 							</PaginationItem>
 						))}
 
 						<PaginationItem>
 							<PaginationNext
-								// onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
 								onClick={() => onPageChange(currentPage + 1)}
 								className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''} hover:cursor-pointer select-none`}
 								tabIndex={-1}

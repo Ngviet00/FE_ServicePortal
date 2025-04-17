@@ -11,12 +11,12 @@ import PrivateRoute from "./routes/PrivateRoute";
 import RegisterPage from './pages/RegisterPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import ListRole from './features/Role/ListRole';
-import ListDeparment from './features/Deparment/List/ListDeparment';
-import CreateDeparment from './features/Deparment/Create/CreateDeparment';
 import ListPosition from './features/Position/List/ListPosition';
 import CreatePosition from './features/Position/Create/CreatePosition';
 import ListUser from './features/User/List/ListUser';
 import CreateUser from './features/User/Create/CreateUser';
+import ListDepartment from './features/Department/ListDepartment';
+import CreateDepartment from './features/Department/CreateDepartment';
 
 function App() {
 
@@ -36,8 +36,8 @@ function App() {
 		
 		{ path: "/role", element: <ListRole /> },
 
-		{ path: "/deparment", element: <ListDeparment /> },
-		{ path: "/deparment/create", element: <CreateDeparment /> },
+		{ path: "/department", element: <ListDepartment /> },
+		{ path: "/department/create", element: <CreateDepartment /> },
 
 		{ path: "/position", element: <ListPosition /> },
 		{ path: "/position/create", element: <CreatePosition /> },

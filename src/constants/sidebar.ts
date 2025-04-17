@@ -22,7 +22,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
         icon: LockKeyhole,
         children: [
             { label: "Role", route: "/role" },
-            { label: "Deparment", route: "/deparment" },
+            { label: "Department", route: "/department" },
             { label: "Position", route: "/position" },
         ],
     },
