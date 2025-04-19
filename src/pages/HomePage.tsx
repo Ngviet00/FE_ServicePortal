@@ -25,25 +25,25 @@ export default function HomePage() {
                 <div className='w-[20%] bg-[#f3f4ff] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                     <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                     <div>
-                        <Label className='text-base font-bold'>Nam</Label>
+                        <Label className='text-base font-bold'>{t('home_page.sex.male')}</Label>
                     </div>
                 </div>
                 <div className='py-4 px-2 flex flex-1 bg-[#f3f4ff]'>
                     <div className='w-[50%] flex justify-around'>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>Mã nhân viên</Label>
+                                <Label className='text-base text-gray-500'>{t('home_page.code')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>Ngày sinh</Label>
+                                <Label className='text-base text-gray-500'>{t('home_page.dob')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>Số điện thoại</Label>
+                                <Label className='text-base text-gray-500'>{t('home_page.phone')}</Label>
                             </div>
                         </div>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.code}</Label>
+                                <Label className='text-base font-bold'>{user?.code ?? "undefined"}</Label>
                             </div>
                             <div className='mb-5'>
                                 <Label className='text-base font-bold'>02/05/2000</Label>
@@ -57,24 +57,24 @@ export default function HomePage() {
                     <div className='flex-1 flex justify-around'>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>Họ và tên</Label>
+                                <Label className='text-base text-gray-500'>{t('home_page.name')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>Email</Label>
+                                <Label className='text-base text-gray-500'>{t('home_page.email')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>Ngày vào công ty</Label>
+                                <Label className='text-base text-gray-500'>{t('home_page.date_join_company')}</Label>
                             </div>
                         </div>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.name}</Label>
+                                <Label className='text-base font-bold'>{user?.name ?? "undefined"}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.email}</Label>
+                                <Label className='text-base font-bold'>{user?.email ?? "undefined"}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{formatDate(user?.dateJoinCompany)}</Label>
+                                <Label className='text-base font-bold'>{user?.dateJoinCompany ? formatDate(user?.dateJoinCompany) : "undefined"}</Label>
                             </div>
                         </div>
                     </div>
@@ -111,7 +111,7 @@ export default function HomePage() {
                                 <div className='w-[31%] mr-5 border border-gray-300 rounded-2xl'>
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Label className='text-sm'>Tổng phép năm</Label>
+                                            <Label className='text-sm'>{t('home_page.total_leave_annual')}</Label>
                                         </span>
                                         <span className='p-1'>
                                             <Label className='text-base'>12</Label>
@@ -120,7 +120,7 @@ export default function HomePage() {
 
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Label className='text-sm'>Phép đã sử dụng</Label>
+                                            <Label className='text-sm'>{t('home_page.total_leave_used')}</Label>
                                         </span>
                                         <span className='p-1'>
                                             <Label className='text-base'>5</Label>
@@ -129,7 +129,7 @@ export default function HomePage() {
 
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Label className='text-sm'>Phép tồn</Label>
+                                            <Label className='text-sm'>{t('home_page.total_leave_remaining')}</Label>
                                         </span>
                                         <span className='p-1'>
                                             <Label className='text-base'>2</Label>
@@ -140,7 +140,7 @@ export default function HomePage() {
                                 <div className='w-[31%] mr-5 border border-gray-300 rounded-2xl'>
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Label className='text-sm'>Đường dẫn</Label>
+                                            <Label className='text-sm'>{t('home_page.path')}</Label>
                                         </span>
                                         <span className='p-1'>
                                             <Label className='text-base'> </Label>
@@ -150,7 +150,7 @@ export default function HomePage() {
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
                                             <Link to="/role" className='text-blue-400 underline underline-offset-2'>
-                                                <Label className='text-sm hover:cursor-pointer'>Đăng ký nghỉ</Label>
+                                                <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_register_leave_request')}</Label>
                                             </Link>
                                         </span>
                                         <span className='p-1'>
@@ -161,7 +161,7 @@ export default function HomePage() {
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
                                             <Link to="/department" className='text-blue-400 underline underline-offset-2'>
-                                                <Label className='text-sm hover:cursor-pointer'>Danh sách nghỉ</Label>
+                                                <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_list_leave_request')}</Label>
                                             </Link>
                                         </span>
                                         <span className='p-1'>

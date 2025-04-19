@@ -1,5 +1,4 @@
 import { House, LockKeyhole, Ticket, Users } from "lucide-react";
-
 export interface SidebarMenuItem {
     key: string | null;
     label: string | null;
@@ -11,37 +10,37 @@ export interface SidebarMenuItem {
 export const SIDEBAR_MENUS: SidebarMenuItem[] = [
     {
         key: "home",
-        label: "Trang chủ",
+        label: "sidebar.home",
         icon: House,
         route: "/",
         children: []
     },
     {
         key: "admin",
-        label: "Admin",
+        label: "sidebar.admin.admin",
         icon: LockKeyhole,
         children: [
-            { label: "Role", route: "/role" },
-            { label: "Department", route: "/department" },
-            { label: "Position", route: "/position" },
+            { label: "sidebar.admin.role", route: "/role" },
+            { label: "sidebar.admin.department", route: "/department" },
+            { label: "sidebar.admin.position", route: "/position" },
         ],
     },
     {
         key: "user",
-        label: "User",
+        label: "sidebar.user.user",
         icon: Users,
         children: [
-            { label: "List User", route: "/user" },
-            { label: "Create User", route: "/user/create" },
+            { label: "sidebar.user.list", route: "/user" },
+            { label: "sidebar.user.create", route: "/user/create" },
         ],
     },
     {
         key: "leave_request",
-        label: "Nghỉ phép",
+        label: "sidebar.leave_request.leave_request",
         icon: Ticket,
         children: [
-            { label: "Xin nghỉ phép", route: "/leave/create" },
-            { label: "Danh sách nghỉ phép", route: "/leave/list" },
+            { label: "sidebar.leave_request.create", route: "/leave/create" },
+            { label: "sidebar.leave_request.list", route: "/leave/list" },
             // { label: "Đi trễ, về sớm", route: "/leave/early-late" },
             // { label: "Phép chờ duyệt", route: "/leave/wait-approval" },
         ],

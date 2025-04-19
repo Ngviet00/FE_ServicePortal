@@ -18,7 +18,7 @@ export default function Header() {
             <div style={{ height: "40px"}} className='flex items-center'>
                 <SelectedLanguage/>
                 <div className='text-black mr-4 font-bold text-sm'>
-                    Hi { user?.name ?? "undefined" }
+                    { user?.name ?? "undefined" }
                 </div>
 
                 <div className="pr-7 flex items-center">

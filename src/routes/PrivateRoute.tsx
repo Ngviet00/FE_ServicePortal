@@ -6,11 +6,11 @@ type Props = {
 };
 
 const PrivateRoute = ({ children }: Props) => {
-	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+	// const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-	if (!isAuthenticated) {
-		return <Navigate to="/login" replace />;
-	}
+	// if (!isAuthenticated) {
+	// 	return <Navigate to="/login" replace />;
+	// }
 
 	return <>{children}</>;
 };

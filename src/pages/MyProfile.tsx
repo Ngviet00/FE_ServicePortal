@@ -17,11 +17,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom"
 
-import React, { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useAuthStore } from "@/store/authStore"
 import userApi from "@/api/userApi"
 import { formatDate } from "@/ultils"
+import { useTranslation } from "react-i18next"
 
 const formSchema = z.object({
 	name: z.string().nonempty({ message: "Name is required" }),
@@ -31,8 +32,8 @@ const formSchema = z.object({
 })
 
 export default function MyProfile() {
-	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
+	const { t } = useTranslation();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -88,9 +89,9 @@ export default function MyProfile() {
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name</FormLabel>
+									<FormLabel>{t('profile.name')}</FormLabel>
 									<FormControl>
-										<Input className="bg-gray-200" readOnly placeholder="Name" {...field} />
+										<Input className="bg-gray-200" readOnly placeholder={t('profile.name')} {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -102,12 +103,12 @@ export default function MyProfile() {
 							name="email"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>{t('profile.email')}</FormLabel>
 									<FormControl>
 										<Input
                                             className="bg-gray-200"
                                             readOnly
-											placeholder="Email"
+											placeholder={t('profile.email')}
 											{...field}
 											value={field.value ?? ""}
 										/>
@@ -122,12 +123,12 @@ export default function MyProfile() {
 							name="code"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Code</FormLabel>
+									<FormLabel>{t('profile.code')}</FormLabel>
 									<FormControl>
 										<Input
                                             className="bg-gray-200"
                                             readOnly
-											placeholder="Code"
+											placeholder={t('profile.code')}
 											{...field}
 											value={field.value ?? ""}
 										/>
@@ -142,12 +143,12 @@ export default function MyProfile() {
 							name="date_join_company"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Date Join Company</FormLabel>
+									<FormLabel>{t('profile.date_join_company')}</FormLabel>
 									<FormControl>
 										<Input
                                             className="bg-gray-200"
                                             readOnly
-											placeholder="Code"
+											placeholder={t('profile.date_join_company')}
 											{...field}
 											value={field.value ?? ""}
 										/>

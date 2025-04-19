@@ -5,9 +5,10 @@ import { useAuthStore } from "@/store/authStore";
 import { ChevronDown, User } from "lucide-react";
 
 import authApi from "@/api/authApi";
+import { useTranslation } from "react-i18next";
 
 export default function AvatarDropdown() {
-
+	const { t } = useTranslation();
 	const { logout } = useAuthStore();
 	const navigate = useNavigate();
 
@@ -39,17 +40,17 @@ export default function AvatarDropdown() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
 				<DropdownMenuItem className="cursor-pointer" onClick={() => handleChangePage("my-profile")}>
-					My Account
+					{t('header.my_account')}
 				</DropdownMenuItem>
 
 				<DropdownMenuItem className="cursor-pointer" onClick={() => handleChangePage("change-password")}>
-					Change Password
+				{t('header.change_password')}
 				</DropdownMenuItem>
 
 				<DropdownMenuSeparator />
 
 				<DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
-					Logout
+				{t('header.log_out')}
 				</DropdownMenuItem>
 
 			</DropdownMenuContent>

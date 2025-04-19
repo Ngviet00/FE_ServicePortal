@@ -3,9 +3,10 @@ import { AlertError, AlertSuccess } from "@/components/Alert/AlertComponent";
 import { Spinner } from "@/components/ui/spinner";
 import axios from "axios";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function ChangePasswordPage() {
-
+    const { t } = useTranslation();
     const [new_password, setNewPassword] = useState("")
     const [confirm_password, setConfirmNewPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -62,7 +63,7 @@ export default function ChangePasswordPage() {
 
     return <>
         <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white">
-            <h2 className="font-bold text-2xl">Change Password</h2>
+            <h2 className="font-bold text-2xl">{t('change_password.change_password')}</h2>
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 {successMsg && <AlertSuccess message={successMsg} />}
                 {errorMsg && <AlertError message={errorMsg} />}
@@ -72,7 +73,7 @@ export default function ChangePasswordPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="mb-5">
                         <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                            New Password
+                        {t('change_password.new_password')}
                         </label>
                         <div className="mt-2">
                             <input
@@ -90,7 +91,7 @@ export default function ChangePasswordPage() {
                     <div className="mb-3">
                         <div className="flex items-center justify-between">
                             <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                                Confirm New Password
+                            {t('change_password.confirm_password')}
                             </label>
                         </div>
                         <div className="mt-2">

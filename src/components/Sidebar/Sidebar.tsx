@@ -5,8 +5,10 @@ import { SIDEBAR_MENUS } from "@/constants/sidebar";
 import { useEffect } from "react";
 
 import "./style.css"
+import { useTranslation } from "react-i18next";
 
 export default function Sidebar() {
+	const { t } = useTranslation();
 	const { isOpen, submenusVisible, toggleSubmenu, closeAllSubmenus, closeMenuIfNotChild } = useSidebarStore();
 	const location = useLocation();
 	const currentPath = location.pathname;
@@ -52,7 +54,7 @@ export default function Sidebar() {
 									}`}
 								>
 									<Icon size={20} />
-									<span className="pl-5">{menu.label}</span>
+									<span className="pl-5">{t(menu.label)}</span>
 								</Link>
 							</div>
 						);
@@ -65,7 +67,7 @@ export default function Sidebar() {
 								onClick={() => hasChildren && toggleSubmenu(menu.key!)}
 							>
 								<Icon size={20} />
-								<span className="pl-5 flex-1">{menu.label}</span>
+								<span className="pl-5 flex-1">{t(menu.label)}</span>
 								{hasChildren && (
 									<ChevronDown
 										size={18}
@@ -81,7 +83,7 @@ export default function Sidebar() {
 										<li key={child.route} className={`text-blue-900 ${currentPath === `${child.route}` ? 'bg-[#e3e3e3]' : ''}`}>
 											<Link to={child.route} className="sidebar-link flex items-center">
 												<Dot />
-												<span>{child.label}</span>
+												<span>{t(child.label)}</span>
 											</Link>
 										</li>
 									))}

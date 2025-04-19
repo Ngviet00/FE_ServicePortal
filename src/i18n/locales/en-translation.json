@@ -1,9 +1,69 @@
 {
     "welcome": "Welcome",
     "about": "About us",
-	"employee_information": "Employee Information",
+
 	"home_page": {
 		"home_page": "Dashboard",
-		"employee_information": "Employee Information"
+		"code": "Employee Code",
+		"dob": "Date of birth",
+		"phone": "Phone",
+		"name": "Name",
+		"email": "Email",
+		"date_join_company": "Date join company",
+		"sex": {
+			"male": "Male",
+			"female": "Female"
+		},
+		"total_leave_annual": "Total leave annual",
+		"total_leave_used": "Leaved used",
+		"total_leave_remaining": "Leave remaining",
+		"path": "Path",
+		"path_register_leave_request":"Register leave quest",
+		"path_list_leave_request":"List leave request"
+	},
+
+	"header": {
+		"hi": "Hi",
+		"my_account": "My Account",
+		"change_password": "Change Password",
+		"log_out": "Logout"
+	},
+
+	"breadcrumb": {
+
+	},
+
+	"sidebar": {
+		"home": "Dashboard",
+		"admin": {
+			"admin": "Admin",
+			"role": "Role",
+			"department": "Department",
+			"position": "Position"
+		},
+		"user": {
+			"user": "User",
+			"create": "Add user",
+			"list": "List user"
+		},
+		"leave_request": {
+			"leave_request": "Leave request",
+			"create": "Create leave request",
+			"list": "List leave request"
+		}
+	},
+
+	"change_password": {
+		"change_password": "Change Password",
+		"new_password": "New password",
+		"confirm_password": "Confirm password"
+	},
+
+	"profile": {
+		"profile": "Profile",
+		"name": "Name",
+		"code": "Code",
+		"email": "Email",
+		"date_join_company": "Date Join Company"
 	}
 }

@@ -1,8 +1,65 @@
 {
     "welcome": "Chào mừng",
     "about": "Về chúng tôi",
+
 	"home_page": {
 		"home_page": "Trang chủ",
-		"employee_information": "Thông Tin Nhân Viên"
+		"code": "Mã nhân viên",
+		"dob": "Ngày sinh",
+		"phone": "Số điện thoại",
+		"name": "Tên",
+		"email": "Email",
+		"date_join_company": "Ngày vào công ty",
+		"sex": {
+			"male": "Nam",
+			"female": "Nữ"
+		},
+		"total_leave_annual": "Tổng phép năm",
+		"total_leave_used": "Phép đã sử dụng",
+		"total_leave_remaining": "Phép tồn",
+		"path": "Đường dẫn",
+		"path_register_leave_request":"Đăng ký nghỉ",
+		"path_list_leave_request":"Danh sách nghỉ"
+	},
+
+	"header": {
+		"hi": "Hi",
+		"my_account": "Cá nhân",
+		"change_password": "Đổi mật khẩu",
+		"log_out": "Đăng xuất"
+	},
+
+	"sidebar": {
+		"home": "Trang chủ",
+		"admin": {
+			"admin": "Quản trị",
+			"role": "Vai trò",
+			"department": "Phòng ban",
+			"position": "Chức vụ"
+		},
+		"user": {
+			"user": "Người dùng",
+			"create": "Thêm người dùng",
+			"list": "Danh sách người dùng"
+		},
+		"leave_request": {
+			"leave_request": "Nghỉ phép",
+			"create": "Xin nghỉ phép",
+			"list": "Danh sách nghỉ"
+		}
+	},
+	
+	"change_password": {
+		"change_password": "Đổi mật khẩu",
+		"new_password": "Mật khẩu mới",
+		"confirm_password": "Xác nhận mật khẩu mới"
+	},
+
+	"profile": {
+		"profile": "Cá nhân",
+		"name": "Tên",
+		"code": "Mã nhân viên",
+		"email": "Email",
+		"date_join_company": "Ngày vào công ty"
 	}
 }
