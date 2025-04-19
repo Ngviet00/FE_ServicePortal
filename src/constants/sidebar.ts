@@ -40,10 +40,10 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
         label: "Nghỉ phép",
         icon: Ticket,
         children: [
-            { label: "Danh sách nghỉ phép", route: "/leave/list" },
             { label: "Xin nghỉ phép", route: "/leave/create" },
-            { label: "Đi trễ, về sớm", route: "/leave/early-late" },
-            { label: "Phép chờ duyệt", route: "/leave/wait-approval" },
+            { label: "Danh sách nghỉ phép", route: "/leave/list" },
+            // { label: "Đi trễ, về sớm", route: "/leave/early-late" },
+            // { label: "Phép chờ duyệt", route: "/leave/wait-approval" },
         ],
     },
 ];

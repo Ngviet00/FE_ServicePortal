@@ -1,33 +1,36 @@
 import axiosClient from './axiosClient';
 
 interface data {
-    name: string;
-    note?: string;
-    parentId: number;
+    name: string
+    note: string | null
+    parent_id: number | null
 }
 
-interface GetDeparment {
+interface GetDepartment {
     page: number;
     page_size: number;
     name?: string;
 }
 
-const deparmentApi = {
-    getAll(params: GetDeparment) {
-        return axiosClient.get('/deparment/get-all', {params})
+const departmentApi = {
+    getAll(params: GetDepartment) {
+        return axiosClient.get('/department/get-all', {params})
+    },
+    getParentDepartment() {
+        return axiosClient.get('/department/get-parent-department')
     },
     getById(id: number) {
-        return axiosClient.get(`/deparment/${id}`)
+        return axiosClient.get(`/department/get-by-id/${id}`)
     },
     create(data: data) {
-        return axiosClient.post('/deparment/create', data)
+        return axiosClient.post('/department/create', data)
     },
     update(id: number, data: data){
-        return axiosClient.put(`/deparment/update/${id}`, data)
+        return axiosClient.put(`/department/update/${id}`, data)
     },
     delete(id: number) {
-        return axiosClient.delete(`/deparment/delete/${id}`)
+        return axiosClient.delete(`/department/delete/${id}`)
     }
 }
 
-export default deparmentApi;
+export default departmentApi;

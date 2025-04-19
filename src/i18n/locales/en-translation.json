@@ -1,0 +1,9 @@
+{
+    "welcome": "Welcome",
+    "about": "About us",
+	"employee_information": "Employee Information",
+	"home_page": {
+		"home_page": "Dashboard",
+		"employee_information": "Employee Information"
+	}
+}

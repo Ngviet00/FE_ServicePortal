@@ -1,23 +1,23 @@
 
-import departmentApi from "@/api/departmentApi"
+import positionApi from "@/api/positionApi"
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogCancel } from "@/components/ui/alert-dialog"
 import { ShowToast } from "@/ultils"
 import { useMutation } from "@tanstack/react-query"
 
 import { useState } from "react"
 
-type DeleteDepartmentComponentProps = {
+type DeletePositionComponentProps = {
     id: number,
-    remainingCount?: number, // <--- thêm cái này
+    remainingCount?: number,
     onSuccess?: (shouldGoBack?: boolean) => void
 }
 
-export default function DeleteDepartmentComponent({ id, remainingCount, onSuccess }: DeleteDepartmentComponentProps) {
+export default function DeletePositionComponent({ id, remainingCount, onSuccess }: DeletePositionComponentProps) {
     const [open, setOpen] = useState(false)
 
 	const mutation = useMutation({
 		mutationFn: async () => {
-			await departmentApi.delete(id);
+			await positionApi.delete(id);
 		}
 	});
 
@@ -26,10 +26,10 @@ export default function DeleteDepartmentComponent({ id, remainingCount, onSucces
             await mutation.mutateAsync();
             const shouldGoBack = (remainingCount === 1); // nếu là item cuối
             onSuccess?.(shouldGoBack);
-            ShowToast("Delete department success", "success")
+            ShowToast("Delete position success", "success")
             setOpen(false)
         } catch (err) {
-            console.error("Failed to delete department:", err);
+            console.error("Failed to delete position:", err);
         }
     };
 
@@ -41,7 +41,7 @@ export default function DeleteDepartmentComponent({ id, remainingCount, onSucces
                 </button>
             </AlertDialogTrigger>
 
-            <AlertDialogContent aria-describedby="custom-description">
+            <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Do you want to delete?</AlertDialogTitle>
                 </AlertDialogHeader>

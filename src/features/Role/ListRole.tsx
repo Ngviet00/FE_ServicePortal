@@ -111,7 +111,7 @@ export default function ListRole () {
                         </thead>
                         <tbody>
                         {loading ? (
-                            Array.from({ length: pageSize }).map((_, index) => ( // Bạn có thể thay 5 bằng số cố định hoặc roles.length tuỳ mục đích
+                            Array.from({ length: pageSize }).map((_, index) => (
                                 <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td className="w-[57px] p-4">
                                         <Skeleton className="h-4 w-[15px]" />
