@@ -65,5 +65,37 @@
 		"code": "Code",
 		"email": "Email",
 		"date_join_company": "Date Join Company"
+	},
+
+	"leave_request": {
+		"create": {
+			"title": "Create leave request",
+			"link_to_list": "List leave request",
+			"department": "Department",
+			"code": "Code",
+			"name": "Name",
+			"position": "Position",
+			"from_hour": "From hour",
+			"from_minutes": "From minutes",
+			"from_date": "From date",
+			"to_hour": "To hour",
+			"to_minutes": "To minutes",
+			"to_date": "To date",
+			"type_leave": {
+				"type_leave": "Type leave",
+				"annual": "Annual leave",
+				"personal": "Personal leave",
+				"sick": "Sick leave",
+				"wedding": "Wedding leave",
+				"other": "Other leave"
+			},
+			"time_leave": {
+				"time_leave": "Time leave",
+				"all_day": "All day leave",
+				"morning": "Morning leave",
+				"afternoon": "Afternoon leave"
+			},
+			"reason": "Reason"
+		}
 	}
 }

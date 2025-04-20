@@ -61,5 +61,37 @@
 		"code": "Mã nhân viên",
 		"email": "Email",
 		"date_join_company": "Ngày vào công ty"
+	},
+
+	"leave_request": {
+		"create": {
+			"title": "Xin nghỉ phép",
+			"link_to_list": "Danh sách nghỉ",
+			"department": "Phòng ban",
+			"code": "Mã nhân viên",
+			"name": "Tên",
+			"position": "Chức vụ",
+			"from_hour": "Giờ",
+			"from_minutes": "Phút",
+			"from_date": "Từ ngày",
+			"to_hour": "Giờ",
+			"to_minutes": "Phút",
+			"to_date": "Đến ngày",
+			"type_leave": {
+				"type_leave": "Loại phép",
+				"annual": "Phép năm",
+				"personal": "Cá nhân",
+				"sick": "Ốm",
+				"wedding": "Nghỉ cưới",
+				"other": "Khác"
+			},
+			"time_leave": {
+				"time_leave": "Thời gian nghỉ",
+				"all_day": "Cả ngày",
+				"morning": "Buổi sáng",
+				"afternoon": "Buổi chiều"
+			},
+			"reason": "Lý do"
+		}
 	}
 }
