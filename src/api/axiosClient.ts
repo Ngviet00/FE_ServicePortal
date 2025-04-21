@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-	baseURL: 'https://localhost:7006/api',
+	baseURL: "https://localhost:7006/api",
 	headers: {
 		'Content-type': 'application/json',
 	},
@@ -29,12 +29,10 @@ axiosClient.interceptors.response.use(
 			originalRequest._retry = true;
 
 			try {
-				console.log('goi lại refresh ne');
 				await axiosClient.get('/auth/refresh-token');
 				return axiosClient(originalRequest);
 			} catch {
 				localStorage.removeItem('auth-storage');
-				console.log('catch rồi');
 				window.location.href = '/login';
 			}
 		}

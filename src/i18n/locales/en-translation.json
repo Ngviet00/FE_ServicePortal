@@ -83,17 +83,17 @@
 			"to_date": "To date",
 			"type_leave": {
 				"type_leave": "Type leave",
-				"annual": "Annual leave",
-				"personal": "Personal leave",
-				"sick": "Sick leave",
-				"wedding": "Wedding leave",
-				"other": "Other leave"
+				"annual": "Annual",
+				"personal": "Personal",
+				"sick": "Sick",
+				"wedding": "Wedding",
+				"other": "Other"
 			},
 			"time_leave": {
 				"time_leave": "Time leave",
-				"all_day": "All day leave",
-				"morning": "Morning leave",
-				"afternoon": "Afternoon leave"
+				"all_day": "All day",
+				"morning": "Morning",
+				"afternoon": "Afternoon"
 			},
 			"reason": "Reason"
 		}

@@ -1,9 +1,9 @@
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next'
-import { Calendar } from "@/components/ui/calendar"
+// import { Calendar } from "@/components/ui/calendar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import React from 'react';
+// import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { formatDate } from '@/ultils';
@@ -11,7 +11,7 @@ import { formatDate } from '@/ultils';
 export default function HomePage() {
     const { t } = useTranslation();
 
-    const [date, setDate] = React.useState<Date | undefined>(new Date())
+    // const [date, setDate] = React.useState<Date | undefined>(new Date())
 
     const { user } = useAuthStore();
 
@@ -83,7 +83,7 @@ export default function HomePage() {
 
             <div className='flex mt-5'>
                 <div className='calendar'>
-                    <Calendar
+                    {/* <Calendar
                         mode="single"
                         selected={date}
                         onSelect={setDate}
@@ -97,7 +97,7 @@ export default function HomePage() {
                             day_selected: "bg-black text-white hover:bg-gray-500 hover:cursor-pointer",
                             day_today: "border border-gray-500 hover:cursor-pointer",
                         }}
-                        />
+                        /> */}
                 </div>
 
                 <div className='link-function ml-5 flex-1'>
@@ -149,7 +149,7 @@ export default function HomePage() {
 
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Link to="/role" className='text-blue-400 underline underline-offset-2'>
+                                            <Link to="/leave/create" className='text-blue-400 underline underline-offset-2'>
                                                 <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_register_leave_request')}</Label>
                                             </Link>
                                         </span>
@@ -160,7 +160,7 @@ export default function HomePage() {
 
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Link to="/department" className='text-blue-400 underline underline-offset-2'>
+                                            <Link to="/leave" className='text-blue-400 underline underline-offset-2'>
                                                 <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_list_leave_request')}</Label>
                                             </Link>
                                         </span>

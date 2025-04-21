@@ -133,7 +133,7 @@ export default function CreateUser () {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 pageSize={pageSize}
-                pageSizes={[5, 10, 20, 50]}
+                // pageSizes={[5, 10, 20, 50]}
                 onPageChange={setCurrentPage}
                 onPageSizeChange={setPageSize}
             />

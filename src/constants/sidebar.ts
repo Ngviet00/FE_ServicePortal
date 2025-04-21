@@ -40,7 +40,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
         icon: Ticket,
         children: [
             { label: "sidebar.leave_request.create", route: "/leave/create" },
-            { label: "sidebar.leave_request.list", route: "/leave/list" },
+            { label: "sidebar.leave_request.list", route: "/leave" },
             // { label: "Đi trễ, về sớm", route: "/leave/early-late" },
             // { label: "Phép chờ duyệt", route: "/leave/wait-approval" },
         ],

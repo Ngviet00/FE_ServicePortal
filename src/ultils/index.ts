@@ -28,18 +28,21 @@ export const ShowToast = (
     });
 };
 
+
 export const ListPerPage = [
     5, 10, 20, 50
 ]
 
-export function useDebounce<T>(value: T, delay: number): T {
+export const useDebounce = <T,>(value: T, delay: number): T => {
     const [debounced, setDebounced] = useState(value);
+  
     useEffect(() => {
       const timer = setTimeout(() => setDebounced(value), delay);
       return () => clearTimeout(timer);
     }, [value, delay]);
+  
     return debounced;
-}
+};
 
 export const formatDate = (dateStr: string | undefined) => {
     const d = new Date(dateStr ? dateStr : "");
@@ -47,3 +50,47 @@ export const formatDate = (dateStr: string | undefined) => {
       .toString()
       .padStart(2, '0')}/${d.getFullYear()}`;
 };
+
+export const TYPE_LEAVE = [
+    {
+        label: "leave_request.create.type_leave.annual",
+        value: "1"
+    },
+    {
+        label: "leave_request.create.type_leave.personal",
+        value: "2"
+    },
+    {
+        label: "leave_request.create.type_leave.sick",
+        value: "3"
+    },
+    {
+        label: "leave_request.create.type_leave.wedding",
+        value: "4"
+    },
+    {
+        label: "leave_request.create.type_leave.other",
+        value: "5"
+    }
+]
+
+export const enum ENUM_TIME_LEAVE {
+    ALL_DAY = "1",
+    MORNING = "2",
+    AFTERNOON = "3",
+}
+
+export const TIME_LEAVE = [
+    {
+        label: "leave_request.create.time_leave.all_day",
+        value: "1"
+    },
+    {
+        label: "leave_request.create.time_leave.morning",
+        value: "2"
+    },
+    {
+        label: "leave_request.create.time_leave.afternoon",
+        value: "3"
+    }
+]

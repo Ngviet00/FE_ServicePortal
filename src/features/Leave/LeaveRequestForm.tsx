@@ -1,69 +1,71 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
 
-import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom"
-import { cn } from "@/lib/utils"
-import { Calendar, CalendarIcon, Check, ChevronsUpDown } from "lucide-react"
 
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
+import { useEffect, useState } from "react"
 
-import { ShowToast } from "@/ultils"
-
-import React, { useEffect, useState } from "react"
-import { useQuery } from "@tanstack/react-query"
-import departmentApi from "@/api/departmentApi"
-import { AxiosError } from "axios"
 import { useParams } from "react-router-dom"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from "@radix-ui/react-select"
-import { SelectComponent } from "./components/SelectComponent"
-import { DatePicker } from "./components/PopupCalendar"
-import { Textarea } from "@/components/ui/textarea"
 import { useTranslation } from "react-i18next"
+import { Input } from "@/components/ui/input"
+import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE, TYPE_LEAVE } from "@/ultils"
+import { Textarea } from "@/components/ui/textarea"
 
 const formSchema = z.object({
-    name: z.string().nonempty({ message: "Name is required" }),
-    note: z.string().optional(),
-    parentId: z.number().nullable().optional(),
+    code: z.string().nonempty({message: "Required"}),
+    department: z.string().nonempty({message: "Required"}),
+    name: z.string().nonempty({message: "Required"}),
+    position: z.string().nonempty({message: "Required"}),
+
+    from_date: z.string().nonempty({message: "Required"}),
+    from_hour: z.string().nonempty({message: "Required"}),
+    from_minutes: z.string().nonempty({message: "Required"}),
+
+    to_date: z.string().nonempty({message: "Required"}),
+    to_hour: z.string().nonempty({message: "Required"}),
+    to_minutes: z.string().nonempty({message: "Required"}),
+
+    type_leave: z.string().nonempty({message: "Required"}),
+    time_leave: z.string().nonempty({message: "Required"}),
+
+    reason: z.string().optional(),
 })
 
-// interface typeParentDepartments {
-//     id: number | null
-//     name: string
-//     note: string | null
-//     parentId: number | undefined | null
+// interface TypeLeaveRequestForm {
+//     employee_code: string,
+//     department: string,
+//     name: string,
+//     position: string,
+
+//     from_date: string,
+//     from_hour: string,
+//     from_minutes: string,
+
+//     to_date: string,
+//     to_hour: string,
+//     to_minutes: string,
+
+//     type_leave: string,
+//     time_leave: string,
+//     reason: string,
 // }
 
 export default function LeaveRequestForm() {
     const { t } = useTranslation();
-    const [open, setOpen] = React.useState(false)
-    const [loading, setLoading] = useState(false);
+    const [loading] = useState(false);
     const navigate = useNavigate();
     
     const { id } = useParams<{ id: string }>()
@@ -72,13 +74,28 @@ export default function LeaveRequestForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            code: "",
+            department: "",
             name: "",
-            note: "",
-            parentId: null,
+            position: "",
+        
+            from_date: new Date().toISOString().slice(0, 10),
+            from_hour: "08",
+            from_minutes: "00",
+        
+            to_date: new Date().toISOString().slice(0, 10),
+            to_hour: "17",
+            to_minutes: "00",
+        
+            type_leave: "1",
+            time_leave: "1",
+            reason: "",
         },
     })
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        console.log(values);
+        ShowToast("Create leave request success", "success")
         // setLoading(true);
         // try {
         //     if (isEdit) {
@@ -136,91 +153,41 @@ export default function LeaveRequestForm() {
     //     }
     // }, [departmentData, form])
 
-    const [fromHour, setFromHour] = useState("08")
-    const [fromMinute, setFromMinute] = useState("00")
-    const [toHour, setToHour] = useState("17")
-    const [toMinute, setToMinute] = useState("00")
+    const handleInputClickShowPicker = (event: React.MouseEvent<HTMLInputElement>) => {
+        (event.target as HTMLInputElement).showPicker();
+    };
 
-    const [typeLeave, setTypeLeave] = useState("1")
-    const [timeLeave, setTimeLeave] = useState("1");
-
+    const watchTimeLeave = useWatch({
+        control: form.control,
+        name: "time_leave"
+    })
     
-    const hours = Array.from({ length: 24 }, (_, i) => ({
-        value: i.toString().padStart(2, "0"),
-        label: i.toString().padStart(2, "0"),
-    }))
-    
-    const minutes = Array.from({ length: 60 }, (_, i) => ({
-        value: i.toString().padStart(2, "0"),
-        label: i.toString().padStart(2, "0"),
-    }))
 
-    const type_leave = [
-        {
-            label: "leave_request.create.type_leave.annual",
-            value: "1"
-        },
-        {
-            label: "leave_request.create.type_leave.personal",
-            value: "2"
-        },
-        {
-            label: "leave_request.create.type_leave.sick",
-            value: "3"
-        },
-        {
-            label: "leave_request.create.type_leave.wedding",
-            value: "4"
-        },
-        {
-            label: "leave_request.create.type_leave.other",
-            value: "5"
+    useEffect(() => {
+        if (watchTimeLeave == ENUM_TIME_LEAVE.ALL_DAY) {
+            form.setValue("from_hour", "08");
+            form.setValue("to_hour", "17");
+        } else if (watchTimeLeave == ENUM_TIME_LEAVE.MORNING) {
+            form.setValue("from_hour", "08");
+            form.setValue("to_hour", "12");
+        } else {
+            form.setValue("from_hour", "13");
+            form.setValue("to_hour", "17");
         }
-    ]
-
-    const time_leave = [
-        {
-            label: "leave_request.create.time_leave.all_day",
-            value: "1"
-        },
-        {
-            label: "leave_request.create.time_leave.morning",
-            value: "2"
-        },
-        {
-            label: "leave_request.create.time_leave.afternoon",
-            value: "3"
-        }
-    ]
+    }, [watchTimeLeave, form])
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Leave Request</h3>
-                <Button className="hover:cursor-pointer" onClick={() => navigate("/department")}>{t('leave_request.create.link_to_list')}</Button>
+                <Button className="hover:cursor-pointer" onClick={() => navigate("/leave")}>{t('leave_request.create.link_to_list')}</Button>
             </div>
 
             <div className="w-[100%] mt-5">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
                         <div className="first-row flex flex-wrap w-full">
-                            <div className="w-[25%]">
-                                <FormField
-                                    control={form.control}
-                                    name="department"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('leave_request.create.department')}</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder={t('leave_request.create.department')} {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="ml-2 w-[15%]">
+                            <div className="w-[15%]">
                                 <FormField
                                     control={form.control}
                                     name="code"
@@ -251,6 +218,22 @@ export default function LeaveRequestForm() {
                                     )}
                                 />
                             </div>
+                            
+                            <div className="ml-2 w-[25%]">
+                                <FormField
+                                    control={form.control}
+                                    name="department"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('leave_request.create.department')}</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder={t('leave_request.create.department')} {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
 
                             <div className="ml-2 w-[20%]">
                                 <FormField
@@ -270,7 +253,7 @@ export default function LeaveRequestForm() {
                         </div>
 
                         <div className="second-row flex flex-wrap w-full">
-                            <div className="w-[20%]">
+                            <div className="w-[13%]">
                                 <FormField
                                     control={form.control}
                                     name="from_date"
@@ -278,9 +261,13 @@ export default function LeaveRequestForm() {
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.from_date')}</FormLabel>
                                             <FormControl>
-                                                <DatePicker
-                                                    date={field.value}
-                                                    setDate={field.onChange}
+                                                <Input
+                                                    onClick={handleInputClickShowPicker}
+                                                    onChange={field.onChange}
+                                                    value={field.value}
+                                                    type="date"
+                                                    id="to_date"
+                                                    name={field.name}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -297,11 +284,19 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.from_hour')}</FormLabel>
                                             <FormControl>
-                                                <SelectComponent 
-                                                    label="hour"
-                                                    value={fromHour}
-                                                    options={hours}
-                                                    onChange={setFromHour} />
+                                                <select
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    name={field.name}
+                                                    id="from_hour" 
+                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                                    >
+                                                        {Array.from({length: 24}, (_, i) => (
+                                                            <option key={i} value={i.toString().padStart(2, "0")}>
+                                                                {i.toString().padStart(2, "0")}
+                                                            </option>
+                                                        ))}
+                                                </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -317,10 +312,15 @@ export default function LeaveRequestForm() {
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.from_minutes')}</FormLabel>
                                             <FormControl>
-                                                <SelectComponent label="minutes"
-                                                    value={fromMinute}
-                                                    options={minutes}
-                                                    onChange={setFromMinute} />
+                                                <select
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    name={field.name}
+                                                    id="from_hour" 
+                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                        <option key="00" value="00">00</option>
+                                                        <option key="30" value="30">30</option>
+                                                </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -328,7 +328,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-2">
+                            <div className="w-[15%] ml-5">
                                 <FormField
                                     control={form.control}
                                     name="type_leave"
@@ -336,12 +336,21 @@ export default function LeaveRequestForm() {
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.type_leave.type_leave')}</FormLabel>
                                             <FormControl>
-                                                <SelectComponent label="type leave"
-                                                    value={typeLeave.toString()}
-                                                    options={type_leave}
-                                                    onChange={setTypeLeave}
-                                                    isTranslate={true}
-                                                />
+                                                <select
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    name={field.name}
+                                                    id="from_hour" 
+                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    <option value="">--Select--</option>
+                                                    {
+                                                        TYPE_LEAVE.map((item) => (
+                                                            <option key={item.value} value={item.value}>
+                                                                {t(item.label)}
+                                                            </option>
+                                                        ))
+                                                    }
+                                                </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -357,12 +366,21 @@ export default function LeaveRequestForm() {
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.time_leave.time_leave')}</FormLabel>
                                             <FormControl>
-                                                <SelectComponent label="minutes"
-                                                    value={timeLeave.toString()}
-                                                    options={time_leave}
-                                                    onChange={setTimeLeave}
-                                                    isTranslate={true}
-                                                />
+                                                <select
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    name={field.name}
+                                                    id="from_hour" 
+                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    <option value="">--Select--</option>
+                                                    {
+                                                        TIME_LEAVE.map((item) => (
+                                                            <option key={item.value} value={item.value}>
+                                                                {t(item.label)}
+                                                            </option>
+                                                        ))
+                                                    }
+                                                </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -372,7 +390,7 @@ export default function LeaveRequestForm() {
                         </div>
 
                         <div className="third-row flex flex-wrap w-full">
-                            <div className="w-[20%]">
+                            <div className="w-[13%]">
                                 <FormField
                                     control={form.control}
                                     name="to_date"
@@ -380,9 +398,14 @@ export default function LeaveRequestForm() {
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.to_date')}</FormLabel>
                                             <FormControl>
-                                                <DatePicker
-                                                    date={field.value}
-                                                    setDate={field.onChange}
+                                                <Input
+                                                    className="w-full"
+                                                    onClick={handleInputClickShowPicker}
+                                                    onChange={field.onChange}
+                                                    value={field.value}
+                                                    type="date"
+                                                    id="from_date"
+                                                    name={field.name}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -399,11 +422,18 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.to_hour')}</FormLabel>
                                             <FormControl>
-                                                <SelectComponent 
-                                                    label="hour"
-                                                    value={toHour}
-                                                    options={hours}
-                                                    onChange={setToHour} />
+                                                <select
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    name={field.name}
+                                                    id="to_hour" 
+                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    {Array.from({length: 24}, (_, i) => (
+                                                        <option key={i} value={i.toString().padStart(2, "0")}>
+                                                            {i.toString().padStart(2, "0")}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -419,10 +449,15 @@ export default function LeaveRequestForm() {
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.to_minutes')}</FormLabel>
                                             <FormControl>
-                                                <SelectComponent label="minutes"
-                                                    value={toMinute}
-                                                    options={minutes}
-                                                    onChange={setToMinute} />
+                                                <select
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    name={field.name}
+                                                    id="to_minutes" 
+                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                        <option key="00" value="00">00</option>
+                                                        <option key="30" value="30">30</option>
+                                                </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -440,7 +475,12 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.reason')}</FormLabel>
                                             <FormControl>
-                                                <Textarea placeholder={t('leave_request.create.reason')} {...field}/>
+                                                <Textarea 
+                                                    name={field.name}
+                                                    onChange={field.onChange}
+                                                    value={field.value}
+                                                    placeholder={t('leave_request.create.reason')}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

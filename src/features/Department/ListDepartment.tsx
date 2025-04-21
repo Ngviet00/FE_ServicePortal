@@ -6,10 +6,10 @@ import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import DeleteDepartmentComponent from "./components/DeleteDepartment"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import departmentApi from "@/api/departmentApi"
-import { useDebounce } from "@/ultils"
+import { ShowToast, useDebounce } from "@/ultils"
+import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 
 interface departments {
     id: number,
@@ -70,6 +70,29 @@ export default function ListDepartment () {
         setPage(1)
         setPageSize(size)
     }
+
+    const mutation = useMutation({
+        mutationFn: async (id: number) => {
+            await departmentApi.delete(id);
+        },
+        onSuccess: () => {
+            ShowToast("Delete department success", "success");
+        },
+        onError: (error) => {
+            console.error("Delete failed:", error);
+            ShowToast("Delete department failed", "error");
+        }
+    });
+
+    const handleDelete = async (id: number) => {
+        try {
+            const shouldGoBack = departments.length === 1;
+            await mutation.mutateAsync(id);
+            handleSuccessDelete(shouldGoBack);
+        } catch (error) {
+            console.error("Failed to delete:", error);
+        }
+    };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -149,11 +172,7 @@ export default function ListDepartment () {
                                     </th>
                                     <td className="px-4 py-4">  
                                         <Link to={`/department/edit/${item.id}`}>Edit</Link>
-                                        <DeleteDepartmentComponent
-                                            id={item.id}
-                                            remainingCount={departments.length}
-                                            onSuccess={handleSuccessDelete}
-                                        />
+                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
                                     </td>
                                 </tr>
                             ))
