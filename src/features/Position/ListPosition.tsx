@@ -7,14 +7,18 @@ import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useDebounce } from "@/ultils"
+import { useDebounce } from "@/lib"
 import DeletePositionComponent from "./components/DeletePositionComponent"
 import positionApi from "@/api/positionApi"
 
 interface Position {
     id: number,
-    name: string
-    position_level: string | null
+    name: string,
+    title: string,
+    level: string | null
+    department: {
+        name: string
+    }
 }
 
 export default function ListPosition () {
@@ -97,7 +101,9 @@ export default function ListPosition () {
                                     </div>
                                 </th>
                                 <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Name</th>
-                                <th scope="col" className="w-[55%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Position Level</th>
+                                <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Title</th>
+                                <th scope="col" className="w-[15%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Department</th>
+                                <th scope="col" className="w-[15%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Level</th>
                                 <th scope="col" className="px-6 py-3 bg-gray-50 dark:bg-gray-700">Action</th>
                             </tr>
                         </thead>
@@ -117,11 +123,17 @@ export default function ListPosition () {
                                     <td className="px-6 py-4">
                                         <Skeleton className="h-4 w-[80px]" />
                                     </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[80px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[80px]" />
+                                    </td>
                                 </tr>
                             ))
                         ) : isError || departments.length === 0 ? (
                             <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={4} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
+                                <td colSpan={5} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
                                     {error?.message || "No results"}
                                 </td>
                             </tr>
@@ -135,7 +147,13 @@ export default function ListPosition () {
                                         {item.name}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        { item.position_level }
+                                        {item.title}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        { item?.department?.name ?? "-" }
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        { item.level }
                                     </th>
                                     <td className="px-4 py-4">  
                                         <Link to={`/position/edit/${item.id}`}>Edit</Link>

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/breadcrumb"
 
 import { Link, useLocation } from "react-router-dom";
-import { capitalizeFirstLetter } from "@/ultils";
+import { capitalizeFirstLetter } from "@/lib";
 
 
 export default function BreadCrumbComponent () {

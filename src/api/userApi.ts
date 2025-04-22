@@ -16,9 +16,6 @@ const userApi = {
     getAll(params: GetUser) {
         return axiosClient.get('/user/get-all', {params})
     },
-    getParentDepartment() {
-        return axiosClient.get('/user/get-parent-department')
-    },
     getById(id: string | undefined) {
         return axiosClient.get(`/user/get-by-id/${id}`)
     },

@@ -19,94 +19,93 @@ interface departments {
     parent: departments
 }
 
-export default function ListLeaveRequest () {
-    const [name, setName] = useState("") //search by name
-    const [totalPage, setTotalPage] = useState(0) //search by name
-    const [page, setPage] = useState(1) //current page
-    const [pageSize, setPageSize] = useState(5) //per page 5 item
+export default function ListUser () {
+    // const [name, setName] = useState("") //search by name
+    // const [totalPage, setTotalPage] = useState(0) //search by name
+    // const [page, setPage] = useState(1) //current page
+    // const [pageSize, setPageSize] = useState(5) //per page 5 item
 
-    const queryClient = useQueryClient();
+    // const queryClient = useQueryClient();
 
-    const debouncedName = useDebounce(name, 300);
+    // const debouncedName = useDebounce(name, 300);
     
-    //get list department, parent department 
-    const { data: response, isPending, isError, error } = useQuery({
-        queryKey: ['get-all-department', debouncedName, page, pageSize],
-        queryFn: async () => {
-            const res = await departmentApi.getAll({
-                page: page,
-                page_size: pageSize,
-                name: debouncedName
-            });
-            console.log('goij api ne');
-            setTotalPage(res.data.total_pages)
-            return [];
-            return res.data;
-        }
-    });
+    // //get list department, parent department 
+    // const { data: response, isPending, isError, error } = useQuery({
+    //     queryKey: ['get-all-department', debouncedName, page, pageSize],
+    //     queryFn: async () => {
+    //         const res = await departmentApi.getAll({
+    //             page: page,
+    //             page_size: pageSize,
+    //             name: debouncedName
+    //         });
+    //         console.log('goij api ne');
+    //         setTotalPage(res.data.total_pages)
+    //         return res.data;
+    //     }
+    // });
 
-    const departments = response?.data || [];
+    // const departments = response?.data || [];
 
-    useEffect(() => {
-        setPage(1);
-    }, [debouncedName]);
+    // useEffect(() => {
+    //     setPage(1);
+    // }, [debouncedName]);
 
-    function handleSuccessDelete(shouldGoBack?: boolean) {
-        if (shouldGoBack && page > 1) {
-            setPage(prev => prev - 1);
-        } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-department'] });
-        }
-    }
+    // function handleSuccessDelete(shouldGoBack?: boolean) {
+    //     if (shouldGoBack && page > 1) {
+    //         setPage(prev => prev - 1);
+    //     } else {
+    //         queryClient.invalidateQueries({ queryKey: ['get-all-department'] });
+    //     }
+    // }
 
-    const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value)
-    }
+    // const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setName(e.target.value)
+    // }
 
-    function setCurrentPage(page: number): void {
-        setPage(page)
-    }
+    // function setCurrentPage(page: number): void {
+    //     setPage(page)
+    // }
 
-    function handlePageSizeChange(size: number): void {
-        setPage(1)
-        setPageSize(size)
-    }
+    // function handlePageSizeChange(size: number): void {
+    //     setPage(1)
+    //     setPageSize(size)
+    // }
 
-    const mutation = useMutation({
-        mutationFn: async (id: number) => {
-            await departmentApi.delete(id);
-        },
-        onSuccess: () => {
-            ShowToast("Delete department success", "success");
-        },
-        onError: (error) => {
-            console.error("Delete failed:", error);
-            ShowToast("Delete department failed", "error");
-        }
-    });
+    // const mutation = useMutation({
+    //     mutationFn: async (id: number) => {
+    //         await departmentApi.delete(id);
+    //     },
+    //     onSuccess: () => {
+    //         ShowToast("Delete department success", "success");
+    //     },
+    //     onError: (error) => {
+    //         console.error("Delete failed:", error);
+    //         ShowToast("Delete department failed", "error");
+    //     }
+    // });
 
-    const handleDelete = async (id: number) => {
-        try {
-            const shouldGoBack = departments.length === 1;
-            await mutation.mutateAsync(id);
-            handleSuccessDelete(shouldGoBack);
-        } catch (error) {
-            console.error("Failed to delete:", error);
-        }
-    };
+    // const handleDelete = async (id: number) => {
+    //     try {
+    //         const shouldGoBack = departments.length === 1;
+    //         await mutation.mutateAsync(id);
+    //         handleSuccessDelete(shouldGoBack);
+    //     } catch (error) {
+    //         console.error("Failed to delete:", error);
+    //     }
+    // };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
-            <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">List leave request</h3>
+            {/* <div className="flex justify-between mb-1">
+                <h3 className="font-bold text-2xl m-0 pb-2">User</h3>
                 <Button>
-                    <Link to="/leave/create">Create leave request</Link>
+                    <Link to="/department/create">Create Deparment</Link>
                 </Button>
             </div>
 
             <div className="flex items-center justify-between">
                 <Input
-                    placeholder="Tìm kiếm leave request..."
+                    placeholder="Tìm kiếm department..."
                     value={name}
                     onChange={handleSearchByName}
                     className="max-w-sm"
@@ -190,7 +189,7 @@ export default function ListLeaveRequest () {
                     onPageChange={setCurrentPage}
                     onPageSizeChange={handlePageSizeChange}
                 />) : (null)
-            }
+            } */}
         </div>
     )
 }

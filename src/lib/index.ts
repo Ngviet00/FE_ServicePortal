@@ -1,23 +1,18 @@
 import { useEffect, useState } from "react";
 import { toast, Zoom } from "react-toastify";
 
-export const formatCurrency = (x: number) => {
-    const number = new Intl.NumberFormat('vn', { style: 'currency', currency: 'vnd' }).format(x);
-    
-    return number;
- }
-
 export const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
 export const ShowToast = (
     message: string,
-    type: "success" | "error" | "info" | "warning" = "success"
+    type: "success" | "error" | "info" | "warning" = "success",
+    autoClose: number = 3000
 ) => {
     toast[type](message, {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: autoClose,
         hideProgressBar: false,
         closeOnClick: false,
         pauseOnHover: true,
@@ -51,6 +46,15 @@ export const formatDate = (dateStr: string | undefined) => {
       .padStart(2, '0')}/${d.getFullYear()}`;
 };
 
+export const enum ENUM_TYPE_LEAVE {
+    ANNUAL = "1",
+    PERSONAL = "2",
+    SICK = "3",
+    WEDDING = "4",
+    ACCIDENT = "5",
+    OTHER = "6",
+}
+
 export const TYPE_LEAVE = [
     {
         label: "leave_request.create.type_leave.annual",
@@ -69,8 +73,12 @@ export const TYPE_LEAVE = [
         value: "4"
     },
     {
-        label: "leave_request.create.type_leave.other",
+        label: "leave_request.create.type_leave.accident",
         value: "5"
+    },
+    {
+        label: "leave_request.create.type_leave.other",
+        value: "6"
     }
 ]
 

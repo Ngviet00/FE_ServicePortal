@@ -4,9 +4,12 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 interface User {
     id: string;
     code: string,
-    name: string;
+    name?: string;
     email?: string;
-    dateJoinCompany: string,
+    dateJoinCompany?: string,
+    phone?: string,
+    sex?: number,
+    dateOfBirth?: string,
 }
 
 interface AuthState {

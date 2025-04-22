@@ -1,15 +1,15 @@
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { ShowToast, useDebounce } from "@/lib"
 
-import DeleteRoleComponent from "./components/DeleteRoleComponent"
 import roleApi from "@/api/roleApi"
-import CreateRoleComponent from "./components/CreateRoleComponent"
-import UpdateRoleComponent from "./components/UpdateRoleComponent"
-import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import { debounce } from "lodash";
 import React from "react"
+import PaginationControl from "@/components/PaginationControl/PaginationControl"
+import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
+import CreateRoleComponent from "./CreateRoleForm"
 
 type Role = {
     id: number;
@@ -17,80 +17,90 @@ type Role = {
 };
 
 export default function ListRole () {
-    const [filter, setFilter] = useState("");
-    const [debouncedFilter, setDebouncedFilter] = useState(filter);
+    const [name, setName] = useState("") //search by name
+    const [totalPage, setTotalPage] = useState(0)
+    const [page, setPage] = useState(1) //current page
+    const [pageSize, setPageSize] = useState(5) //per page 5 item
 
-    const [pageSize, setPageSize] = useState(5);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
-
-    const [roles, setRoles] = useState<Role[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const getRoles = useCallback(async () => {
-        setLoading(true);
-        try {
+    const queryClient = useQueryClient();
+    const debouncedName = useDebounce(name, 300);
+    
+    //get list roles 
+    const { data: response, isPending, isError, error } = useQuery({
+        queryKey: ['get-all-role', debouncedName, page, pageSize],
+        queryFn: async () => {
             const res = await roleApi.getAll({
-                page: currentPage,
+                page: page,
                 page_size: pageSize,
-                name: debouncedFilter,
+                name: debouncedName
             });
-            setRoles(res.data.data);
-            setTotalPages(res.data.total_pages);
-            setError(null);
-        } catch (error) {
-            console.error("error get list role:", error);
-            setError("Cannot load data, server error");
-        } finally {
-            setTimeout(() => setLoading(false), 100);
+            setTotalPage(res.data.total_pages)
+            return res.data;
+        },
+    });
+
+    const roles = response?.data || [];
+
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedName]);
+
+    function handleSuccessDelete(shouldGoBack?: boolean) {
+        if (shouldGoBack && page > 1) {
+            setPage(prev => prev - 1);
+        } else {
+            queryClient.invalidateQueries({ queryKey: ['get-all-role'] });
         }
-    }, [currentPage, pageSize, debouncedFilter]);
-
-    const handleFindRoleName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setCurrentPage(1)
-        setFilter(value);
-        debounceFilter(value);
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const debounceFilter = useCallback(
-        debounce((val: string) => {
-            setDebouncedFilter(val);
-        }, 300),
-        []
-    );
-
-    const handlePageSizeChange = (perpage: number) => {
-        setPageSize(perpage)
-        setCurrentPage(1)
     }
 
-    useEffect(() => {
-        return () => {
-            debounceFilter.cancel();
-        };
-    }, [debounceFilter]);
+    const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value)
+    }
 
-    useEffect(() => {
-        
-        getRoles();
-        
-    }, [getRoles]);
+    function setCurrentPage(page: number): void {
+        setPage(page)
+    }
+
+    function handlePageSizeChange(size: number): void {
+        setPage(1)
+        setPageSize(size)
+    }
+
+    const mutation = useMutation({
+        mutationFn: async (id: number) => {
+            await roleApi.delete(id);
+        },
+        onSuccess: () => {
+            ShowToast("Delete role success", "success");
+        },
+        onError: (error) => {
+            console.error("Delete failed:", error);
+            ShowToast("Delete role failed", "error");
+        }
+    });
+
+    const handleDelete = async (id: number) => {
+        try {
+            const shouldGoBack = roles.length === 1;
+            await mutation.mutateAsync(id);
+            handleSuccessDelete(shouldGoBack);
+        } catch (error) {
+            console.error("Failed to delete:", error);
+        }
+    };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">Roles</h3>
-                <CreateRoleComponent onSuccess={getRoles}/>
+                <CreateRoleComponent onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
             </div>
 
             <div className="flex items-center justify-between">
                 <Input
                     placeholder="Tìm kiếm role..."
-                    value={filter}
-                    onChange={handleFindRoleName}
+                    value={name}
+                    onChange={handleSearchByName}
                     className="max-w-sm"
                 />
             </div>
@@ -110,7 +120,7 @@ export default function ListRole () {
                             </tr>
                         </thead>
                         <tbody>
-                        {loading ? (
+                        {isPending ? (
                             Array.from({ length: pageSize }).map((_, index) => (
                                 <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td className="w-[57px] p-4">
@@ -124,14 +134,14 @@ export default function ListRole () {
                                     </td>
                                 </tr>
                             ))
-                        ) : error || roles.length === 0 ? (
+                        ) : isError || roles.length === 0 ? (
                             <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={3} className={`text-center py-4 font-bold ${error ? 'text-red-700' : 'text-black'}`}>
-                                    {error || "No results"}
+                                <td colSpan={3} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
+                                    {error?.message || "No results"}
                                 </td>
                             </tr>
                         ) : (
-                            roles.map((role, index) => (
+                            roles.map((role: Role, index: number) => (
                                 <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
                                     <td className="p-4 w-[57px]">
                                         <Checkbox className="hover:cursor-pointer" />
@@ -140,8 +150,8 @@ export default function ListRole () {
                                         {role.name}
                                     </th>
                                     <td className="flex items-center px-4 py-4">
-                                        <UpdateRoleComponent role={role} onSuccess={getRoles} />
-                                        <DeleteRoleComponent role={role} onSuccess={getRoles} />
+                                        <CreateRoleComponent role={role} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
+                                        <ButtonDeleteComponent id={role.id} onDelete={() => handleDelete(role.id)}/>
                                     </td>
                                 </tr>
                             ))
@@ -152,8 +162,8 @@ export default function ListRole () {
             </div>
             {
                 roles.length > 0 ? (<PaginationControl
-                    currentPage={currentPage}
-                    totalPages={totalPages}
+                    currentPage={page}
+                    totalPages={totalPage}
                     pageSize={pageSize}
                     onPageChange={setCurrentPage}
                     onPageSizeChange={handlePageSizeChange}

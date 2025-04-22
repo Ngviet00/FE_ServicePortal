@@ -39,7 +39,8 @@
 			"admin": "Admin",
 			"role": "Role",
 			"department": "Department",
-			"position": "Position"
+			"position": "Position",
+			"team": "Team"
 		},
 		"user": {
 			"user": "User",
@@ -87,6 +88,7 @@
 				"personal": "Personal",
 				"sick": "Sick",
 				"wedding": "Wedding",
+				"accident": "Accident",
 				"other": "Other"
 			},
 			"time_leave": {
@@ -96,6 +98,15 @@
 				"afternoon": "Afternoon"
 			},
 			"reason": "Reason"
+		}
+	},
+
+	"user": {
+		"create": {
+			"create": "Create New User"
+		},
+		"list": {
+			"list": "List User"
 		}
 	}
 }

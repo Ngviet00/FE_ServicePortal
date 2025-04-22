@@ -21,7 +21,7 @@ import { useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useAuthStore } from "@/store/authStore"
 import userApi from "@/api/userApi"
-import { formatDate } from "@/ultils"
+import { formatDate } from "@/lib"
 import { useTranslation } from "react-i18next"
 
 const formSchema = z.object({

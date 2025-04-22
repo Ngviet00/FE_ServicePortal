@@ -1,8 +1,10 @@
 import axiosClient from './axiosClient';
 
 interface data {
-    name: string
-    position_level: number | 1000
+    name: string | null,
+    title: string | null,
+    department_id: number | null,
+    level: number
 }
 
 interface GetPosition {

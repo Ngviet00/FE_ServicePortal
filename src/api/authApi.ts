@@ -6,9 +6,18 @@ export interface User {
     email: string;
     code: string;
 }
+interface LoginRequest {
+    user_code: string
+    password: string
+}
+
+interface ChangePasswordRequest {
+    new_password: string 
+    confirm_password: string
+}
 
 const authApi = {
-    login: (data: { user_code : string; password: string }) => {
+    login: (data: LoginRequest) => {
         return axiosClient.post('/auth/login', data);
     },
 
@@ -20,7 +29,7 @@ const authApi = {
         return axiosClient.post("/auth/logout");
     },
 
-    changePassword(data: { new_password: string; confirm_password: string}) {
+    changePassword(data: ChangePasswordRequest) {
         return axiosClient.post("/auth/change-password", data);
     },
 }

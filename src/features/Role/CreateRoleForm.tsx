@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     Dialog,
     DialogTrigger,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ShowToast } from "@/ultils"
+import { ShowToast } from "@/lib"
 import roleApi from "@/api/roleApi"
 import { AxiosError } from "axios"
 
@@ -30,71 +30,70 @@ const createUserSchema = z.object({
 type CreateUserFormValues = z.infer<typeof createUserSchema>
 
 type Props = {
-    onSuccess?: () => void;
+    role?: {
+        id: number,
+        name: string
+    },
+    onAction?: () => void;
 };
 
-export default function CreateRoleComponent({ onSuccess }: Props) {
+export default function CreateRoleComponent({ role, onAction }: Props) {
     const [open, setOpen] = useState(false)
-    const [errCustom, setErrCustom] = useState("")
 
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
         defaultValues: {
-          name: "",
+            name: "",
         },
     })
 
-    form.setError("root.backendError", {
-        type: "server",
-        message: "Validation failed from backend",
-    })
-    
+    useEffect(() => {
+        if (role && open) {
+            form.reset({ name: role.name });
+        } else {
+            form.reset({ name: "" });
+        }
+    }, [role, open, form]);
+
     const onSubmit = async (values: CreateUserFormValues) => {
         try {
-            const data = {
-                name: values.name
-            }
-            await roleApi.create(data)
-            ShowToast("Add new role successfully!", "success")
-            setOpen(false)
-            form.reset()
-            onSuccess?.()
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                if (error.response?.status === 422) {
-                    const serverErrors = error.response.data.errors
-                    serverErrors.forEach((err: { field: string, errors: string[] }) => {
-                        form.setError("name", {
-                            type: "server",
-                            message: err.errors[0],
-                        })
-                    })
-                } else {
-                    ShowToast("Server error", "error")
-                }
+            if (role?.id) {
+                await roleApi.update(role.id, values);
+                ShowToast("Update role success", "success");
             } else {
-                setErrCustom("Server error")
-                ShowToast("Add new role failed!", "error")
+                await roleApi.create(values);
+                ShowToast("Add new role success", "success");
             }
+            onAction?.();
+            setOpen(false);
+            form.reset();
+        } catch (err: unknown) {
+            const error = err as AxiosError<{ message: string }>
+            const message = error?.response?.data?.message ?? "Something went wrong"
+			form.setError("name", {
+				type: "server",
+				message,
+			})
         }
-    }
-
-    const handleDialogChange = (isOpen: boolean) => {
-        setOpen(isOpen)
-        if (!isOpen) {
-            form.reset()
-        }
-    }
+    };
 
     return (
-        <Dialog open={open} onOpenChange={handleDialogChange}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">Create Role</Button>
+                {
+                    role?.id ? (
+                        <button className="hover:cursor-pointer ml-3 rounded-[3px] px-[5px] py-[2px] bg-[#555555] text-white">
+                            Edit
+                        </button>
+                    ) : (
+                        <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">Create Role</Button>
+                    )
+                }
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
                 <DialogHeader>
-                    <DialogTitle>Create New Role</DialogTitle>
+                    <DialogTitle>{role?.id ? "Update" : "Create New"} Role</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -110,12 +109,8 @@ export default function CreateRoleComponent({ onSuccess }: Props) {
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
-                            )}
-                            
+                            )}  
                         />
-                            { errCustom && (
-                                <div className="text-red-500 m-0 text-sm">{errCustom}</div>
-                            )}
                         
                         <div className="flex justify-end">
                             <Button type="submit" className="hover:cursor-pointer">

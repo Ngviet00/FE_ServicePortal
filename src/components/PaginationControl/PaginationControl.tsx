@@ -11,7 +11,7 @@ import { FC, useState } from "react";
 import { Label } from "@/components/ui/label";
 import React from "react";
 
-import { ListPerPage } from "@/ultils";
+import { ListPerPage } from "@/lib";
 
 type PaginationWithPageSizeProps = {
 	currentPage: number;

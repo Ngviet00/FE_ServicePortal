@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import departmentApi from "@/api/departmentApi"
-import { ShowToast, useDebounce } from "@/ultils"
+import { ShowToast, useDebounce } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 
 interface departments {
@@ -29,7 +29,7 @@ export default function ListDepartment () {
 
     const debouncedName = useDebounce(name, 300);
     
-    //get list department, parent department 
+    //get list department 
     const { data: response, isPending, isError, error } = useQuery({
         queryKey: ['get-all-department', debouncedName, page, pageSize],
         queryFn: async () => {
@@ -38,7 +38,6 @@ export default function ListDepartment () {
                 page_size: pageSize,
                 name: debouncedName
             });
-            console.log('goij api ne');
             setTotalPage(res.data.total_pages)
             return res.data;
         }

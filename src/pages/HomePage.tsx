@@ -1,18 +1,12 @@
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next'
-// import { Calendar } from "@/components/ui/calendar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-// import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
-import { formatDate } from '@/ultils';
+import { formatDate } from '@/lib';
 
 export default function HomePage() {
     const { t } = useTranslation();
-
-    // const [date, setDate] = React.useState<Date | undefined>(new Date())
-
     const { user } = useAuthStore();
 
     return (
@@ -46,7 +40,7 @@ export default function HomePage() {
                                 <Label className='text-base font-bold'>{user?.code ?? "undefined"}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>02/05/2000</Label>
+                                <Label className='text-base font-bold'>{user?.dateOfBirth ? formatDate(user?.dateOfBirth) : "undefined"}</Label>
                             </div>
                             <div className='mb-5'>
                                 <Label className='text-base font-bold'>0345248120</Label>

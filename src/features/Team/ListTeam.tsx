@@ -1,25 +1,27 @@
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
-
-import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import departmentApi from "@/api/departmentApi"
 import { ShowToast, useDebounce } from "@/lib"
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 
-interface departments {
+import PaginationControl from "@/components/PaginationControl/PaginationControl"
+import React, { useEffect, useState } from "react"
+import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
+import teamApi from "@/api/teamApi"
+
+interface Teams {
     id: number,
-    name: string
-    note: string | null
-    parent_id: number | null
-    parent: departments
+    name: string,
+    department_id: number | null,
+    departmentDto: {
+        id: number,
+        name: string
+    }
 }
 
-export default function ListLeaveRequest () {
+export default function ListTeam () {
     const [name, setName] = useState("") //search by name
     const [totalPage, setTotalPage] = useState(0) //search by name
     const [page, setPage] = useState(1) //current page
@@ -29,23 +31,21 @@ export default function ListLeaveRequest () {
 
     const debouncedName = useDebounce(name, 300);
     
-    //get list department, parent department 
+    //get list team 
     const { data: response, isPending, isError, error } = useQuery({
-        queryKey: ['get-all-department', debouncedName, page, pageSize],
+        queryKey: ['get-all-team', debouncedName, page, pageSize],
         queryFn: async () => {
-            const res = await departmentApi.getAll({
+            const res = await teamApi.getAll({
                 page: page,
                 page_size: pageSize,
                 name: debouncedName
             });
-            console.log('goij api ne');
             setTotalPage(res.data.total_pages)
-            return [];
             return res.data;
         }
     });
 
-    const departments = response?.data || [];
+    const teams = response?.data || [];
 
     useEffect(() => {
         setPage(1);
@@ -55,7 +55,7 @@ export default function ListLeaveRequest () {
         if (shouldGoBack && page > 1) {
             setPage(prev => prev - 1);
         } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-department'] });
+            queryClient.invalidateQueries({ queryKey: ['get-all-team'] });
         }
     }
 
@@ -74,7 +74,7 @@ export default function ListLeaveRequest () {
 
     const mutation = useMutation({
         mutationFn: async (id: number) => {
-            await departmentApi.delete(id);
+            await teamApi.delete(id);
         },
         onSuccess: () => {
             ShowToast("Delete department success", "success");
@@ -87,7 +87,7 @@ export default function ListLeaveRequest () {
 
     const handleDelete = async (id: number) => {
         try {
-            const shouldGoBack = departments.length === 1;
+            const shouldGoBack = teams.length === 1;
             await mutation.mutateAsync(id);
             handleSuccessDelete(shouldGoBack);
         } catch (error) {
@@ -98,15 +98,15 @@ export default function ListLeaveRequest () {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">List leave request</h3>
+                <h3 className="font-bold text-2xl m-0 pb-2">Teams</h3>
                 <Button>
-                    <Link to="/leave/create">Create leave request</Link>
+                    <Link to="/team/create">Create Team</Link>
                 </Button>
             </div>
 
             <div className="flex items-center justify-between">
                 <Input
-                    placeholder="Tìm kiếm leave request..."
+                    placeholder="Tìm kiếm teams..."
                     value={name}
                     onChange={handleSearchByName}
                     className="max-w-sm"
@@ -124,8 +124,7 @@ export default function ListLeaveRequest () {
                                     </div>
                                 </th>
                             <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Name</th>
-                            <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Parent Department</th>
-                            <th scope="col" className="w-[30%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Note</th>
+                            <th scope="col" className="w-[50%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Department</th>
                             <th scope="col" className="px-6 py-3 bg-gray-50 dark:bg-gray-700">Action</th>
                             </tr>
                         </thead>
@@ -143,21 +142,18 @@ export default function ListLeaveRequest () {
                                         <Skeleton className="h-4 w-[80px]" />
                                     </td>
                                     <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[90px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
                                         <Skeleton className="h-4 w-[80px]" />
                                     </td>
                                 </tr>
                             ))
-                        ) : isError || departments.length === 0 ? (
+                        ) : isError || teams.length === 0 ? (
                             <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={5} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
+                                <td colSpan={4} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
                                     {error?.message || "No results"}
                                 </td>
                             </tr>
                         ) : (
-                            departments.map((item: departments, index: number) => (
+                            teams.map((item: Teams, index: number) => (
                                 <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
                                     <td className="p-4 w-[57px]">
                                         <Checkbox className="hover:cursor-pointer" />
@@ -166,13 +162,10 @@ export default function ListLeaveRequest () {
                                         {item.name}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item?.parent ? item.parent.name : "-" }
-                                    </th>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        { item?.note }
+                                        {item?.departmentDto?.name}
                                     </th>
                                     <td className="px-4 py-4">  
-                                        <Link to={`/department/edit/${item.id}`}>Edit</Link>
+                                        <Link to={`/team/edit/${item.id}`}>Edit</Link>
                                         <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
                                     </td>
                                 </tr>
@@ -183,7 +176,7 @@ export default function ListLeaveRequest () {
                 </div>
             </div>
             {
-                departments.length > 0 ? (<PaginationControl
+                teams.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}

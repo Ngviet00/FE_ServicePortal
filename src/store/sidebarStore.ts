@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { SIDEBAR_MENUS } from "@/constants/sidebar";
+import { SIDEBAR_MENUS } from "@/lib/sidebar";
 
 type SidebarMenuKey = NonNullable<typeof SIDEBAR_MENUS[number]["key"]>;
 

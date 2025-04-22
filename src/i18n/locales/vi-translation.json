@@ -35,7 +35,8 @@
 			"admin": "Quản trị",
 			"role": "Vai trò",
 			"department": "Phòng ban",
-			"position": "Chức vụ"
+			"position": "Chức vụ",
+			"team": "Nhóm"
 		},
 		"user": {
 			"user": "Người dùng",
@@ -83,6 +84,7 @@
 				"personal": "Cá nhân",
 				"sick": "Ốm",
 				"wedding": "Nghỉ cưới",
+				"accident": "Tan nạn",
 				"other": "Khác"
 			},
 			"time_leave": {
@@ -92,6 +94,15 @@
 				"afternoon": "Buổi chiều"
 			},
 			"reason": "Lý do"
+		}
+	},
+
+	"user": {
+		"create": {
+			"create": "Thêm mới"
+		},
+		"list": {
+			"list": "Danh sách"
 		}
 	}
 }

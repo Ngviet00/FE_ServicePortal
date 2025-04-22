@@ -40,21 +40,20 @@ import { useQuery } from "@tanstack/react-query"
 import departmentApi from "@/api/departmentApi"
 import { AxiosError } from "axios"
 import { useParams } from "react-router-dom"
+import teamApi from "@/api/teamApi"
 
 const formSchema = z.object({
-	name: z.string().nonempty({ message: "Name is required" }),
-	note: z.string().optional(),
-	parentId: z.number().nullable().optional(),
+	name: z.string().nonempty({ message: "Required" }),
+	department_id: z.number({message: "Required"})
 })
 
-interface typeParentDepartments {
+interface Teams {
     id: number | null
     name: string
-    note: string | null
-    parentId: number | undefined | null
+    department_id: number | undefined | null
 }
 
-export default function DepartmentForm() {
+export default function TeamForm() {
 	const [open, setOpen] = React.useState(false)
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
@@ -66,8 +65,7 @@ export default function DepartmentForm() {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
-			note: "",
-			parentId: null,
+			department_id: undefined 
 		},
 	})
 
@@ -75,21 +73,21 @@ export default function DepartmentForm() {
 		setLoading(true);
 		try {
 			if (isEdit) {
-				await departmentApi.update(Number(id), {
+				await teamApi.update(Number(id), {
 					...values,
-					note: values.note ?? null,
-					parent_id: values.parentId ?? null,
+					name: values.name ?? null,
+					department_id: values.department_id ?? null,
 				})
-				ShowToast("Update department success", "success")
-				navigate("/department")
+				ShowToast("Update team success", "success")
+				navigate("/team")
 			  } else {
-				await departmentApi.create({
+				await teamApi.create({
 					...values,
-					note: values.note ?? null,
-					parent_id: values.parentId ?? null,
+					name: values.name ?? null,
+					department_id: values.department_id ?? null,
 				})
-				ShowToast("Add department success", "success")
-				navigate("/department")
+				ShowToast("Add team success", "success")
+				navigate("/team")
 			  }
 		} catch (err: unknown) {
 			const error = err as AxiosError<{ message: string }>
@@ -103,38 +101,40 @@ export default function DepartmentForm() {
 		}
 	}
 
-	//get list parent departments
+	//get all departments
 	const { data, isPending, isError } = useQuery({
-		queryKey: ['parentDepartments'],
+		queryKey: ['get-all-department'],
 		queryFn: async () => {
-			const res = await departmentApi.getParentDepartment();
-			return res.data.data as typeParentDepartments[];
+			const res = await departmentApi.getAll({
+				page: 1,
+				page_size: 50
+			});
+			return res.data.data as Teams[];
 		}
 	});
 
 	//get by id
-	const { data: departmentData } = useQuery({
-		queryKey: ["department", id],
-		queryFn: async () => await departmentApi.getById(Number(id)),
+	const { data: teamData } = useQuery({
+		queryKey: ["team", id],
+		queryFn: async () => await teamApi.getById(Number(id)),
 		enabled: !!id,
 	})
 
 	useEffect(() => {
-		if (departmentData) {
-			const { name, note, parentId } = departmentData.data.data
+		if (teamData) {
+			const { name, departmentId } = teamData.data.data
 			form.reset({
 				name,
-				note: note ?? "",
-				parentId: parentId ?? null,
+				department_id: departmentId ?? null,
 			})
 		}
-	}, [departmentData, form])
+	}, [teamData, form])
 
 	return (
 		<div className="p-4 pl-1 pt-0 space-y-4">
 			<div className="flex justify-between mb-1">
-				<h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Department</h3>
-				<Button className="hover:cursor-pointer" onClick={() => navigate("/department")}>List Departments</Button>
+				<h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Teams</h3>
+				<Button className="hover:cursor-pointer" onClick={() => navigate("/team")}>List Teams</Button>
 			</div>
 
 			<div className="w-[40%] mt-5">
@@ -156,24 +156,10 @@ export default function DepartmentForm() {
 
 						<FormField
 							control={form.control}
-							name="note"
+							name="department_id"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Note</FormLabel>
-									<FormControl>
-										<Input placeholder="Note" {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name="parentId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Parent Department</FormLabel>
+									<FormLabel>Department</FormLabel>
 									<Popover open={open} onOpenChange={setOpen}>
 										<PopoverTrigger asChild>
 											<Button

@@ -1,7 +1,7 @@
 import { Link, useLocation  } from "react-router-dom";
 import { ChevronDown, Dot } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
-import { SIDEBAR_MENUS } from "@/constants/sidebar";
+import { SIDEBAR_MENUS } from "@/lib/sidebar";
 import { useEffect } from "react";
 
 import "./style.css"

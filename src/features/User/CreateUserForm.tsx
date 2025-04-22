@@ -23,25 +23,23 @@ import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
 import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE, TYPE_LEAVE } from "@/lib"
 import { Textarea } from "@/components/ui/textarea"
+import userApi from "@/api/userApi"
+import { useQuery } from "@tanstack/react-query"
 
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
-    department: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
-    position: z.string().nonempty({message: "Required"}),
-
-    from_date: z.string().nonempty({message: "Required"}),
-    from_hour: z.string().nonempty({message: "Required"}),
-    from_minutes: z.string().nonempty({message: "Required"}),
-
-    to_date: z.string().nonempty({message: "Required"}),
-    to_hour: z.string().nonempty({message: "Required"}),
-    to_minutes: z.string().nonempty({message: "Required"}),
-
-    type_leave: z.string().nonempty({message: "Required"}),
-    time_leave: z.string().nonempty({message: "Required"}),
-
-    reason: z.string().optional(),
+    password: z.string().nonempty({message: "Required"}),
+    email: z.string().nonempty({message: "Required"}),
+    role_id: z.string().nonempty({message: "Required"}),
+    is_active: z.string().nullable().optional(),
+    date_join_company: z.string().nullable().optional(),
+    date_of_birth: z.string().nullable().optional(),
+    phone: z.string().nullable().optional(),
+    sex: z.string().nullable().optional(),
+    department_id: z.string().nonempty({message: "Required"}),
+    position_id: z.string().nonempty({message: "Required"}),
+    team_id: z.string().nullable().optional()
 })
 
 // interface TypeLeaveRequestForm {
@@ -63,7 +61,7 @@ const formSchema = z.object({
 //     reason: string,
 // }
 
-export default function LeaveRequestForm() {
+export default function CreateUserForm() {
     const { t } = useTranslation();
     const [loading] = useState(false);
     const navigate = useNavigate();
@@ -75,21 +73,18 @@ export default function LeaveRequestForm() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             code: "",
-            department: "",
             name: "",
-            position: "",
-        
-            from_date: new Date().toISOString().slice(0, 10),
-            from_hour: "08",
-            from_minutes: "00",
-        
-            to_date: new Date().toISOString().slice(0, 10),
-            to_hour: "17",
-            to_minutes: "00",
-        
-            type_leave: "1",
-            time_leave: "1",
-            reason: "",
+            password: "",
+            email: "",
+            role_id: "",
+            is_active: "",
+            date_join_company: "",
+            date_of_birth: "",
+            phone: "",
+            sex:"",
+            department_id: "",
+            position_id: "",
+            team_id:""
         },
     })
 
@@ -136,51 +131,51 @@ export default function LeaveRequestForm() {
     // });
 
     //get by id
-    // const { data: departmentData } = useQuery({
-    //     queryKey: ["department", id],
-    //     queryFn: async () => await departmentApi.getById(Number(id)),
-    //     enabled: !!id,
-    // })
+    const { data: userData } = useQuery({
+        queryKey: ["get-by-id", id],
+        queryFn: async () => await userApi.getById(id),
+        enabled: !!id,
+    })
 
-    // useEffect(() => {
-    //     if (departmentData) {
-    //         const { name, note, parentId } = departmentData.data.data
-    //         form.reset({
-    //             name,
-    //             note: note ?? "",
-    //             parentId: parentId ?? null,
-    //         })
-    //     }
-    // }, [departmentData, form])
+    useEffect(() => {
+        if (userData) {
+            //const { name, note, parentId } = userData.data.data
+            form.reset({
+                // name,
+                // note: note ?? "",
+                // parentId: parentId ?? null,
+            })
+        }
+    }, [userData, form])
 
     const handleInputClickShowPicker = (event: React.MouseEvent<HTMLInputElement>) => {
         (event.target as HTMLInputElement).showPicker();
     };
 
-    const watchTimeLeave = useWatch({
-        control: form.control,
-        name: "time_leave"
-    })
+    // const watchTimeLeave = useWatch({
+    //     control: form.control,
+    //     name: "time_leave"
+    // })
     
 
-    useEffect(() => {
-        if (watchTimeLeave == ENUM_TIME_LEAVE.ALL_DAY) {
-            form.setValue("from_hour", "08");
-            form.setValue("to_hour", "17");
-        } else if (watchTimeLeave == ENUM_TIME_LEAVE.MORNING) {
-            form.setValue("from_hour", "08");
-            form.setValue("to_hour", "12");
-        } else {
-            form.setValue("from_hour", "13");
-            form.setValue("to_hour", "17");
-        }
-    }, [watchTimeLeave, form])
+    // useEffect(() => {
+    //     if (watchTimeLeave == ENUM_TIME_LEAVE.ALL_DAY) {
+    //         form.setValue("from_hour", "08");
+    //         form.setValue("to_hour", "17");
+    //     } else if (watchTimeLeave == ENUM_TIME_LEAVE.MORNING) {
+    //         form.setValue("from_hour", "08");
+    //         form.setValue("to_hour", "12");
+    //     } else {
+    //         form.setValue("from_hour", "13");
+    //         form.setValue("to_hour", "17");
+    //     }
+    // }, [watchTimeLeave, form])
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Leave Request</h3>
-                <Button className="hover:cursor-pointer" onClick={() => navigate("/leave")}>{t('leave_request.create.link_to_list')}</Button>
+                <h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create New"} User</h3>
+                <Button className="hover:cursor-pointer" onClick={() => navigate("/user")}>{t('user.list.list')}</Button>
             </div>
 
             <div className="w-[100%] mt-5">
@@ -203,7 +198,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="ml-2 w-[25%] flex-1">
+                            <div className="ml-2 w-[25%]">
                                 <FormField
                                     control={form.control}
                                     name="name"
@@ -218,16 +213,16 @@ export default function LeaveRequestForm() {
                                     )}
                                 />
                             </div>
-                            
+
                             <div className="ml-2 w-[25%]">
                                 <FormField
                                     control={form.control}
-                                    name="department"
+                                    name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.department')}</FormLabel>
+                                            <FormLabel>{t('leave_request.create.name')}</FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.department')} {...field} />
+                                                <Input placeholder={t('leave_request.create.name')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -235,15 +230,15 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="ml-2 w-[20%]">
+                            <div className="ml-2 w-[25%]">
                                 <FormField
                                     control={form.control}
-                                    name="position"
+                                    name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.position')}</FormLabel>
+                                            <FormLabel>{t('leave_request.create.name')}</FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.position')} {...field} />
+                                                <Input placeholder={t('leave_request.create.name')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

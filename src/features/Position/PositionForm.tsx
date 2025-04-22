@@ -17,20 +17,47 @@ import {
 import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom"
 
-import { ShowToast } from "@/ultils"
+import { ShowToast } from "@/lib"
 
 import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useParams } from "react-router-dom"
 import positionApi from "@/api/positionApi"
+import { cn } from "@/lib/utils"
+import { Check, ChevronsUpDown } from "lucide-react"
+
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command"
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover"
+import departmentApi from "@/api/departmentApi"
 
 const formSchema = z.object({
-	name: z.string().nonempty({ message: "Name is required" }),
-	position_level: z.string().nonempty({ message: "Position Level is required" }),
+	name: z.string().nonempty({ message: "Required" }),
+	title: z.string().nullable().optional(),
+	department_id: z.number().nullable().optional(),
+	level: z.string().nonempty({ message: "Required" }),
 })
 
+interface Departments {
+    id: number | null
+    name: string
+    note: string | null
+    parentId: number | undefined | null
+}
+
 export default function PositionForm() {
+	const [open, setOpen] = useState(false)
 	const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
 	
@@ -41,47 +68,56 @@ export default function PositionForm() {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
-			position_level: ""
+			title: "",
+			department_id: null,
+			level: ""
 		},
 	})
 
 	function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
 		const key = event.key;
 		if (
-		  key === "Backspace" ||
-		  key === "Tab" ||
-		  key === "Delete" ||
-		  key === "ArrowLeft" ||
-		  key === "ArrowRight"
+			key === "Backspace" ||
+			key === "Tab" ||
+			key === "Delete" ||
+			key === "ArrowLeft" ||
+			key === "ArrowRight"
 		) {
-		  return;
+		  	return;
 		}
 
 		if (!/^[0-9]$/.test(key)) {
-		  event.preventDefault();
+		  	event.preventDefault();
 		}
 	}
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		setLoading(true)
+		console.log(isEdit, values);
 		try {
+			let action = "";
+
 			if (isEdit) {
+				action = "Update";
 				await positionApi.update(Number(id), {
 					...values,
 					name: values.name ?? null,
-					position_level: parseInt(values.position_level) ?? null,
+					title: values.title ?? null,
+					department_id: values.department_id ?? null,
+					level: parseInt(values.level) ?? null,
 				})
-				ShowToast("Update position success", "success")
-				navigate("/position")
 			  } else {
+				action = "Add new";
 				await positionApi.create({
 					...values,
 					name: values.name ?? null,
-					position_level: parseInt(values.position_level) ?? null,
+					title: values.title ?? null,
+					department_id: values.department_id ?? null,
+					level: parseInt(values.level) ?? null,
 				})
-				ShowToast("Add position success", "success")
-				navigate("/position")
 			  }
+			  ShowToast(`${action} position success`, "success")
+			  navigate("/position")
 		} catch (err: unknown) {
 			const error = err as AxiosError<{ message: string }>
 			const message = error?.response?.data?.message ?? "Something went wrong"
@@ -101,16 +137,31 @@ export default function PositionForm() {
 		enabled: !!id,
 	})
 
+	const { data, isPending, isError } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await departmentApi.getAll({
+				page: 1,
+				page_size: 50 
+			});
+			return res.data.data as Departments[];
+		}
+	});
+
 	useEffect(() => {
-		if (positionData) {
-			const { name, position_level } = positionData.data.data
-			console.log(position_level, typeof position_level);
+		if (positionData && data) {
+			const { name, title, department_id, level } = positionData.data.data;
+	
+			const departmentExists = data.some(d => d.id === department_id);
+	
 			form.reset({
 				name: name,
-				position_level: position_level.toString() ?? ""
-			})
+				title: title,
+				department_id: departmentExists ? department_id : null,
+				level: level?.toString() ?? ""
+			});
 		}
-	}, [positionData, form])
+	}, [positionData, data, form]);
 
 	return (
 		<div className="p-4 pl-1 pt-0 space-y-4">
@@ -138,12 +189,105 @@ export default function PositionForm() {
 
 						<FormField
 							control={form.control}
-							name="position_level"
+							name="title"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Position Level</FormLabel>
+									<FormLabel>Title</FormLabel>
 									<FormControl>
-										<Input onKeyDown={handleKeyDown} placeholder="Position Level" {...field} />
+										<Input
+											value={field?.value ?? ""}
+											onChange={field.onChange} 
+											placeholder="Title"
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="department_id"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Department</FormLabel>
+									<Popover open={open} onOpenChange={setOpen}>
+										<PopoverTrigger asChild>
+											<Button
+												variant="outline"
+												role="combobox"
+												aria-expanded={open}
+												className="w-[260px] justify-between text-gray-500"
+											>
+												{field.value
+													? data?.find((item) => item.id === field.value)?.name
+													: "Select"}
+												<ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-[260px] p-0">
+											{isPending ? (
+												<p className="p-2 text-sm text-muted-foreground">Loading...</p>
+											) : isError ? (
+												<p className="p-2 text-sm text-red-500">Failed to load departments</p>
+											) : (
+												<Command>
+													<CommandInput placeholder="Search..." className="h-9" />
+													<CommandList>
+														<CommandEmpty>No department found.</CommandEmpty>
+														<CommandGroup>
+															<CommandItem
+																key="none"
+																onSelect={() => {
+																	field.onChange(null)
+																	setOpen(false)
+																}}
+															>
+																-- No Parent --
+																<Check
+																	className={cn(
+																		"ml-auto h-4 w-4",
+																		!field.value ? "opacity-100" : "opacity-0"
+																	)}
+																/>
+															</CommandItem>
+
+															{data.map((item) => (
+																<CommandItem
+																	key={item.id}
+																	onSelect={() => {
+																		field.onChange(item.id)
+																		setOpen(false)
+																	}}
+																>
+																	{item.name}
+																	<Check
+																		className={cn(
+																			"ml-auto h-4 w-4",
+																			field.value === item.id ? "opacity-100" : "opacity-0"
+																		)}
+																	/>
+																</CommandItem>
+															))}
+														</CommandGroup>
+													</CommandList>
+												</Command>
+											)}
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="level"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Level</FormLabel>
+									<FormControl>
+										<Input onKeyDown={handleKeyDown} placeholder="Level" {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -159,4 +303,3 @@ export default function PositionForm() {
 		</div>
 	)
 }
-

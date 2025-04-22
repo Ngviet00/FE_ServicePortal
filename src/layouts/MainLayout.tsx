@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar/Sidebar";
 import Header from "../components/Header/Header";
 import BreadCrumbComponent from "../components/BreadCrumbComponent/BreadCrumbComponent";
 
-import "../App.css"
+import '../components/RootComponent/App.css'
 
 type Props = {
     children: ReactNode;

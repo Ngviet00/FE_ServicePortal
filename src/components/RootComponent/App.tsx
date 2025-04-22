@@ -1,25 +1,26 @@
 import { Routes, Route, useLocation  } from 'react-router-dom';
-import HomePage from './pages/HomePage';
 import './App.css'
+import DepartmentForm from '@/features/Department/DepartmentForm';
+import ListDepartment from '@/features/Department/ListDepartment';
+import LeaveRequestForm from '@/features/Leave/LeaveRequestForm';
+import ListLeaveRequest from '@/features/Leave/ListLeaveRequest';
+import ListPosition from '@/features/Position/ListPosition';
+import PositionForm from '@/features/Position/PositionForm';
+import ListRole from '@/features/Role/ListRole';
+import ListUser from '@/features/User/ListUser';
+import AuthLayout from '@/layouts/AuthLayout';
+import MainLayout from '@/layouts/MainLayout';
+import ChangePasswordPage from '@/pages/ChangePasswordPage';
+import HomePage from '@/pages/HomePage';
+import LoginPage from '@/pages/LoginPage';
+import MyProfile from '@/pages/MyProfile';
+import RegisterPage from '@/pages/RegisterPage';
+import RedirectIfAuthenticated from '@/routes/IsAuthenticated';
+import PrivateRoute from '@/routes/PrivateRoute';
+import CreateUserForm from '@/features/User/CreateUserForm';
+import ListTeam from '@/features/Team/ListTeam';
+import TeamForm from '@/features/Team/TeamForm';
 
-import AuthLayout from './layouts/AuthLayout';
-import MainLayout from './layouts/MainLayout';
-import LoginPage from './pages/LoginPage';
-
-import RedirectIfAuthenticated from "./routes/IsAuthenticated";
-import PrivateRoute from "./routes/PrivateRoute";
-import RegisterPage from './pages/RegisterPage';
-import ChangePasswordPage from './pages/ChangePasswordPage';
-import ListRole from './features/Role/ListRole';
-import ListPosition from './features/Position/ListPosition';
-import ListUser from './features/User/List/ListUser';
-import CreateUser from './features/User/Create/CreateUser';
-import ListDepartment from './features/Department/ListDepartment';
-import DepartmentForm from './features/Department/DepartmentForm';
-import PositionForm from './features/Position/PositionForm';
-import MyProfile from './pages/MyProfile';
-import LeaveRequestForm from './features/Leave/LeaveRequestForm';
-import ListLeaveRequest from './features/Leave/ListLeaveRequest';
 
 function App() {
 
@@ -48,8 +49,12 @@ function App() {
 		{ path: "/position/create", element: <PositionForm /> },
 		{ path: "/position/edit/:id", element: <PositionForm /> },
 
+		{ path: "/team", element: <ListTeam /> },
+		{ path: "/team/create", element: <TeamForm /> },
+		{ path: "/team/edit/:id", element: <TeamForm /> },
+
 		{ path: "/user", element: <ListUser /> },
-		{ path: "/user/create", element: <CreateUser /> },
+		{ path: "/user/create", element: <CreateUserForm /> },
 
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> }
