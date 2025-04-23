@@ -16,12 +16,28 @@ interface ChangePasswordRequest {
     confirm_password: string
 }
 
+export interface RegisterRequest {
+    code: string | null,
+    name: string | null,
+    password: string | null,
+    email: string | null,
+    role_id: number | null,
+    date_join_company: string | null,
+    date_of_birth: string | null,
+    phone: string | null,
+    sex: number | null,
+    parent_department_id: number | null,
+    child_department_id: number | null,
+    position_id: number | null,
+    management_position_id: number | null
+}
+
 const authApi = {
     login: (data: LoginRequest) => {
         return axiosClient.post('/auth/login', data);
     },
 
-    register(data: { employeeCode: string; password: string }) {
+    register(data: RegisterRequest) {
         return axiosClient.post("/auth/register", data);
     },
 

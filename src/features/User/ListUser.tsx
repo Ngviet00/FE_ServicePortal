@@ -7,105 +7,94 @@ import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import departmentApi from "@/api/departmentApi"
 import { ShowToast, useDebounce } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-
-interface departments {
-    id: number,
-    name: string
-    note: string | null
-    parent_id: number | null
-    parent: departments
-}
+import userApi, { ListUserData } from "@/api/userApi"
 
 export default function ListUser () {
-    // const [name, setName] = useState("") //search by name
-    // const [totalPage, setTotalPage] = useState(0) //search by name
-    // const [page, setPage] = useState(1) //current page
-    // const [pageSize, setPageSize] = useState(5) //per page 5 item
+    const [name, setName] = useState("") //search by name
+    const [totalPage, setTotalPage] = useState(0) //search by name
+    const [page, setPage] = useState(1) //current page
+    const [pageSize, setPageSize] = useState(5) //per page 5 item
 
-    // const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-    // const debouncedName = useDebounce(name, 300);
+    const debouncedName = useDebounce(name, 300);
     
-    // //get list department, parent department 
-    // const { data: response, isPending, isError, error } = useQuery({
-    //     queryKey: ['get-all-department', debouncedName, page, pageSize],
-    //     queryFn: async () => {
-    //         const res = await departmentApi.getAll({
-    //             page: page,
-    //             page_size: pageSize,
-    //             name: debouncedName
-    //         });
-    //         console.log('goij api ne');
-    //         setTotalPage(res.data.total_pages)
-    //         return res.data;
-    //     }
-    // });
+    //get list users 
+    const { data: users = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-all-user', debouncedName, page, pageSize],
+        queryFn: async () => {
+            const res = await userApi.getAll({
+                page: page,
+                page_size: pageSize,
+                name: debouncedName
+            });
+            setTotalPage(res.data.total_pages)
+            return res.data.data;
+        }
+    });
 
-    // const departments = response?.data || [];
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedName]);
 
-    // useEffect(() => {
-    //     setPage(1);
-    // }, [debouncedName]);
+    function handleSuccessDelete(shouldGoBack?: boolean) {
+        if (shouldGoBack && page > 1) {
+            setPage(prev => prev - 1);
+        } else {
+            queryClient.invalidateQueries({ queryKey: ['get-all-user'] });
+        }
+    }
 
-    // function handleSuccessDelete(shouldGoBack?: boolean) {
-    //     if (shouldGoBack && page > 1) {
-    //         setPage(prev => prev - 1);
-    //     } else {
-    //         queryClient.invalidateQueries({ queryKey: ['get-all-department'] });
-    //     }
-    // }
+    const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value)
+    }
 
-    // const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setName(e.target.value)
-    // }
+    function setCurrentPage(page: number): void {
+        setPage(page)
+    }
 
-    // function setCurrentPage(page: number): void {
-    //     setPage(page)
-    // }
+    function handlePageSizeChange(size: number): void {
+        setPage(1)
+        setPageSize(size)
+    }
 
-    // function handlePageSizeChange(size: number): void {
-    //     setPage(1)
-    //     setPageSize(size)
-    // }
+    const mutation = useMutation({
+        mutationFn: async (id: number) => {
+            await userApi.delete(id);
+        },
+        onSuccess: () => {
+            ShowToast("Delete user success", "success");
+        },
+        onError: (error) => {
+            console.error("Delete failed:", error);
+            ShowToast("Delete user failed", "error");
+        }
+    });
 
-    // const mutation = useMutation({
-    //     mutationFn: async (id: number) => {
-    //         await departmentApi.delete(id);
-    //     },
-    //     onSuccess: () => {
-    //         ShowToast("Delete department success", "success");
-    //     },
-    //     onError: (error) => {
-    //         console.error("Delete failed:", error);
-    //         ShowToast("Delete department failed", "error");
-    //     }
-    // });
-
-    // const handleDelete = async (id: number) => {
-    //     try {
-    //         const shouldGoBack = departments.length === 1;
-    //         await mutation.mutateAsync(id);
-    //         handleSuccessDelete(shouldGoBack);
-    //     } catch (error) {
-    //         console.error("Failed to delete:", error);
-    //     }
-    // };
+    const handleDelete = async (id: number) => {
+        try {
+            const shouldGoBack = users.length === 1;
+            await mutation.mutateAsync(id);
+            handleSuccessDelete(shouldGoBack);
+        } catch (error) {
+            console.error("Failed to delete:", error);
+        }
+    };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
-            {/* <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">User</h3>
+            <div className="flex justify-between mb-1">
+                <h3 className="font-bold text-2xl m-0 pb-2">Users</h3>
                 <Button>
-                    <Link to="/department/create">Create Deparment</Link>
+                    <Link to="/department/create">Create User</Link>
                 </Button>
             </div>
 
             <div className="flex items-center justify-between">
                 <Input
-                    placeholder="Tìm kiếm department..."
+                    placeholder="Tìm kiếm user..."
                     value={name}
                     onChange={handleSearchByName}
                     className="max-w-sm"
@@ -113,19 +102,25 @@ export default function ListUser () {
             </div>
 
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
-                <div className="max-h-[450px] overflow-y-auto">
-                    <table style={{ tableLayout:'fixed'}} className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <div className="min-w-[1200px]">
+                <table style={{ tableLayout: 'fixed' }} className="text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 w-full">
                         <thead className="text-xs text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
                             <tr className="border-b border-gray-200">
-                                <th scope="col" className="w-[5%] p-4 bg-gray-50 dark:bg-gray-700">
-                                    <div className="flex items-center">
-                                        <Checkbox className="hover:cursor-pointer"/>
-                                    </div>
-                                </th>
-                            <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Name</th>
-                            <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Parent Department</th>
-                            <th scope="col" className="w-[30%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Note</th>
-                            <th scope="col" className="px-6 py-3 bg-gray-50 dark:bg-gray-700">Action</th>
+                            <th className="w-[3%] p-4 bg-gray-50 dark:bg-gray-700">
+                                <div className="flex items-center">
+                                    <Checkbox className="hover:cursor-pointer" />
+                                </div>
+                            </th>
+                            <th className="w-[12%] px-6 py-3">Code</th>
+                            <th className="w-[25%] px-6 py-3">Name</th>
+                            <th className="w-[10%] px-6 py-3">Sex</th>
+                            <th className="w-[20%] px-6 py-3">Phone</th>
+                            <th className="w-[30%] px-6 py-3">Email</th>
+                            <th className="w-[25%] px-6 py-3">Role</th>
+                            <th className="w-[20%] px-6 py-3">Department</th>
+                            <th className="w-[25%] px-6 py-3">Position</th>
+                            <th className="w-[30%] px-6 py-3">Date join company</th>
+                            <th className="w-[30%] px-6 py-3">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -147,32 +142,68 @@ export default function ListUser () {
                                     <td className="px-6 py-4">
                                         <Skeleton className="h-4 w-[80px]" />
                                     </td>
+                                    <td className="w-[57px] p-4">
+                                        <Skeleton className="h-4 w-[15px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[80px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[80px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[90px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[80px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[80px]" />
+                                    </td>
                                 </tr>
                             ))
-                        ) : isError || departments.length === 0 ? (
+                        ) : isError || users.length === 0 ? (
                             <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={5} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
+                                <td colSpan={11} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
                                     {error?.message || "No results"}
                                 </td>
                             </tr>
                         ) : (
-                            departments.map((item: departments, index: number) => (
+                            users.map((item: ListUserData, index: number) => (
                                 <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
                                     <td className="p-4 w-[57px]">
                                         <Checkbox className="hover:cursor-pointer" />
                                     </td>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {item.code}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {item.name}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item?.parent ? item.parent.name : "-" }
+                                        {item?.sex == 1 ? "Nam" : "Nữ"}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        { item?.note }
+                                        {item?.phone}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {item?.email}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {item.role_id}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {item.department_id}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {item.position_id}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {item.date_join_company}
                                     </th>
                                     <td className="px-4 py-4">  
-                                        <Link to={`/department/edit/${item.id}`}>Edit</Link>
-                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
+                                        <Link to={`/user/edit/${item.code}`}>Edit</Link>
+                                        <ButtonDeleteComponent id={item.code} onDelete={() => handleDelete(parseInt(item.code))}/>
                                     </td>
                                 </tr>
                             ))
@@ -182,14 +213,14 @@ export default function ListUser () {
                 </div>
             </div>
             {
-                departments.length > 0 ? (<PaginationControl
+                users.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}
                     onPageChange={setCurrentPage}
                     onPageSizeChange={handlePageSizeChange}
                 />) : (null)
-            } */}
+            }
         </div>
     )
 }

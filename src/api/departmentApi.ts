@@ -19,6 +19,9 @@ const departmentApi = {
     getParentDepartment() {
         return axiosClient.get('/department/get-parent-department')
     },
+    GetDepartmentWithChildrenDepartmentAndPosition() {
+        return axiosClient.get('/department/get-department-with-children-department-and-position')
+    },
     getById(id: number) {
         return axiosClient.get(`/department/get-by-id/${id}`)
     },

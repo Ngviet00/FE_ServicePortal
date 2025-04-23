@@ -55,6 +55,7 @@ function App() {
 
 		{ path: "/user", element: <ListUser /> },
 		{ path: "/user/create", element: <CreateUserForm /> },
+		{ path: "/user/edit/:code", element: <CreateUserForm /> },
 
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> }

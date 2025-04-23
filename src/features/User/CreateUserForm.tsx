@@ -1,9 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
-
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -13,61 +12,72 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-
 import { useNavigate } from "react-router-dom"
-
 import { useEffect, useState } from "react"
-
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
-import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE, TYPE_LEAVE } from "@/lib"
-import { Textarea } from "@/components/ui/textarea"
-import userApi from "@/api/userApi"
+import { ShowToast } from "@/lib"
 import { useQuery } from "@tanstack/react-query"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { cn } from "@/lib/utils"
+
+import departmentApi from "@/api/departmentApi"
+import roleApi from "@/api/roleApi"
+import userApi from "@/api/userApi"
+import { AxiosError } from "axios"
+import authApi, { RegisterRequest } from "@/api/authApi"
 
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
     password: z.string().nonempty({message: "Required"}),
     email: z.string().nonempty({message: "Required"}),
-    role_id: z.string().nonempty({message: "Required"}),
+    role_id: z.number({message: 'Required'}),
     is_active: z.string().nullable().optional(),
     date_join_company: z.string().nullable().optional(),
     date_of_birth: z.string().nullable().optional(),
     phone: z.string().nullable().optional(),
-    sex: z.string().nullable().optional(),
-    department_id: z.string().nonempty({message: "Required"}),
-    position_id: z.string().nonempty({message: "Required"}),
-    team_id: z.string().nullable().optional()
+    sex: z.number().nullable().optional(),
+    parent_department_id: z.number({message: 'Required'}),
+    child_department_id: z.number().nullable().optional(),
+    position_id: z.number({message: "Required"}),
+    management_position_id: z.number({message: 'Required'})
 })
 
-// interface TypeLeaveRequestForm {
-//     employee_code: string,
-//     department: string,
-//     name: string,
-//     position: string,
+const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
+    code: values.code ?? null,
+    name: values.name ?? null,
+    password: values.password ?? null,
+    email: values.email ?? null,
+    role_id: values.role_id ?? null,
+    date_of_birth: values.date_of_birth ? new Date(values.date_of_birth).toISOString() : null,
+    date_join_company: values.date_join_company ? new Date(values.date_join_company).toISOString() : null,
+    phone: values.phone ?? null,
+    sex: values.sex ?? null,
+    parent_department_id: values.parent_department_id ?? null,
+    child_department_id: values.child_department_id ?? null,
+    position_id: values.position_id ?? null,
+    management_position_id: values.management_position_id ?? null
+});
 
-//     from_date: string,
-//     from_hour: string,
-//     from_minutes: string,
-
-//     to_date: string,
-//     to_hour: string,
-//     to_minutes: string,
-
-//     type_leave: string,
-//     time_leave: string,
-//     reason: string,
-// }
 
 export default function CreateUserForm() {
-    const { t } = useTranslation();
-    const [loading] = useState(false);
     const navigate = useNavigate();
-    
-    const { id } = useParams<{ id: string }>()
-    const isEdit = !!id;
+    const { t } = useTranslation();
+    const [loading, setLoading] = useState(false);
+    const [openSelectDepartment, setOpenSelectDepartment] = useState(false)
+    const [openSelectChildDepartment, setOpenSelectChildDepartment] = useState(false)
+    const [openSelectPosition, setOpenSelectPosition] = useState(false)
+    const [openSelectManagementPosition, setOpenSelectManagementPosition] = useState(false)
+    const [openRole, setOpenRole] = useState(false)
+    const [childrenDepartments, setChildrenDepartments] = useState<{ id: number; name: string }[] | undefined | null>([])
+    const [positions, setPositions] = useState<{ id: number; name: string }[] | undefined | null>([]);
+
+    const { code } = useParams<{ code: string }>()
+    const isEdit = !!code;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -76,100 +86,134 @@ export default function CreateUserForm() {
             name: "",
             password: "",
             email: "",
-            role_id: "",
+            role_id: 4,
             is_active: "",
-            date_join_company: "",
-            date_of_birth: "",
+            date_join_company: new Date().toISOString().split("T")[0],
+            date_of_birth: new Date().toISOString().split("T")[0],
             phone: "",
-            sex:"",
-            department_id: "",
-            position_id: "",
-            team_id:""
+            sex: -1,
+            parent_department_id: undefined,
+            child_department_id: undefined,
+            position_id: undefined,
+            management_position_id: undefined
         },
     })
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values);
-        ShowToast("Create leave request success", "success")
-        // setLoading(true);
-        // try {
-        //     if (isEdit) {
-        //         await departmentApi.update(Number(id), {
-        //             ...values,
-        //             note: values.note ?? null,
-        //             parent_id: values.parentId ?? null,
-        //         })
-        //         ShowToast("Update department success", "success")
-        //         navigate("/department")
-        //       } else {
-        //         await departmentApi.create({
-        //             ...values,
-        //             note: values.note ?? null,
-        //             parent_id: values.parentId ?? null,
-        //         })
-        //         ShowToast("Add department success", "success")
-        //         navigate("/department")
-        //       }
-        // } catch (err: unknown) {
-        //     const error = err as AxiosError<{ message: string }>
-        //     const message = error?.response?.data?.message ?? "Something went wrong"
-        //     form.setError("name", {
-        //         type: "server",
-        //         message,
-        //     })
-        // } finally {
-        //     setLoading(false);
-        // }
+        setLoading(true)
+        const data = formatData(values);
+        try {
+            await authApi.register(data)
+            ShowToast("Create user success", "success")
+            navigate('/user')
+        } catch (err: unknown) {
+            const error = err as AxiosError<{ message: string }>
+            const message = error?.response?.data?.message ?? "Something went wrong"
+            form.setError("name", {
+                type: "server",
+                message,
+            })
+        } finally {
+            setLoading(false)
+        }
+        
     }
-
-    // const { data, isPending, isError } = useQuery({
-    //     queryKey: ['parentDepartments'],
-    //     queryFn: async () => {
-    //         const res = await departmentApi.getParentDepartment();
-    //         return res.data.data as typeParentDepartments[];
-    //     }
-    // });
 
     //get by id
     const { data: userData } = useQuery({
-        queryKey: ["get-by-id", id],
-        queryFn: async () => await userApi.getById(id),
-        enabled: !!id,
+        queryKey: ["get-by-code", code],
+        queryFn: async () => {
+            const res = await userApi.getByCode(code)
+            return res;
+        },
+        enabled: !!code,
     })
 
+    //when go to page edit/1, set data to form
     useEffect(() => {
         if (userData) {
-            //const { name, note, parentId } = userData.data.data
+            const { code, name, email, phone, sex, date_of_birth, date_join_company, role_id, parent_department_id, position_id, management_position_id } = userData.data.data
             form.reset({
-                // name,
-                // note: note ?? "",
-                // parentId: parentId ?? null,
+                code: code,
+                name: name,
+                email: email,
+                phone: phone,
+                sex: sex,
+                date_of_birth: date_of_birth,
+                date_join_company: date_join_company,
+                role_id: role_id,
+                parent_department_id: parent_department_id,
+                position_id: position_id,
+                management_position_id: management_position_id
             })
         }
     }, [userData, form])
 
+    //click input type date will show picker
     const handleInputClickShowPicker = (event: React.MouseEvent<HTMLInputElement>) => {
         (event.target as HTMLInputElement).showPicker();
     };
 
-    // const watchTimeLeave = useWatch({
-    //     control: form.control,
-    //     name: "time_leave"
-    // })
-    
+    //get parent department
+    const { data: parentDepartments = [], isPending: isPendingParentDepartments, isError: isErrorParentDepartment } = useQuery({
+        queryKey: ['get-department-child-department-position'],
+        queryFn: async () => {
+            const res = await departmentApi.GetDepartmentWithChildrenDepartmentAndPosition();
+            return res.data.data;
+        }
+    });
 
-    // useEffect(() => {
-    //     if (watchTimeLeave == ENUM_TIME_LEAVE.ALL_DAY) {
-    //         form.setValue("from_hour", "08");
-    //         form.setValue("to_hour", "17");
-    //     } else if (watchTimeLeave == ENUM_TIME_LEAVE.MORNING) {
-    //         form.setValue("from_hour", "08");
-    //         form.setValue("to_hour", "12");
-    //     } else {
-    //         form.setValue("from_hour", "13");
-    //         form.setValue("to_hour", "17");
-    //     }
-    // }, [watchTimeLeave, form])
+    //get all role
+    const { data: roles = [], isPending: isPendingRoles, isError: isErrorRoles } = useQuery({
+        queryKey: ['get-all-role'],
+        queryFn: async () => {
+            const res = await roleApi.getAll({
+                page: 1,
+                page_size: 50
+            });
+            return res.data.data;
+        }
+    });
+
+
+    //handle parent department change
+    const handleParentDepartmentChange = (selectedDepartmentId: number) => {
+        if (selectedDepartmentId == -1) {
+            setPositions([])
+            setChildrenDepartments([])
+            setOpenSelectDepartment(false);
+            return;
+        }
+
+        const departmentSelected = parentDepartments.find((item: {id: number}) => item.id == selectedDepartmentId)
+
+        if (departmentSelected.childrens.length > 0) {
+            setChildrenDepartments(departmentSelected.childrens)
+        }
+
+        if (departmentSelected.childrens == 0 && departmentSelected.positions.length > 0) {
+            setPositions(departmentSelected.positions)
+        }
+
+        setOpenSelectDepartment(false);
+    }
+    
+    //handle child department change
+    const handleChildDepartmentChange = (selectedChildDepartmentId: number) => {
+        if (selectedChildDepartmentId == -1) {
+            setPositions([])
+            setOpenSelectChildDepartment(false);
+            return;
+        }
+        
+        const departmentSelected = parentDepartments.childrens.find((item: {id: number}) => item.id == selectedChildDepartmentId)
+
+        if (departmentSelected.positions.length > 0) {
+            setPositions(departmentSelected.positions)
+        }
+
+        setOpenSelectChildDepartment(false);
+    }
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -188,9 +232,9 @@ export default function CreateUserForm() {
                                     name="code"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.code')}</FormLabel>
+                                            <FormLabel>Code</FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.code')} {...field} />
+                                                <Input placeholder="Code" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -198,15 +242,15 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-2 w-[25%]">
+                            <div className="ml-5 w-[25%]">
                                 <FormField
                                     control={form.control}
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.name')}</FormLabel>
+                                            <FormLabel>Name</FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.name')} {...field} />
+                                                <Input placeholder="Name" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -214,31 +258,31 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-2 w-[25%]">
+                            <div className="ml-5 w-[25%]">
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input type="email" placeholder="Email" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="ml-5 w-[25%]">
                                 <FormField
                                     control={form.control}
                                     name="password"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.name')}</FormLabel>
+                                            <FormLabel>Password</FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.name')} {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="ml-2 w-[25%]">
-                                <FormField
-                                    control={form.control}
-                                    name="name"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('leave_request.create.name')}</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder={t('leave_request.create.name')} {...field} />
+                                                <Input type="password" placeholder="Password" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -251,17 +295,65 @@ export default function CreateUserForm() {
                             <div className="w-[13%]">
                                 <FormField
                                     control={form.control}
-                                    name="from_date"
+                                    name="phone"
                                     render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.from_date')}</FormLabel>
+                                        <FormItem>
+                                            <FormLabel>Phone</FormLabel>
                                             <FormControl>
                                                 <Input
+                                                    name={field.name}
+                                                    value={field.value ?? ""}
+                                                    onChange={field.onChange}
+                                                    type="text"
+                                                    placeholder="Phone"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="w-[10%] ml-5">
+                                <FormField
+                                    control={form.control}
+                                    name="sex"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Sex</FormLabel>
+                                            <FormControl>
+                                                <select
+                                                    value={field.value ?? ""}
+                                                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                                                    name={field.name}
+                                                    id="sex" 
+                                                    className=" text-sm text-gray-600 h-[36px] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                                    >
+                                                        <option value="">--Select--</option>
+                                                        <option value="1">Male</option>
+                                                        <option value="2">Female</option>
+                                                </select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            <div className="w-[10%] ml-5">
+                                <FormField
+                                    control={form.control}
+                                    name="date_of_birth"
+                                    render={({ field }) => (
+                                        <FormItem className="hover:cursor-pointer">
+                                            <FormLabel>Date of birth</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    className="w-full"
                                                     onClick={handleInputClickShowPicker}
                                                     onChange={field.onChange}
-                                                    value={field.value}
+                                                    value={field.value ?? ""}
                                                     type="date"
-                                                    id="to_date"
+                                                    id="date_of_birth"
                                                     name={field.name}
                                                 />
                                             </FormControl>
@@ -271,111 +363,23 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-2">
+                            <div className="w-[10%] ml-5">
                                 <FormField
                                     control={form.control}
-                                    name="from_hour"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('leave_request.create.from_hour')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
-                                                    >
-                                                        {Array.from({length: 24}, (_, i) => (
-                                                            <option key={i} value={i.toString().padStart(2, "0")}>
-                                                                {i.toString().padStart(2, "0")}
-                                                            </option>
-                                                        ))}
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="w-[10%] ml-2">
-                                <FormField
-                                    control={form.control}
-                                    name="from_minutes"
+                                    name="date_join_company"
                                     render={({ field }) => (
                                         <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.from_minutes')}</FormLabel>
+                                            <FormLabel>Date join company</FormLabel>
                                             <FormControl>
-                                                <select
-                                                    value={field.value}
+                                                <Input
+                                                    className="w-full"
+                                                    onClick={handleInputClickShowPicker}
                                                     onChange={field.onChange}
+                                                    value={field.value ?? ""}
+                                                    type="date"
+                                                    id="date_join_company"
                                                     name={field.name}
-                                                    id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                        <option key="00" value="00">00</option>
-                                                        <option key="30" value="30">30</option>
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="w-[15%] ml-5">
-                                <FormField
-                                    control={form.control}
-                                    name="type_leave"
-                                    render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.type_leave.type_leave')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                    <option value="">--Select--</option>
-                                                    {
-                                                        TYPE_LEAVE.map((item) => (
-                                                            <option key={item.value} value={item.value}>
-                                                                {t(item.label)}
-                                                            </option>
-                                                        ))
-                                                    }
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="w-[15%] ml-2">
-                                <FormField
-                                    control={form.control}
-                                    name="time_leave"
-                                    render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.time_leave.time_leave')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                    <option value="">--Select--</option>
-                                                    {
-                                                        TIME_LEAVE.map((item) => (
-                                                            <option key={item.value} value={item.value}>
-                                                                {t(item.label)}
-                                                            </option>
-                                                        ))
-                                                    }
-                                                </select>
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -385,103 +389,391 @@ export default function CreateUserForm() {
                         </div>
 
                         <div className="third-row flex flex-wrap w-full">
-                            <div className="w-[13%]">
-                                <FormField
+                            <div className="w-[10%]">
+                            <FormField
                                     control={form.control}
-                                    name="to_date"
-                                    render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.to_date')}</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    className="w-full"
-                                                    onClick={handleInputClickShowPicker}
-                                                    onChange={field.onChange}
-                                                    value={field.value}
-                                                    type="date"
-                                                    id="from_date"
-                                                    name={field.name}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="w-[10%] ml-2">
-                                <FormField
-                                    control={form.control}
-                                    name="to_hour"
+                                    name="role_id"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.to_hour')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="to_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                    {Array.from({length: 24}, (_, i) => (
-                                                        <option key={i} value={i.toString().padStart(2, "0")}>
-                                                            {i.toString().padStart(2, "0")}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </FormControl>
+                                            <FormLabel>Role</FormLabel>
+                                            <Popover open={openRole} onOpenChange={setOpenRole}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        aria-expanded={openRole}
+                                                        className="w-[260px] justify-between text-gray-500"
+                                                    >
+                                                        {field.value
+                                                            ? roles?.find((item: {id: number, name: string}) => item.id == field.value)?.name
+                                                            : "Select"}
+                                                        <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[260px] p-0">
+                                                    {isPendingRoles ? (
+                                                        <p className="p-2 text-sm text-muted-foreground">Loading...</p>
+                                                    ) : isErrorRoles ? (
+                                                        <p className="p-2 text-sm text-red-500">Failed to load role</p>
+                                                    ) :(
+                                                        <Command>
+                                                            <CommandInput placeholder="Search..." className="h-9" />
+                                                            <CommandList>
+                                                                <CommandEmpty>No role found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    <CommandItem
+                                                                        key="none"
+                                                                        onSelect={() => {
+                                                                            field.onChange(null)
+                                                                            setOpenRole(false)
+                                                                        }}
+                                                                    >
+                                                                        -- No select --
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "ml-auto h-4 w-4",
+                                                                                !field.value ? "opacity-100" : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                    </CommandItem>
+
+                                                                    {roles.map((item: {id: number, name: string}) => (
+                                                                        <CommandItem
+                                                                            key={item.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(item.id)
+                                                                                setOpenRole(false)
+                                                                            }}
+                                                                        >
+                                                                            {item.name}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "ml-auto h-4 w-4",
+                                                                                    field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    )}
+                                                </PopoverContent>
+                                            </Popover>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-2">
+                            <div className="w-[13%] ml-32">
                                 <FormField
                                     control={form.control}
-                                    name="to_minutes"
-                                    render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.to_minutes')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="to_minutes" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                        <option key="00" value="00">00</option>
-                                                        <option key="30" value="30">30</option>
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="fourth-row flex flex-wrap w-full">
-                            <div className="w-[50%]">
-                                <FormField
-                                    control={form.control}
-                                    name="reason"
+                                    name="parent_department_id"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.reason')}</FormLabel>
-                                            <FormControl>
-                                                <Textarea 
-                                                    name={field.name}
-                                                    onChange={field.onChange}
-                                                    value={field.value}
-                                                    placeholder={t('leave_request.create.reason')}
-                                                />
-                                            </FormControl>
+                                            <FormLabel>Department</FormLabel>
+                                            <Popover open={openSelectDepartment} onOpenChange={setOpenSelectDepartment}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        aria-expanded={openSelectDepartment}
+                                                        className="w-[260px] justify-between text-gray-500"
+                                                    >
+                                                        {field.value
+                                                            ? parentDepartments?.find((item: {id: number, name: string}) => item.id == field.value)?.name
+                                                            : "Select"}
+                                                        <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[260px] p-0">
+                                                    {isPendingParentDepartments ? (
+                                                        <p className="p-2 text-sm text-muted-foreground">Loading...</p>
+                                                    ) : isErrorParentDepartment ? (
+                                                        <p className="p-2 text-sm text-red-500">Failed to load departments</p>
+                                                    ) : (
+                                                        <Command>
+                                                            <CommandInput placeholder="Search..." className="h-9" />
+                                                            <CommandList>
+                                                                <CommandEmpty>No department found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    <CommandItem
+                                                                        key="none"
+                                                                        onSelect={() => {
+                                                                            field.onChange(null)
+                                                                            handleParentDepartmentChange(-1)
+                                                                        }}
+                                                                    >
+                                                                        -- No Parent --
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "ml-auto h-4 w-4",
+                                                                                !field.value ? "opacity-100" : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                    </CommandItem>
+
+                                                                    {parentDepartments.map((item: {id: number, name: string}) => (
+                                                                        <CommandItem
+                                                                            key={item.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(item.id)
+                                                                                handleParentDepartmentChange(item.id)
+                                                                            }}
+                                                                        >
+                                                                            {item.name}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "ml-auto h-4 w-4",
+                                                                                    field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    )}
+                                                </PopoverContent>
+                                            </Popover>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             </div>
+
+                            {
+                                childrenDepartments && childrenDepartments.length > 0 ? (
+                                    <div className="w-[13%] ml-20">
+                                        <FormField
+                                            control={form.control}
+                                            name="child_department_id"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Children Department</FormLabel>
+                                                    <Popover open={openSelectChildDepartment} onOpenChange={setOpenSelectChildDepartment}>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                role="combobox"
+                                                                aria-expanded={openSelectChildDepartment}
+                                                                className="w-[260px] justify-between text-gray-500"
+                                                            >
+                                                            {field.value
+                                                            ? childrenDepartments?.find((item: {id: number, name: string}) => item.id == field.value)?.name ?? ""
+                                                            : "Select"}
+                                                                <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[260px] p-0">
+                                                                <Command>
+                                                                    <CommandInput placeholder="Search..." className="h-9" />
+                                                                    <CommandList>
+                                                                        <CommandEmpty>No children department found.</CommandEmpty>
+                                                                        <CommandGroup>
+                                                                            <CommandItem
+                                                                                key="none"
+                                                                                onSelect={() => {
+                                                                                    field.onChange(null)
+                                                                                    handleChildDepartmentChange(-1)
+                                                                                }}
+                                                                            >
+                                                                                -- No select --
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "ml-auto h-4 w-4",
+                                                                                        !field.value ? "opacity-100" : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </CommandItem>
+
+                                                                            {childrenDepartments.map((item: {id: number, name: string}) => (
+                                                                                <CommandItem
+                                                                                    key={item.id}
+                                                                                    // onSelect={() => {
+                                                                                    //     field.onChange(item.id)
+                                                                                    //     setOpenSelectChildDepartment(false)
+                                                                                    // }}
+
+                                                                                    onSelect={() => {
+                                                                                        field.onChange(item.id)
+                                                                                        handleChildDepartmentChange(item.id)
+                                                                                    }}
+                                                                                >
+                                                                                    {item.name}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "ml-auto h-4 w-4",
+                                                                                            field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </CommandGroup>
+                                                                    </CommandList>
+                                                                </Command>
+                                                            {/* )} */}
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ) : (<></>)
+                            }
+
+                            {
+                                positions && positions.length > 0 ? (
+                                    <div className="w-[13%] ml-20">
+                                        <FormField
+                                            control={form.control}
+                                            name="position_id"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Position</FormLabel>
+                                                    <Popover open={openSelectPosition} onOpenChange={setOpenSelectPosition}>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                role="combobox"
+                                                                aria-expanded={openSelectPosition}
+                                                                className="w-[260px] justify-between text-gray-500"
+                                                            >
+                                                            {field.value
+                                                            ? positions?.find((item: {id: number, name: string}) => item.id == field.value)?.name ?? ""
+                                                            : "Select"}
+                                                                <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[260px] p-0">
+                                                                <Command>
+                                                                    <CommandInput placeholder="Search..." className="h-9" />
+                                                                    <CommandList>
+                                                                        <CommandEmpty>No position found.</CommandEmpty>
+                                                                        <CommandGroup>
+                                                                            <CommandItem
+                                                                                key="none"
+                                                                                onSelect={() => {
+                                                                                    field.onChange(null)
+                                                                                    setOpenSelectPosition(false)
+                                                                                }}
+                                                                            >
+                                                                                -- No select --
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "ml-auto h-4 w-4",
+                                                                                        !field.value ? "opacity-100" : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </CommandItem>
+
+                                                                            {positions.map((item: {id: number, name: string}) => (
+                                                                                <CommandItem
+                                                                                    key={item.id}
+                                                                                    onSelect={() => {
+                                                                                        field.onChange(item.id)
+                                                                                        setOpenSelectPosition(false)
+                                                                                    }}
+                                                                                >
+                                                                                    {item.name}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "ml-auto h-4 w-4",
+                                                                                            field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </CommandGroup>
+                                                                    </CommandList>
+                                                                </Command>
+                                                            {/* )} */}
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ) : (<></>)
+                            }
+                            
+                            {
+                                positions && positions.length > 0 ? (
+                                    <div className="w-[13%] ml-20">
+                                        <FormField
+                                            control={form.control}
+                                            name="management_position_id"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Management Position</FormLabel>
+                                                    <Popover open={openSelectManagementPosition} onOpenChange={setOpenSelectManagementPosition}>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                role="combobox"
+                                                                aria-expanded={openSelectManagementPosition}
+                                                                className="w-[260px] justify-between text-gray-500"
+                                                            >
+                                                            {field.value
+                                                            ? positions?.find((item: {id: number, name: string}) => item.id == field.value)?.name ?? ""
+                                                            : "Select"}
+                                                                <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[260px] p-0">
+                                                                <Command>
+                                                                    <CommandInput placeholder="Search..." className="h-9" />
+                                                                    <CommandList>
+                                                                        <CommandEmpty>No position found.</CommandEmpty>
+                                                                        <CommandGroup>
+                                                                            <CommandItem
+                                                                                key="none"
+                                                                                onSelect={() => {
+                                                                                    field.onChange(null)
+                                                                                    setOpenSelectManagementPosition(false)
+                                                                                }}
+                                                                            >
+                                                                                -- No select --
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "ml-auto h-4 w-4",
+                                                                                        !field.value ? "opacity-100" : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </CommandItem>
+
+                                                                            {positions.map((item: {id: number, name: string}) => (
+                                                                                <CommandItem
+                                                                                    key={item.id}
+                                                                                    onSelect={() => {
+                                                                                        field.onChange(item.id)
+                                                                                        setOpenSelectManagementPosition(false)
+                                                                                    }}
+                                                                                >
+                                                                                    {item.name}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "ml-auto h-4 w-4",
+                                                                                            field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </CommandGroup>
+                                                                    </CommandList>
+                                                                </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ) : (<></>)
+                            }
                         </div>
 
                         <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[10%]">
