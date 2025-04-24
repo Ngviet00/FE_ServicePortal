@@ -23,6 +23,10 @@ import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
 import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE, TYPE_LEAVE } from "@/lib"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuthStore } from "@/store/authStore"
+import DotRequireComponent from "@/components/DotRequireComponent"
+import { AxiosError } from "axios"
+import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
 
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
@@ -41,32 +45,34 @@ const formSchema = z.object({
     type_leave: z.string().nonempty({message: "Required"}),
     time_leave: z.string().nonempty({message: "Required"}),
 
-    reason: z.string().optional(),
-})
+    reason: z.string().nonempty({message: "Required"})
+}).refine(data => {
+    const from = new Date(data.from_date);
+    const to = new Date(data.to_date);
+    return to >= from;
+}, {
+    path: ["to_date"],
+    message: "To date cannot be earlier than From date",
+});
 
-// interface TypeLeaveRequestForm {
-//     employee_code: string,
-//     department: string,
-//     name: string,
-//     position: string,
-
-//     from_date: string,
-//     from_hour: string,
-//     from_minutes: string,
-
-//     to_date: string,
-//     to_hour: string,
-//     to_minutes: string,
-
-//     type_leave: string,
-//     time_leave: string,
-//     reason: string,
-// }
+const formatData = (values: z.infer<typeof formSchema>, codeCurrentUser: string | undefined): LeaveRequestData => ({
+    user_code: values.code ?? null,
+    name: values.name ?? null,
+    name_register: codeCurrentUser ?? "",
+    position: values.position,
+    department: values.department,
+    from_date: `${values.from_date} ${values.from_hour}:${values.from_minutes}`,
+    to_date: `${values.to_date} ${values.to_hour}:${values.to_minutes}`,
+    reason: values.reason,
+    time_leave: parseInt(values.time_leave),
+    type_leave: parseInt(values.type_leave),
+});
 
 export default function LeaveRequestForm() {
     const { t } = useTranslation();
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     
     const { id } = useParams<{ id: string }>()
     const isEdit = !!id;
@@ -74,10 +80,10 @@ export default function LeaveRequestForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            code: "",
-            department: "",
-            name: "",
-            position: "",
+            code: user?.code,
+            department: user?.children_department ? user?.children_department.name : (user?.parent_department ? user?.parent_department.name : "Not Set"),
+            name: user?.name,
+            position: user?.position?.name,
         
             from_date: new Date().toISOString().slice(0, 10),
             from_hour: "08",
@@ -94,37 +100,26 @@ export default function LeaveRequestForm() {
     })
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values);
-        ShowToast("Create leave request success", "success")
-        // setLoading(true);
-        // try {
-        //     if (isEdit) {
-        //         await departmentApi.update(Number(id), {
-        //             ...values,
-        //             note: values.note ?? null,
-        //             parent_id: values.parentId ?? null,
-        //         })
-        //         ShowToast("Update department success", "success")
-        //         navigate("/department")
-        //       } else {
-        //         await departmentApi.create({
-        //             ...values,
-        //             note: values.note ?? null,
-        //             parent_id: values.parentId ?? null,
-        //         })
-        //         ShowToast("Add department success", "success")
-        //         navigate("/department")
-        //       }
-        // } catch (err: unknown) {
-        //     const error = err as AxiosError<{ message: string }>
-        //     const message = error?.response?.data?.message ?? "Something went wrong"
-        //     form.setError("name", {
-        //         type: "server",
-        //         message,
-        //     })
-        // } finally {
-        //     setLoading(false);
-        // }
+        // setLoading(true)
+
+        const data = formatData(values, user?.code);
+
+        console.log(data);
+
+        try {
+            await leaveRequestApi.create(data)
+            ShowToast("Create leave request success", "success")
+            form.setValue("reason", "")
+        } catch (err: unknown) {
+            const error = err as AxiosError<{ message: string }>
+            const message = error?.response?.data?.message ?? "Something went wrong"
+            form.setError("name", {
+                type: "server",
+                message,
+            })
+        } finally {
+            setLoading(false)
+        }
     }
 
     // const { data, isPending, isError } = useQuery({
@@ -193,7 +188,7 @@ export default function LeaveRequestForm() {
                                     name="code"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.code')}</FormLabel>
+                                            <FormLabel>{t('leave_request.create.code')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
                                                 <Input placeholder={t('leave_request.create.code')} {...field} />
                                             </FormControl>
@@ -203,13 +198,13 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="ml-2 w-[25%] flex-1">
+                            <div className="ml-5 w-[25%] flex-1">
                                 <FormField
                                     control={form.control}
                                     name="name"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.name')}</FormLabel>
+                                            <FormLabel>{t('leave_request.create.name')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
                                                 <Input placeholder={t('leave_request.create.name')} {...field} />
                                             </FormControl>
@@ -219,13 +214,13 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
                             
-                            <div className="ml-2 w-[25%]">
+                            <div className="ml-5 w-[25%]">
                                 <FormField
                                     control={form.control}
                                     name="department"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.department')}</FormLabel>
+                                            <FormLabel>{t('leave_request.create.department')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
                                                 <Input placeholder={t('leave_request.create.department')} {...field} />
                                             </FormControl>
@@ -235,13 +230,13 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="ml-2 w-[20%]">
+                            <div className="ml-5 w-[20%]">
                                 <FormField
                                     control={form.control}
                                     name="position"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.position')}</FormLabel>
+                                            <FormLabel>{t('leave_request.create.position')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
                                                 <Input placeholder={t('leave_request.create.position')} {...field} />
                                             </FormControl>
@@ -253,7 +248,7 @@ export default function LeaveRequestForm() {
                         </div>
 
                         <div className="second-row flex flex-wrap w-full">
-                            <div className="w-[13%]">
+                            <div className="w-[10%]">
                                 <FormField
                                     control={form.control}
                                     name="from_date"
@@ -276,7 +271,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-2">
+                            <div className="w-[10%] ml-5">
                                 <FormField
                                     control={form.control}
                                     name="from_hour"
@@ -304,7 +299,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-2">
+                            <div className="w-[10%] ml-5">
                                 <FormField
                                     control={form.control}
                                     name="from_minutes"
@@ -358,7 +353,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="w-[15%] ml-2">
+                            <div className="w-[15%] ml-5">
                                 <FormField
                                     control={form.control}
                                     name="time_leave"
@@ -390,7 +385,7 @@ export default function LeaveRequestForm() {
                         </div>
 
                         <div className="third-row flex flex-wrap w-full">
-                            <div className="w-[13%]">
+                            <div className="w-[10%]">
                                 <FormField
                                     control={form.control}
                                     name="to_date"
@@ -414,7 +409,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-2">
+                            <div className="w-[10%] ml-5">
                                 <FormField
                                     control={form.control}
                                     name="to_hour"
@@ -441,7 +436,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-2">
+                            <div className="w-[10%] ml-5">
                                 <FormField
                                     control={form.control}
                                     name="to_minutes"
@@ -473,7 +468,7 @@ export default function LeaveRequestForm() {
                                     name="reason"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.reason')}</FormLabel>
+                                            <FormLabel>{t('leave_request.create.reason')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
                                                 <Textarea 
                                                     name={field.name}

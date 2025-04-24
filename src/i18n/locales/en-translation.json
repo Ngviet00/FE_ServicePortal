@@ -7,6 +7,10 @@
 		"code": "Employee Code",
 		"dob": "Date of birth",
 		"phone": "Phone",
+		"position": "Position",
+		"role": "Role",
+		"parent_department": "Parent Department",
+		"children_department": "Children Department",
 		"name": "Name",
 		"email": "Email",
 		"date_join_company": "Date join company",
@@ -24,7 +28,7 @@
 
 	"header": {
 		"hi": "Hi",
-		"my_account": "My Account",
+		"my_account": "My Profile",
 		"change_password": "Change Password",
 		"log_out": "Logout"
 	},

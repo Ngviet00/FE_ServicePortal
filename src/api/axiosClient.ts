@@ -32,8 +32,10 @@ axiosClient.interceptors.response.use(
 
 			try {
 				await axiosClient.get('/auth/refresh-token');
+				console.log('call refresh token');
 				return axiosClient(originalRequest);
 			} catch {
+				console.log('login again');
 				localStorage.removeItem('auth-storage');
 				window.location.href = '/login';
 			}

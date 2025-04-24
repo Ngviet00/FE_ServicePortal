@@ -41,10 +41,10 @@ const formSchema = z.object({
     date_of_birth: z.string().nullable().optional(),
     phone: z.string().nullable().optional(),
     sex: z.number().nullable().optional(),
-    parent_department_id: z.number({message: 'Required'}),
-    child_department_id: z.number().nullable().optional(),
-    position_id: z.number({message: "Required"}),
-    management_position_id: z.number({message: 'Required'})
+    parent_department_id: z.string().nonempty({message: "Required"}),
+    child_department_id: z.string().nullable().optional(),
+    position_id: z.string().nonempty({message: "Required"}),
+    management_position_id: z.string().nullable().optional()
 })
 
 const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
@@ -57,10 +57,10 @@ const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
     date_join_company: values.date_join_company ? new Date(values.date_join_company).toISOString() : null,
     phone: values.phone ?? null,
     sex: values.sex ?? null,
-    parent_department_id: values.parent_department_id ?? null,
-    child_department_id: values.child_department_id ?? null,
-    position_id: values.position_id ?? null,
-    management_position_id: values.management_position_id ?? null
+    parent_department_id: parseInt(values.parent_department_id) ?? null,
+    child_department_id: values.child_department_id ? parseInt(values.child_department_id) : null,
+    position_id: parseInt(values.position_id) ?? null,
+    management_position_id: values.management_position_id ? parseInt(values.management_position_id): null
 });
 
 
@@ -73,8 +73,9 @@ export default function CreateUserForm() {
     const [openSelectPosition, setOpenSelectPosition] = useState(false)
     const [openSelectManagementPosition, setOpenSelectManagementPosition] = useState(false)
     const [openRole, setOpenRole] = useState(false)
-    const [childrenDepartments, setChildrenDepartments] = useState<{ id: number; name: string }[] | undefined | null>([])
+    const [childrenDepartments, setChildrenDepartments] = useState<{ id: number; name: string; parent_id: number }[] | undefined | null>([])
     const [positions, setPositions] = useState<{ id: number; name: string }[] | undefined | null>([]);
+    const [showPosition, setShowPosition] = useState(false)
 
     const { code } = useParams<{ code: string }>()
     const isEdit = !!code;
@@ -91,11 +92,11 @@ export default function CreateUserForm() {
             date_join_company: new Date().toISOString().split("T")[0],
             date_of_birth: new Date().toISOString().split("T")[0],
             phone: "",
-            sex: -1,
-            parent_department_id: undefined,
-            child_department_id: undefined,
-            position_id: undefined,
-            management_position_id: undefined
+            sex: 1,
+            parent_department_id: "",
+            child_department_id: "",
+            position_id: "",
+            management_position_id: ""
         },
     })
 
@@ -182,36 +183,46 @@ export default function CreateUserForm() {
             setPositions([])
             setChildrenDepartments([])
             setOpenSelectDepartment(false);
+            form.setValue("position_id", "")
+            form.setValue("management_position_id", "")
             return;
         }
 
         const departmentSelected = parentDepartments.find((item: {id: number}) => item.id == selectedDepartmentId)
 
-        if (departmentSelected.childrens.length > 0) {
-            setChildrenDepartments(departmentSelected.childrens)
-        }
+        setChildrenDepartments(departmentSelected.childrens.length > 0 ? departmentSelected.childrens : [])
 
-        if (departmentSelected.childrens == 0 && departmentSelected.positions.length > 0) {
+        if (departmentSelected.positions.length > 0) {
             setPositions(departmentSelected.positions)
+        } else {
+            setShowPosition(true)
         }
 
         setOpenSelectDepartment(false);
     }
     
     //handle child department change
-    const handleChildDepartmentChange = (selectedChildDepartmentId: number) => {
+    const handleChildDepartmentChange = (selectedChildDepartmentId: number, parentId?: number) => {
         if (selectedChildDepartmentId == -1) {
-            setPositions([])
+            const currentParentDepartment = parentDepartments.find((item: {id: string}) => item.id == form.getValues('parent_department_id'))
+            setPositions(currentParentDepartment.positions.length > 0 ? currentParentDepartment.positions : [])
+            setShowPosition(false);
             setOpenSelectChildDepartment(false);
             return;
         }
-        
-        const departmentSelected = parentDepartments.childrens.find((item: {id: number}) => item.id == selectedChildDepartmentId)
 
-        if (departmentSelected.positions.length > 0) {
-            setPositions(departmentSelected.positions)
+        const parent = parentDepartments.find((item: {id: number}) => item.id == parentId)
+        const childrens = parent.childrens.find((item: {id: number}) => item.id == selectedChildDepartmentId)
+
+        if (childrens.positions.length > 0) {
+            setPositions(childrens.positions)
+        } else {
+            form.setValue('position_id', "")
+            form.setValue('management_position_id', "")
+
+            setPositions([])
+            setShowPosition(true);
         }
-
         setOpenSelectChildDepartment(false);
     }
 
@@ -482,7 +493,7 @@ export default function CreateUserForm() {
                                                         className="w-[260px] justify-between text-gray-500"
                                                     >
                                                         {field.value
-                                                            ? parentDepartments?.find((item: {id: number, name: string}) => item.id == field.value)?.name
+                                                            ? parentDepartments?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name
                                                             : "Select"}
                                                         <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
                                                     </Button>
@@ -501,7 +512,7 @@ export default function CreateUserForm() {
                                                                     <CommandItem
                                                                         key="none"
                                                                         onSelect={() => {
-                                                                            field.onChange(null)
+                                                                            field.onChange("")
                                                                             handleParentDepartmentChange(-1)
                                                                         }}
                                                                     >
@@ -518,7 +529,7 @@ export default function CreateUserForm() {
                                                                         <CommandItem
                                                                             key={item.id}
                                                                             onSelect={() => {
-                                                                                field.onChange(item.id)
+                                                                                field.onChange(item.id.toString())
                                                                                 handleParentDepartmentChange(item.id)
                                                                             }}
                                                                         >
@@ -526,7 +537,7 @@ export default function CreateUserForm() {
                                                                             <Check
                                                                                 className={cn(
                                                                                     "ml-auto h-4 w-4",
-                                                                                    field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                    field.value == item.id.toString() ? "opacity-100" : "opacity-0"
                                                                                 )}
                                                                             />
                                                                         </CommandItem>
@@ -561,7 +572,7 @@ export default function CreateUserForm() {
                                                                 className="w-[260px] justify-between text-gray-500"
                                                             >
                                                             {field.value
-                                                            ? childrenDepartments?.find((item: {id: number, name: string}) => item.id == field.value)?.name ?? ""
+                                                            ? childrenDepartments?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name ?? ""
                                                             : "Select"}
                                                                 <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
                                                             </Button>
@@ -575,7 +586,7 @@ export default function CreateUserForm() {
                                                                             <CommandItem
                                                                                 key="none"
                                                                                 onSelect={() => {
-                                                                                    field.onChange(null)
+                                                                                    field.onChange("")
                                                                                     handleChildDepartmentChange(-1)
                                                                                 }}
                                                                             >
@@ -588,24 +599,19 @@ export default function CreateUserForm() {
                                                                                 />
                                                                             </CommandItem>
 
-                                                                            {childrenDepartments.map((item: {id: number, name: string}) => (
+                                                                            {childrenDepartments.map((item: {id: number, name: string, parent_id: number}) => (
                                                                                 <CommandItem
                                                                                     key={item.id}
-                                                                                    // onSelect={() => {
-                                                                                    //     field.onChange(item.id)
-                                                                                    //     setOpenSelectChildDepartment(false)
-                                                                                    // }}
-
                                                                                     onSelect={() => {
-                                                                                        field.onChange(item.id)
-                                                                                        handleChildDepartmentChange(item.id)
+                                                                                        field.onChange(item.id.toString())
+                                                                                        handleChildDepartmentChange(item.id, item.parent_id)
                                                                                     }}
                                                                                 >
                                                                                     {item.name}
                                                                                     <Check
                                                                                         className={cn(
                                                                                             "ml-auto h-4 w-4",
-                                                                                            field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                            field.value == item.id.toString() ? "opacity-100" : "opacity-0"
                                                                                         )}
                                                                                     />
                                                                                 </CommandItem>
@@ -625,7 +631,7 @@ export default function CreateUserForm() {
                             }
 
                             {
-                                positions && positions.length > 0 ? (
+                                (positions && positions.length > 0) || (showPosition) ? (
                                     <div className="w-[13%] ml-20">
                                         <FormField
                                             control={form.control}
@@ -642,7 +648,7 @@ export default function CreateUserForm() {
                                                                 className="w-[260px] justify-between text-gray-500"
                                                             >
                                                             {field.value
-                                                            ? positions?.find((item: {id: number, name: string}) => item.id == field.value)?.name ?? ""
+                                                            ? positions?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name ?? ""
                                                             : "Select"}
                                                                 <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
                                                             </Button>
@@ -656,7 +662,7 @@ export default function CreateUserForm() {
                                                                             <CommandItem
                                                                                 key="none"
                                                                                 onSelect={() => {
-                                                                                    field.onChange(null)
+                                                                                    field.onChange("")
                                                                                     setOpenSelectPosition(false)
                                                                                 }}
                                                                             >
@@ -669,11 +675,11 @@ export default function CreateUserForm() {
                                                                                 />
                                                                             </CommandItem>
 
-                                                                            {positions.map((item: {id: number, name: string}) => (
+                                                                            {positions?.map((item: {id: number, name: string}) => (
                                                                                 <CommandItem
                                                                                     key={item.id}
                                                                                     onSelect={() => {
-                                                                                        field.onChange(item.id)
+                                                                                        field.onChange(item.id.toString())
                                                                                         setOpenSelectPosition(false)
                                                                                     }}
                                                                                 >
@@ -681,7 +687,7 @@ export default function CreateUserForm() {
                                                                                     <Check
                                                                                         className={cn(
                                                                                             "ml-auto h-4 w-4",
-                                                                                            field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                            field.value == item.id.toString() ? "opacity-100" : "opacity-0"
                                                                                         )}
                                                                                     />
                                                                                 </CommandItem>
@@ -701,7 +707,7 @@ export default function CreateUserForm() {
                             }
                             
                             {
-                                positions && positions.length > 0 ? (
+                                (positions && positions.length > 0) || (showPosition) ? (
                                     <div className="w-[13%] ml-20">
                                         <FormField
                                             control={form.control}
@@ -718,7 +724,7 @@ export default function CreateUserForm() {
                                                                 className="w-[260px] justify-between text-gray-500"
                                                             >
                                                             {field.value
-                                                            ? positions?.find((item: {id: number, name: string}) => item.id == field.value)?.name ?? ""
+                                                            ? positions?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name ?? ""
                                                             : "Select"}
                                                                 <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
                                                             </Button>
@@ -732,7 +738,7 @@ export default function CreateUserForm() {
                                                                             <CommandItem
                                                                                 key="none"
                                                                                 onSelect={() => {
-                                                                                    field.onChange(null)
+                                                                                    field.onChange("")
                                                                                     setOpenSelectManagementPosition(false)
                                                                                 }}
                                                                             >
@@ -745,11 +751,11 @@ export default function CreateUserForm() {
                                                                                 />
                                                                             </CommandItem>
 
-                                                                            {positions.map((item: {id: number, name: string}) => (
+                                                                            {positions?.map((item: {id: number, name: string}) => (
                                                                                 <CommandItem
                                                                                     key={item.id}
                                                                                     onSelect={() => {
-                                                                                        field.onChange(item.id)
+                                                                                        field.onChange(item.id.toString())
                                                                                         setOpenSelectManagementPosition(false)
                                                                                     }}
                                                                                 >
@@ -757,7 +763,7 @@ export default function CreateUserForm() {
                                                                                     <Check
                                                                                         className={cn(
                                                                                             "ml-auto h-4 w-4",
-                                                                                            field.value == item.id ? "opacity-100" : "opacity-0"
+                                                                                            field.value == item.id.toString() ? "opacity-100" : "opacity-0"
                                                                                         )}
                                                                                     />
                                                                                 </CommandItem>

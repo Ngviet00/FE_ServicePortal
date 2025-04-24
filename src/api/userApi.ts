@@ -24,7 +24,23 @@ export interface ListUserData {
     date_join_company: string | null,
     date_of_birth: string | null,
     phone: string | null,
-    sex: number | null
+    sex: number | null,
+    role: {
+        id: number,
+        name: string
+    },
+    position: {
+        id: number,
+        name: string,
+    },
+    children_department: {
+        id: number,
+        name: string
+    },
+    parent_department: {
+        id: number,
+        name: string
+    }
 }
 
 const userApi = {

@@ -13,13 +13,12 @@ import MainLayout from '@/layouts/MainLayout';
 import ChangePasswordPage from '@/pages/ChangePasswordPage';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
-import MyProfile from '@/pages/MyProfile';
 import RegisterPage from '@/pages/RegisterPage';
 import RedirectIfAuthenticated from '@/routes/IsAuthenticated';
 import PrivateRoute from '@/routes/PrivateRoute';
 import CreateUserForm from '@/features/User/CreateUserForm';
-import ListTeam from '@/features/Team/ListTeam';
-import TeamForm from '@/features/Team/TeamForm';
+// import ListTeam from '@/features/Team/ListTeam';
+// import TeamForm from '@/features/Team/TeamForm';
 
 
 function App() {
@@ -36,7 +35,6 @@ function App() {
 
 	const privateRoutes = [
 		{ path: "/", element: <HomePage /> },
-		{ path: "/my-profile", element: <MyProfile /> },
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		
 		{ path: "/role", element: <ListRole /> },
@@ -49,9 +47,9 @@ function App() {
 		{ path: "/position/create", element: <PositionForm /> },
 		{ path: "/position/edit/:id", element: <PositionForm /> },
 
-		{ path: "/team", element: <ListTeam /> },
-		{ path: "/team/create", element: <TeamForm /> },
-		{ path: "/team/edit/:id", element: <TeamForm /> },
+		// { path: "/team", element: <ListTeam /> },
+		// { path: "/team/create", element: <TeamForm /> },
+		// { path: "/team/edit/:id", element: <TeamForm /> },
 
 		{ path: "/user", element: <ListUser /> },
 		{ path: "/user/create", element: <CreateUserForm /> },

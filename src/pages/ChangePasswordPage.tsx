@@ -63,13 +63,13 @@ export default function ChangePasswordPage() {
 
     return <>
         <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white">
-            <h2 className="font-bold text-2xl">{t('change_password.change_password')}</h2>
+            <h2 className="font-bold text-2xl mb-3">{t('change_password.change_password')}</h2>
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 {successMsg && <AlertSuccess message={successMsg} />}
                 {errorMsg && <AlertError message={errorMsg} />}
             </div>
         
-            <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
+            <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm" style={{ margin: 'initial'}}>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="mb-5">
                         <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">

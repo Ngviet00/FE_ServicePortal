@@ -23,7 +23,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
             { label: "sidebar.admin.role", route: "/role" },
             { label: "sidebar.admin.department", route: "/department" },
             { label: "sidebar.admin.position", route: "/position" },
-            { label: "sidebar.admin.team", route: "/team" },
+            // { label: "sidebar.admin.team", route: "/team" },
         ],
     },
     {

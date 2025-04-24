@@ -6,10 +6,26 @@ interface User {
     code: string,
     name?: string;
     email?: string;
-    dateJoinCompany?: string,
+    date_join_company?: string,
+    date_of_birth?: string,
     phone?: string,
     sex?: number,
-    dateOfBirth?: string,
+    role?: {
+        id: number,
+        name: string
+    },
+    parent_department?: {
+        id: number,
+        name: string
+    },
+    children_department?: {
+        id: number,
+        name: string
+    },
+    position?: {
+        id: number,
+        name: string
+    }
 }
 
 interface AuthState {

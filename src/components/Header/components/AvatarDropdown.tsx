@@ -39,10 +39,6 @@ export default function AvatarDropdown() {
 				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
-				<DropdownMenuItem className="cursor-pointer" onClick={() => handleChangePage("my-profile")}>
-					{t('header.my_account')}
-				</DropdownMenuItem>
-
 				<DropdownMenuItem className="cursor-pointer" onClick={() => handleChangePage("change-password")}>
 				{t('header.change_password')}
 				</DropdownMenuItem>

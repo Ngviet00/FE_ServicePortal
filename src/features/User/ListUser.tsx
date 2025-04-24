@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { ShowToast, useDebounce } from "@/lib"
+import { formatDate, ShowToast, useDebounce } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import userApi, { ListUserData } from "@/api/userApi"
 
@@ -88,17 +88,19 @@ export default function ListUser () {
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">Users</h3>
                 <Button>
-                    <Link to="/department/create">Create User</Link>
+                    <Link to="/user/create">Create User</Link>
                 </Button>
             </div>
 
-            <div className="flex items-center justify-between">
-                <Input
-                    placeholder="Tìm kiếm user..."
-                    value={name}
-                    onChange={handleSearchByName}
-                    className="max-w-sm"
-                />
+            <div className="flex items-center justify-start">
+                <div className="w-[15%]">
+                    <Input
+                        placeholder="Tìm kiếm name, email, phone..."
+                        value={name}
+                        onChange={handleSearchByName}
+                        className="max-w-sm"
+                    />
+                </div>
             </div>
 
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
@@ -112,12 +114,13 @@ export default function ListUser () {
                                 </div>
                             </th>
                             <th className="w-[12%] px-6 py-3">Code</th>
-                            <th className="w-[25%] px-6 py-3">Name</th>
+                            <th className="w-[22%] px-6 py-3">Name</th>
                             <th className="w-[10%] px-6 py-3">Sex</th>
-                            <th className="w-[20%] px-6 py-3">Phone</th>
+                            <th className="w-[15%] px-6 py-3">Phone</th>
                             <th className="w-[30%] px-6 py-3">Email</th>
                             <th className="w-[25%] px-6 py-3">Role</th>
                             <th className="w-[20%] px-6 py-3">Department</th>
+                            <th className="w-[20%] px-6 py-3">Child Department</th>
                             <th className="w-[25%] px-6 py-3">Position</th>
                             <th className="w-[30%] px-6 py-3">Date join company</th>
                             <th className="w-[30%] px-6 py-3">Action</th>
@@ -152,6 +155,9 @@ export default function ListUser () {
                                         <Skeleton className="h-4 w-[80px]" />
                                     </td>
                                     <td className="px-6 py-4">
+                                        <Skeleton className="h-4 w-[80px]" />
+                                    </td>
+                                    <td className="px-6 py-4">
                                         <Skeleton className="h-4 w-[90px]" />
                                     </td>
                                     <td className="px-6 py-4">
@@ -164,7 +170,7 @@ export default function ListUser () {
                             ))
                         ) : isError || users.length === 0 ? (
                             <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={11} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
+                                <td colSpan={12} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
                                     {error?.message || "No results"}
                                 </td>
                             </tr>
@@ -190,19 +196,22 @@ export default function ListUser () {
                                         {item?.email}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.role_id}
+                                        {item.role.name}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.department_id}
+                                        {item.parent_department.name}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.position_id}
+                                        {item?.children_department ? item.children_department.name : "-" }
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.date_join_company}
+                                        {item.position.name}
+                                    </th>
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {item?.date_join_company ? formatDate(item?.date_join_company) : "-"}
                                     </th>
                                     <td className="px-4 py-4">  
-                                        <Link to={`/user/edit/${item.code}`}>Edit</Link>
+                                        {/* <Link to={`/user/edit/${item.code}`}>Edit</Link> */}
                                         <ButtonDeleteComponent id={item.code} onDelete={() => handleDelete(parseInt(item.code))}/>
                                     </td>
                                 </tr>

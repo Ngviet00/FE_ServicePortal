@@ -15,11 +15,11 @@ export default function HomePage() {
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('home_page.home_page')}</h3>
             </div>
 
-            <div className='wrap-home-page h-[180px] rounded-3xl flex'>
+            <div className='wrap-home-page h-[230px] rounded-3xl flex'>
                 <div className='w-[20%] bg-[#f3f4ff] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                     <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                     <div>
-                        <Label className='text-base font-bold'>{t('home_page.sex.male')}</Label>
+                        <Label className='text-base font-bold'>{user?.sex == 1? t('home_page.sex.male') : t('home_page.sex.female')}</Label>
                     </div>
                 </div>
                 <div className='py-4 px-2 flex flex-1 bg-[#f3f4ff]'>
@@ -34,16 +34,28 @@ export default function HomePage() {
                             <div className='mb-5'>
                                 <Label className='text-base text-gray-500'>{t('home_page.phone')}</Label>
                             </div>
+                            <div className='mb-5'>
+                                <Label className='text-base text-gray-500'>{t('home_page.role')}</Label>
+                            </div>
+                            <div className='mb-5'>
+                                <Label className='text-base text-gray-500'>{t('home_page.position')}</Label>
+                            </div>
                         </div>
                         <div>
                             <div className='mb-5'>
                                 <Label className='text-base font-bold'>{user?.code ?? "undefined"}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.dateOfBirth ? formatDate(user?.dateOfBirth) : "undefined"}</Label>
+                                <Label className='text-base font-bold'>{user?.date_of_birth ? formatDate(user?.date_of_birth) : "Not Set"}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>0345248120</Label>
+                                <Label className='text-base font-bold'>{user?.phone}</Label>
+                            </div>
+                            <div className='mb-5'>
+                                <Label className='text-base font-bold'>{user?.role?.name}</Label>
+                            </div>
+                            <div className='mb-5'>
+                                <Label className='text-base font-bold'>{user?.position?.name}</Label>
                             </div>
                         </div>
                     </div>
@@ -59,6 +71,12 @@ export default function HomePage() {
                             <div className='mb-5'>
                                 <Label className='text-base text-gray-500'>{t('home_page.date_join_company')}</Label>
                             </div>
+                            <div className='mb-5'>
+                                <Label className='text-base text-gray-500'>{t('home_page.parent_department')}</Label>
+                            </div>
+                            <div className='mb-5'>
+                                <Label className='text-base text-gray-500'>{t('home_page.children_department')}</Label>
+                            </div>
                         </div>
                         <div>
                             <div className='mb-5'>
@@ -68,7 +86,13 @@ export default function HomePage() {
                                 <Label className='text-base font-bold'>{user?.email ?? "undefined"}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.dateJoinCompany ? formatDate(user?.dateJoinCompany) : "undefined"}</Label>
+                                <Label className='text-base font-bold'>{user?.date_join_company ? formatDate(user?.date_join_company) : "Not Set"}</Label>
+                            </div>
+                            <div className='mb-5'>
+                                <Label className='text-base font-bold'>{user?.parent_department?.name ?? "-"}</Label>
+                            </div>
+                            <div className='mb-5'>
+                                <Label className='text-base font-bold'>{user?.children_department?.name ? user?.children_department?.name : "-"}</Label>
                             </div>
                         </div>
                     </div>
@@ -108,7 +132,7 @@ export default function HomePage() {
                                             <Label className='text-sm'>{t('home_page.total_leave_annual')}</Label>
                                         </span>
                                         <span className='p-1'>
-                                            <Label className='text-base'>12</Label>
+                                            <Label className='text-base'>0</Label>
                                         </span>
                                     </span>
 
@@ -117,7 +141,7 @@ export default function HomePage() {
                                             <Label className='text-sm'>{t('home_page.total_leave_used')}</Label>
                                         </span>
                                         <span className='p-1'>
-                                            <Label className='text-base'>5</Label>
+                                            <Label className='text-base'>0</Label>
                                         </span>
                                     </span>
 
@@ -126,7 +150,7 @@ export default function HomePage() {
                                             <Label className='text-sm'>{t('home_page.total_leave_remaining')}</Label>
                                         </span>
                                         <span className='p-1'>
-                                            <Label className='text-base'>2</Label>
+                                            <Label className='text-base'>0</Label>
                                         </span>
                                     </span>
                                 </div>

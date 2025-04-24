@@ -26,7 +26,7 @@ export default function LoginPage() {
             const res = await authApi.login({ user_code, password });
             setUser(res.data.user);
             navigate("/")
-        } 
+        }
         catch (err) {
             const msg =
                 axios.isAxiosError(err)
