@@ -11,6 +11,87 @@ import departmentApi from "@/api/departmentApi"
 import { ShowToast, useDebounce } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from "@/components/ui/table"
+
+  const invoices = [
+    {
+      code: "22757",
+      name: "Nguyễn Văn Viẹt",
+      department: "IT/MIS",
+      position: "Staff IT",
+      from: "2025-04-24 08:00",
+      to: "2025-04-24 17:00",
+      type_leave: "Phép năm",
+      time_leave: "Buổi sáng",
+      reason: "Có cỗ",
+    },
+    // {
+    //   invoice: "INV002",
+    //   paymentStatus: "Pending",
+    //   totalAmount: "$150.00",
+    //   paymentMethod: "PayPal",
+    // },
+    // {
+    //   invoice: "INV003",
+    //   paymentStatus: "Unpaid",
+    //   totalAmount: "$350.00",
+    //   paymentMethod: "Bank Transfer",
+    // },
+    // {
+    //   invoice: "INV004",
+    //   paymentStatus: "Paid",
+    //   totalAmount: "$450.00",
+    //   paymentMethod: "Credit Card",
+    // },
+    // {
+    //   invoice: "INV005",
+    //   paymentStatus: "Paid",
+    //   totalAmount: "$550.00",
+    //   paymentMethod: "PayPal",
+    // },
+    // {
+    //   invoice: "INV006",
+    //   paymentStatus: "Pending",
+    //   totalAmount: "$200.00",
+    //   paymentMethod: "Bank Transfer",
+    // },
+    // {
+    //   invoice: "INV007",
+    //   paymentStatus: "Unpaid",
+    //   totalAmount: "$300.00",
+    //   paymentMethod: "Credit Card",
+    // },
+    // {
+    //     invoice: "INV005",
+    //     paymentStatus: "Paid",
+    //     totalAmount: "$550.00",
+    //     paymentMethod: "PayPal",
+    //   },
+    //   {
+    //     invoice: "INV006",
+    //     paymentStatus: "Pending",
+    //     totalAmount: "$200.00",
+    //     paymentMethod: "Bank Transfer",
+    //   },
+    //   {
+    //     invoice: "INV007",
+    //     paymentStatus: "Unpaid",
+    //     totalAmount: "$300.00",
+    //     paymentMethod: "Credit Card",
+    //   }
+  ]
 interface departments {
     id: number,
     name: string
@@ -18,6 +99,8 @@ interface departments {
     parent_id: number | null
     parent: departments
 }
+
+
 
 export default function ListLeaveRequest () {
     const [name, setName] = useState("") //search by name
@@ -105,17 +188,66 @@ export default function ListLeaveRequest () {
             </div>
 
             <div className="flex items-center justify-between">
-                <Input
-                    placeholder="Tìm kiếm leave request..."
-                    value={name}
-                    onChange={handleSearchByName}
-                    className="max-w-sm"
-                />
+            
             </div>
 
-            <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
-                <div className="max-h-[450px] overflow-y-auto">
-                    <table style={{ tableLayout:'fixed'}} className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
+                <div className="max-h-[450px]">
+                    {/*   onValueChange={setTab} */}
+                    <Tabs defaultValue="Pending" className="w-full" >
+                        <TabsList style={{margin: '0px auto'}} className="mb-5 h-[40px]">
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="Pending">Pending</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="In-Process">In-Process</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-green-200 text-green-600" value="Complete">Complete</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-red-200 text-red-600" value="Reject">Reject</TabsTrigger>
+                        </TabsList>
+                        {/* <TabsContent value="account"> */}
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[120px]">Mã nhân viên</TableHead>
+                                        <TableHead className="w-[180px]">Họ tên</TableHead>
+                                        <TableHead className="w-[130px]">Phòng ban</TableHead>
+                                        <TableHead className="w-[100px]">Vị trí</TableHead>
+                                        <TableHead className="w-[150px]">Nghỉ từ ngày</TableHead>
+                                        <TableHead className="w-[150px]">Đến ngày</TableHead>
+                                        <TableHead className="w-[120px]">Loại phép</TableHead>
+                                        <TableHead className="w-[120px]">Thời gian</TableHead>
+                                        <TableHead className="text-center w-[200px]">Lý do</TableHead>
+                                        <TableHead className="w-[50px]">Hành động</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {invoices.map((invoice) => (
+                                    <TableRow key={invoice.code}>
+                                        <TableCell className="font-medium">{invoice.code}</TableCell>
+                                        <TableCell>{invoice.name}</TableCell>
+                                        <TableCell>{invoice.department}</TableCell>
+                                        <TableCell>{invoice.position}</TableCell>
+                                        <TableCell>{invoice.from}</TableCell>
+                                        <TableCell>{invoice.to}</TableCell>
+                                        <TableCell>{invoice.type_leave}</TableCell>
+                                        <TableCell>{invoice.time_leave}</TableCell>
+                                        <TableCell className="text-center">{invoice.reason}</TableCell>
+                                        <TableCell><Button  className="p-1 text-xs h-[30px] hover:cursor-pointer">Approval</Button></TableCell>
+                                    </TableRow>
+                                    ))}
+                                </TableBody>
+                                {/* <TableFooter>
+                                    <TableRow>
+                                    <TableCell colSpan={3}>Total</TableCell>
+                                    <TableCell className="text-right">$2,500.00</TableCell>
+                                    </TableRow>
+                                </TableFooter> */}
+                            </Table>
+                        
+                        {/* </TabsContent>
+                        <TabsContent value="password">
+                            
+                        </TabsContent> */}
+                    </Tabs>
+                        
+                    {/* <table style={{ tableLayout:'fixed'}} className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead className="text-xs text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
                             <tr className="border-b border-gray-200">
                                 <th scope="col" className="w-[5%] p-4 bg-gray-50 dark:bg-gray-700">
@@ -130,7 +262,28 @@ export default function ListLeaveRequest () {
                             </tr>
                         </thead>
                         <tbody>
-                        {isPending ? (
+
+                            <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
+                                <td className="p-4 w-[57px]">
+                                    <Checkbox className="hover:cursor-pointer" />
+                                </td>
+                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    a
+                                </th>
+                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    b
+                                </th>
+                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    b
+                                </th>
+                                <td className="px-4 py-4">  
+                                    <Link to={`/department/edit/`}>Edit</Link> */}
+                                    {/* <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/> */}
+                                {/* </td>
+                            </tr> */}
+
+
+                        {/* {isPending ? (
                             Array.from({ length: pageSize }).map((_, index) => (
                                 <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td className="w-[57px] p-4">
@@ -177,9 +330,9 @@ export default function ListLeaveRequest () {
                                     </td>
                                 </tr>
                             ))
-                        )}
-                        </tbody>
-                    </table>
+                        )} */}
+                        {/* </tbody>
+                    </table> */}
                 </div>
             </div>
             {
