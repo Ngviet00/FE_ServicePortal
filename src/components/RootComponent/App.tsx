@@ -17,6 +17,7 @@ import RegisterPage from '@/pages/RegisterPage';
 import RedirectIfAuthenticated from '@/routes/IsAuthenticated';
 import PrivateRoute from '@/routes/PrivateRoute';
 import CreateUserForm from '@/features/User/CreateUserForm';
+import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
 // import ListTeam from '@/features/Team/ListTeam';
 // import TeamForm from '@/features/Team/TeamForm';
 
@@ -56,7 +57,8 @@ function App() {
 		{ path: "/user/edit/:code", element: <CreateUserForm /> },
 
 		{ path: "/leave", element: <ListLeaveRequest/> },
-		{ path: "/leave/create", element: <LeaveRequestForm/> }
+		{ path: "/leave/create", element: <LeaveRequestForm/> },
+		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>}
 	];
   
 	return (

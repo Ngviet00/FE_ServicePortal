@@ -88,6 +88,8 @@ export default function ListRole () {
             console.error("Failed to delete:", error);
         }
     };
+    
+    console.log('render role');
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">

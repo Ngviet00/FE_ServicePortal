@@ -1,150 +1,64 @@
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Skeleton } from "@/components/ui/skeleton"
-
-import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import React, { useEffect, useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import departmentApi from "@/api/departmentApi"
-import { ShowToast, useDebounce } from "@/lib"
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
-  } from "@/components/ui/table"
+} from "@/components/ui/table"
+import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
+import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
+import { useAuthStore } from "@/store/authStore"
+import PaginationControl from "@/components/PaginationControl/PaginationControl"
+import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName } from "@/lib"
 
-  const invoices = [
-    {
-      code: "22757",
-      name: "Nguyễn Văn Viẹt",
-      department: "IT/MIS",
-      position: "Staff IT",
-      from: "2025-04-24 08:00",
-      to: "2025-04-24 17:00",
-      type_leave: "Phép năm",
-      time_leave: "Buổi sáng",
-      reason: "Có cỗ",
-    },
-    // {
-    //   invoice: "INV002",
-    //   paymentStatus: "Pending",
-    //   totalAmount: "$150.00",
-    //   paymentMethod: "PayPal",
-    // },
-    // {
-    //   invoice: "INV003",
-    //   paymentStatus: "Unpaid",
-    //   totalAmount: "$350.00",
-    //   paymentMethod: "Bank Transfer",
-    // },
-    // {
-    //   invoice: "INV004",
-    //   paymentStatus: "Paid",
-    //   totalAmount: "$450.00",
-    //   paymentMethod: "Credit Card",
-    // },
-    // {
-    //   invoice: "INV005",
-    //   paymentStatus: "Paid",
-    //   totalAmount: "$550.00",
-    //   paymentMethod: "PayPal",
-    // },
-    // {
-    //   invoice: "INV006",
-    //   paymentStatus: "Pending",
-    //   totalAmount: "$200.00",
-    //   paymentMethod: "Bank Transfer",
-    // },
-    // {
-    //   invoice: "INV007",
-    //   paymentStatus: "Unpaid",
-    //   totalAmount: "$300.00",
-    //   paymentMethod: "Credit Card",
-    // },
-    // {
-    //     invoice: "INV005",
-    //     paymentStatus: "Paid",
-    //     totalAmount: "$550.00",
-    //     paymentMethod: "PayPal",
-    //   },
-    //   {
-    //     invoice: "INV006",
-    //     paymentStatus: "Pending",
-    //     totalAmount: "$200.00",
-    //     paymentMethod: "Bank Transfer",
-    //   },
-    //   {
-    //     invoice: "INV007",
-    //     paymentStatus: "Unpaid",
-    //     totalAmount: "$300.00",
-    //     paymentMethod: "Credit Card",
-    //   }
-  ]
-interface departments {
-    id: number,
-    name: string
-    note: string | null
-    parent_id: number | null
-    parent: departments
-}
-
-
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function ListLeaveRequest () {
-    const [name, setName] = useState("") //search by name
     const [totalPage, setTotalPage] = useState(0) //search by name
     const [page, setPage] = useState(1) //current page
-    const [pageSize, setPageSize] = useState(5) //per page 5 item
+    const [pageSize, setPageSize] = useState(10) //per page 5 item
+    const [filterStatus, setFilterStatus] = useState(1);
 
-    const queryClient = useQueryClient();
+    // const queryClient = useQueryClient();
 
-    const debouncedName = useDebounce(name, 300);
+    const {user} = useAuthStore()
+
+    const queryParams = useMemo(() => {
+        return {
+            user_code: user?.code ?? "",
+            page: page,
+            page_size: pageSize,
+            status: filterStatus
+        };
+      }, [page, pageSize, filterStatus, user?.code]);
     
-    //get list department, parent department 
-    const { data: response, isPending, isError, error } = useQuery({
-        queryKey: ['get-all-department', debouncedName, page, pageSize],
+    const { data: leaveRequests = [], isPending, isError, error, refetch } = useQuery({
+        queryKey: ['get-leave-requests', queryParams],
         queryFn: async () => {
-            const res = await departmentApi.getAll({
-                page: page,
-                page_size: pageSize,
-                name: debouncedName
-            });
-            console.log('goij api ne');
+            
+            await delay(Math.random() * 100 + 100);
+
+            const res = await leaveRequestApi.getAll(queryParams);
+            console.log('call api leave request');
             setTotalPage(res.data.total_pages)
-            return [];
-            return res.data;
-        }
+            return res.data.data;
+        },
     });
 
-    const departments = response?.data || [];
-
-    useEffect(() => {
-        setPage(1);
-    }, [debouncedName]);
-
-    function handleSuccessDelete(shouldGoBack?: boolean) {
-        if (shouldGoBack && page > 1) {
-            setPage(prev => prev - 1);
-        } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-department'] });
-        }
-    }
-
-    const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value)
-    }
+    // function handleSuccessDelete(shouldGoBack?: boolean) {
+    //     if (shouldGoBack && page > 1) {
+    //         setPage(prev => prev - 1);
+    //     } else {
+    //         queryClient.invalidateQueries({ queryKey: ['get-all-department'] });
+    //     }
+    // }
 
     function setCurrentPage(page: number): void {
         setPage(page)
@@ -155,28 +69,34 @@ export default function ListLeaveRequest () {
         setPageSize(size)
     }
 
-    const mutation = useMutation({
-        mutationFn: async (id: number) => {
-            await departmentApi.delete(id);
-        },
-        onSuccess: () => {
-            ShowToast("Delete department success", "success");
-        },
-        onError: (error) => {
-            console.error("Delete failed:", error);
-            ShowToast("Delete department failed", "error");
-        }
-    });
+    const handleChangeFilter = (status: string) => {
+        setFilterStatus(Number(status));
+        refetch();
+        // queryClient.invalidateQueries({ queryKey: ['get-leave-requests'] });
+    }
 
-    const handleDelete = async (id: number) => {
-        try {
-            const shouldGoBack = departments.length === 1;
-            await mutation.mutateAsync(id);
-            handleSuccessDelete(shouldGoBack);
-        } catch (error) {
-            console.error("Failed to delete:", error);
-        }
-    };
+    // const mutation = useMutation({
+    //     mutationFn: async (id: number) => {
+    //         await departmentApi.delete(id);
+    //     },
+    //     onSuccess: () => {
+    //         ShowToast("Delete department success", "success");
+    //     },
+    //     onError: (error) => {
+    //         console.error("Delete failed:", error);
+    //         ShowToast("Delete department failed", "error");
+    //     }
+    // });
+
+    // const handleDelete = async (id: number) => {
+    //     try {
+    //         const shouldGoBack = departments.length === 1;
+    //         await mutation.mutateAsync(id);
+    //         handleSuccessDelete(shouldGoBack);
+    //     } catch (error) {
+    //         console.error("Failed to delete:", error);
+    //     }
+    // };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -194,149 +114,77 @@ export default function ListLeaveRequest () {
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
                 <div className="max-h-[450px]">
                     {/*   onValueChange={setTab} */}
-                    <Tabs defaultValue="Pending" className="w-full" >
+                    <Tabs defaultValue="1" className="w-full" onValueChange={handleChangeFilter}>
                         <TabsList style={{margin: '0px auto'}} className="mb-5 h-[40px]">
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="Pending">Pending</TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="In-Process">In-Process</TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-green-200 text-green-600" value="Complete">Complete</TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-red-200 text-red-600" value="Reject">Reject</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="1">Pending</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="2">In-Process</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-green-200 text-green-600" value="3">Complete</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-red-200 text-red-600" value="4">Reject</TabsTrigger>
                         </TabsList>
-                        {/* <TabsContent value="account"> */}
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-[120px]">Mã nhân viên</TableHead>
-                                        <TableHead className="w-[180px]">Họ tên</TableHead>
-                                        <TableHead className="w-[130px]">Phòng ban</TableHead>
-                                        <TableHead className="w-[100px]">Vị trí</TableHead>
-                                        <TableHead className="w-[150px]">Nghỉ từ ngày</TableHead>
-                                        <TableHead className="w-[150px]">Đến ngày</TableHead>
-                                        <TableHead className="w-[120px]">Loại phép</TableHead>
-                                        <TableHead className="w-[120px]">Thời gian</TableHead>
-                                        <TableHead className="text-center w-[200px]">Lý do</TableHead>
-                                        <TableHead className="w-[50px]">Hành động</TableHead>
+                                        <TableHead className="w-[120px] text-center">User Code</TableHead>
+                                        <TableHead className="w-[180px] text-center">Name</TableHead>
+                                        <TableHead className="w-[130px] text-center">Department</TableHead>
+                                        <TableHead className="w-[100px] text-center">Position</TableHead>
+                                        <TableHead className="w-[150px] text-center">From</TableHead>
+                                        <TableHead className="w-[150px] text-center">To</TableHead>
+                                        <TableHead className="w-[120px] text-center">Type leave</TableHead>
+                                        <TableHead className="w-[120px] text-center">Time leave</TableHead>
+                                        <TableHead className="w-[200px] text-center">Reason</TableHead>
+                                        <TableHead className="w-[50px] text-center">Created at</TableHead>
+                                        <TableHead className="w-[50px] text-center">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {invoices.map((invoice) => (
-                                    <TableRow key={invoice.code}>
-                                        <TableCell className="font-medium">{invoice.code}</TableCell>
-                                        <TableCell>{invoice.name}</TableCell>
-                                        <TableCell>{invoice.department}</TableCell>
-                                        <TableCell>{invoice.position}</TableCell>
-                                        <TableCell>{invoice.from}</TableCell>
-                                        <TableCell>{invoice.to}</TableCell>
-                                        <TableCell>{invoice.type_leave}</TableCell>
-                                        <TableCell>{invoice.time_leave}</TableCell>
-                                        <TableCell className="text-center">{invoice.reason}</TableCell>
-                                        <TableCell><Button  className="p-1 text-xs h-[30px] hover:cursor-pointer">Approval</Button></TableCell>
-                                    </TableRow>
-                                    ))}
+                                    { isPending ? (
+                                         Array.from({ length: 3 }).map((_, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[180px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[130px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[50px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[50px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                            </TableRow>
+                                         ))
+                                    ) : isError || leaveRequests.length == 0 ? (
+                                        <TableRow>
+                                            <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={11}>{error?.message ?? "No results"}</TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        leaveRequests.map((item: LeaveRequestData) => (
+                                                <TableRow key={item.id}>
+                                                    <TableCell className="font-medium text-center">{item?.user_code}</TableCell>
+                                                    <TableCell className="text-center">{item?.name}</TableCell>
+                                                    <TableCell className="text-center">{item?.department}</TableCell>
+                                                    <TableCell className="text-center">{item?.position}</TableCell>
+                                                    <TableCell className="text-center">{formatDate(item?.from_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                                    <TableCell className="text-center">{formatDate(item?.to_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                                    <TableCell className="text-center">{getEnumName(item?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
+                                                    <TableCell className="text-center">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                                    <TableCell className="text-center">{item?.reason}</TableCell>
+                                                    <TableCell className="text-center">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                                    <TableCell className="text-center">
+                                                        <StatusLeaveRequest status={item.status ? item.status : 1}/>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )
+                                    }
                                 </TableBody>
-                                {/* <TableFooter>
-                                    <TableRow>
-                                    <TableCell colSpan={3}>Total</TableCell>
-                                    <TableCell className="text-right">$2,500.00</TableCell>
-                                    </TableRow>
-                                </TableFooter> */}
                             </Table>
-                        
-                        {/* </TabsContent>
-                        <TabsContent value="password">
-                            
-                        </TabsContent> */}
                     </Tabs>
-                        
-                    {/* <table style={{ tableLayout:'fixed'}} className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
-                            <tr className="border-b border-gray-200">
-                                <th scope="col" className="w-[5%] p-4 bg-gray-50 dark:bg-gray-700">
-                                    <div className="flex items-center">
-                                        <Checkbox className="hover:cursor-pointer"/>
-                                    </div>
-                                </th>
-                            <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Name</th>
-                            <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Parent Department</th>
-                            <th scope="col" className="w-[30%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Note</th>
-                            <th scope="col" className="px-6 py-3 bg-gray-50 dark:bg-gray-700">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
-                                <td className="p-4 w-[57px]">
-                                    <Checkbox className="hover:cursor-pointer" />
-                                </td>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    a
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    b
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    b
-                                </th>
-                                <td className="px-4 py-4">  
-                                    <Link to={`/department/edit/`}>Edit</Link> */}
-                                    {/* <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/> */}
-                                {/* </td>
-                            </tr> */}
-
-
-                        {/* {isPending ? (
-                            Array.from({ length: pageSize }).map((_, index) => (
-                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="w-[57px] p-4">
-                                        <Skeleton className="h-4 w-[15px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[80px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[80px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[90px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[80px]" />
-                                    </td>
-                                </tr>
-                            ))
-                        ) : isError || departments.length === 0 ? (
-                            <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={5} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
-                                    {error?.message || "No results"}
-                                </td>
-                            </tr>
-                        ) : (
-                            departments.map((item: departments, index: number) => (
-                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
-                                    <td className="p-4 w-[57px]">
-                                        <Checkbox className="hover:cursor-pointer" />
-                                    </td>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.name}
-                                    </th>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item?.parent ? item.parent.name : "-" }
-                                    </th>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        { item?.note }
-                                    </th>
-                                    <td className="px-4 py-4">  
-                                        <Link to={`/department/edit/${item.id}`}>Edit</Link>
-                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
-                                    </td>
-                                </tr>
-                            ))
-                        )} */}
-                        {/* </tbody>
-                    </table> */}
                 </div>
             </div>
             {
-                departments.length > 0 ? (<PaginationControl
+                leaveRequests.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}

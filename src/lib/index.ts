@@ -39,14 +39,29 @@ export const useDebounce = <T,>(value: T, delay: number): T => {
     return debounced;
 };
 
-export const formatDate = (dateStr: string | undefined) => {
-    const d = new Date(dateStr ? dateStr : "");
-    return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}/${d.getFullYear()}`;
+export const formatDate = (dateStr: string | undefined, type: "dd/MM/yyyy" | "yyyy/MM/dd HH:mm:ss" | "yyyy/MM/dd HH:mm" = "dd/MM/yyyy") => {
+    const d = new Date(dateStr ?? "");
+    if (isNaN(d.getTime())) return "";
+
+    const dd = d.getDate().toString().padStart(2, "0");
+    const MM = (d.getMonth() + 1).toString().padStart(2, "0");
+    const yyyy = d.getFullYear();
+    const HH = d.getHours().toString().padStart(2, "0");
+    const mm = d.getMinutes().toString().padStart(2, "0");
+    const ss = d.getSeconds().toString().padStart(2, "0");
+
+    switch (type) {
+        case "yyyy/MM/dd HH:mm":
+        return `${yyyy}/${MM}/${dd} ${HH}:${mm}`;
+        case "yyyy/MM/dd HH:mm:ss":
+        return `${yyyy}/${MM}/${dd} ${HH}:${mm}:${ss}`;
+        case "dd/MM/yyyy":
+        default:
+        return `${dd}/${MM}/${yyyy}`;
+    }
 };
 
-export const enum ENUM_TYPE_LEAVE {
+export enum ENUM_TYPE_LEAVE {
     ANNUAL = "1",
     PERSONAL = "2",
     SICK = "3",
@@ -82,7 +97,7 @@ export const TYPE_LEAVE = [
     }
 ]
 
-export const enum ENUM_TIME_LEAVE {
+export enum ENUM_TIME_LEAVE {
     ALL_DAY = "1",
     MORNING = "2",
     AFTERNOON = "3",
@@ -102,3 +117,14 @@ export const TIME_LEAVE = [
         value: "3"
     }
 ]
+
+export const getEnumName = (value: string, enumObj: object): string => {
+    const entry = Object.entries(enumObj).find(([, val]) => val == value);
+
+    if (entry) {
+      const name = entry[0];
+      return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    }
+    
+    return "UNKNOWN"; 
+};

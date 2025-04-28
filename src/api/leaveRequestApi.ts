@@ -20,14 +20,29 @@ export interface LeaveRequestData {
 }
 
 interface GetLeaveRequest {
+    position_id?: number,
+    user_code?: string,
     page: number;
     page_size: number;
-    name?: string;
+    year?: number
+    status?: number
+}
+
+interface ApprovalData {
+    user_code_approval: string, 
+    leave_request_id: string,
+    status: boolean
 }
 
 const leaveRequestApi = {
     getAll(params: GetLeaveRequest) {
         return axiosClient.get('/leave-request/get-all', {params})
+    },
+    getLeaveRequestWaitApproval(params: GetLeaveRequest) {
+        return axiosClient.get('/leave-request/get-leave-request-wait-approval', {params})
+    },
+    approvalLeaveRequest(data: ApprovalData) {
+        return axiosClient.post('/leave-request/approval', data)
     },
     getById(id: number) {
         return axiosClient.get(`/leave-request/get-by-id/${id}`)

@@ -93,6 +93,8 @@ export default function ListDepartment () {
         }
     };
 
+    console.log('Table render department', { pageSize, departments, isPending });
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">

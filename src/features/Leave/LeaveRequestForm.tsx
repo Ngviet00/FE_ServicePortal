@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
-
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -13,20 +12,18 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-
 import { useNavigate } from "react-router-dom"
-
 import { useEffect, useState } from "react"
-
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
 import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE, TYPE_LEAVE } from "@/lib"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuthStore } from "@/store/authStore"
-import DotRequireComponent from "@/components/DotRequireComponent"
 import { AxiosError } from "axios"
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
+import DotRequireComponent from "@/components/DotRequireComponent"
+import { Spinner } from "@/components/ui/spinner"
 
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
@@ -49,6 +46,7 @@ const formSchema = z.object({
 }).refine(data => {
     const from = new Date(data.from_date);
     const to = new Date(data.to_date);
+
     return to >= from;
 }, {
     path: ["to_date"],
@@ -99,17 +97,15 @@ export default function LeaveRequestForm() {
         },
     })
 
+    //submit form
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        // setLoading(true)
-
+        setLoading(true)
         const data = formatData(values, user?.code);
-
-        console.log(data);
-
         try {
             await leaveRequestApi.create(data)
             ShowToast("Create leave request success", "success")
             form.setValue("reason", "")
+            navigate("/leave")
         } catch (err: unknown) {
             const error = err as AxiosError<{ message: string }>
             const message = error?.response?.data?.message ?? "Something went wrong"
@@ -122,14 +118,34 @@ export default function LeaveRequestForm() {
         }
     }
 
-    // const { data, isPending, isError } = useQuery({
-    //     queryKey: ['parentDepartments'],
-    //     queryFn: async () => {
-    //         const res = await departmentApi.getParentDepartment();
-    //         return res.data.data as typeParentDepartments[];
-    //     }
-    // });
+    //event click show calendar
+    const handleInputClickShowPicker = (event: React.MouseEvent<HTMLInputElement>) => {
+        (event.target as HTMLInputElement).showPicker();
+    };
 
+    //#region watch time_leave change
+    const watchTimeLeave = useWatch({
+        control: form.control,
+        name: "time_leave"
+    })
+
+    useEffect(() => {
+        if (watchTimeLeave == ENUM_TIME_LEAVE.ALL_DAY) {
+            form.setValue("from_hour", "08");
+            form.setValue("to_hour", "17");
+        } else if (watchTimeLeave == ENUM_TIME_LEAVE.MORNING) {
+            form.setValue("from_hour", "08");
+            form.setValue("to_hour", "12");
+        } else {
+            form.setValue("from_hour", "13");
+            form.setValue("to_hour", "17");
+        }
+    }, [watchTimeLeave, form])
+    //#endregion
+    
+
+    //#region UPDATE
+    
     //get by id
     // const { data: departmentData } = useQuery({
     //     queryKey: ["department", id],
@@ -147,30 +163,11 @@ export default function LeaveRequestForm() {
     //         })
     //     }
     // }, [departmentData, form])
-
-    const handleInputClickShowPicker = (event: React.MouseEvent<HTMLInputElement>) => {
-        (event.target as HTMLInputElement).showPicker();
-    };
-
-    const watchTimeLeave = useWatch({
-        control: form.control,
-        name: "time_leave"
-    })
     
-
-    useEffect(() => {
-        if (watchTimeLeave == ENUM_TIME_LEAVE.ALL_DAY) {
-            form.setValue("from_hour", "08");
-            form.setValue("to_hour", "17");
-        } else if (watchTimeLeave == ENUM_TIME_LEAVE.MORNING) {
-            form.setValue("from_hour", "08");
-            form.setValue("to_hour", "12");
-        } else {
-            form.setValue("from_hour", "13");
-            form.setValue("to_hour", "17");
-        }
-    }, [watchTimeLeave, form])
-
+    //#endregion
+    
+    
+    
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
@@ -485,7 +482,7 @@ export default function LeaveRequestForm() {
                         </div>
 
                         <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[10%]">
-                            { loading ? "Loading..." : "Save" }
+                            { loading ? <Spinner className="text-white"/> : "Save" }
                         </Button>
                     </form>
                 </Form>

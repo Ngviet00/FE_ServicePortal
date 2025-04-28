@@ -42,7 +42,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
         children: [
             { label: "sidebar.leave_request.create", route: "/leave/create" },
             { label: "sidebar.leave_request.list", route: "/leave" },
-            { label: "Wait approval", route: "/wait-approval" },
+            { label: "Wait approval", route: "/leave/wait-approval" },
             // { label: "Đi trễ, về sớm", route: "/leave/early-late" },
             // { label: "Phép chờ duyệt", route: "/leave/wait-approval" },
         ],
