@@ -1,9 +1,9 @@
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ShowToast, useDebounce } from "@/lib"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 import roleApi from "@/api/roleApi"
 import React from "react"
@@ -11,10 +11,12 @@ import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import CreateRoleComponent from "./CreateRoleForm"
 
-type Role = {
+type IRole = {
     id: number;
     name: string;
 };
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function ListRole () {
     const [name, setName] = useState("") //search by name
@@ -26,20 +28,19 @@ export default function ListRole () {
     const debouncedName = useDebounce(name, 300);
     
     //get list roles 
-    const { data: response, isPending, isError, error } = useQuery({
+    const { data: roles = [], isPending, isError, error } = useQuery({
         queryKey: ['get-all-role', debouncedName, page, pageSize],
         queryFn: async () => {
+            await delay(Math.random() * 100 + 100);
             const res = await roleApi.getAll({
                 page: page,
                 page_size: pageSize,
                 name: debouncedName
             });
             setTotalPage(res.data.total_pages)
-            return res.data;
+            return res.data.data;
         },
     });
-
-    const roles = response?.data || [];
 
     useEffect(() => {
         setPage(1);
@@ -109,57 +110,43 @@ export default function ListRole () {
 
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
                 <div className="max-h-[450px] overflow-y-auto">
-                    <table style={{ tableLayout:'fixed'}} className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
-                            <tr className="border-b border-gray-200">
-                                <th scope="col" className="w-[5%] p-4 bg-gray-50 dark:bg-gray-700">
-                                    <div className="flex items-center">
-                                        <Checkbox className="hover:cursor-pointer"/>
-                                    </div>
-                                </th>
-                            <th scope="col" className="w-[75%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Name</th>
-                            <th scope="col" className="px-6 py-3 bg-gray-50 dark:bg-gray-700">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {isPending ? (
-                            Array.from({ length: pageSize }).map((_, index) => (
-                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="w-[57px] p-4">
-                                        <Skeleton className="h-4 w-[15px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[250px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[80px]" />
-                                    </td>
-                                </tr>
-                            ))
-                        ) : isError || roles.length === 0 ? (
-                            <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={3} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
-                                    {error?.message || "No results"}
-                                </td>
-                            </tr>
-                        ) : (
-                            roles.map((role: Role, index: number) => (
-                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
-                                    <td className="p-4 w-[57px]">
-                                        <Checkbox className="hover:cursor-pointer" />
-                                    </td>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {role.name}
-                                    </th>
-                                    <td className="flex items-center px-4 py-4">
-                                        <CreateRoleComponent role={role} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
-                                        <ButtonDeleteComponent id={role.id} onDelete={() => handleDelete(role.id)}/>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                        </tbody>
-                    </table>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[20px] text-left">ID</TableHead>
+                                <TableHead className="w-[50px] text-left">Name</TableHead>
+                                <TableHead className="w-[100px] text-right">Action</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="w-[20px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
+                                            <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                            <TableCell className="w-[100px] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center"/></div></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : isError || roles.length == 0 ? (
+                                    <TableRow>
+                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={3}>{error?.message ?? "No results"}</TableCell>
+                                    </TableRow>
+                                ) : (
+                                    roles.map((item: IRole) => (
+                                        <TableRow key={item.id}>
+                                            <TableCell className="font-medium text-left">{item?.id}</TableCell>
+                                            <TableCell className="font-medium text-left">{item?.name}</TableCell>
+                                            
+                                            <TableCell className="text-right">
+                                                <CreateRoleComponent role={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
+                                                <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )
+                            }
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
             {

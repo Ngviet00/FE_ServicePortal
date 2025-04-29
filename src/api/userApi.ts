@@ -25,19 +25,13 @@ export interface ListUserData {
     date_of_birth: string | null,
     phone: string | null,
     sex: number | null,
+    position: string | null,
+    level: string | null,
     role: {
         id: number,
         name: string
     },
-    position: {
-        id: number,
-        name: string,
-    },
-    children_department: {
-        id: number,
-        name: string
-    },
-    parent_department: {
+    department: {
         id: number,
         name: string
     }
@@ -56,7 +50,7 @@ const userApi = {
     update(id: number, data: data){
         return axiosClient.put(`/user/update/${id}`, data)
     },
-    delete(id: number) {
+    delete(id: string) {
         return axiosClient.delete(`/user/delete/${id}`)
     }
 }

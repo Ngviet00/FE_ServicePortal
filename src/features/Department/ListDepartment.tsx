@@ -1,22 +1,20 @@
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Skeleton } from "@/components/ui/skeleton"
-
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import React, { useEffect, useState } from "react"
+import departmentApi from "@/api/departmentApi"
+import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
+import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import departmentApi from "@/api/departmentApi"
 import { ShowToast, useDebounce } from "@/lib"
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
+import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 
-interface departments {
+interface IDepartments {
     id: number,
     name: string
-    note: string | null
     parent_id: number | null
-    parent: departments
+    parent: IDepartments
 }
 
 export default function ListDepartment () {
@@ -30,7 +28,7 @@ export default function ListDepartment () {
     const debouncedName = useDebounce(name, 300);
     
     //get list department 
-    const { data: response, isPending, isError, error } = useQuery({
+    const { data: Departments = [], isPending, isError, error } = useQuery({
         queryKey: ['get-all-department', debouncedName, page, pageSize],
         queryFn: async () => {
             const res = await departmentApi.getAll({
@@ -39,11 +37,9 @@ export default function ListDepartment () {
                 name: debouncedName
             });
             setTotalPage(res.data.total_pages)
-            return res.data;
+            return res.data.data;
         }
     });
-
-    const departments = response?.data || [];
 
     useEffect(() => {
         setPage(1);
@@ -75,25 +71,23 @@ export default function ListDepartment () {
             await departmentApi.delete(id);
         },
         onSuccess: () => {
-            ShowToast("Delete department success", "success");
+            ShowToast("Success", "success");
         },
         onError: (error) => {
-            console.error("Delete failed:", error);
-            ShowToast("Delete department failed", "error");
+            console.error("Failed:", error);
+            ShowToast("Failed", "error");
         }
     });
 
     const handleDelete = async (id: number) => {
         try {
-            const shouldGoBack = departments.length === 1;
+            const shouldGoBack = Departments.length === 1;
             await mutation.mutateAsync(id);
             handleSuccessDelete(shouldGoBack);
         } catch (error) {
             console.error("Failed to delete:", error);
         }
     };
-
-    console.log('Table render department', { pageSize, departments, isPending });
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -115,75 +109,50 @@ export default function ListDepartment () {
 
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
                 <div className="max-h-[450px] overflow-y-auto">
-                    <table style={{ tableLayout:'fixed'}} className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead className="text-xs text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
-                            <tr className="border-b border-gray-200">
-                                <th scope="col" className="w-[5%] p-4 bg-gray-50 dark:bg-gray-700">
-                                    <div className="flex items-center">
-                                        <Checkbox className="hover:cursor-pointer"/>
-                                    </div>
-                                </th>
-                            <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Name</th>
-                            <th scope="col" className="w-[25%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Parent Department</th>
-                            <th scope="col" className="w-[30%] px-6 py-3 bg-gray-50 dark:bg-gray-700">Note</th>
-                            <th scope="col" className="px-6 py-3 bg-gray-50 dark:bg-gray-700">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[100px] text-left">ID</TableHead>
+                            <TableHead className="w-[250px] text-left">Name</TableHead>
+                            <TableHead className="w-[200px] text-left">Parent Department</TableHead>
+                            <TableHead className="w-[100px] text-left">Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {isPending ? (
-                            Array.from({ length: pageSize }).map((_, index) => (
-                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td className="w-[57px] p-4">
-                                        <Skeleton className="h-4 w-[15px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[80px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[80px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[90px]" />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <Skeleton className="h-4 w-[80px]" />
-                                    </td>
-                                </tr>
-                            ))
-                        ) : isError || departments.length === 0 ? (
-                            <tr className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                                <td colSpan={5} className={`text-center py-4 font-bold ${isError ? 'text-red-700' : 'text-black'}`}>
-                                    {error?.message || "No results"}
-                                </td>
-                            </tr>
-                        ) : (
-                            departments.map((item: departments, index: number) => (
-                                <tr key={index} className="h-[57px] bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-opacity duration-300 opacity-0 animate-fade-in">
-                                    <td className="p-4 w-[57px]">
-                                        <Checkbox className="hover:cursor-pointer" />
-                                    </td>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item.name}
-                                    </th>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {item?.parent ? item.parent.name : "-" }
-                                    </th>
-                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        { item?.note }
-                                    </th>
-                                    <td className="px-4 py-4">  
-                                        <Link to={`/department/edit/${item.id}`}>Edit</Link>
-                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                        </tbody>
-                    </table>
+                                Array.from({ length: 3 }).map((_, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="w-[100px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[250px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[200px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[100px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                    </TableRow>
+                                ))
+                            ) : isError || Departments.length == 0 ? (
+                                <TableRow>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={4}>{error?.message ?? "No results"}</TableCell>
+                                </TableRow>
+                            ) : (
+                                Departments.map((item: IDepartments) => (
+                                    <TableRow key={item.id}>
+                                        <TableCell className="font-medium text-left">{item?.id}</TableCell>
+                                        <TableCell className="font-medium text-left">{item?.name}</TableCell>
+                                        <TableCell className="font-medium text-left">{item?.parent?.name ?? "--"}</TableCell>
+                                        
+                                        <TableCell className="text-left">
+                                            <Link to={`/department/edit/${item.id}`}>Edit</Link>
+                                            <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )
+                        }
+                    </TableBody>
+                </Table>
                 </div>
             </div>
             {
-                departments.length > 0 ? (<PaginationControl
+                Departments.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}

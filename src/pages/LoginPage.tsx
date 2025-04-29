@@ -9,8 +9,8 @@ import axios from "axios"
 
 export default function LoginPage() {
 
-    const [user_code, setEmployeeCode] = useState("")
-    const [password, setPassword] = useState("");
+    const [user_code, setEmployeeCode] = useState("0")
+    const [password, setPassword] = useState("123456");
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 

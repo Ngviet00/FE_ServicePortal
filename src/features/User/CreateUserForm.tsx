@@ -29,11 +29,12 @@ import roleApi from "@/api/roleApi"
 import userApi from "@/api/userApi"
 import { AxiosError } from "axios"
 import authApi, { RegisterRequest } from "@/api/authApi"
+import { Spinner } from "@/components/ui/spinner"
 
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
-    password: z.string().nonempty({message: "Required"}),
+    password: z.string().nullable().optional(),
     email: z.string().nonempty({message: "Required"}),
     role_id: z.number({message: 'Required'}),
     is_active: z.string().nullable().optional(),
@@ -41,10 +42,9 @@ const formSchema = z.object({
     date_of_birth: z.string().nullable().optional(),
     phone: z.string().nullable().optional(),
     sex: z.number().nullable().optional(),
-    parent_department_id: z.string().nonempty({message: "Required"}),
-    child_department_id: z.string().nullable().optional(),
-    position_id: z.string().nonempty({message: "Required"}),
-    management_position_id: z.string().nullable().optional()
+    department_id: z.string().nonempty({message: "Required"}),
+    position: z.string().nullable().optional(),
+    level: z.string().nonempty({message: "Required"})
 })
 
 const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
@@ -57,10 +57,9 @@ const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
     date_join_company: values.date_join_company ? new Date(values.date_join_company).toISOString() : null,
     phone: values.phone ?? null,
     sex: values.sex ?? null,
-    parent_department_id: parseInt(values.parent_department_id) ?? null,
-    child_department_id: values.child_department_id ? parseInt(values.child_department_id) : null,
-    position_id: parseInt(values.position_id) ?? null,
-    management_position_id: values.management_position_id ? parseInt(values.management_position_id): null
+    department_id: Number(values.department_id),
+    position: values.position ?? null,
+    level: values.level,
 });
 
 
@@ -69,13 +68,7 @@ export default function CreateUserForm() {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [openSelectDepartment, setOpenSelectDepartment] = useState(false)
-    const [openSelectChildDepartment, setOpenSelectChildDepartment] = useState(false)
-    const [openSelectPosition, setOpenSelectPosition] = useState(false)
-    const [openSelectManagementPosition, setOpenSelectManagementPosition] = useState(false)
     const [openRole, setOpenRole] = useState(false)
-    const [childrenDepartments, setChildrenDepartments] = useState<{ id: number; name: string; parent_id: number }[] | undefined | null>([])
-    const [positions, setPositions] = useState<{ id: number; name: string }[] | undefined | null>([]);
-    const [showPosition, setShowPosition] = useState(false)
 
     const { code } = useParams<{ code: string }>()
     const isEdit = !!code;
@@ -93,10 +86,9 @@ export default function CreateUserForm() {
             date_of_birth: new Date().toISOString().split("T")[0],
             phone: "",
             sex: 1,
-            parent_department_id: "",
-            child_department_id: "",
-            position_id: "",
-            management_position_id: ""
+            department_id: "",
+            position: "",
+            level: ""
         },
     })
 
@@ -117,7 +109,6 @@ export default function CreateUserForm() {
         } finally {
             setLoading(false)
         }
-        
     }
 
     //get by id
@@ -133,7 +124,7 @@ export default function CreateUserForm() {
     //when go to page edit/1, set data to form
     useEffect(() => {
         if (userData) {
-            const { code, name, email, phone, sex, date_of_birth, date_join_company, role_id, parent_department_id, position_id, management_position_id } = userData.data.data
+            const { code, name, email, phone, sex, date_of_birth, date_join_company, role_id, department_id, position, level } = userData.data.data
             form.reset({
                 code: code,
                 name: name,
@@ -143,9 +134,9 @@ export default function CreateUserForm() {
                 date_of_birth: date_of_birth,
                 date_join_company: date_join_company,
                 role_id: role_id,
-                parent_department_id: parent_department_id,
-                position_id: position_id,
-                management_position_id: management_position_id
+                department_id: department_id,
+                position: position,
+                level: level
             })
         }
     }, [userData, form])
@@ -157,9 +148,9 @@ export default function CreateUserForm() {
 
     //get parent department
     const { data: parentDepartments = [], isPending: isPendingParentDepartments, isError: isErrorParentDepartment } = useQuery({
-        queryKey: ['get-department-child-department-position'],
+        queryKey: ['get-parent-department'],
         queryFn: async () => {
-            const res = await departmentApi.GetDepartmentWithChildrenDepartmentAndPosition();
+            const res = await departmentApi.getParentDepartment();
             return res.data.data;
         }
     });
@@ -176,56 +167,6 @@ export default function CreateUserForm() {
         }
     });
 
-
-    //handle parent department change
-    const handleParentDepartmentChange = (selectedDepartmentId: number) => {
-        if (selectedDepartmentId == -1) {
-            setPositions([])
-            setChildrenDepartments([])
-            setOpenSelectDepartment(false);
-            form.setValue("position_id", "")
-            form.setValue("management_position_id", "")
-            return;
-        }
-
-        const departmentSelected = parentDepartments.find((item: {id: number}) => item.id == selectedDepartmentId)
-
-        setChildrenDepartments(departmentSelected.childrens.length > 0 ? departmentSelected.childrens : [])
-
-        if (departmentSelected.positions.length > 0) {
-            setPositions(departmentSelected.positions)
-        } else {
-            setShowPosition(true)
-        }
-
-        setOpenSelectDepartment(false);
-    }
-    
-    //handle child department change
-    const handleChildDepartmentChange = (selectedChildDepartmentId: number, parentId?: number) => {
-        if (selectedChildDepartmentId == -1) {
-            const currentParentDepartment = parentDepartments.find((item: {id: string}) => item.id == form.getValues('parent_department_id'))
-            setPositions(currentParentDepartment.positions.length > 0 ? currentParentDepartment.positions : [])
-            setShowPosition(false);
-            setOpenSelectChildDepartment(false);
-            return;
-        }
-
-        const parent = parentDepartments.find((item: {id: number}) => item.id == parentId)
-        const childrens = parent.childrens.find((item: {id: number}) => item.id == selectedChildDepartmentId)
-
-        if (childrens.positions.length > 0) {
-            setPositions(childrens.positions)
-        } else {
-            form.setValue('position_id', "")
-            form.setValue('management_position_id', "")
-
-            setPositions([])
-            setShowPosition(true);
-        }
-        setOpenSelectChildDepartment(false);
-    }
-
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
@@ -236,8 +177,8 @@ export default function CreateUserForm() {
             <div className="w-[100%] mt-5">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
-                        <div className="first-row flex flex-wrap w-full">
-                            <div className="w-[15%]">
+                        <div className="first-row flex flex-wrap w-full mb-5">
+                            <div className="w-[10%]">
                                 <FormField
                                     control={form.control}
                                     name="code"
@@ -253,7 +194,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-5 w-[25%]">
+                            <div className="ml-3 w-[15%]">
                                 <FormField
                                     control={form.control}
                                     name="name"
@@ -269,7 +210,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-5 w-[25%]">
+                            <div className="ml-3 w-[15%]">
                                 <FormField
                                     control={form.control}
                                     name="email"
@@ -285,7 +226,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-5 w-[25%]">
+                            <div className="ml-3 w-[15%]">
                                 <FormField
                                     control={form.control}
                                     name="password"
@@ -293,17 +234,15 @@ export default function CreateUserForm() {
                                         <FormItem>
                                             <FormLabel>Password</FormLabel>
                                             <FormControl>
-                                                <Input type="password" placeholder="Password" {...field} />
+                                                <Input name={field.name} value={field.value ?? ""} onChange={field.onChange}  type="password" placeholder="Password" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             </div>
-                        </div>
 
-                        <div className="second-row flex flex-wrap w-full">
-                            <div className="w-[13%]">
+                            <div className="ml-3 w-[8%]">
                                 <FormField
                                     control={form.control}
                                     name="phone"
@@ -324,7 +263,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-5">
+                            <div className="w-[5%] ml-3">
                                 <FormField
                                     control={form.control}
                                     name="sex"
@@ -337,7 +276,7 @@ export default function CreateUserForm() {
                                                     onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
                                                     name={field.name}
                                                     id="sex" 
-                                                    className=" text-sm text-gray-600 h-[36px] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                                    className="hover:cursor-pointer text-sm text-gray-600 h-[36px] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
                                                     >
                                                         <option value="">--Select--</option>
                                                         <option value="1">Male</option>
@@ -350,7 +289,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-5">
+                            <div className="w-[9%] ml-6">
                                 <FormField
                                     control={form.control}
                                     name="date_of_birth"
@@ -374,7 +313,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-5">
+                            <div className="w-[9%] ml-3">
                                 <FormField
                                     control={form.control}
                                     name="date_join_company"
@@ -399,9 +338,9 @@ export default function CreateUserForm() {
                             </div>
                         </div>
 
-                        <div className="third-row flex flex-wrap w-full">
+                        <div className="second-row flex flex-wrap w-full">
                             <div className="w-[10%]">
-                            <FormField
+                                <FormField
                                     control={form.control}
                                     name="role_id"
                                     render={({ field }) => (
@@ -413,7 +352,7 @@ export default function CreateUserForm() {
                                                         variant="outline"
                                                         role="combobox"
                                                         aria-expanded={openRole}
-                                                        className="w-[260px] justify-between text-gray-500"
+                                                        className="w-[150px] justify-between text-gray-500"
                                                     >
                                                         {field.value
                                                             ? roles?.find((item: {id: number, name: string}) => item.id == field.value)?.name
@@ -477,11 +416,11 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[13%] ml-32">
+                            <div className="w-[10%] ml-3">
                                 <FormField
                                     control={form.control}
-                                    name="parent_department_id"
-                                    render={({ field }) => (
+                                    name="department_id"
+                                    render={({ field, fieldState }) => (
                                         <FormItem>
                                             <FormLabel>Department</FormLabel>
                                             <Popover open={openSelectDepartment} onOpenChange={setOpenSelectDepartment}>
@@ -490,7 +429,7 @@ export default function CreateUserForm() {
                                                         variant="outline"
                                                         role="combobox"
                                                         aria-expanded={openSelectDepartment}
-                                                        className="w-[260px] justify-between text-gray-500"
+                                                        className={`w-[150px] justify-between text-gray-500 ${fieldState.invalid ? 'border-red-500' : 'border-gray-200'}`}
                                                     >
                                                         {field.value
                                                             ? parentDepartments?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name
@@ -512,8 +451,8 @@ export default function CreateUserForm() {
                                                                     <CommandItem
                                                                         key="none"
                                                                         onSelect={() => {
-                                                                            field.onChange("")
-                                                                            handleParentDepartmentChange(-1)
+                                                                            setOpenSelectDepartment(false)
+                                                                            field.onChange(null)
                                                                         }}
                                                                     >
                                                                         -- No Parent --
@@ -529,8 +468,8 @@ export default function CreateUserForm() {
                                                                         <CommandItem
                                                                             key={item.id}
                                                                             onSelect={() => {
+                                                                                setOpenSelectDepartment(false)
                                                                                 field.onChange(item.id.toString())
-                                                                                handleParentDepartmentChange(item.id)
                                                                             }}
                                                                         >
                                                                             {item.name}
@@ -554,239 +493,58 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            {
-                                childrenDepartments && childrenDepartments.length > 0 ? (
-                                    <div className="w-[13%] ml-20">
-                                        <FormField
-                                            control={form.control}
-                                            name="child_department_id"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Children Department</FormLabel>
-                                                    <Popover open={openSelectChildDepartment} onOpenChange={setOpenSelectChildDepartment}>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                variant="outline"
-                                                                role="combobox"
-                                                                aria-expanded={openSelectChildDepartment}
-                                                                className="w-[260px] justify-between text-gray-500"
-                                                            >
-                                                            {field.value
-                                                            ? childrenDepartments?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name ?? ""
-                                                            : "Select"}
-                                                                <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[260px] p-0">
-                                                                <Command>
-                                                                    <CommandInput placeholder="Search..." className="h-9" />
-                                                                    <CommandList>
-                                                                        <CommandEmpty>No children department found.</CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            <CommandItem
-                                                                                key="none"
-                                                                                onSelect={() => {
-                                                                                    field.onChange("")
-                                                                                    handleChildDepartmentChange(-1)
-                                                                                }}
-                                                                            >
-                                                                                -- No select --
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "ml-auto h-4 w-4",
-                                                                                        !field.value ? "opacity-100" : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </CommandItem>
+                            <div className="ml-3 w-[8%]">
+                                <FormField
+                                    control={form.control}
+                                    name="position"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Position</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    name={field.name}
+                                                    value={field.value ?? ""}
+                                                    onChange={field.onChange}
+                                                    type="text"
+                                                    placeholder="Position"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
 
-                                                                            {childrenDepartments.map((item: {id: number, name: string, parent_id: number}) => (
-                                                                                <CommandItem
-                                                                                    key={item.id}
-                                                                                    onSelect={() => {
-                                                                                        field.onChange(item.id.toString())
-                                                                                        handleChildDepartmentChange(item.id, item.parent_id)
-                                                                                    }}
-                                                                                >
-                                                                                    {item.name}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "ml-auto h-4 w-4",
-                                                                                            field.value == item.id.toString() ? "opacity-100" : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </CommandItem>
-                                                                            ))}
-                                                                        </CommandGroup>
-                                                                    </CommandList>
-                                                                </Command>
-                                                            {/* )} */}
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                ) : (<></>)
-                            }
-
-                            {
-                                (positions && positions.length > 0) || (showPosition) ? (
-                                    <div className="w-[13%] ml-20">
-                                        <FormField
-                                            control={form.control}
-                                            name="position_id"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Position</FormLabel>
-                                                    <Popover open={openSelectPosition} onOpenChange={setOpenSelectPosition}>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                variant="outline"
-                                                                role="combobox"
-                                                                aria-expanded={openSelectPosition}
-                                                                className="w-[260px] justify-between text-gray-500"
-                                                            >
-                                                            {field.value
-                                                            ? positions?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name ?? ""
-                                                            : "Select"}
-                                                                <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[260px] p-0">
-                                                                <Command>
-                                                                    <CommandInput placeholder="Search..." className="h-9" />
-                                                                    <CommandList>
-                                                                        <CommandEmpty>No position found.</CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            <CommandItem
-                                                                                key="none"
-                                                                                onSelect={() => {
-                                                                                    field.onChange("")
-                                                                                    setOpenSelectPosition(false)
-                                                                                }}
-                                                                            >
-                                                                                -- No select --
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "ml-auto h-4 w-4",
-                                                                                        !field.value ? "opacity-100" : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </CommandItem>
-
-                                                                            {positions?.map((item: {id: number, name: string}) => (
-                                                                                <CommandItem
-                                                                                    key={item.id}
-                                                                                    onSelect={() => {
-                                                                                        field.onChange(item.id.toString())
-                                                                                        setOpenSelectPosition(false)
-                                                                                    }}
-                                                                                >
-                                                                                    {item.name}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "ml-auto h-4 w-4",
-                                                                                            field.value == item.id.toString() ? "opacity-100" : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </CommandItem>
-                                                                            ))}
-                                                                        </CommandGroup>
-                                                                    </CommandList>
-                                                                </Command>
-                                                            {/* )} */}
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                ) : (<></>)
-                            }
-                            
-                            {
-                                (positions && positions.length > 0) || (showPosition) ? (
-                                    <div className="w-[13%] ml-20">
-                                        <FormField
-                                            control={form.control}
-                                            name="management_position_id"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Management Position</FormLabel>
-                                                    <Popover open={openSelectManagementPosition} onOpenChange={setOpenSelectManagementPosition}>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                variant="outline"
-                                                                role="combobox"
-                                                                aria-expanded={openSelectManagementPosition}
-                                                                className="w-[260px] justify-between text-gray-500"
-                                                            >
-                                                            {field.value
-                                                            ? positions?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name ?? ""
-                                                            : "Select"}
-                                                                <ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[260px] p-0">
-                                                                <Command>
-                                                                    <CommandInput placeholder="Search..." className="h-9" />
-                                                                    <CommandList>
-                                                                        <CommandEmpty>No position found.</CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            <CommandItem
-                                                                                key="none"
-                                                                                onSelect={() => {
-                                                                                    field.onChange("")
-                                                                                    setOpenSelectManagementPosition(false)
-                                                                                }}
-                                                                            >
-                                                                                -- No select --
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "ml-auto h-4 w-4",
-                                                                                        !field.value ? "opacity-100" : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </CommandItem>
-
-                                                                            {positions?.map((item: {id: number, name: string}) => (
-                                                                                <CommandItem
-                                                                                    key={item.id}
-                                                                                    onSelect={() => {
-                                                                                        field.onChange(item.id.toString())
-                                                                                        setOpenSelectManagementPosition(false)
-                                                                                    }}
-                                                                                >
-                                                                                    {item.name}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "ml-auto h-4 w-4",
-                                                                                            field.value == item.id.toString() ? "opacity-100" : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </CommandItem>
-                                                                            ))}
-                                                                        </CommandGroup>
-                                                                    </CommandList>
-                                                                </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                ) : (<></>)
-                            }
+                            <div className="ml-3 w-[8%]">
+                                <FormField
+                                    control={form.control}
+                                    name="level"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Level</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    name={field.name}
+                                                    value={field.value ?? ""}
+                                                    onChange={field.onChange}
+                                                    type="text"
+                                                    placeholder="Level"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
 
                         <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[10%]">
-                            { loading ? "Loading..." : "Save" }
+                            { loading ? <Spinner className="text-white"/> : "Save" }
                         </Button>
                     </form>
                 </Form>
+
+                <div className="org-chart">
+                    nguyen van a
+                </div>
             </div>
         </div>
     )

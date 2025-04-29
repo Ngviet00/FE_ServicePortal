@@ -10,19 +10,13 @@ interface User {
     date_of_birth?: string,
     phone?: string,
     sex?: number,
+    level: string,
+    position: string,
     role?: {
         id: number,
         name: string
     },
-    parent_department?: {
-        id: number,
-        name: string
-    },
-    children_department?: {
-        id: number,
-        name: string
-    },
-    position?: {
+    department?: {
         id: number,
         name: string
     }

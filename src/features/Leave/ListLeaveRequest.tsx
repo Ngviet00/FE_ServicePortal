@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Table,
@@ -25,8 +25,6 @@ export default function ListLeaveRequest () {
     const [page, setPage] = useState(1) //current page
     const [pageSize, setPageSize] = useState(10) //per page 5 item
     const [filterStatus, setFilterStatus] = useState(1);
-
-    // const queryClient = useQueryClient();
 
     const {user} = useAuthStore()
 

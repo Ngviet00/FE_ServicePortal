@@ -21,15 +21,14 @@ export interface RegisterRequest {
     name: string | null,
     password: string | null,
     email: string | null,
-    role_id: number | null,
     date_join_company: string | null,
     date_of_birth: string | null,
     phone: string | null,
     sex: number | null,
-    parent_department_id: number | null,
-    child_department_id: number | null,
-    position_id: number | null,
-    management_position_id: number | null
+    level: string,
+    position: string | null,
+    role_id: number | null,
+    department_id: number | null,
 }
 
 const authApi = {
