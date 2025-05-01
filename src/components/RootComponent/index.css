@@ -46,11 +46,14 @@
 }
 
 body {
+    height: 100%;
     margin: 0;
+    padding: 0;
+    /* margin: 0;
     display: flex;
     place-items: start;
     min-width: 320px;
-    min-height: 100vh;
+    min-height: 100vh; */
 }
 
 h1 {
@@ -59,6 +62,7 @@ h1 {
 }
 
 #root {
+    min-height: 100vh;
     width: 100%;
     background: #f4f5ff;
 }

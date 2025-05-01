@@ -24,8 +24,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
             { label: "sidebar.admin.department", route: "/department" },
             { label: "sidebar.user.list", route: "/user" },
             { label: "sidebar.user.create", route: "/user/create" },
-            { label: "sidebar.user.approval_flow", route: "/approval-flow" },
-            { label: "sidebar.user.type_leave", route: "/type_leave" },
+            { label: "Loại phép", route: "/type-leave" },
+            { label: "Tùy chỉnh phê duyệt", route: "/approval-flow" },
         ],
     },
     {

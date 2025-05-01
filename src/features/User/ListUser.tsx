@@ -119,6 +119,7 @@ export default function ListUser () {
                                 <TableHead className="w-[150px] text-center">Phone</TableHead>
                                 <TableHead className="w-[120px] text-center">Email</TableHead>
                                 <TableHead className="w-[120px] text-center">Level</TableHead>
+                                <TableHead className="w-[120px] text-center">Level Parent</TableHead>
                                 <TableHead className="w-[150px] text-center">Date join company</TableHead>
                                 <TableHead className="w-[120px] text-center">Action</TableHead>
                             </TableRow>
@@ -134,6 +135,7 @@ export default function ListUser () {
                                         <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
@@ -155,6 +157,7 @@ export default function ListUser () {
                                             <TableCell className="text-center">{item.phone ? item.phone : "--"}</TableCell>
                                             <TableCell className="text-center">{item?.email}</TableCell>
                                             <TableCell className="text-center">{item?.level}</TableCell>
+                                            <TableCell className="text-center">{item?.level_parent ?? "--"}</TableCell>
                                             <TableCell className="text-center">{formatDate(item?.date_join_company ?? "", "dd/MM/yyyy")}</TableCell>
                                             <TableCell className="text-center">
                                                 <ButtonDeleteComponent id={item.code} onDelete={() => handleDelete(item.id)}/>

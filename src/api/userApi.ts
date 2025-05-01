@@ -27,6 +27,7 @@ export interface ListUserData {
     sex: number | null,
     position: string | null,
     level: string | null,
+    level_parent: string | null,
     role: {
         id: number,
         name: string

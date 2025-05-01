@@ -26,6 +26,7 @@ export interface RegisterRequest {
     phone: string | null,
     sex: number | null,
     level: string,
+    level_parent: string,
     position: string | null,
     role_id: number | null,
     department_id: number | null,

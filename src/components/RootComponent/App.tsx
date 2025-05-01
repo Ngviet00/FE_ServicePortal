@@ -16,6 +16,7 @@ import RedirectIfAuthenticated from '@/routes/IsAuthenticated';
 import PrivateRoute from '@/routes/PrivateRoute';
 import CreateUserForm from '@/features/User/CreateUserForm';
 import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
+import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 
 function App() {
 
@@ -34,6 +35,8 @@ function App() {
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		
 		{ path: "/role", element: <ListRole /> },
+
+		{ path: "/type-leave", element: <ListTypeLeave /> },
 
 		{ path: "/department", element: <ListDepartment /> },
 		{ path: "/department/create", element: <DepartmentForm /> },

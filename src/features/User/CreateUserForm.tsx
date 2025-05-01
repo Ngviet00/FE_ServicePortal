@@ -31,6 +31,8 @@ import { AxiosError } from "axios"
 import authApi, { RegisterRequest } from "@/api/authApi"
 import { Spinner } from "@/components/ui/spinner"
 
+import { Tree, TreeNode } from 'react-organizational-chart';
+
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
@@ -44,7 +46,8 @@ const formSchema = z.object({
     sex: z.number().nullable().optional(),
     department_id: z.string().nonempty({message: "Required"}),
     position: z.string().nullable().optional(),
-    level: z.string().nonempty({message: "Required"})
+    level: z.string().nonempty({message: "Required"}),
+    level_parent: z.string().nonempty({message: "Required"})
 })
 
 const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
@@ -60,6 +63,7 @@ const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
     department_id: Number(values.department_id),
     position: values.position ?? null,
     level: values.level,
+    level_parent: values.level_parent
 });
 
 
@@ -78,17 +82,18 @@ export default function CreateUserForm() {
         defaultValues: {
             code: "",
             name: "",
-            password: "",
-            email: "",
+            password: "123456",
+            email: "nguyenviet@vsvn.com.vn",
             role_id: 4,
             is_active: "",
             date_join_company: new Date().toISOString().split("T")[0],
             date_of_birth: new Date().toISOString().split("T")[0],
             phone: "",
             sex: 1,
-            department_id: "",
+            department_id: "3",
             position: "",
-            level: ""
+            level: "",
+            level_parent: ""
         },
     })
 
@@ -124,7 +129,7 @@ export default function CreateUserForm() {
     //when go to page edit/1, set data to form
     useEffect(() => {
         if (userData) {
-            const { code, name, email, phone, sex, date_of_birth, date_join_company, role_id, department_id, position, level } = userData.data.data
+            const { code, name, email, phone, sex, date_of_birth, date_join_company, role_id, department_id, position, level, level_parent } = userData.data.data
             form.reset({
                 code: code,
                 name: name,
@@ -136,7 +141,8 @@ export default function CreateUserForm() {
                 role_id: role_id,
                 department_id: department_id,
                 position: position,
-                level: level
+                level: level,
+                level_parent: level_parent
             })
         }
     }, [userData, form])
@@ -263,7 +269,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[5%] ml-3">
+                            <div className="mw-[6%] ml-3">
                                 <FormField
                                     control={form.control}
                                     name="sex"
@@ -289,7 +295,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[9%] ml-6">
+                            <div className="w-[9%] ml-3">
                                 <FormField
                                     control={form.control}
                                     name="date_of_birth"
@@ -313,7 +319,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[9%] ml-3">
+                            <div className="w-[10%] ml-3">
                                 <FormField
                                     control={form.control}
                                     name="date_join_company"
@@ -339,7 +345,7 @@ export default function CreateUserForm() {
                         </div>
 
                         <div className="second-row flex flex-wrap w-full">
-                            <div className="w-[10%]">
+                            <div className="mw-[10%]">
                                 <FormField
                                     control={form.control}
                                     name="role_id"
@@ -416,7 +422,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="w-[10%] ml-3">
+                            <div className="mw-[10%] ml-3">
                                 <FormField
                                     control={form.control}
                                     name="department_id"
@@ -534,6 +540,27 @@ export default function CreateUserForm() {
                                     )}
                                 />
                             </div>
+
+                            <div className="ml-3 w-[8%]">
+                                <FormField
+                                    control={form.control}
+                                    name="level_parent"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Level Parent</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    name={field.name}
+                                                    value={field.value ?? ""}
+                                                    onChange={field.onChange}
+                                                    type="text"
+                                                    placeholder="Level parent"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
 
                         <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[10%]">
@@ -543,7 +570,12 @@ export default function CreateUserForm() {
                 </Form>
 
                 <div className="org-chart">
-                    nguyen van a
+                    <Tree label={<span>Root</span>}>
+                        <TreeNode label={<span>Child 1</span>}>
+                            <TreeNode label={<span>Grand Child</span>} />
+                        </TreeNode>
+                        <TreeNode label={<span className="text-red-500">nguyen van a</span>}></TreeNode>
+                    </Tree>
                 </div>
             </div>
         </div>
