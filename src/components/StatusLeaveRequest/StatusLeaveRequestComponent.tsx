@@ -40,7 +40,7 @@ export function StatusLeaveRequest({ status }: StatusLeaveRequestProps) {
     const { bg, text_color } = STATUS_CONFIG[normalizedStatus];
 
     return (
-		<span className={`${bg} ${text_color} p-1 w-[67px] inline-block text-xs rounded-[3px]`}>
+		<span className={`${bg} ${text_color} p-1 w-[67px] inline-block text-xs rounded-[3px] text-center`}>
 			{normalizedStatus}
 		</span>
     )

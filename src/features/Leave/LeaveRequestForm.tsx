@@ -17,18 +17,25 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
-import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE, TYPE_LEAVE } from "@/lib"
+import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE } from "@/lib"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuthStore } from "@/store/authStore"
 import { AxiosError } from "axios"
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
 import DotRequireComponent from "@/components/DotRequireComponent"
 import { Spinner } from "@/components/ui/spinner"
+import typeLeaveApi from "@/api/typeLeaveApi"
+import { useQuery } from "@tanstack/react-query"
+import { ITypeLeave } from "../TypeLeave/ListTypeLeave"
 
 const formSchema = z.object({
-    code: z.string().nonempty({message: "Required"}),
-    department: z.string().nonempty({message: "Required"}),
+    user_code: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
+
+    user_code_register: z.string().nonempty({message: "Required"}),
+    name_register: z.string().nonempty({message: "Required"}),
+
+    department: z.string().nonempty({message: "Required"}),
     position: z.string().nonempty({message: "Required"}),
 
     from_date: z.string().nonempty({message: "Required"}),
@@ -53,15 +60,21 @@ const formSchema = z.object({
     message: "To date cannot be earlier than From date",
 });
 
-const formatData = (values: z.infer<typeof formSchema>, codeCurrentUser: string | undefined): LeaveRequestData => ({
-    user_code: values.code ?? null,
+const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
+    user_code: values.user_code ?? null,
     name: values.name ?? null,
-    name_register: codeCurrentUser ?? "",
+
+    user_code_register: values.user_code_register ?? null,
+    name_register: values.name_register ?? "",
+
     position: values.position,
     department: values.department,
+
     from_date: `${values.from_date} ${values.from_hour}:${values.from_minutes}`,
     to_date: `${values.to_date} ${values.to_hour}:${values.to_minutes}`,
+
     reason: values.reason,
+
     time_leave: parseInt(values.time_leave),
     type_leave: parseInt(values.type_leave),
 });
@@ -78,10 +91,14 @@ export default function LeaveRequestForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            code: user?.code,
-            department: user?.children_department ? user?.children_department.name : (user?.parent_department ? user?.parent_department.name : "Not Set"),
+            user_code: user?.code,
             name: user?.name,
-            position: user?.position?.name,
+
+            user_code_register: user?.code,
+            name_register: user?.name,
+
+            department: user?.department?.name,
+            position: user?.position,
         
             from_date: new Date().toISOString().slice(0, 10),
             from_hour: "08",
@@ -91,7 +108,7 @@ export default function LeaveRequestForm() {
             to_hour: "17",
             to_minutes: "00",
         
-            type_leave: "1",
+            type_leave: "",
             time_leave: "1",
             reason: "",
         },
@@ -100,10 +117,10 @@ export default function LeaveRequestForm() {
     //submit form
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setLoading(true)
-        const data = formatData(values, user?.code);
+        const data = formatData(values);
         try {
             await leaveRequestApi.create(data)
-            ShowToast("Create leave request success", "success")
+            ShowToast("Success", "success")
             form.setValue("reason", "")
             navigate("/leave")
         } catch (err: unknown) {
@@ -142,6 +159,17 @@ export default function LeaveRequestForm() {
         }
     }, [watchTimeLeave, form])
     //#endregion
+
+    const { data: typeLeaves = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-all-type-leave'],
+        queryFn: async () => {
+            const res = await typeLeaveApi.getAll({
+                page: 1,
+                page_size: 50,
+            });
+            return res.data.data;
+        },
+    });
     
 
     //#region UPDATE
@@ -182,7 +210,7 @@ export default function LeaveRequestForm() {
                             <div className="w-[15%]">
                                 <FormField
                                     control={form.control}
-                                    name="code"
+                                    name="user_code"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.code')}<DotRequireComponent/></FormLabel>
@@ -324,7 +352,7 @@ export default function LeaveRequestForm() {
                                 <FormField
                                     control={form.control}
                                     name="type_leave"
-                                    render={({ field }) => (
+                                    render={({ field, fieldState }) => (
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.type_leave.type_leave')}</FormLabel>
                                             <FormControl>
@@ -333,14 +361,20 @@ export default function LeaveRequestForm() {
                                                     onChange={field.onChange}
                                                     name={field.name}
                                                     id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    className={`shadow-xs border border-[#ebebeb] p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-200"}`}>
                                                     <option value="">--Select--</option>
                                                     {
-                                                        TYPE_LEAVE.map((item) => (
-                                                            <option key={item.value} value={item.value}>
-                                                                {t(item.label)}
-                                                            </option>
-                                                        ))
+                                                        isPending ? (
+                                                            <option value="">Loading...</option>
+                                                        ) : isError || typeLeaves.length == 0 ? (
+                                                            <option value="" className="text-red-500">{isError ? error.message : "No results"}</option>
+                                                        ) : (
+                                                            typeLeaves.map((item: ITypeLeave) => (
+                                                                <option key={item.id} value={item.id}>
+                                                                    {t(item.name)}
+                                                                </option>
+                                                            ))
+                                                        )
                                                     }
                                                 </select>
                                             </FormControl>

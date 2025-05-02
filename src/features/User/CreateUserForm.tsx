@@ -31,8 +31,6 @@ import { AxiosError } from "axios"
 import authApi, { RegisterRequest } from "@/api/authApi"
 import { Spinner } from "@/components/ui/spinner"
 
-import { Tree, TreeNode } from 'react-organizational-chart';
-
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
@@ -84,13 +82,13 @@ export default function CreateUserForm() {
             name: "",
             password: "123456",
             email: "nguyenviet@vsvn.com.vn",
-            role_id: 4,
+            role_id: 0,
             is_active: "",
             date_join_company: new Date().toISOString().split("T")[0],
             date_of_birth: new Date().toISOString().split("T")[0],
             phone: "",
             sex: 1,
-            department_id: "3",
+            department_id: "",
             position: "",
             level: "",
             level_parent: ""
@@ -569,14 +567,14 @@ export default function CreateUserForm() {
                     </form>
                 </Form>
 
-                <div className="org-chart">
+                {/* <div className="org-chart">
                     <Tree label={<span>Root</span>}>
                         <TreeNode label={<span>Child 1</span>}>
                             <TreeNode label={<span>Grand Child</span>} />
                         </TreeNode>
                         <TreeNode label={<span className="text-red-500">nguyen van a</span>}></TreeNode>
                     </Tree>
-                </div>
+                </div> */}
             </div>
         </div>
     )

@@ -122,34 +122,36 @@ export default function ListLeaveRequest () {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-[120px] text-center">User Code</TableHead>
-                                        <TableHead className="w-[180px] text-center">Name</TableHead>
-                                        <TableHead className="w-[130px] text-center">Department</TableHead>
-                                        <TableHead className="w-[100px] text-center">Position</TableHead>
-                                        <TableHead className="w-[150px] text-center">From</TableHead>
-                                        <TableHead className="w-[150px] text-center">To</TableHead>
-                                        <TableHead className="w-[120px] text-center">Type leave</TableHead>
-                                        <TableHead className="w-[120px] text-center">Time leave</TableHead>
+                                        <TableHead className="w-[100px] text-left">User Code</TableHead>
+                                        <TableHead className="w-[150px] text-left">Name</TableHead>
+                                        <TableHead className="w-[130px] text-left">Department</TableHead>
+                                        <TableHead className="w-[100px] text-left">Position</TableHead>
+                                        <TableHead className="w-[150px] text-left">From</TableHead>
+                                        <TableHead className="w-[150px] text-left">To</TableHead>
+                                        <TableHead className="w-[120px] text-left">Type leave</TableHead>
+                                        <TableHead className="w-[120px] text-left">Time leave</TableHead>
                                         <TableHead className="w-[200px] text-center">Reason</TableHead>
-                                        <TableHead className="w-[50px] text-center">Created at</TableHead>
-                                        <TableHead className="w-[50px] text-center">Status</TableHead>
+                                        <TableHead className="w-[150px] text-center">Register</TableHead>
+                                        <TableHead className="w-[50px] text-left">Created at</TableHead>
+                                        <TableHead className={`w-[${filterStatus == 4 ? "120px" : "70px"}] text-left`}>{filterStatus == 4 ? "Reason" : "Status"}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     { isPending ? (
                                          Array.from({ length: 3 }).map((_, index) => (
                                             <TableRow key={index}>
-                                                <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[180px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[130px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[180px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[130px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                                 <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[50px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[50px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                                <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                             </TableRow>
                                          ))
                                     ) : isError || leaveRequests.length == 0 ? (
@@ -159,18 +161,30 @@ export default function ListLeaveRequest () {
                                     ) : (
                                         leaveRequests.map((item: LeaveRequestData) => (
                                                 <TableRow key={item.id}>
-                                                    <TableCell className="font-medium text-center">{item?.user_code}</TableCell>
-                                                    <TableCell className="text-center">{item?.name}</TableCell>
-                                                    <TableCell className="text-center">{item?.department}</TableCell>
-                                                    <TableCell className="text-center">{item?.position}</TableCell>
-                                                    <TableCell className="text-center">{formatDate(item?.from_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                                    <TableCell className="text-center">{formatDate(item?.to_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                                    <TableCell className="text-center">{getEnumName(item?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
-                                                    <TableCell className="text-center">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                                    <TableCell className="font-medium text-left">{item?.user_code}</TableCell>
+                                                    <TableCell className="text-left">{item?.name}</TableCell>
+                                                    <TableCell className="text-left">{item?.department}</TableCell>
+                                                    <TableCell className="text-left">{item?.position}</TableCell>
+                                                    <TableCell className="text-left">{formatDate(item?.from_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                                    <TableCell className="text-left">{formatDate(item?.to_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                                    <TableCell className="text-left">{getEnumName(item?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
+                                                    <TableCell className="text-left">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
                                                     <TableCell className="text-center">{item?.reason}</TableCell>
-                                                    <TableCell className="text-center">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                                    <TableCell className="text-center">
-                                                        <StatusLeaveRequest status={item.status ? item.status : 1}/>
+                                                    <TableCell className="text-center text-red-800 font-bold">{item?.name_register}</TableCell>
+                                                    <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                                    <TableCell className="text-left">
+                                                        {
+                                                            filterStatus == 4 ? (
+                                                                <span
+                                                                    className={`${item.note ? "text-red-500" : "text-black"} font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
+                                                                    title={item?.note ?? ""}
+                                                                >
+                                                                    {item?.note ? item.note : "--"}
+                                                                </span>
+                                                            ) : (
+                                                                <StatusLeaveRequest status={item.status ? item.status : 1}/>
+                                                            )
+                                                        }
                                                     </TableCell>
                                                 </TableRow>
                                             ))

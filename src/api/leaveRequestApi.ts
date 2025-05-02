@@ -4,6 +4,7 @@ export interface LeaveRequestData {
     id?: string | null,
     user_code: string,
     name: string | null,
+    user_code_register: string,
     name_register: string | null,
     position: string | null,
     department: string | null,
@@ -14,6 +15,7 @@ export interface LeaveRequestData {
     type_leave: number | null,
     status?: number | null,
     image?: string | null,
+    note?: string | null,
     created_at?: string | null,
     updated_at?: string | null,
     deleted_at?: string | null,
@@ -31,7 +33,8 @@ interface GetLeaveRequest {
 interface ApprovalData {
     user_code_approval: string, 
     leave_request_id: string,
-    status: boolean
+    status: boolean,
+    note: string | null
 }
 
 const leaveRequestApi = {
@@ -40,6 +43,9 @@ const leaveRequestApi = {
     },
     getLeaveRequestWaitApproval(params: GetLeaveRequest) {
         return axiosClient.get('/leave-request/get-leave-request-wait-approval', {params})
+    },
+    countWaitApprovalLeaveRequest(params: { user_code: string }) {
+        return axiosClient.get('/leave-request/count-wait-approval', {params})
     },
     approvalLeaveRequest(data: ApprovalData) {
         return axiosClient.post('/leave-request/approval', data)

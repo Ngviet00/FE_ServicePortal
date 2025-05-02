@@ -6,6 +6,9 @@ import { useEffect } from "react";
 
 import "./style.css"
 import { useTranslation } from "react-i18next";
+import { useAuthStore } from "@/store/authStore";
+import { useQuery } from "@tanstack/react-query";
+import leaveRequestApi from "@/api/leaveRequestApi";
 
 export default function Sidebar() {
 	const { t } = useTranslation();
@@ -23,12 +26,24 @@ export default function Sidebar() {
 		closeAllSubmenus();
 	};
 
+	const { user } = useAuthStore();
+	
+    const { data: countWaitApprovalLeaveRequest } = useQuery({
+        queryKey: ['count-wait-approval-leave-request'],
+        queryFn: async () => {
+            const res = await leaveRequestApi.countWaitApprovalLeaveRequest({
+				user_code: user?.code ?? ""
+			});
+            return res.data.data;
+        },
+    });
+
     return (
 		<div className={`sidebar ${isOpen ? '' : 'collapsed'}`}>
 			<div>
-				<Link to="/">
+				<a href="/">
 					<img src="/logo.png" alt="" style={{ height: '80px'}}/>
-				</Link>
+				</a>
 			</div>
 
 			<hr className="mt-1" />
@@ -67,7 +82,12 @@ export default function Sidebar() {
 								onClick={() => hasChildren && toggleSubmenu(menu.key!)}
 							>
 								<Icon size={20} />
-								<span className="pl-5 flex-1">{t(menu.label)}</span>
+								<span className="pl-5 flex-1">
+									{t(menu.label)}
+									{
+										countWaitApprovalLeaveRequest > 0 && menu.key == "leave_request" ? <span className="pl-1 text-red-500 font-bold">({countWaitApprovalLeaveRequest})</span> : ""
+									}
+								</span>
 								{hasChildren && (
 									<ChevronDown
 										size={18}
@@ -84,6 +104,9 @@ export default function Sidebar() {
 											<Link to={child.route} className="sidebar-link flex items-center">
 												<Dot />
 												<span>{t(child.label)}</span>
+												{
+													countWaitApprovalLeaveRequest > 0 && child.route == '/leave/wait-approval' ? <span className="text-red-500 font-bold" style={{ paddingLeft: '5px' }}>({countWaitApprovalLeaveRequest})</span> : ""
+												}
 											</Link>
 										</li>
 									))}

@@ -63,11 +63,16 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
 
     const onSubmit = async (values: CreateUserFormValues) => {
         try {
+            const data = {
+                name: values.name,
+                modified_by: user?.name
+            }
+            console.log(data, 22);
             if (typeLeave?.id) {
-                await typeLeaveApi.update(typeLeave.id, values);
+                await typeLeaveApi.update(typeLeave.id, data);
                 ShowToast("Success", "success");
             } else {
-                await typeLeaveApi.create(values);
+                await typeLeaveApi.create(data);
                 ShowToast("Success", "success");
             }
             onAction?.();

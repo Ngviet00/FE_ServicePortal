@@ -12,7 +12,7 @@ import CreateTypeLeaveForm from "./CreateTypeLeaveForm"
 import typeLeaveApi from "@/api/typeLeaveApi"
 
 
-type ITypeLeave = {
+export type ITypeLeave = {
     id: number;
     name: string;
     modifiedBy: string,
