@@ -156,7 +156,7 @@ export default function ListLeaveRequest () {
                                          ))
                                     ) : isError || leaveRequests.length == 0 ? (
                                         <TableRow>
-                                            <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={11}>{error?.message ?? "No results"}</TableCell>
+                                            <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={12}>{error?.message ?? "No results"}</TableCell>
                                         </TableRow>
                                     ) : (
                                         leaveRequests.map((item: LeaveRequestData) => (

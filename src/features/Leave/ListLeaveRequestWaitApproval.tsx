@@ -20,7 +20,6 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
   } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -35,6 +34,9 @@ export default function ListLeaveRequestWaitApproval () {
     const [pageSize, setPageSize] = useState(10) //per page 5 item
     const [note, setNote] = useState("");
 
+    const [selectedItem, setSelectedItem] = useState<LeaveRequestData | null>(null);
+
+
     const queryClient = useQueryClient();
 
     const [showConfirm, setShowConfirm] = useState(false);
@@ -48,7 +50,8 @@ export default function ListLeaveRequestWaitApproval () {
             const res = await leaveRequestApi.getLeaveRequestWaitApproval({
                 page: page,
                 page_size: pageSize,
-                user_code: user?.code
+                department_id: user?.department?.id,
+                level: user?.level
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -103,6 +106,7 @@ export default function ListLeaveRequestWaitApproval () {
             const shouldGoBack = leaveRequests.length === 1;
             await mutation.mutateAsync({ item, approval, note });
             handleApproval(shouldGoBack);
+            setSelectedItem(null)
         } catch (error) {
             console.error("Failed to delete:", error);
         } finally {
@@ -178,42 +182,9 @@ export default function ListLeaveRequestWaitApproval () {
                                             <TableCell className="text-left text-red-800 font-bold">{item?.name_register}</TableCell>
                                             <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                             <TableCell className="text-left">
-
-                                                <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-                                                    <DialogTrigger asChild>
-                                                        <Button variant="outline" className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">Approval</Button>
-                                                    </DialogTrigger>
-                                                    
-                                                    <DialogContent className="sm:max-w-[50%] h-[650px] flex flex-col">
-                                                        <DialogHeader>
-                                                            <DialogTitle></DialogTitle>
-                                                            <DialogDescription></DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="flex flex-col w-full">
-                                                            <div className="w-full mb-2 text-xl">User Code: <span className="pl-2 text-xl font-bold text-red-800">{item?.user_code}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Name: <span className="pl-2 text-xl font-bold text-red-800">{item?.name}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Department: <span className="pl-2 text-xl font-bold text-red-800">{item?.department}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Position: <span className="pl-2 text-xl font-bold text-red-800">{item?.position}</span></div>
-                                                            <div className="w-full mb-2 text-xl">From Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(item?.from_date ?? "", "yyyy/MM/dd HH:mm")}</span></div>
-                                                            <div className="w-full mb-2 text-xl">To Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(item?.to_date ?? "", "yyyy/MM/dd HH:mm")}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Type Leave: <span className="pl-2 text-xl font-bold">{getEnumName(item?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Time Leave: <span className="pl-2 text-xl font-bold">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Reason: <span className="pl-2 text-xl font-bold">{item?.reason}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Register: <span className="pl-2 text-xl font-bold">{item?.name_register}</span></div>
-                                                            <div className="w-full mb-2 text-xl">Created At: <span className="pl-2 text-xl font-bold">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
-                                                        </div>
-
-                                                        <div className="note">
-                                                            <Label htmlFor="note" className="mb-2">Ghi chú</Label>
-                                                            <Textarea value={note} onChange={(e) => {setNote(e.target.value)}} placeholder="Nội dung..." id="note" />
-                                                        </div>
-
-                                                        <div className="flex justify-end">
-                                                            <Button disabled={loading} onClick={() => handleConfirm(item, false, note)} type="submit" className="mr-7 bg-red-800 hover:cursor-pointer hover:bg-red-900">Reject</Button>
-                                                            <Button disabled={loading} onClick={() => handleConfirm(item, true, note)} type="submit" className="bg-green-800 hover:cursor-pointer hover:bg-green-900">Approval</Button>
-                                                        </div>
-                                                    </DialogContent>
-                                                </Dialog>
+                                                <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
+                                                    Approval
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -221,6 +192,47 @@ export default function ListLeaveRequestWaitApproval () {
                             }
                         </TableBody>
                     </Table>
+
+                    {selectedItem && (
+                        <Dialog 
+                            open={!!selectedItem} 
+                            onOpenChange={(open) => {
+                                if (!open) {
+                                    setSelectedItem(null)
+                                }
+                                setNote("")
+                            }}>
+                            <DialogContent className="sm:max-w-[50%] h-[650px] flex flex-col">
+                                <DialogHeader>
+                                    <DialogTitle></DialogTitle>
+                                    <DialogDescription></DialogDescription>
+                                </DialogHeader>
+                                    <div className="flex flex-col w-full">
+                                        <div className="w-full mb-2 text-xl">User Code: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.user_code}</span></div>
+                                        <div className="w-full mb-2 text-xl">Name: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.name}</span></div>
+                                        <div className="w-full mb-2 text-xl">Department: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.department}</span></div>
+                                        <div className="w-full mb-2 text-xl">Position: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.position}</span></div>
+                                        <div className="w-full mb-2 text-xl">From Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(selectedItem?.from_date ?? "", "yyyy/MM/dd HH:mm")}</span></div>
+                                        <div className="w-full mb-2 text-xl">To Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(selectedItem?.to_date ?? "", "yyyy/MM/dd HH:mm")}</span></div>
+                                        <div className="w-full mb-2 text-xl">Type Leave: <span className="pl-2 text-xl font-bold">{getEnumName(selectedItem?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</span></div>
+                                        <div className="w-full mb-2 text-xl">Time Leave: <span className="pl-2 text-xl font-bold">{getEnumName(selectedItem?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</span></div>
+                                        <div className="w-full mb-2 text-xl">Reason: <span className="pl-2 text-xl font-bold">{selectedItem?.reason}</span></div>
+                                        <div className="w-full mb-2 text-xl">Register: <span className="pl-2 text-xl font-bold">{selectedItem?.name_register}</span></div>
+                                        <div className="w-full mb-2 text-xl">Created At: <span className="pl-2 text-xl font-bold">{formatDate(selectedItem?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
+                                    </div>
+
+                                    <div className="note">
+                                        <Label htmlFor="note" className="mb-2">Ghi chú</Label>
+                                        <Textarea value={note} onChange={(e) => {setNote(e.target.value)}} placeholder="Nội dung..." id="note" />
+                                    </div>
+
+                                    <div className="flex justify-end">
+                                        <Button disabled={loading} onClick={() => handleConfirm(selectedItem, false, note)} type="submit" className="mr-7 bg-red-800 hover:cursor-pointer hover:bg-red-900">Reject</Button>
+                                        <Button disabled={loading} onClick={() => handleConfirm(selectedItem, true, note)} type="submit" className="bg-green-800 hover:cursor-pointer hover:bg-green-900">Approval</Button>
+                                    </div>
+                                </DialogContent>
+                        </Dialog>
+                    )}
                 </div>
             </div>
             {

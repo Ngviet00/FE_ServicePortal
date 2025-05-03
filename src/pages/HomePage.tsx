@@ -46,7 +46,7 @@ export default function HomePage() {
                                 <Label className='text-base font-bold'>{user?.date_of_birth ? formatDate(user?.date_of_birth) : "--"}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.phone ?? "--"}</Label>
+                                <Label className='text-base font-bold'>{user?.phone ? user.phone : "--"}</Label>
                             </div>
                             <div className='mb-5'>
                                 <Label className='text-base font-bold'>{user?.position ?? "--"}</Label>

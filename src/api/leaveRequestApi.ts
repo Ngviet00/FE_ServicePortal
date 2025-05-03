@@ -37,14 +37,21 @@ interface ApprovalData {
     note: string | null
 }
 
+interface GetWaitApproval {
+    page?: number,
+    page_size?: number,
+    level?: string | undefined,
+    department_id?: number | undefined
+}
+
 const leaveRequestApi = {
     getAll(params: GetLeaveRequest) {
         return axiosClient.get('/leave-request/get-all', {params})
     },
-    getLeaveRequestWaitApproval(params: GetLeaveRequest) {
+    getLeaveRequestWaitApproval(params: GetWaitApproval) {
         return axiosClient.get('/leave-request/get-leave-request-wait-approval', {params})
     },
-    countWaitApprovalLeaveRequest(params: { user_code: string }) {
+    countWaitApprovalLeaveRequest(params: GetWaitApproval) {
         return axiosClient.get('/leave-request/count-wait-approval', {params})
     },
     approvalLeaveRequest(data: ApprovalData) {
