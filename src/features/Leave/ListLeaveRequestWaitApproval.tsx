@@ -50,7 +50,8 @@ export default function ListLeaveRequestWaitApproval () {
             const res = await leaveRequestApi.getLeaveRequestWaitApproval({
                 page: page,
                 page_size: pageSize,
-                department_id: user?.department?.id,
+                department_id: 1, //fake
+
                 level: user?.level
             });
             setTotalPage(res.data.total_pages)
@@ -127,7 +128,7 @@ export default function ListLeaveRequestWaitApproval () {
             </div>
 
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
-                <div className="max-h-[450px]">
+                <div className="max-h-[600px] overflow-scroll">
                     <Table>
                         <TableHeader>
                             <TableRow>

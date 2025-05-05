@@ -11,15 +11,16 @@ interface User {
     phone?: string,
     sex?: number,
     level: string,
+    level_parent: string,
     position: string,
-    role?: {
-        id: number,
-        name: string
-    },
-    department?: {
-        id: number,
-        name: string
-    }
+    // role?: [{
+    //     id: number,
+    //     name: string
+    // }],
+    // department?: {
+    //     id: number,
+    //     name: string
+    // }
 }
 
 interface AuthState {

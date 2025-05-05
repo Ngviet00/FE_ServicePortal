@@ -43,7 +43,7 @@ const formSchema = z.object({
     phone: z.string().nullable().optional(),
     sex: z.number().nullable().optional(),
     department_id: z.string().nonempty({message: "Required"}),
-    position: z.string().nullable().optional(),
+    position: z.string().nonempty({message: "Required"}),
     level: z.string().nonempty({message: "Required"}),
     level_parent: z.string().nonempty({message: "Required"})
 })
@@ -82,7 +82,7 @@ export default function CreateUserForm() {
             name: "",
             password: "123456",
             email: "nguyenviet@vsvn.com.vn",
-            role_id: 0,
+            role_id: undefined,
             is_active: "",
             date_join_company: new Date().toISOString().split("T")[0],
             date_of_birth: new Date().toISOString().split("T")[0],
@@ -347,7 +347,7 @@ export default function CreateUserForm() {
                                 <FormField
                                     control={form.control}
                                     name="role_id"
-                                    render={({ field }) => (
+                                    render={({ field, fieldState }) => (
                                         <FormItem>
                                             <FormLabel>Role</FormLabel>
                                             <Popover open={openRole} onOpenChange={setOpenRole}>
@@ -356,7 +356,7 @@ export default function CreateUserForm() {
                                                         variant="outline"
                                                         role="combobox"
                                                         aria-expanded={openRole}
-                                                        className="w-[150px] justify-between text-gray-500"
+                                                        className={`w-[150px] justify-between text-gray-500 ${fieldState.invalid ? 'border-red-500' : 'border-gray-200'}`}
                                                     >
                                                         {field.value
                                                             ? roles?.find((item: {id: number, name: string}) => item.id == field.value)?.name
