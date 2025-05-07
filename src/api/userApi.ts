@@ -39,6 +39,9 @@ export interface ListUserData {
 }
 
 const userApi = {
+    getMe() {
+        return axiosClient.get(`/user/me`)
+    },
     getAll(params: GetUser) {
         return axiosClient.get('/user/get-all', {params})
     },
@@ -53,6 +56,9 @@ const userApi = {
     },
     delete(id: string) {
         return axiosClient.delete(`/user/delete/${id}`)
+    },
+    orgChart(department_id: number) {
+        return axiosClient.get(`/user/org-chart?department_id=${department_id}`)
     }
 }
 

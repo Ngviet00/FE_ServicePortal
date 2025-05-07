@@ -17,6 +17,7 @@ import PrivateRoute from '@/routes/PrivateRoute';
 import CreateUserForm from '@/features/User/CreateUserForm';
 import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
 import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
+import OrgChart from '@/pages/OrgChart';
 
 function App() {
 
@@ -45,6 +46,7 @@ function App() {
 		{ path: "/user", element: <ListUser /> },
 		{ path: "/user/create", element: <CreateUserForm /> },
 		{ path: "/user/edit/:code", element: <CreateUserForm /> },
+		{ path: "/user/org-chart", element: <OrgChart /> },
 
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },

@@ -50,8 +50,7 @@ export default function ListLeaveRequestWaitApproval () {
             const res = await leaveRequestApi.getLeaveRequestWaitApproval({
                 page: page,
                 page_size: pageSize,
-                department_id: 1, //fake
-
+                department_id: user?.department_id, //fake
                 level: user?.level
             });
             setTotalPage(res.data.total_pages)
@@ -78,13 +77,11 @@ export default function ListLeaveRequestWaitApproval () {
 
     const mutation = useMutation({
         mutationFn: async ({ item, approval }: { item: LeaveRequestData; approval: boolean, note: string | null }) => {
-        console.log(user?.code, item?.id, approval, 22222);
-
           await leaveRequestApi.approvalLeaveRequest({
             user_code_approval: user?.code ?? "",
             leave_request_id: item?.id ?? "",
             status: approval,
-            note: note
+            note: note,
           });
         },
         
@@ -142,6 +139,7 @@ export default function ListLeaveRequestWaitApproval () {
                                 <TableHead className="w-[120px] text-left">Time leave</TableHead>
                                 <TableHead className="w-[200px] text-center">Reason</TableHead>
                                 <TableHead className="w-[180px] text-left">Register</TableHead>
+                                <TableHead className="w-[80px] text-center">Approve By</TableHead>
                                 <TableHead className="w-[50px] text-left">Created at</TableHead>
                                 <TableHead className="w-[50px] text-left">Approval</TableHead>
                             </TableRow>
@@ -162,11 +160,12 @@ export default function ListLeaveRequestWaitApproval () {
                                         <TableCell className="w-[180px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                     </TableRow>
                                     ))
                             ) : isError || leaveRequests.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={11}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (
@@ -181,6 +180,7 @@ export default function ListLeaveRequestWaitApproval () {
                                             <TableCell className="text-left">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
                                             <TableCell className="text-center">{item?.reason}</TableCell>
                                             <TableCell className="text-left text-red-800 font-bold">{item?.name_register}</TableCell>
+                                            <TableCell className="text-center text-red-800 font-bold">{item?.approved_by ?? "--"}</TableCell>
                                             <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                             <TableCell className="text-left">
                                                 <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">

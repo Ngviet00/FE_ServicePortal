@@ -16,6 +16,7 @@ export interface LeaveRequestData {
     status?: number | null,
     image?: string | null,
     note?: string | null,
+    approved_by?: string | null,
     created_at?: string | null,
     updated_at?: string | null,
     deleted_at?: string | null,

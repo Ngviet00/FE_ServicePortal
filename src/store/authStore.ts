@@ -1,5 +1,10 @@
+import userApi from "@/api/userApi";
 import { create } from "zustand";
 import { createJSONStorage, persist } from 'zustand/middleware';
+interface IRole {
+    id: number,
+    name?: string,
+}
 
 interface User {
     id: string;
@@ -13,14 +18,14 @@ interface User {
     level: string,
     level_parent: string,
     position: string,
-    // role?: [{
-    //     id: number,
-    //     name: string
-    // }],
-    // department?: {
-    //     id: number,
-    //     name: string
-    // }
+    department_id: number,
+    department?: {
+        id: number,
+        name: string
+    },
+    role?: IRole[],
+    user_permissions?: string[],
+    permissions?: string[]
 }
 
 interface AuthState {
@@ -28,11 +33,12 @@ interface AuthState {
     isAuthenticated: boolean;
     setUser: (user: User | null) => void;
     logout: () => void;
+    fetchCurrentUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             user: null,
             isAuthenticated: false,
             setUser: (user) => {
@@ -48,7 +54,19 @@ export const useAuthStore = create<AuthState>()(
                     isAuthenticated: false,
                 });
                 localStorage.removeItem('auth-storage');
-            }
+            },
+            fetchCurrentUser: async () => {
+                const currentUser = get().user;
+                if (!currentUser) return;
+                
+                try {
+                  const res = await userApi.getMe();
+                  set({ user: res.data.data });
+                } catch (err) {
+                  console.error('Failed to fetch user', err);
+                  set({ user: null });
+                }
+              },
         }),
         {
             name: 'auth-storage',

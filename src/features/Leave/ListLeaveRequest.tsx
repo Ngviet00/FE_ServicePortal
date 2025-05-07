@@ -24,7 +24,9 @@ export default function ListLeaveRequest () {
     const [totalPage, setTotalPage] = useState(0) //search by name
     const [page, setPage] = useState(1) //current page
     const [pageSize, setPageSize] = useState(10) //per page 5 item
-    const [filterStatus, setFilterStatus] = useState(1);
+    const [filterStatus, setFilterStatus] = useState(1)
+    const [countPending, setCountPending] = useState(0)
+    const [countInProcess, setCountInProcess] = useState(0)
 
     const {user} = useAuthStore()
 
@@ -40,12 +42,12 @@ export default function ListLeaveRequest () {
     const { data: leaveRequests = [], isPending, isError, error, refetch } = useQuery({
         queryKey: ['get-leave-requests', queryParams],
         queryFn: async () => {
-            
             await delay(Math.random() * 100 + 100);
-
             const res = await leaveRequestApi.getAll(queryParams);
             console.log('call api leave request');
             setTotalPage(res.data.total_pages)
+            setCountPending(res.data.count_pending)
+            setCountInProcess(res.data.count_in_process)
             return res.data.data;
         },
     });
@@ -114,8 +116,22 @@ export default function ListLeaveRequest () {
                     {/*   onValueChange={setTab} */}
                     <Tabs defaultValue="1" className="w-full" onValueChange={handleChangeFilter}>
                         <TabsList style={{margin: '0px auto'}} className="mb-5 h-[40px]">
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="1">Pending</TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="2">In-Process</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="1">
+                                Pending
+                                {
+                                    countPending > 0 ? (
+                                        <span className="text-red-500">({countPending})</span>
+                                    ) : (<></>)
+                                }  
+                            </TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="2">
+                                In-Process
+                                {
+                                    countInProcess > 0 ? (
+                                        <span className="text-red-500">({countInProcess})</span>
+                                    ) : (<></>)
+                                }  
+                            </TabsTrigger>
                             <TabsTrigger className="w-[150px] hover:cursor-pointer bg-green-200 text-green-600" value="3">Complete</TabsTrigger>
                             <TabsTrigger className="w-[150px] hover:cursor-pointer bg-red-200 text-red-600" value="4">Reject</TabsTrigger>
                         </TabsList>
@@ -132,8 +148,11 @@ export default function ListLeaveRequest () {
                                         <TableHead className="w-[120px] text-left">Time leave</TableHead>
                                         <TableHead className="w-[200px] text-center">Reason</TableHead>
                                         <TableHead className="w-[150px] text-center">Register</TableHead>
-                                        <TableHead className="w-[50px] text-left">Created at</TableHead>
-                                        <TableHead className={`w-[${filterStatus == 4 ? "120px" : "70px"}] text-left`}>{filterStatus == 4 ? "Reason" : "Status"}</TableHead>
+                                        <TableHead className="w-[120px] text-center">{filterStatus == 4 ? "Reject By" : "Approve By"}</TableHead>
+                                        <TableHead className="w-[50px] text-left">{filterStatus == 1 ? "Created at" : filterStatus == 4 ? "Reject At" : "Approved At"}</TableHead>
+                                        <TableHead className={`w-[${filterStatus == 4 ? "120px" : "70px"}] text-left`}>
+                                            {filterStatus == 4 ? "Reason" : "Status"}
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -150,13 +169,14 @@ export default function ListLeaveRequest () {
                                                 <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                                 <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                                 <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                                <TableCell className="w-[80px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                                 <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                                 <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                             </TableRow>
                                          ))
                                     ) : isError || leaveRequests.length == 0 ? (
                                         <TableRow>
-                                            <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={12}>{error?.message ?? "No results"}</TableCell>
+                                            <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
                                         </TableRow>
                                     ) : (
                                         leaveRequests.map((item: LeaveRequestData) => (
@@ -171,6 +191,7 @@ export default function ListLeaveRequest () {
                                                     <TableCell className="text-left">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
                                                     <TableCell className="text-center">{item?.reason}</TableCell>
                                                     <TableCell className="text-center text-red-800 font-bold">{item?.name_register}</TableCell>
+                                                    <TableCell className="text-center text-red-800 font-bold">{item?.approved_by ?? "--"}</TableCell>
                                                     <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                                     <TableCell className="text-left">
                                                         {

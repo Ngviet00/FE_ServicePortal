@@ -31,6 +31,8 @@ import { AxiosError } from "axios"
 import authApi, { RegisterRequest } from "@/api/authApi"
 import { Spinner } from "@/components/ui/spinner"
 
+import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
+
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
@@ -64,6 +66,19 @@ const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
     level_parent: values.level_parent
 });
 
+const OPTIONS: Option[] = [
+    { label: 'nextjs', value: 'Nextjs' },
+    { label: 'Vite', value: 'vite', disable: true },
+    { label: 'Nuxt', value: 'nuxt', disable: true },
+    { label: 'Vue', value: 'vue, disable: true', disable: true },
+    { label: 'Remix', value: 'remix' },
+    { label: 'Svelte', value: 'svelte', disable: true },
+    { label: 'Angular', value: 'angular', disable: true },
+    { label: 'Ember', value: 'ember', disable: true },
+    { label: 'React', value: 'react' },
+    { label: 'Gatsby', value: 'gatsby', disable: true },
+    { label: 'Astro', value: 'astro', disable: true },
+];
 
 export default function CreateUserForm() {
     const navigate = useNavigate();
@@ -529,9 +544,19 @@ export default function CreateUserForm() {
                                                 <Input
                                                     name={field.name}
                                                     value={field.value ?? ""}
-                                                    onChange={field.onChange}
+                                                    onInput={(e) => {
+                                                        const value = (e.target as HTMLInputElement).value;
+                                                        const regex = /^[0-9.]*$/;
+                                                    
+                                                        if (!regex.test(value)) {
+                                                          e.preventDefault();
+                                                          return;
+                                                        }
+                                                    
+                                                        field.onChange(e);
+                                                    }}
                                                     type="text"
-                                                    placeholder="Level"/>
+                                                    placeholder="e.g. 2, 2.1, 2.2..."/>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -550,9 +575,19 @@ export default function CreateUserForm() {
                                                 <Input
                                                     name={field.name}
                                                     value={field.value ?? ""}
-                                                    onChange={field.onChange}
+                                                    onInput={(e) => {
+                                                        const value = (e.target as HTMLInputElement).value;
+                                                        const regex = /^[0-9.]*$/;
+                                                    
+                                                        if (!regex.test(value)) {
+                                                          e.preventDefault();
+                                                          return;
+                                                        }
+                                                    
+                                                        field.onChange(e);
+                                                    }}
                                                     type="text"
-                                                    placeholder="Level parent"/>
+                                                    placeholder="e.g. 2, 2.1, 2.2..."/>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -567,14 +602,17 @@ export default function CreateUserForm() {
                     </form>
                 </Form>
 
-                {/* <div className="org-chart">
-                    <Tree label={<span>Root</span>}>
-                        <TreeNode label={<span>Child 1</span>}>
-                            <TreeNode label={<span>Grand Child</span>} />
-                        </TreeNode>
-                        <TreeNode label={<span className="text-red-500">nguyen van a</span>}></TreeNode>
-                    </Tree>
-                </div> */}
+                <div>
+                <MultipleSelector
+                    defaultOptions={OPTIONS}
+                    placeholder="Select frameworks you like..."
+                    emptyIndicator={
+                    <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                        no results found.
+                    </p>
+                    }
+                />
+                </div>
             </div>
         </div>
     )

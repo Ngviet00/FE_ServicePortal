@@ -12,7 +12,7 @@ export default function RedirectIfAuthenticated({ children }: Props) {
 
 	useEffect(() => {
 		if (user) {
-		navigate("/", { replace: true });
+			navigate("/", { replace: true });
 		}
 	}, [user, navigate]);
 
