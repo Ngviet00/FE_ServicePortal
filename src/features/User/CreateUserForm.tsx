@@ -38,7 +38,10 @@ const formSchema = z.object({
     name: z.string().nonempty({message: "Required"}),
     password: z.string().nullable().optional(),
     email: z.string().nonempty({message: "Required"}),
-    role_id: z.number({message: 'Required'}),
+    roles: z.array(z.any(), {
+        required_error: 'Please select at least one role.',
+        invalid_type_error: 'Roles must be an array.',
+    }).min(1, { message: 'Please select at least one role.' }),
     is_active: z.string().nullable().optional(),
     date_join_company: z.string().nullable().optional(),
     date_of_birth: z.string().nullable().optional(),
@@ -55,7 +58,7 @@ const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
     name: values.name ?? null,
     password: values.password ?? null,
     email: values.email ?? null,
-    role_id: values.role_id ?? null,
+    roles: values.roles ?? null,
     date_of_birth: values.date_of_birth ? new Date(values.date_of_birth).toISOString() : null,
     date_join_company: values.date_join_company ? new Date(values.date_join_company).toISOString() : null,
     phone: values.phone ?? null,
@@ -66,19 +69,24 @@ const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
     level_parent: values.level_parent
 });
 
-const OPTIONS: Option[] = [
-    { label: 'nextjs', value: 'Nextjs' },
-    { label: 'Vite', value: 'vite', disable: true },
-    { label: 'Nuxt', value: 'nuxt', disable: true },
-    { label: 'Vue', value: 'vue, disable: true', disable: true },
-    { label: 'Remix', value: 'remix' },
-    { label: 'Svelte', value: 'svelte', disable: true },
-    { label: 'Angular', value: 'angular', disable: true },
-    { label: 'Ember', value: 'ember', disable: true },
-    { label: 'React', value: 'react' },
-    { label: 'Gatsby', value: 'gatsby', disable: true },
-    { label: 'Astro', value: 'astro', disable: true },
-];
+// const OPTIONS: Option[] = [
+//     { label: 'nextjs', value: 'Nextjs' },
+//     { label: 'Vite', value: 'vite'},
+//     { label: 'Nuxt', value: 'nuxt' },
+//     { label: 'Vue', value: 'vue, disable: true' },
+//     { label: 'Remix', value: 'remix',  },
+//     { label: 'Svelte', value: 'svelte' },
+//     { label: 'Angular', value: 'angular' },
+//     { label: 'Ember', value: 'ember' },
+//     { label: 'React', value: 'react' },
+//     { label: 'Gatsby', value: 'gatsby' },
+//     { label: 'Astro', value: 'astro' },
+// ];
+
+interface IRole {
+    id: number;
+    name: string;
+}
 
 export default function CreateUserForm() {
     const navigate = useNavigate();
@@ -86,6 +94,9 @@ export default function CreateUserForm() {
     const [loading, setLoading] = useState(false);
     const [openSelectDepartment, setOpenSelectDepartment] = useState(false)
     const [openRole, setOpenRole] = useState(false)
+
+    const [selectedRoles, setSelectedRoles] = useState<Option[]>([]);
+    const [options, setOptions] = useState<Option[]>([]);
 
     const { code } = useParams<{ code: string }>()
     const isEdit = !!code;
@@ -97,7 +108,7 @@ export default function CreateUserForm() {
             name: "",
             password: "123456",
             email: "nguyenviet@vsvn.com.vn",
-            role_id: undefined,
+            roles: undefined,
             is_active: "",
             date_join_company: new Date().toISOString().split("T")[0],
             date_of_birth: new Date().toISOString().split("T")[0],
@@ -113,10 +124,11 @@ export default function CreateUserForm() {
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setLoading(true)
         const data = formatData(values);
+        console.log(data);
         try {
-            await authApi.register(data)
-            ShowToast("Create user success", "success")
-            navigate('/user')
+            // await authApi.register(data)
+            // ShowToast("Create user success", "success")
+            // navigate('/user')
         } catch (err: unknown) {
             const error = err as AxiosError<{ message: string }>
             const message = error?.response?.data?.message ?? "Something went wrong"
@@ -142,7 +154,7 @@ export default function CreateUserForm() {
     //when go to page edit/1, set data to form
     useEffect(() => {
         if (userData) {
-            const { code, name, email, phone, sex, date_of_birth, date_join_company, role_id, department_id, position, level, level_parent } = userData.data.data
+            const { code, name, email, phone, sex, date_of_birth, date_join_company, roles, department_id, position, level, level_parent } = userData.data.data
             form.reset({
                 code: code,
                 name: name,
@@ -151,7 +163,7 @@ export default function CreateUserForm() {
                 sex: sex,
                 date_of_birth: date_of_birth,
                 date_join_company: date_join_company,
-                role_id: role_id,
+                roles: roles,
                 department_id: department_id,
                 position: position,
                 level: level,
@@ -182,9 +194,19 @@ export default function CreateUserForm() {
                 page: 1,
                 page_size: 50
             });
-            return res.data.data;
-        }
+            return res.data.data as IRole[];
+        },
     });
+
+    useEffect(() => {
+        if (roles && roles.length > 0) {
+            const formattedOptions = roles.map((role) => ({
+                value: role.id.toString(),
+                label: role.name,
+            }));
+            setOptions(formattedOptions);
+        }
+    }, [roles]);
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -357,11 +379,11 @@ export default function CreateUserForm() {
                             </div>
                         </div>
 
-                        <div className="second-row flex flex-wrap w-full">
-                            <div className="mw-[10%]">
+                        <div className="second-row flex flex-wrap w-full mb-3">
+                            {/* <div className="mw-[10%]">
                                 <FormField
                                     control={form.control}
-                                    name="role_id"
+                                    name="roles"
                                     render={({ field, fieldState }) => (
                                         <FormItem>
                                             <FormLabel>Role</FormLabel>
@@ -433,7 +455,7 @@ export default function CreateUserForm() {
                                         </FormItem>
                                     )}
                                 />
-                            </div>
+                            </div> */}
 
                             <div className="mw-[10%] ml-3">
                                 <FormField
@@ -596,23 +618,37 @@ export default function CreateUserForm() {
                             </div>
                         </div>
 
+                        <div className="third-row">
+                            <FormField
+                                control={form.control}
+                                name="roles"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="mb-2">Role</FormLabel>
+                                        <FormControl>
+                                        <MultipleSelector
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            options={options} // Sử dụng prop 'options' để cập nhật động
+                                            placeholder="Chọn vai trò..."
+                                            emptyIndicator={
+                                            <span className="text-center text-sm text-gray-600 dark:text-gray-400">
+                                                Không tìm thấy vai trò nào.
+                                            </span>
+                                            }
+                                        />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
                         <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[10%]">
                             { loading ? <Spinner className="text-white"/> : "Save" }
                         </Button>
                     </form>
                 </Form>
-
-                <div>
-                <MultipleSelector
-                    defaultOptions={OPTIONS}
-                    placeholder="Select frameworks you like..."
-                    emptyIndicator={
-                    <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                        no results found.
-                    </p>
-                    }
-                />
-                </div>
             </div>
         </div>
     )

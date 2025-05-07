@@ -28,7 +28,7 @@ export interface RegisterRequest {
     level: string,
     level_parent: string,
     position: string | null,
-    role_id: number | null,
+    roles: number[];
     department_id: number | null,
 }
 
