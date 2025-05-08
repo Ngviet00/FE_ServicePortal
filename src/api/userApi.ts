@@ -1,9 +1,15 @@
 import axiosClient from './axiosClient';
+import { IRole } from './roleApi';
 
 interface data {
     name: string | null
     email: string | null
     dateJoinCompany: Date
+}
+
+interface DataUserRole {
+    user_code: string,
+    role_ids: number[]
 }
 
 interface GetUser {
@@ -28,10 +34,7 @@ export interface ListUserData {
     position: string | null,
     level: string | null,
     level_parent: string | null,
-    role: {
-        id: number,
-        name: string
-    },
+    roles: IRole[],
     department: {
         id: number,
         name: string
@@ -59,7 +62,10 @@ const userApi = {
     },
     orgChart(department_id: number) {
         return axiosClient.get(`/user/org-chart?department_id=${department_id}`)
-    }
+    },
+    updateUserRole(data: DataUserRole) {
+        return axiosClient.post(`/user/update-user-role`, data)
+    },
 }
 
 export default userApi;

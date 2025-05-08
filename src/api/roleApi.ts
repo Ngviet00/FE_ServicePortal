@@ -6,6 +6,12 @@ interface GetAllParams {
     name?: string;
 }
 
+export interface IRole {
+    id: number;
+    name: string;
+    code: string;
+};
+
 const roleApi = {
     getAll(params: GetAllParams) {
         return axiosClient.get('/role/get-all', {params})

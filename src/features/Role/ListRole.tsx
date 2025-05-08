@@ -5,16 +5,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { ShowToast, useDebounce } from "@/lib"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import roleApi from "@/api/roleApi"
+import roleApi, { IRole } from "@/api/roleApi"
 import React from "react"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import CreateRoleComponent from "./CreateRoleForm"
-
-type IRole = {
-    id: number;
-    name: string;
-};
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -22,7 +17,7 @@ export default function ListRole () {
     const [name, setName] = useState("") //search by name
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1) //current page
-    const [pageSize, setPageSize] = useState(5) //per page 5 item
+    const [pageSize, setPageSize] = useState(20) //per page 5 item
 
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
@@ -115,6 +110,7 @@ export default function ListRole () {
                             <TableRow>
                                 <TableHead className="w-[20px] text-left">ID</TableHead>
                                 <TableHead className="w-[50px] text-left">Name</TableHead>
+                                <TableHead className="w-[50px] text-left">Code</TableHead>
                                 <TableHead className="w-[100px] text-right">Action</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -124,19 +120,21 @@ export default function ListRole () {
                                         <TableRow key={index}>
                                             <TableCell className="w-[20px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
                                             <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                            <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                             <TableCell className="w-[100px] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center"/></div></TableCell>
                                         </TableRow>
                                     ))
                                 ) : isError || roles.length == 0 ? (
                                     <TableRow>
-                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={3}>{error?.message ?? "No results"}</TableCell>
+                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={4}>{error?.message ?? "No results"}</TableCell>
                                     </TableRow>
                                 ) : (
                                     roles.map((item: IRole) => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium text-left">{item?.id}</TableCell>
                                             <TableCell className="font-medium text-left">{item?.name}</TableCell>
-                                            
+                                            <TableCell className="font-medium text-left">{item?.code}</TableCell>
+
                                             <TableCell className="text-right">
                                                 <CreateRoleComponent role={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>

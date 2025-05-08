@@ -10,18 +10,32 @@ import { formatDate, ShowToast, useDebounce } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import userApi, { ListUserData } from "@/api/userApi"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import roleApi, { IRole } from "@/api/roleApi"
+
+import { MultiSelect } from "react-multi-select-component";
+import { Spinner } from "@/components/ui/spinner"
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export default function ListUser () {
-    const [name, setName] = useState("") //search by name
-    const [totalPage, setTotalPage] = useState(0) //search by name
-    const [page, setPage] = useState(1) //current page
-    const [pageSize, setPageSize] = useState(10) //per page 5 item
+type Option = {
+    value: string;
+    label: string;
+};
 
+export default function ListUser () {
     const queryClient = useQueryClient();
 
+    const [name, setName] = useState("")
     const debouncedName = useDebounce(name, 300);
+    const [totalPage, setTotalPage] = useState(0)
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+
+    const [selectedItem, setSelectedItem] = useState<ListUserData | null>(null);
+    
+    const [options, setOptions] = useState<Option[]>([]);
+    const [selectedRoles, setSelectedRoles] = useState<Option[]>([]);
     
     //get list users 
     const { data: users = [], isPending, isError, error } = useQuery({
@@ -85,6 +99,63 @@ export default function ListUser () {
             console.error("Failed to delete:", error);
         }
     };
+
+    //fetch list role
+    const { data: roles = [] } = useQuery({
+        queryKey: ['list-roles'],
+        queryFn: async () => {
+            const res = await roleApi.getAll({page: 1, page_size: 200});
+            return res.data.data;
+        }
+    });
+
+    useEffect(() => {
+        if (roles && roles.length > 0) {
+            const formattedOptions = roles.map((role: IRole) => ({
+                value: role.id.toString(),
+                label: role.name,
+            }));
+            setOptions(formattedOptions);
+        }
+    }, [roles]);
+    
+    const handleRoleChange = (selected: Option[]) => {
+        setSelectedRoles(selected);
+    };
+    
+    const handleSetRole = (item: ListUserData) => {
+        const formattedRoles = item.roles.map((role: IRole) => ({
+            value: role.id.toString(),
+            label: role.name,
+        }));
+        setSelectedRoles(formattedRoles);
+        setSelectedItem(item);
+    }
+
+    const updateUserRoleMutation = useMutation({ mutationFn: userApi.updateUserRole });
+
+    const handleConfirm = (userCode: string) => {
+        const roleIds = selectedRoles.map((role) => Number(role.value));
+        
+        const payload = {             
+            user_code: userCode,
+            role_ids: roleIds
+        }
+
+        updateUserRoleMutation.mutate(payload, {
+            onSuccess: () => {
+                ShowToast("Thành công!")
+                setSelectedItem(null)
+                queryClient.invalidateQueries({ queryKey: ['get-all-user'] });
+            },
+            onError: (err) => {
+                console.log('error update user role', err)
+                alert('Error update user role!')
+            },
+        })
+    }
+
+    const selectedLabels = selectedRoles.map(role => role.label).join(', ');
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -160,6 +231,13 @@ export default function ListUser () {
                                             <TableCell className="text-center">{item?.level_parent ?? "--"}</TableCell>
                                             <TableCell className="text-center">{formatDate(item?.date_join_company ?? "", "dd/MM/yyyy")}</TableCell>
                                             <TableCell className="text-center">
+                                                <Button 
+                                                    variant="outline" 
+                                                    onClick={() => handleSetRole(item)}
+                                                    className="text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
+                                                >
+                                                    Set role
+                                                </Button>
                                                 <ButtonDeleteComponent id={item.code} onDelete={() => handleDelete(item.id)}/>
                                             </TableCell>
                                         </TableRow>
@@ -168,6 +246,43 @@ export default function ListUser () {
                             }
                         </TableBody>
                     </Table>
+                    {selectedItem && (
+                        <Dialog 
+                            open={!!selectedItem} 
+                            onOpenChange={(open) => {
+                                if (!open) {
+                                    setSelectedItem(null)
+                                }
+                            }}>
+                            <DialogContent className="sm:max-w-[50%] h-[250px] flex flex-col top-[20%]">
+                                <DialogHeader>
+                                    <DialogTitle>Role</DialogTitle>
+                                    <DialogDescription></DialogDescription>
+                                </DialogHeader>
+                                        <MultiSelect
+                                            options={options}
+                                            value={selectedRoles}
+                                            onChange={handleRoleChange}
+                                            labelledBy="Select"
+                                            hasSelectAll={false}
+                                            overrideStrings={{
+                                                selectSomeItems: "Chọn vai trò...",
+                                                search: "Tìm kiếm...",
+                                                clearSearch: "Xoá tìm kiếm",
+                                                noOptions: "Không có vai trò nào",
+                                                allItemsAreSelected: selectedLabels || "Chọn vai trò..."
+                                            }}
+                                            />
+                                    <div className="flex justify-end">
+                                        <Button type="submit" disabled={updateUserRoleMutation.isPending} onClick={() => handleConfirm(selectedItem.code)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
+                                            {
+                                                updateUserRoleMutation.isPending ? <Spinner className="text-white"/> : "Confirm"
+                                            }
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                        </Dialog>
+                    )}
                 </div>
             </div>
             {

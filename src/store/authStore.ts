@@ -60,11 +60,10 @@ export const useAuthStore = create<AuthState>()(
                 if (!currentUser) return;
                 
                 try {
-                  const res = await userApi.getMe();
-                  set({ user: res.data.data });
+                    const res = await userApi.getMe();
+                    set({ user: res.data.data });
                 } catch (err) {
-                  console.error('Failed to fetch user', err);
-                  set({ user: null });
+                    console.error('Failed to fetch user', err);
                 }
               },
         }),

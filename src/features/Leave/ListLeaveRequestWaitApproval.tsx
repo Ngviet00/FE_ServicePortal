@@ -12,7 +12,7 @@ import {
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName, ShowToast } from "@/lib"
+import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName, getErrorMessage, ShowToast } from "@/lib"
 
 import {
     Dialog,
@@ -91,10 +91,6 @@ export default function ListLeaveRequestWaitApproval () {
             queryClient.invalidateQueries({
                 queryKey: ['count-wait-approval-leave-request'],
             });
-        },
-        onError: (error) => {
-            console.error("Failed:", error);
-            ShowToast("Failed", "error");
         }
     });
 
@@ -106,7 +102,7 @@ export default function ListLeaveRequestWaitApproval () {
             handleApproval(shouldGoBack);
             setSelectedItem(null)
         } catch (error) {
-            console.error("Failed to delete:", error);
+            ShowToast(getErrorMessage(error), "error", 7000);
         } finally {
             setLoading(false);
         }

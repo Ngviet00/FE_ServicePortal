@@ -25,6 +25,7 @@ import { AxiosError } from "axios"
 
 const createUserSchema = z.object({
     name: z.string().min(1, { message: "Tên không được để trống" }),
+    code: z.string().min(1, { message: "Mã không được để trống" }),
 })
 
 type CreateUserFormValues = z.infer<typeof createUserSchema>
@@ -32,7 +33,8 @@ type CreateUserFormValues = z.infer<typeof createUserSchema>
 type Props = {
     role?: {
         id: number,
-        name: string
+        name: string,
+        code: string
     },
     onAction?: () => void;
 };
@@ -44,14 +46,15 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             name: "",
+            code: "",
         },
     })
 
     useEffect(() => {
         if (role && open) {
-            form.reset({ name: role.name });
+            form.reset({ name: role.name, code: role.code });
         } else {
-            form.reset({ name: "" });
+            form.reset({ name: "", code: "" });
         }
     }, [role, open, form]);
 
@@ -106,6 +109,20 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                                     <Label htmlFor="name">Name</Label>
                                     <FormControl>
                                         <Input id="name" placeholder="Input role..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}  
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="code"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label htmlFor="name">Code</Label>
+                                    <FormControl>
+                                        <Input id="code" placeholder="Input code..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

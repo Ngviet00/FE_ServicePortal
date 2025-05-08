@@ -128,3 +128,14 @@ export const getEnumName = (value: string, enumObj: object): string => {
     
     return "UNKNOWN"; 
 };
+
+export function getErrorMessage(error: unknown): string {
+    if (typeof error === "string") return error;
+
+    const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+    };
+
+    return err.response?.data?.message || err.message || "Unexpected error occurred";
+}

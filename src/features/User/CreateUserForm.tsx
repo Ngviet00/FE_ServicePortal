@@ -31,8 +31,6 @@ import { AxiosError } from "axios"
 import authApi, { RegisterRequest } from "@/api/authApi"
 import { Spinner } from "@/components/ui/spinner"
 
-import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
-
 const formSchema = z.object({
     code: z.string().nonempty({message: "Required"}),
     name: z.string().nonempty({message: "Required"}),
@@ -65,20 +63,6 @@ const formatData = (values: z.infer<typeof formSchema>): RegisterRequest => ({
     level: values.level,
     level_parent: values.level_parent
 });
-
-const OPTIONS: Option[] = [
-    { label: 'nextjs', value: 'Nextjs' },
-    { label: 'Vite', value: 'vite', disable: true },
-    { label: 'Nuxt', value: 'nuxt', disable: true },
-    { label: 'Vue', value: 'vue, disable: true', disable: true },
-    { label: 'Remix', value: 'remix' },
-    { label: 'Svelte', value: 'svelte', disable: true },
-    { label: 'Angular', value: 'angular', disable: true },
-    { label: 'Ember', value: 'ember', disable: true },
-    { label: 'React', value: 'react' },
-    { label: 'Gatsby', value: 'gatsby', disable: true },
-    { label: 'Astro', value: 'astro', disable: true },
-];
 
 export default function CreateUserForm() {
     const navigate = useNavigate();
@@ -512,7 +496,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-3 w-[8%]">
+                            <div className="ml-3 w-[10%]">
                                 <FormField
                                     control={form.control}
                                     name="position"
@@ -533,7 +517,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-3 w-[8%]">
+                            <div className="ml-3 w-[10%]">
                                 <FormField
                                     control={form.control}
                                     name="level"
@@ -564,7 +548,7 @@ export default function CreateUserForm() {
                                 />
                             </div>
 
-                            <div className="ml-3 w-[8%]">
+                            <div className="ml-3 w-[10%]">
                                 <FormField
                                     control={form.control}
                                     name="level_parent"
@@ -601,18 +585,6 @@ export default function CreateUserForm() {
                         </Button>
                     </form>
                 </Form>
-
-                <div>
-                <MultipleSelector
-                    defaultOptions={OPTIONS}
-                    placeholder="Select frameworks you like..."
-                    emptyIndicator={
-                    <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                        no results found.
-                    </p>
-                    }
-                />
-                </div>
             </div>
         </div>
     )
