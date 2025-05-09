@@ -61,6 +61,21 @@ export const formatDate = (dateStr: string | undefined, type: "dd/MM/yyyy" | "yy
     }
 };
 
+export function parseDateTime(datetimeStr: string) {
+    const date = new Date(datetimeStr);
+  
+    // Lấy giờ và phút, thêm số 0 phía trước nếu cần
+    const hour = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+  
+    return {
+      original: datetimeStr,
+      date: date.toLocaleDateString("en-US"),
+      hour,
+      minutes,
+    };
+}
+
 export enum ENUM_TYPE_LEAVE {
     ANNUAL = "1",
     PERSONAL = "2",

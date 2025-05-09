@@ -77,12 +77,13 @@ export default function ListLeaveRequestWaitApproval () {
 
     const mutation = useMutation({
         mutationFn: async ({ item, approval }: { item: LeaveRequestData; approval: boolean, note: string | null }) => {
-          await leaveRequestApi.approvalLeaveRequest({
-            user_code_approval: user?.code ?? "",
-            leave_request_id: item?.id ?? "",
-            status: approval,
-            note: note,
-          });
+            await leaveRequestApi.approvalLeaveRequest({
+                user_code_approval: user?.code ?? "",
+                leave_request_id: item?.id ?? "",
+                status: approval,
+                note: note,
+                url_front_end: window.location.origin
+            });
         },
         
         onSuccess: () => {

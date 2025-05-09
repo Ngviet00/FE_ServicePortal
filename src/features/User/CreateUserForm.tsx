@@ -166,7 +166,14 @@ export default function CreateUserForm() {
                 page: 1,
                 page_size: 50
             });
-            return res.data.data;
+
+            const result = res.data.data;
+
+            const resultFilter = result.filter((role: { id: number; name?: string }) => {
+                return role.id != 1;
+            });
+
+            return resultFilter;
         }
     });
 

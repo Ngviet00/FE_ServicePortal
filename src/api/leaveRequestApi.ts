@@ -20,6 +20,7 @@ export interface LeaveRequestData {
     created_at?: string | null,
     updated_at?: string | null,
     deleted_at?: string | null,
+    url_front_end?: string | null
 }
 
 interface GetLeaveRequest {
@@ -35,7 +36,8 @@ interface ApprovalData {
     user_code_approval: string, 
     leave_request_id: string,
     status: boolean,
-    note: string | null
+    note: string | null,
+    url_front_end?: string
 }
 
 interface GetWaitApproval {
@@ -58,16 +60,16 @@ const leaveRequestApi = {
     approvalLeaveRequest(data: ApprovalData) {
         return axiosClient.post('/leave-request/approval', data)
     },
-    getById(id: number) {
+    getById(id: string) {
         return axiosClient.get(`/leave-request/get-by-id/${id}`)
     },
     create(data: LeaveRequestData) {
         return axiosClient.post('/leave-request/create', data)
     },
-    update(id: number, data: LeaveRequestData){
+    update(id: string, data: LeaveRequestData){
         return axiosClient.put(`/leave-request/update/${id}`, data)
     },
-    delete(id: number) {
+    delete(id: string) {
         return axiosClient.delete(`/leave-request/delete/${id}`)
     }
 }

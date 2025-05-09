@@ -18,6 +18,7 @@ import CreateUserForm from '@/features/User/CreateUserForm';
 import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
 import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 import OrgChart from '@/pages/OrgChart';
+import Forbidden from '@/pages/Forbidden';
 
 function App() {
 
@@ -33,23 +34,25 @@ function App() {
 
 	const privateRoutes = [
 		{ path: "/", element: <HomePage /> },
+		{ path: "/forbidden", element: <Forbidden /> },
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		
-		{ path: "/role", element: <ListRole /> },
+		{ path: "/role", element: <ListRole />, allowedRoles: ['superadmin']},
 
-		{ path: "/type-leave", element: <ListTypeLeave /> },
+		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: ['HR', 'HR_Manager'] },
 
-		{ path: "/department", element: <ListDepartment /> },
-		{ path: "/department/create", element: <DepartmentForm /> },
-		{ path: "/department/edit/:id", element: <DepartmentForm /> },
+		{ path: "/department", element: <ListDepartment />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/department/create", element: <DepartmentForm />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/department/edit/:id", element: <DepartmentForm />, allowedRoles: ['HR', 'HR_Manager'] },
 
-		{ path: "/user", element: <ListUser /> },
-		{ path: "/user/create", element: <CreateUserForm /> },
-		{ path: "/user/edit/:code", element: <CreateUserForm /> },
-		{ path: "/user/org-chart", element: <OrgChart /> },
+		{ path: "/user", element: <ListUser />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/user/create", element: <CreateUserForm />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/user/edit/:code", element: <CreateUserForm />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: ['HR', 'HR_Manager'] },
 
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
+		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
 		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>}
 	];
   
@@ -75,21 +78,19 @@ function App() {
 				) 
 				:
 				(
-					<PrivateRoute>
-						<MainLayout>
-							<Routes>
-								{
-									privateRoutes.map(({path, element}) => (
-										<Route 
-											key={path}
-											path={path} 
-											element={element}
-										/>
-									))
-								}
-							</Routes>
-						</MainLayout>
-					</PrivateRoute>
+					<MainLayout>
+						<Routes>
+							{
+								privateRoutes.map(({path, element, allowedRoles }) => (
+									<Route 
+										key={path}
+										path={path} 
+										element={<PrivateRoute allowedRoles={allowedRoles}>{element}</PrivateRoute>}
+									/>
+								))
+							}
+						</Routes>
+					</MainLayout>
 				)
 			}
 		</>

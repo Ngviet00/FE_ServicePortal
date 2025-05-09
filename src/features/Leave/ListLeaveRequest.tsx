@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Table,
@@ -16,7 +16,8 @@ import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveR
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName } from "@/lib"
+import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName, ShowToast } from "@/lib"
+import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -29,6 +30,8 @@ export default function ListLeaveRequest () {
     const [countInProcess, setCountInProcess] = useState(0)
 
     const {user} = useAuthStore()
+
+    const queryClient = useQueryClient();
 
     const queryParams = useMemo(() => {
         return {
@@ -51,14 +54,6 @@ export default function ListLeaveRequest () {
             return res.data.data;
         },
     });
-
-    // function handleSuccessDelete(shouldGoBack?: boolean) {
-    //     if (shouldGoBack && page > 1) {
-    //         setPage(prev => prev - 1);
-    //     } else {
-    //         queryClient.invalidateQueries({ queryKey: ['get-all-department'] });
-    //     }
-    // }
 
     function setCurrentPage(page: number): void {
         setPage(page)
@@ -88,15 +83,36 @@ export default function ListLeaveRequest () {
     //     }
     // });
 
-    // const handleDelete = async (id: number) => {
-    //     try {
-    //         const shouldGoBack = departments.length === 1;
-    //         await mutation.mutateAsync(id);
-    //         handleSuccessDelete(shouldGoBack);
-    //     } catch (error) {
-    //         console.error("Failed to delete:", error);
-    //     }
-    // };
+    function handleSuccessDelete(shouldGoBack?: boolean) {
+        if (shouldGoBack && page > 1) {
+            setPage(prev => prev - 1);
+        } else {
+            queryClient.invalidateQueries({ queryKey: ['get-leave-requests'] });
+        }
+    }
+
+    const mutation = useMutation({
+        mutationFn: async (id: string) => {
+            await leaveRequestApi.delete(id);
+        },
+        onSuccess: () => {
+            ShowToast("Success", "success");
+        },
+        onError: (error) => {
+            console.error("Delete failed:", error);
+            ShowToast("Delete failed", "error");
+        }
+    });
+
+    const handleDelete = async (id: string) => {
+        try {
+            const shouldGoBack = leaveRequests.length === 1;
+            await mutation.mutateAsync(id);
+            handleSuccessDelete(shouldGoBack);
+        } catch (error) {
+            console.error("Failed to delete:", error);
+        }
+    };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -203,7 +219,16 @@ export default function ListLeaveRequest () {
                                                                     {item?.note ? item.note : "--"}
                                                                 </span>
                                                             ) : (
-                                                                <StatusLeaveRequest status={item.status ? item.status : 1}/>
+                                                                <>
+                                                                    {
+                                                                        filterStatus == 1 ? (<>
+                                                                            <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")}/>
+                                                                            <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] mx-1 h-[23.98px]">Edit</Link>
+                                                                        </>
+                                                                        ) : (<StatusLeaveRequest status={item.status ? item.status : 1}/>)
+                                                                    }
+                                                                    
+                                                                </>
                                                             )
                                                         }
                                                     </TableCell>

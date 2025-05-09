@@ -15,6 +15,7 @@ import roleApi, { IRole } from "@/api/roleApi"
 
 import { MultiSelect } from "react-multi-select-component";
 import { Spinner } from "@/components/ui/spinner"
+import useHasRole from "@/hooks/HasRole"
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -149,13 +150,15 @@ export default function ListUser () {
                 queryClient.invalidateQueries({ queryKey: ['get-all-user'] });
             },
             onError: (err) => {
+                ShowToast("Lỗi không thể cập nhật role, hãy liên hệ team IT", "error", 5000)
                 console.log('error update user role', err)
-                alert('Error update user role!')
             },
         })
     }
 
     const selectedLabels = selectedRoles.map(role => role.label).join(', ');
+
+    const isSuperAdmin = useHasRole(['superadmin']);
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -231,14 +234,19 @@ export default function ListUser () {
                                             <TableCell className="text-center">{item?.level_parent ?? "--"}</TableCell>
                                             <TableCell className="text-center">{formatDate(item?.date_join_company ?? "", "dd/MM/yyyy")}</TableCell>
                                             <TableCell className="text-center">
-                                                <Button 
-                                                    variant="outline" 
-                                                    onClick={() => handleSetRole(item)}
-                                                    className="text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
-                                                >
-                                                    Set role
-                                                </Button>
-                                                <ButtonDeleteComponent id={item.code} onDelete={() => handleDelete(item.id)}/>
+                                                {
+                                                    isSuperAdmin ? (<>
+                                                        <Button 
+                                                            variant="outline" 
+                                                            onClick={() => handleSetRole(item)}
+                                                            className="text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
+                                                        >
+                                                            Set role
+                                                        </Button>
+                                                        <ButtonDeleteComponent id={item.code} onDelete={() => handleDelete(item.id)}/>
+                                                    </>
+                                                    ) : "--"
+                                                }
                                             </TableCell>
                                         </TableRow>
                                     ))

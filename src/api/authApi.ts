@@ -47,7 +47,7 @@ const authApi = {
 
     changePassword(data: ChangePasswordRequest) {
         return axiosClient.post("/auth/change-password", data);
-    },
+    }
 }
 
 export default authApi;

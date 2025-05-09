@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useWatch } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,16 +17,16 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
-import { ENUM_TIME_LEAVE, ShowToast, TIME_LEAVE } from "@/lib"
+import { parseDateTime, ShowToast, TIME_LEAVE } from "@/lib"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuthStore } from "@/store/authStore"
 import { AxiosError } from "axios"
-import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
-import DotRequireComponent from "@/components/DotRequireComponent"
 import { Spinner } from "@/components/ui/spinner"
-import typeLeaveApi from "@/api/typeLeaveApi"
 import { useQuery } from "@tanstack/react-query"
 import { ITypeLeave } from "../TypeLeave/ListTypeLeave"
+import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
+import DotRequireComponent from "@/components/DotRequireComponent"
+import typeLeaveApi from "@/api/typeLeaveApi"
 
 const formSchema = z.object({
     user_code: z.string().nonempty({message: "Required"}),
@@ -49,7 +49,7 @@ const formSchema = z.object({
     type_leave: z.string().nonempty({message: "Required"}),
     time_leave: z.string().nonempty({message: "Required"}),
 
-    reason: z.string().nonempty({message: "Required"})
+    reason: z.string().nonempty({message: "Required"}),
 }).refine(data => {
     const from = new Date(data.from_date);
     const to = new Date(data.to_date);
@@ -77,6 +77,8 @@ const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
 
     time_leave: parseInt(values.time_leave),
     type_leave: parseInt(values.type_leave),
+
+    url_front_end: window.location.origin,
 });
 
 export default function LeaveRequestForm() {
@@ -108,9 +110,9 @@ export default function LeaveRequestForm() {
             to_hour: "17",
             to_minutes: "00",
         
-            type_leave: "",
+            type_leave: "1",
             time_leave: "1",
-            reason: "",
+            reason: ""
         },
     })
 
@@ -119,10 +121,16 @@ export default function LeaveRequestForm() {
         setLoading(true)
         const data = formatData(values);
         try {
-            await leaveRequestApi.create(data)
-            ShowToast("Success", "success")
-            form.setValue("reason", "")
-            navigate("/leave")
+            if (isEdit) {
+                await leaveRequestApi.update(id, data)
+                ShowToast("Success", "success")
+                navigate("/leave")
+            } else {
+                await leaveRequestApi.create(data)
+                ShowToast("Success", "success")
+                form.setValue("reason", "")
+                navigate("/leave")
+            }
         } catch (err: unknown) {
             const error = err as AxiosError<{ message: string }>
             const message = error?.response?.data?.message ?? "Something went wrong"
@@ -140,26 +148,6 @@ export default function LeaveRequestForm() {
         (event.target as HTMLInputElement).showPicker();
     };
 
-    //#region watch time_leave change
-    const watchTimeLeave = useWatch({
-        control: form.control,
-        name: "time_leave"
-    })
-
-    useEffect(() => {
-        if (watchTimeLeave == ENUM_TIME_LEAVE.ALL_DAY) {
-            form.setValue("from_hour", "08");
-            form.setValue("to_hour", "17");
-        } else if (watchTimeLeave == ENUM_TIME_LEAVE.MORNING) {
-            form.setValue("from_hour", "08");
-            form.setValue("to_hour", "12");
-        } else {
-            form.setValue("from_hour", "13");
-            form.setValue("to_hour", "17");
-        }
-    }, [watchTimeLeave, form])
-    //#endregion
-
     const { data: typeLeaves = [], isPending, isError, error } = useQuery({
         queryKey: ['get-all-type-leave'],
         queryFn: async () => {
@@ -175,26 +163,42 @@ export default function LeaveRequestForm() {
     //#region UPDATE
     
     //get by id
-    // const { data: departmentData } = useQuery({
-    //     queryKey: ["department", id],
-    //     queryFn: async () => await departmentApi.getById(Number(id)),
-    //     enabled: !!id,
-    // })
+    const { data: departmentData } = useQuery({
+        queryKey: ["department", id],
+        queryFn: async () => await leaveRequestApi.getById(id ?? ""),
+        enabled: !!id,
+    })
 
-    // useEffect(() => {
-    //     if (departmentData) {
-    //         const { name, note, parentId } = departmentData.data.data
-    //         form.reset({
-    //             name,
-    //             note: note ?? "",
-    //             parentId: parentId ?? null,
-    //         })
-    //     }
-    // }, [departmentData, form])
+    useEffect(() => {
+        if (departmentData) {
+            const data = departmentData.data.data
+
+            const from = parseDateTime(data.from_date);
+            const to = parseDateTime(data.to_date);
+
+            form.reset({
+                user_code: data.user_code,
+                name: data.name,
+                user_code_register: data.user_code_register,
+                name_register: data.name_register,
+                department: data.department,
+                position: data.position,
+                from_date: new Date(data.from_date).toISOString().slice(0, 10),
+                from_hour: from.hour,
+                from_minutes: from.minutes,
+
+                to_date: new Date(data.to_date).toISOString().slice(0, 10),
+                to_hour: to.hour,
+                to_minutes: to.minutes,
+
+                type_leave: data.type_leave.toString(),
+                time_leave: data.time_leave.toString(),
+                reason: data.reason
+            })
+        }
+    }, [departmentData, form])
     
     //#endregion
-    
-    
     
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">

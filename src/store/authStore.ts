@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 interface IRole {
     id: number,
     name?: string,
+    code?: string
 }
 
 interface User {
@@ -23,7 +24,7 @@ interface User {
         id: number,
         name: string
     },
-    role?: IRole[],
+    roles?: IRole[],
     user_permissions?: string[],
     permissions?: string[]
 }

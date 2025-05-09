@@ -1,15 +1,23 @@
+import useHasRole from "@/hooks/HasRole";
 import { useAuthStore } from "@/store/authStore";
+import { JSX } from "react";
 import { Navigate } from "react-router-dom";
 
-type Props = {
-    children: React.ReactNode;
-};
+interface PrivateRouteProps {
+	allowedRoles: string[] | undefined;
+	children: JSX.Element;
+  }
 
-const PrivateRoute = ({ children }: Props) => {
+const PrivateRoute = ({ allowedRoles, children }: PrivateRouteProps) => {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+	const hasRole = useHasRole(allowedRoles ?? []);
 
 	if (!isAuthenticated) {
 		return <Navigate to="/login" replace />;
+	}
+
+	if (!hasRole && allowedRoles && allowedRoles.length > 0) {
+		return <Navigate to="/forbidden" replace />;
 	}
 
 	return <>{children}</>;

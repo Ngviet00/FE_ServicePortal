@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { useQuery } from '@tanstack/react-query';
 import userApi from '@/api/userApi';
+import departmentApi from '@/api/departmentApi';
 
 type Person = {
 	id: string;
@@ -58,14 +59,38 @@ const OrgChartTree: React.FC = () => {
 	const [offset, setOffset] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 	const [isHoveringChart, setIsHoveringChart] = useState<boolean>(false);
 	const chartRef = useRef<HTMLDivElement | null>(null);
+	
+	const [department, setDepartment] = useState<number | null>(null);
 
-	const { data: OrgChartData = [], isPending } = useQuery({
+	const { data: departments = [] } = useQuery({
+		queryKey: ['departments'],
+		queryFn: async () => {
+			const res = await departmentApi.getAll({ page: 1, page_size: 100 });
+			const result = res.data.data;
+			if (result.length > 0) {
+				const hrDepartment = result.find((d: {name: string}) => d.name === 'HR');
+				setDepartment(hrDepartment.id ?? 1);
+			}
+			return result;
+		},
+	});
+
+	const { data: OrgChartData = [], isPending, refetch: refetchOrgChart } = useQuery({
         queryKey: ['get-org-chart'],
         queryFn: async () => {
-            const res = await userApi.orgChart(3);
+			if (department == null) return []
+
+            const res = await userApi.orgChart(department);
             return res.data.data;
-        }
+        },
+		enabled: department !== null
     });
+
+	useEffect(() => {
+		if (department !== null) {
+			refetchOrgChart();
+		}
+	}, [department, refetchOrgChart]);
 
 	const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(e.target.value);
@@ -114,144 +139,65 @@ const OrgChartTree: React.FC = () => {
 	};
 
 	if (isPending) return <div>Đang tải sơ đồ tổ chức...</div>;
-	if (!OrgChartData || OrgChartData.length === 0) return <div>Không có dữ liệu</div>;
 
 	return (
 		<div style={{ padding: '20px' }}>
-		<input
-			type="text"
-			value={searchQuery}
-			onChange={handleSearch}
-			placeholder="Tìm kiếm..."
-			style={{ marginBottom: '20px', padding: '8px', fontSize: '16px', width: '100%' }}
-		/>
+			<div className='flex items-center justify-between mb-3'>
+				<div>
+					<label htmlFor="department_id" className='mb-1 mr-2 font-bold'>Chọn phòng ban:</label>
+					<select value={department ?? ''} onChange={(e) => setDepartment(Number(e.target.value), )} name="department_id" id="department_id" className='border border-gray-300 px-[20px] py-[5px]'>
+						<option value="">--Chọn--</option>
+						{
+							departments.map((dept: {id: number, name: string}) => (
+								<option key={dept.id} value={dept.id}>{dept.name}</option>
+							))
+						}
+					</select>
+				</div>
+				<div className='flex-1'>
+					<input
+						type="text"
+						className='border-gray-300 border ml-3 rounded-[3px]'
+						value={searchQuery}
+						onChange={handleSearch}
+						placeholder="Tìm kiếm..."
+						style={{ padding: '5px', fontSize: '16px', width: '100%' }}
+					/>
+				</div>
+			</div>
 
-		<div
-			ref={chartRef}
-			onWheel={handleWheel}
-			onMouseDown={handleMouseDown}
-			onMouseMove={handleMouseMove}
-			onMouseUp={handleMouseUp}
-			onMouseEnter={handleMouseEnter}
-			onMouseLeave={handleMouseLeave}
-			style={{
-			overflow: 'hidden',
-			cursor: isDragging ? 'grabbing' : 'grab',
-			position: 'relative',
-			transform: `scale(${zoom})`, 
-			transformOrigin: 'top left',
-			transition: 'transform 0.3s ease',
-			marginLeft: offset.x,
-			marginTop: offset.y,
-			}}
-		>
-			<Tree
-				lineWidth="2px"
-				lineColor="#bbb"
-				lineBorderRadius="8px"
-				label={<NodeContent people={filteredData[0]?.people ?? []} level={filteredData[0]?.level ?? ''} />}
+			<div
+				ref={chartRef}
+				onWheel={handleWheel}
+				onMouseDown={handleMouseDown}
+				onMouseMove={handleMouseMove}
+				onMouseUp={handleMouseUp}
+				onMouseEnter={handleMouseEnter}
+				onMouseLeave={handleMouseLeave}
+				style={{
+				overflow: 'hidden',
+				cursor: isDragging ? 'grabbing' : 'grab',
+				position: 'relative',
+				transform: `scale(${zoom})`, 
+				transformOrigin: 'top left',
+				transition: 'transform 0.3s ease',
+				marginLeft: offset.x,
+				marginTop: offset.y,
+				}}
 			>
-				{filteredData[0]?.children?.map((child: OrgChartNode, idx: number) => (
-					<RenderNode key={idx} node={child} />
-				))}
-			</Tree>
-		</div>
+				<Tree
+					lineWidth="2px"
+					lineColor="#bbb"
+					lineBorderRadius="8px"
+					label={<NodeContent people={filteredData[0]?.people ?? []} level={filteredData[0]?.level ?? ''} />}
+				>
+					{filteredData[0]?.children?.map((child: OrgChartNode, idx: number) => (
+						<RenderNode key={idx} node={child} />
+					))}
+				</Tree>
+			</div>
 		</div>
 	);
 };
 
 export default OrgChartTree;
-
-
-
-// import axios from 'axios';
-// import React, { useEffect, useState } from 'react';
-// import { Tree, TreeNode } from 'react-organizational-chart';
-
-// type Person = {
-// 	id: string;
-// 	name: string;
-// 	position: string;
-// 	level: string;
-// 	levelParent: string;
-//   };
-  
-//   type OrgChartNode = {
-// 	level_code: string;
-// 	people: Person[];
-// 	children: OrgChartNode[];
-//   };
-
-//   const nodeStyle: React.CSSProperties = {
-// 	padding: "8px 12px",
-// 	borderRadius: "8px",
-// 	display: "inline-block",
-// 	border: "1px solid #ccc",
-// 	backgroundColor: "#fff",
-// 	fontSize: "14px",
-// 	whiteSpace: "pre-line",
-// 	boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-//   };
-
-//   const NodeContent: React.FC<{ people: Person[]; level_code: string }> = ({
-// 	people,
-// 	level_code,
-//   }) => (
-// 	<div style={nodeStyle}>
-// 	  <strong>Level {level_code}</strong>
-// 	  <br />
-// 	  {people.map((p) => (
-// 		<div key={p.id}>
-// 		  {p.name} - {p.position}
-// 		</div>
-// 	  ))}
-// 	</div>
-//   );
-
-//   // Đệ quy vẽ cây
-// const RenderNode: React.FC<{ node: OrgChartNode }> = ({ node }) => (
-// 	<TreeNode label={<NodeContent people={node.people} level_code={node.level_code} />}>
-// 	  {node.children.map((child) => (
-// 		<RenderNode key={child.level_code} node={child} />
-// 	  ))}
-// 	</TreeNode>
-//   );
-
-//   const OrgChartTree: React.FC = () => {
-// 	const [data, setData] = useState<OrgChartNode[]>([]);
-// 	const [loading, setLoading] = useState(true);
-  
-// 	useEffect(() => {
-// 	  axios
-// 		.get("https://localhost:7006/api/user/org-chart?department_id=3") // 🔁 Đổi URL API tại đây
-// 		.then((res) => {
-// 		  setData(res.data.data); // Đảm bảo API trả về đúng định dạng
-// 		  setLoading(false);
-// 		})
-// 		.catch((err) => {
-// 		  console.error("Lỗi tải dữ liệu sơ đồ:", err);
-// 		  setLoading(false);
-// 		});
-// 	}, []);
-  
-// 	if (loading) return <div>Đang tải sơ đồ tổ chức...</div>;
-// 	if (!data || data.length === 0) return <div>Không có dữ liệu</div>;
-  
-// 	return (
-// 	  <div style={{ overflowX: "auto", padding: 20 }}>
-// 		<Tree
-// 		  lineWidth={"2px"}
-// 		  lineColor={"#bbb"}
-// 		  lineBorderRadius={"8px"}
-// 		  label={<NodeContent people={data[0].people} level_code={data[0].level_code} />}
-// 		>
-// 		  {data[0].children.map((child) => (
-// 			<RenderNode key={child.level_code} node={child} />
-// 		  ))}
-// 		</Tree>
-// 	  </div>
-// 	);
-//   };
-  
-// export default OrgChartTree;
-

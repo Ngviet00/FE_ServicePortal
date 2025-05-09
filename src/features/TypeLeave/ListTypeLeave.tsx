@@ -134,7 +134,7 @@ export default function ListTypeLeave () {
                                     ))
                                 ) : isError || typeLeaves.length == 0 ? (
                                     <TableRow>
-                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={3}>{error?.message ?? "No results"}</TableCell>
+                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={5}>{error?.message ?? "No results"}</TableCell>
                                     </TableRow>
                                 ) : (
                                     typeLeaves.map((item: ITypeLeave) => (
