@@ -33,27 +33,23 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { ShowToast } from "@/lib"
+import { getErrorMessage, ShowToast } from "@/lib"
 
 import React, { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import departmentApi from "@/api/departmentApi"
-import { AxiosError } from "axios"
 import { useParams } from "react-router-dom"
-import teamApi from "@/api/teamApi"
+import { Spinner } from "@/components/ui/spinner"
+import customApprovalFlowApi from "@/api/customApprovalFlow"
 
 const formSchema = z.object({
-	name: z.string().nonempty({ message: "Required" }),
-	department_id: z.number({message: "Required"})
+	department_id: z.number(),
+	type_custom_approval: z.string().nonempty({message: "Required"}),
+	from: z.string().nonempty({message: "Required"}),
+	to: z.string().nonempty({message: "Required"}),
 })
 
-interface Teams {
-    id: number | null
-    name: string
-    department_id: number | undefined | null
-}
-
-export default function TeamForm() {
+export default function CustomApprovalFlowForm() {
 	const [open, setOpen] = React.useState(false)
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
@@ -64,77 +60,75 @@ export default function TeamForm() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			name: "",
-			department_id: undefined 
+			department_id: undefined,
+			type_custom_approval: "",
+			from: "",
+			to: ""
 		},
 	})
+
+	//get list department
+	const { data: departments = [], isPending: isPendingDept, isError: isErrorDept } = useQuery({
+		queryKey: ['departments'],
+		queryFn: async () => {
+			const res = await departmentApi.getAll({ page: 1, page_size: 100 });
+			return res.data.data;
+		},
+	});
+	
+	//get by id
+	const { data: customApprovalFlowData  } = useQuery({
+		queryKey: ["get-one-custom-approval-flow", id],
+		queryFn: async () => await customApprovalFlowApi.getById(Number(id)),
+		enabled: !!id,
+	})
+
+	useEffect(() => {
+		if (customApprovalFlowData) {
+			const result = customApprovalFlowData.data.data
+			form.reset({
+				department_id: result.department_id ?? undefined,
+				type_custom_approval: result.type_custom_approval ?? "",
+				from: result.from ?? "",
+				to: result.to ?? "",
+			})
+		}
+	}, [customApprovalFlowData, form])
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		setLoading(true);
 		try {
 			if (isEdit) {
-				await teamApi.update(Number(id), {
-					...values,
-					name: values.name ?? null,
-					department_id: values.department_id ?? null,
+				await customApprovalFlowApi.update(Number(id), {
+					department_id: values.department_id,
+					type_custom_approval: values.type_custom_approval,
+					from: values.from,
+					to: values.to
 				})
-				ShowToast("Update team success", "success")
-				navigate("/team")
+				ShowToast("Success", "success")
+				navigate("/approval-flow")
 			  } else {
-				await teamApi.create({
-					...values,
-					name: values.name ?? null,
-					department_id: values.department_id ?? null,
+				await customApprovalFlowApi.create({
+					department_id: values.department_id,
+					type_custom_approval: values.type_custom_approval,
+					from: values.from,
+					to: values.to
 				})
-				ShowToast("Add team success", "success")
-				navigate("/team")
+				ShowToast("Success", "success")
+				navigate("/approval-flow")
 			  }
-		} catch (err: unknown) {
-			const error = err as AxiosError<{ message: string }>
-			const message = error?.response?.data?.message ?? "Something went wrong"
-			form.setError("name", {
-				type: "server",
-				message,
-			})
+		} catch (err) {
+			ShowToast(getErrorMessage(err), "error", 5000)
 		} finally {
 			setLoading(false);
 		}
 	}
 
-	//get all departments
-	const { data, isPending, isError } = useQuery({
-		queryKey: ['get-all-department'],
-		queryFn: async () => {
-			const res = await departmentApi.getAll({
-				page: 1,
-				page_size: 50
-			});
-			return res.data.data as Teams[];
-		}
-	});
-
-	//get by id
-	const { data: teamData } = useQuery({
-		queryKey: ["team", id],
-		queryFn: async () => await teamApi.getById(Number(id)),
-		enabled: !!id,
-	})
-
-	useEffect(() => {
-		if (teamData) {
-			const { name, departmentId } = teamData.data.data
-			form.reset({
-				name,
-				department_id: departmentId ?? null,
-			})
-		}
-	}, [teamData, form])
-
 	return (
 		<div className="p-4 pl-1 pt-0 space-y-4">
 			<div className="flex justify-between mb-1">
-				<h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Teams</h3>
-				<Button className="hover:cursor-pointer" onClick={() => navigate("/team")}>List Teams</Button>
+				<h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Custom Approval Flow</h3>
+				<Button className="hover:cursor-pointer" onClick={() => navigate("/department")}>List Custom Approval Flow</Button>
 			</div>
 
 			<div className="w-[40%] mt-5">
@@ -142,24 +136,10 @@ export default function TeamForm() {
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 						<FormField
 							control={form.control}
-							name="name"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Name</FormLabel>
-									<FormControl>
-										<Input placeholder="Name" {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
 							name="department_id"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Department</FormLabel>
+									<FormLabel> Department</FormLabel>
 									<Popover open={open} onOpenChange={setOpen}>
 										<PopoverTrigger asChild>
 											<Button
@@ -169,15 +149,15 @@ export default function TeamForm() {
 												className="w-[260px] justify-between text-gray-500"
 											>
 												{field.value
-													? data?.find((item) => item.id === field.value)?.name
+													? departments?.find((item: {id: number, name: string}) => item.id == field.value)?.name
 													: "Select"}
 												<ChevronsUpDown className="opacity-50 ml-2 h-4 w-4" />
 											</Button>
 										</PopoverTrigger>
 										<PopoverContent className="w-[260px] p-0">
-											{isPending ? (
+											{isPendingDept ? (
 												<p className="p-2 text-sm text-muted-foreground">Loading...</p>
-											) : isError ? (
+											) : isErrorDept ? (
 												<p className="p-2 text-sm text-red-500">Failed to load departments</p>
 											) : (
 												<Command>
@@ -201,7 +181,7 @@ export default function TeamForm() {
 																/>
 															</CommandItem>
 
-															{data.map((item) => (
+															{departments.map((item: {id: number, name: string}) => (
 																<CommandItem
 																	key={item.id}
 																	onSelect={() => {
@@ -213,7 +193,7 @@ export default function TeamForm() {
 																	<Check
 																		className={cn(
 																			"ml-auto h-4 w-4",
-																			field.value === item.id ? "opacity-100" : "opacity-0"
+																			field.value == item.id ? "opacity-100" : "opacity-0"
 																		)}
 																	/>
 																</CommandItem>
@@ -229,8 +209,50 @@ export default function TeamForm() {
 							)}
 						/>
 
+						<FormField
+							control={form.control}
+							name="type_custom_approval"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input placeholder="type_custom_approval" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="from"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>From</FormLabel>
+									<FormControl>
+										<Input placeholder="From" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="to"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>To</FormLabel>
+									<FormControl>
+										<Input placeholder="To" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
 						<Button disabled={loading} type="submit" className="hover:cursor-pointer">
-							{ loading ? "Loading..." : "Save" }
+							{ loading ? <Spinner/> : "Save" }
 						</Button>
 					</form>
 				</Form>

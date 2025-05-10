@@ -20,52 +20,60 @@ import {
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ShowToast } from "@/lib"
-import roleApi from "@/api/roleApi"
 import { AxiosError } from "axios"
+import { useAuthStore } from "@/store/authStore"
+import typeLeaveApi from "@/api/typeLeaveApi"
 
 const createUserSchema = z.object({
     name: z.string().min(1, { message: "Tên không được để trống" }),
-    code: z.string().min(1, { message: "Mã không được để trống" }),
+    modified_by: z.string().nullable().optional()
 })
 
 type CreateUserFormValues = z.infer<typeof createUserSchema>
 
 type Props = {
-    role?: {
+    typeLeave?: {
         id: number,
         name: string,
-        code: string
+        modified_by?: string,
     },
     onAction?: () => void;
 };
 
-export default function CreateRoleComponent({ role, onAction }: Props) {
+export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
     const [open, setOpen] = useState(false)
+
+    const { user } = useAuthStore();
 
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             name: "",
-            code: "",
+            modified_by: user?.name
         },
     })
 
     useEffect(() => {
-        if (role && open) {
-            form.reset({ name: role.name, code: role.code });
+        if (typeLeave && open) {
+            form.reset({ name: typeLeave.name });
         } else {
-            form.reset({ name: "", code: "" });
+            form.reset({ name: "" });
         }
-    }, [role, open, form]);
+    }, [typeLeave, open, form]);
 
     const onSubmit = async (values: CreateUserFormValues) => {
         try {
-            if (role?.id) {
-                await roleApi.update(role.id, values);
-                ShowToast("Update role success", "success");
+            const data = {
+                name: values.name,
+                modified_by: user?.name
+            }
+            console.log(data, 22);
+            if (typeLeave?.id) {
+                await typeLeaveApi.update(typeLeave.id, data);
+                ShowToast("Success", "success");
             } else {
-                await roleApi.create(values);
-                ShowToast("Add new role success", "success");
+                await typeLeaveApi.create(data);
+                ShowToast("Success", "success");
             }
             onAction?.();
             setOpen(false);
@@ -84,19 +92,19 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {
-                    role?.id ? (
+                    typeLeave?.id ? (
                         <button className="hover:cursor-pointer ml-3 rounded-[3px] px-[5px] py-[2px] bg-[#555555] text-white">
                             Edit
                         </button>
                     ) : (
-                        <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">Create Role</Button>
+                        <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">Create Type Leave</Button>
                     )
                 }
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
                 <DialogHeader>
-                    <DialogTitle>{role?.id ? "Update" : "Create New"} Role</DialogTitle>
+                    <DialogTitle>{typeLeave?.id ? "Update" : "Create New"} Type Leave</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -109,20 +117,6 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                                     <Label htmlFor="name">Name</Label>
                                     <FormControl>
                                         <Input id="name" placeholder="Input role..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}  
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="code"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <Label htmlFor="name">Code</Label>
-                                    <FormControl>
-                                        <Input id="code" placeholder="Input code..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

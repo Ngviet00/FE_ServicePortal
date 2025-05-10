@@ -1,13 +1,17 @@
-// import { create } from "zustand";
+// import { create } from 'zustand';
 
-// interface AppState {
-//     statusSidebar: boolean;
-//     HandleStatusSidebar: (statusSidebar: boolean) => void;
-// }
+// type AppStore = {
+//     numberWaitApprovalLeaveRequest: number;
+//     setNumberWaitApprovalLeaveRequest: (count: number) => void;
+//     decrementNumberWaitApprovalLeaveRequest: () => void;
+// };
 
-// export const useStoreApp = create<AppState>((set) => ({
-//     statusSidebar: boolean,
-//     HandleStatusSidebar: () => set({
-//         statusSidebar = !statuss
-//     })
-//   }));
+// export const useAppStore = create<AppStore>((set) => ({
+//     numberWaitApprovalLeaveRequest : 0,
+//     setNumberWaitApprovalLeaveRequest: (count) => set({numberWaitApprovalLeaveRequest : count}),
+//     decrementNumberWaitApprovalLeaveRequest: () => {
+//         set((state) => ({
+//             numberWaitApprovalLeaveRequest: Math.max(0, state.numberWaitApprovalLeaveRequest - 1)
+//         }))
+//     }
+// }));

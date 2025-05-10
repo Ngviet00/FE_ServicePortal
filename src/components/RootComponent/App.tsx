@@ -4,8 +4,6 @@ import DepartmentForm from '@/features/Department/DepartmentForm';
 import ListDepartment from '@/features/Department/ListDepartment';
 import LeaveRequestForm from '@/features/Leave/LeaveRequestForm';
 import ListLeaveRequest from '@/features/Leave/ListLeaveRequest';
-import ListPosition from '@/features/Position/ListPosition';
-import PositionForm from '@/features/Position/PositionForm';
 import ListRole from '@/features/Role/ListRole';
 import ListUser from '@/features/User/ListUser';
 import AuthLayout from '@/layouts/AuthLayout';
@@ -18,9 +16,11 @@ import RedirectIfAuthenticated from '@/routes/IsAuthenticated';
 import PrivateRoute from '@/routes/PrivateRoute';
 import CreateUserForm from '@/features/User/CreateUserForm';
 import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
-// import ListTeam from '@/features/Team/ListTeam';
-// import TeamForm from '@/features/Team/TeamForm';
-
+import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
+import OrgChart from '@/pages/OrgChart';
+import Forbidden from '@/pages/Forbidden';
+import ListCustomApprovalFlow from '@/features/CustomApprovalFlow/ListCustomApprovalFlow';
+import CustomApprovalFlowForm from '@/features/CustomApprovalFlow/CustomApprovalForm';
 
 function App() {
 
@@ -36,28 +36,28 @@ function App() {
 
 	const privateRoutes = [
 		{ path: "/", element: <HomePage /> },
+		{ path: "/forbidden", element: <Forbidden /> },
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		
-		{ path: "/role", element: <ListRole /> },
+		{ path: "/role", element: <ListRole />, allowedRoles: ['superadmin']},
+		{ path: "/approval-flow", element: <ListCustomApprovalFlow />, allowedRoles: ['superadmin']},
+		{ path: "/approval-flow/create", element: <CustomApprovalFlowForm />, allowedRoles: ['superadmin']},
+		{ path: "/approval-flow/edit/:id", element: <CustomApprovalFlowForm />, allowedRoles: ['superadmin']},
 
-		{ path: "/department", element: <ListDepartment /> },
-		{ path: "/department/create", element: <DepartmentForm /> },
-		{ path: "/department/edit/:id", element: <DepartmentForm /> },
+		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: ['HR', 'HR_Manager'] },
 
-		{ path: "/position", element: <ListPosition /> },
-		{ path: "/position/create", element: <PositionForm /> },
-		{ path: "/position/edit/:id", element: <PositionForm /> },
+		{ path: "/department", element: <ListDepartment />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/department/create", element: <DepartmentForm />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/department/edit/:id", element: <DepartmentForm />, allowedRoles: ['HR', 'HR_Manager'] },
 
-		// { path: "/team", element: <ListTeam /> },
-		// { path: "/team/create", element: <TeamForm /> },
-		// { path: "/team/edit/:id", element: <TeamForm /> },
-
-		{ path: "/user", element: <ListUser /> },
-		{ path: "/user/create", element: <CreateUserForm /> },
-		{ path: "/user/edit/:code", element: <CreateUserForm /> },
+		{ path: "/user", element: <ListUser />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/user/create", element: <CreateUserForm />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/user/edit/:code", element: <CreateUserForm />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: ['HR', 'HR_Manager'] },
 
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
+		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
 		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>}
 	];
   
@@ -83,21 +83,19 @@ function App() {
 				) 
 				:
 				(
-					<PrivateRoute>
-						<MainLayout>
-							<Routes>
-								{
-									privateRoutes.map(({path, element}) => (
-										<Route 
-											key={path}
-											path={path} 
-											element={element}
-										/>
-									))
-								}
-							</Routes>
-						</MainLayout>
-					</PrivateRoute>
+					<MainLayout>
+						<Routes>
+							{
+								privateRoutes.map(({path, element, allowedRoles }) => (
+									<Route 
+										key={path}
+										path={path} 
+										element={<PrivateRoute allowedRoles={allowedRoles}>{element}</PrivateRoute>}
+									/>
+								))
+							}
+						</Routes>
+					</MainLayout>
 				)
 			}
 		</>

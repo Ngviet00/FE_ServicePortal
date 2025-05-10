@@ -40,6 +40,7 @@ import { useQuery } from "@tanstack/react-query"
 import departmentApi from "@/api/departmentApi"
 import { AxiosError } from "axios"
 import { useParams } from "react-router-dom"
+import { Spinner } from "@/components/ui/spinner"
 
 const formSchema = z.object({
 	name: z.string().nonempty({ message: "Name is required" }),
@@ -244,7 +245,7 @@ export default function DepartmentForm() {
 						/>
 
 						<Button disabled={loading} type="submit" className="hover:cursor-pointer">
-							{ loading ? "Loading..." : "Save" }
+							{ loading ? <Spinner/> : "Save" }
 						</Button>
 					</form>
 				</Form>

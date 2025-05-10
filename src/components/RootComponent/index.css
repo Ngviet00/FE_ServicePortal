@@ -46,11 +46,9 @@
 }
 
 body {
+    height: 100%;
     margin: 0;
-    display: flex;
-    place-items: start;
-    min-width: 320px;
-    min-height: 100vh;
+    padding: 0;
 }
 
 h1 {
@@ -59,6 +57,7 @@ h1 {
 }
 
 #root {
+    min-height: 100vh;
     width: 100%;
     background: #f4f5ff;
 }
@@ -139,6 +138,16 @@ h1 {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+::selection {
+  background: black;
+  color: white;
+}
+
+::-moz-selection {
+  background: black;
+  color: white;
 }
 
 @layer base {
