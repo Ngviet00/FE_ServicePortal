@@ -19,6 +19,8 @@ import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitA
 import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 import OrgChart from '@/pages/OrgChart';
 import Forbidden from '@/pages/Forbidden';
+import ListCustomApprovalFlow from '@/features/CustomApprovalFlow/ListCustomApprovalFlow';
+import CustomApprovalFlowForm from '@/features/CustomApprovalFlow/CustomApprovalForm';
 
 function App() {
 
@@ -38,6 +40,9 @@ function App() {
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		
 		{ path: "/role", element: <ListRole />, allowedRoles: ['superadmin']},
+		{ path: "/approval-flow", element: <ListCustomApprovalFlow />, allowedRoles: ['superadmin']},
+		{ path: "/approval-flow/create", element: <CustomApprovalFlowForm />, allowedRoles: ['superadmin']},
+		{ path: "/approval-flow/edit/:id", element: <CustomApprovalFlowForm />, allowedRoles: ['superadmin']},
 
 		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: ['HR', 'HR_Manager'] },
 

@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -32,21 +32,17 @@ export default function ListLeaveRequest () {
     const {user} = useAuthStore()
 
     const queryClient = useQueryClient();
-
-    const queryParams = useMemo(() => {
-        return {
-            user_code: user?.code ?? "",
-            page: page,
-            page_size: pageSize,
-            status: filterStatus
-        };
-      }, [page, pageSize, filterStatus, user?.code]);
     
-    const { data: leaveRequests = [], isPending, isError, error, refetch } = useQuery({
-        queryKey: ['get-leave-requests', queryParams],
+    const { data: leaveRequests = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-leave-requests', { user_code: user?.code, page, pageSize, status: filterStatus }],
         queryFn: async () => {
             await delay(Math.random() * 100 + 100);
-            const res = await leaveRequestApi.getAll(queryParams);
+            const res = await leaveRequestApi.getAll({
+                user_code: user?.code ?? "",
+                page,
+                page_size: pageSize,
+                status: filterStatus
+            });
             console.log('call api leave request');
             setTotalPage(res.data.total_pages)
             setCountPending(res.data.count_pending)
@@ -66,22 +62,7 @@ export default function ListLeaveRequest () {
 
     const handleChangeFilter = (status: string) => {
         setFilterStatus(Number(status));
-        refetch();
-        // queryClient.invalidateQueries({ queryKey: ['get-leave-requests'] });
     }
-
-    // const mutation = useMutation({
-    //     mutationFn: async (id: number) => {
-    //         await departmentApi.delete(id);
-    //     },
-    //     onSuccess: () => {
-    //         ShowToast("Delete department success", "success");
-    //     },
-    //     onError: (error) => {
-    //         console.error("Delete failed:", error);
-    //         ShowToast("Delete department failed", "error");
-    //     }
-    // });
 
     function handleSuccessDelete(shouldGoBack?: boolean) {
         if (shouldGoBack && page > 1) {
@@ -211,6 +192,7 @@ export default function ListLeaveRequest () {
                                                     <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                                     <TableCell className="text-left">
                                                         {
+                                                            //reject
                                                             filterStatus == 4 ? (
                                                                 <span
                                                                     className={`${item.note ? "text-red-500" : "text-black"} font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
@@ -221,6 +203,7 @@ export default function ListLeaveRequest () {
                                                             ) : (
                                                                 <>
                                                                     {
+                                                                        //pending
                                                                         filterStatus == 1 ? (<>
                                                                             <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")}/>
                                                                             <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] mx-1 h-[23.98px]">Edit</Link>
