@@ -128,7 +128,7 @@ export default function CustomApprovalFlowForm() {
 		<div className="p-4 pl-1 pt-0 space-y-4">
 			<div className="flex justify-between mb-1">
 				<h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Custom Approval Flow</h3>
-				<Button className="hover:cursor-pointer" onClick={() => navigate("/department")}>List Custom Approval Flow</Button>
+				<Button className="hover:cursor-pointer" onClick={() => navigate("/approval-flow")}>List Custom Approval Flow</Button>
 			</div>
 
 			<div className="w-[40%] mt-5">

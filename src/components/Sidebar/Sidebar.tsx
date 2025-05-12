@@ -183,7 +183,7 @@ export default function Sidebar() {
 						<li className={`text-blue-900 ${currentPath === "/leave/wait-approval" ? "bg-[#e3e3e3]" : ""}`}>
 							<Link to="/leave/wait-approval" className="sidebar-link flex items-center">
 								<Dot />
-								<span>Wait approval</span>
+								<span>Chờ duyệt</span>
 								{countWaitApprovalLeaveRequest > 0 && (
 									<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
 										({countWaitApprovalLeaveRequest})
