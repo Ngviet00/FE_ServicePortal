@@ -84,8 +84,6 @@ export default function ListRole () {
             console.error("Failed to delete:", error);
         }
     };
-    
-    console.log('render role');
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -126,7 +124,7 @@ export default function ListRole () {
                                     ))
                                 ) : isError || roles.length == 0 ? (
                                     <TableRow>
-                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={4}>{error?.message ?? "No results"}</TableCell>
+                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={4}>{error?.message ?? "No results"}</TableCell>
                                     </TableRow>
                                 ) : (
                                     roles.map((item: IRole) => (

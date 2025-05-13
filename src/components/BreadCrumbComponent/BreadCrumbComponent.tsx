@@ -17,11 +17,11 @@ export default function BreadCrumbComponent () {
     const pathnames = location.pathname.split("/").filter((x) => x);
 
     return (
-        <div className="p-[10px] pl-[15px] rounded-[3px] bg-white mt-[15px] ml-[15px] shadow-[0px 12px 33px 0px #E8EAFC, 0 3px 3px -2px #B2B2B21A, 0 1px 8px 0 #9A9A9A1A]" >
+        <div className="dark:bg-[#454545] p-[10px] pl-[15px] rounded-[3px] bg-white shadow-[0px 12px 33px 0px #E8EAFC, 0 3px 3px -2px #B2B2B21A, 0 1px 8px 0 #9A9A9A1A]" >
             <Breadcrumb>
                 <BreadcrumbList className="text-sm">
                     <BreadcrumbItem>
-                        <Link to="/">Home</Link>
+                        <Link to="/" className="dark:text-white">Home</Link>
                     </BreadcrumbItem>
                     {
                         pathnames.map((name, index) => {
@@ -30,16 +30,16 @@ export default function BreadCrumbComponent () {
 
                             return (
                                 <div key={to} className="flex items-center">
-                                    <BreadcrumbSeparator />
+                                    <BreadcrumbSeparator className="dark:text-white" />
 
-                                    <BreadcrumbItem>
+                                    <BreadcrumbItem className="dark:text-white">
                                         {isLast ? (
-                                            <BreadcrumbPage>
+                                            <BreadcrumbPage className="dark:text-white">
                                                 {capitalizeFirstLetter(decodeURIComponent(name))}
                                             </BreadcrumbPage>
                                         ) : (
-                                            <BreadcrumbLink asChild>
-                                                <Link to={to}>{capitalizeFirstLetter(decodeURIComponent(name))}</Link>
+                                            <BreadcrumbLink asChild className="dark:text-white">
+                                                <Link className="dark:text-white" to={to}>{capitalizeFirstLetter(decodeURIComponent(name))}</Link>
                                             </BreadcrumbLink>
                                         )}
                                     </BreadcrumbItem>

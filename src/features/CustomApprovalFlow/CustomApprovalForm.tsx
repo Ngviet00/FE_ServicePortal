@@ -146,7 +146,7 @@ export default function CustomApprovalFlowForm() {
 												variant="outline"
 												role="combobox"
 												aria-expanded={open}
-												className="w-[260px] justify-between text-gray-500"
+												className="dark:text-white w-[260px] justify-between text-gray-500"
 											>
 												{field.value
 													? departments?.find((item: {id: number, name: string}) => item.id == field.value)?.name

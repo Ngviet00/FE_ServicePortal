@@ -48,12 +48,14 @@ export default function MainLayout({ children }: Props) {
 	return (
 		<div className="app-container">
 			<Sidebar />
-			<div className="main">
+			<div className="main dark:bg-[#1b1b1f]">
 				<Header/>
-				<BreadCrumbComponent/>
-				<div className="main-content">
-					{children}
-				</div>
+                <div className="overflow-y-auto mt-3 ml-3 min-h-[95%]">
+                    <BreadCrumbComponent/>
+                    <div className="main-content mt-3 bg-white dark:bg-[#454545] min-h-[90%]">
+                        {children}
+                    </div>
+                </div>
 			</div>
 		</div>
 	);

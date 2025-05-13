@@ -15,27 +15,27 @@ export default function HomePage() {
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('home_page.home_page')}</h3>
             </div>
 
-            <div className='wrap-home-page h-[200px] rounded-3xl flex'>
-                <div className='w-[20%] bg-[#f3f4ff] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
+            <div className='wrap-home-page h-[200px] rounded-3xl flex bg-[#f3f4ff]'>
+                <div className='w-[20%] bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                     <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                     <div>
-                        <Label className='text-base font-bold'>{user?.sex == 1? t('home_page.sex.male') : t('home_page.sex.female')}</Label>
+                        <Label className='text-base font-bold dark:text-white'>{user?.sex == 1? t('home_page.sex.male') : t('home_page.sex.female')}</Label>
                     </div>
                 </div>
-                <div className='py-4 px-2 flex flex-1 bg-[#f3f4ff]'>
+                <div className='py-4 px-2 flex flex-1 bg-[#f3f4ff] dark:bg-[#454545]'>
                     <div className='w-[50%] flex justify-around'>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.code')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.code')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.dob')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.dob')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.phone')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.phone')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.position')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.position')}</Label>
                             </div>
                         </div>
                         <div>
@@ -57,16 +57,16 @@ export default function HomePage() {
                     <div className='flex-1 flex justify-around'>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.name')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.name')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.email')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.email')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.date_join_company')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.date_join_company')}</Label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500'>{t('home_page.department')}</Label>
+                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.department')}</Label>
                             </div>
                         </div>
                         <div>
@@ -107,7 +107,7 @@ export default function HomePage() {
 
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Link to="/leave/create" className='text-blue-400 underline underline-offset-2'>
+                                            <Link to="/leave/create" className='text-blue-400 underline underline-offset-2 dark:text-white'>
                                                 <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_register_leave_request')}</Label>
                                             </Link>
                                         </span>
@@ -118,7 +118,7 @@ export default function HomePage() {
 
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
-                                            <Link to="/leave" className='text-blue-400 underline underline-offset-2'>
+                                            <Link to="/leave" className='text-blue-400 underline underline-offset-2 dark:text-white'>
                                                 <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_list_leave_request')}</Label>
                                             </Link>
                                         </span>

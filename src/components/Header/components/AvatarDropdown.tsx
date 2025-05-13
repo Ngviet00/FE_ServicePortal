@@ -32,8 +32,8 @@ export default function AvatarDropdown() {
 			<DropdownMenuTrigger asChild>
 				<Avatar className="h-9 w-9" style={{ cursor: "pointer" }}>
 					<AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-					<AvatarFallback className="bg-gray-200 relative">
-						<User size={15} /> 
+					<AvatarFallback className="bg-gray-200 relative dark:text-black">
+						<User size={15} className="" /> 
 						<ChevronDown  className="" size={12}/>
 					</AvatarFallback>
 				</Avatar>

@@ -286,7 +286,7 @@ export default function CreateUserForm() {
                                                     onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
                                                     name={field.name}
                                                     id="sex" 
-                                                    className="hover:cursor-pointer text-sm text-gray-600 h-[36px] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                                    className="dark:text-white dark:bg-[#454545] hover:cursor-pointer text-sm text-gray-600 h-[36px] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
                                                     >
                                                         <option value="">--Select--</option>
                                                         <option value="1">Male</option>
@@ -308,7 +308,7 @@ export default function CreateUserForm() {
                                             <FormLabel>Date of birth</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    className="w-full"
+                                                    className="w-full dark:text-white"
                                                     onClick={handleInputClickShowPicker}
                                                     onChange={field.onChange}
                                                     value={field.value ?? ""}
@@ -362,7 +362,7 @@ export default function CreateUserForm() {
                                                         variant="outline"
                                                         role="combobox"
                                                         aria-expanded={openRole}
-                                                        className={`w-[150px] justify-between text-gray-500 ${fieldState.invalid ? 'border-red-500' : 'border-gray-200'}`}
+                                                        className={`dark:text-white w-[150px] justify-between text-gray-500 ${fieldState.invalid ? 'border-red-500' : 'border-gray-200'}`}
                                                     >
                                                         {field.value
                                                             ? roles?.find((item: {id: number, name: string}) => item.id == field.value)?.name
@@ -439,7 +439,7 @@ export default function CreateUserForm() {
                                                         variant="outline"
                                                         role="combobox"
                                                         aria-expanded={openSelectDepartment}
-                                                        className={`w-[150px] justify-between text-gray-500 ${fieldState.invalid ? 'border-red-500' : 'border-gray-200'}`}
+                                                        className={`dark:text-white w-[150px] justify-between text-gray-500 ${fieldState.invalid ? 'border-red-500' : 'border-gray-200'}`}
                                                     >
                                                         {field.value
                                                             ? parentDepartments?.find((item: {id: number, name: string}) => item.id.toString() == field.value)?.name

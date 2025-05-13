@@ -49,7 +49,7 @@ export default function Sidebar() {
 	const isSuperAdmin = useHasRole(['superadmin']);
 
 	return (
-		<div className={`sidebar ${isOpen ? "" : "collapsed"}`}>
+		<div className={`sidebar ${isOpen ? "" : "collapsed"} bg-white dark:bg-[#1b1b1f]`}>
 			<div>
 				<a href="/">
 					<img src="/logo.png" alt="Logo" style={{ height: "80px" }} />
@@ -64,8 +64,8 @@ export default function Sidebar() {
 					<Link
 						onClick={handleMenuHomeClick}
 						to="/"
-						className={`sidebar-link flex items-center text-blue-900 ${
-							currentPath === "/" ? "bg-[#e3e3e3]" : ""
+						className={`sidebar-link flex items-center text-blue-900 dark:hover:bg-[#e3e3e3] dark:hover:text-black ${
+							currentPath === "/" ? "bg-[#e3e3e3] dark:text-black" : "dark:text-white"
 						}`}
 					>
 						<House size={20} />
@@ -77,7 +77,7 @@ export default function Sidebar() {
 					hasHRRole && (<>
 						<div className="menu-group">
 							<div
-								className="menu-title flex items-center cursor-pointer text-blue-900"
+								className="menu-title hover:bg-[#e3e3e3] flex items-center cursor-pointer text-blue-900 dark:text-white dark:hover:text-black"
 								onClick={() => toggleSubmenu("HR")}
 							>
 								<LockKeyhole size={20} />
@@ -89,11 +89,11 @@ export default function Sidebar() {
 									}`}
 								/>
 							</div>
-							<ul className={`submenu ${submenusVisible["HR"] ? "open" : ""}`}>
+							<ul className={`submenu ${submenusVisible["HR"] ? "open" : ""} `}>
 								{
 									isSuperAdmin && (
 										<li className={`text-blue-900 ${currentPath === "/role" ? "bg-[#e3e3e3]" : ""}`}>
-											<Link to="/role" className="sidebar-link flex items-center">
+											<Link to="/role" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/role' ? 'dark:text-black' : 'dark:text-white'}`}>
 												<Dot />
 												<span>{t("sidebar.admin.role")}</span>
 											</Link>
@@ -102,31 +102,31 @@ export default function Sidebar() {
 								}
 
 								<li className={`text-blue-900 ${currentPath === "/department" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/department" className="sidebar-link flex items-center">
+									<Link to="/department" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/department' ? 'dark:text-black' : 'dark:text-white'}`}>
 										<Dot />
 										<span>{t("sidebar.admin.department")}</span>
 									</Link>
 								</li>
 								<li className={`text-blue-900 ${currentPath === "/user" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/user" className="sidebar-link flex items-center">
+									<Link to="/user" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user' ? 'dark:text-black' : 'dark:text-white'}`}>
 										<Dot />
 										<span>{t("sidebar.user.list")}</span>
 									</Link>
 								</li>
 								<li className={`text-blue-900 ${currentPath === "/user/create" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/user/create" className="sidebar-link flex items-center">
+									<Link to="/user/create" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user/create' ? 'dark:text-black' : 'dark:text-white'}`}>
 										<Dot />
 										<span>{t("sidebar.user.create")}</span>
 									</Link>
 								</li>
 								<li className={`text-blue-900 ${currentPath === "/user/org-chart" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/user/org-chart" className="sidebar-link flex items-center">
+									<Link to="/user/org-chart" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user/org-chart' ? 'dark:text-black' : 'dark:text-white'}`}>
 										<Dot />
 										<span>{t("Sơ đồ tổ chức")}</span>
 									</Link>
 								</li>
 								<li className={`text-blue-900 ${currentPath === "/type-leave" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/type-leave" className="sidebar-link flex items-center">
+									<Link to="/type-leave" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/type-leave' ? 'dark:text-black' : 'dark:text-white'}`}>
 										<Dot />
 										<span>{t("Loại phép")}</span>
 									</Link>
@@ -134,7 +134,7 @@ export default function Sidebar() {
 								{
 									isSuperAdmin && (
 										<li className={`text-blue-900 ${currentPath === "/approval-flow" ? "bg-[#e3e3e3]" : ""}`}>
-											<Link to="/approval-flow" className="sidebar-link flex items-center">
+											<Link to="/approval-flow" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/approval-flow' ? 'dark:text-black' : 'dark:text-white'}`}>
 												<Dot />
 												<span>{t("Tùy chỉnh phê duyệt")}</span>
 											</Link>
@@ -148,7 +148,7 @@ export default function Sidebar() {
 
 				<div className="menu-group">
 					<div
-						className="menu-title flex items-center cursor-pointer text-blue-900"
+						className="menu-title hover:bg-[#e3e3e3] flex items-center cursor-pointer text-blue-900 dark:text-white dark:hover:text-black"
 						onClick={() => toggleSubmenu("leave_request")}
 					>
 						<Ticket size={20} />
@@ -168,22 +168,22 @@ export default function Sidebar() {
 						/>
 					</div>
 					<ul className={`submenu ${submenusVisible["leave_request"] ? "open" : ""}`}>
-						<li className={`text-blue-900 ${currentPath === "/leave/create" ? "bg-[#e3e3e3]" : ""}`}>
-							<Link to="/leave/create" className="sidebar-link flex items-center">
+						<li className={`text-blue-900 ${currentPath === "/leave/create" ? "bg-[#e3e3e3]" : ""} dark:text-white dark:hover:text-black`}>
+							<Link to="/leave/create" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/leave/create' ? 'dark:text-black' : 'dark:text-white'}`}>
 								<Dot />
 								<span>{t("sidebar.leave_request.create")}</span>
 							</Link>
 						</li>
-						<li className={`text-blue-900 ${currentPath === "/leave" ? "bg-[#e3e3e3]" : ""}`}>
-							<Link to="/leave" className="sidebar-link flex items-center">
+						<li className={`text-blue-900 ${currentPath === "/leave" ? "bg-[#e3e3e3]" : ""} dark:text-white dark:hover:text-black`}>
+							<Link to="/leave" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/leave' ? 'dark:text-black' : 'dark:text-white'}`}>
 								<Dot />
 								<span>{t("sidebar.leave_request.list")}</span>
 							</Link>
 						</li>
-						<li className={`text-blue-900 ${currentPath === "/leave/wait-approval" ? "bg-[#e3e3e3]" : ""}`}>
-							<Link to="/leave/wait-approval" className="sidebar-link flex items-center">
+						<li className={`text-blue-900 ${currentPath === "/leave/wait-approval" ? "bg-[#e3e3e3]" : ""} dark:text-white dark:hover:text-black`}>
+							<Link to="/leave/wait-approval" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/leave/wait-approval' ? 'dark:text-black' : 'dark:text-white'}`}>
 								<Dot />
-								<span>Chờ duyệt</span>
+								<span>Wait approval</span>
 								{countWaitApprovalLeaveRequest > 0 && (
 									<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
 										({countWaitApprovalLeaveRequest})
