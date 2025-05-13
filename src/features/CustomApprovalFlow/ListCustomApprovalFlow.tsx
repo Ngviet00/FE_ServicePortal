@@ -95,7 +95,7 @@ export default function ListCustomApprovalFlow () {
 
             <div className="">
                 <label htmlFor="department_id" className='mb-1 mr-2'>Chọn bộ phận/phòng ban:</label>
-                <select value={department ?? ''} onChange={(e) => {setDepartment(e.target.value)}} name="department_id" id="department_id" className='border border-gray-300 px-[20px] py-[5px]'>
+                <select value={department ?? ''} onChange={(e) => {setDepartment(e.target.value)}} name="department_id" id="department_id" className='dark:text-white dark:bg-[#454545] border border-gray-300 px-[20px] py-[5px]'>
                     <option value="">--Chọn--</option>
                     {
                         departments.map((dept: {id: number, name: string}) => (
@@ -132,7 +132,7 @@ export default function ListCustomApprovalFlow () {
                                 ))
                             ) : isError || CustomApprovalFlows.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={6}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={6}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 CustomApprovalFlows.map((item: ICustomApprovalFlow) => (

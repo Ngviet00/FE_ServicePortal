@@ -201,7 +201,7 @@ export default function ListUser () {
 
                         <TableBody>
                             { isPending ? (
-                                Array.from({ length: 3 }).map((_, index) => (
+                                Array.from({ length: 10 }).map((_, index) => (
                                     <TableRow key={index}>
                                         <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[180px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
@@ -268,6 +268,7 @@ export default function ListUser () {
                                     <DialogDescription></DialogDescription>
                                 </DialogHeader>
                                         <MultiSelect
+                                            className="dark:text-black"
                                             options={options}
                                             value={selectedRoles}
                                             onChange={handleRoleChange}

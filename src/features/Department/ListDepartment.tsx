@@ -130,7 +130,7 @@ export default function ListDepartment () {
                                 ))
                             ) : isError || Departments.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={4}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={4}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 Departments.map((item: IDepartments) => (

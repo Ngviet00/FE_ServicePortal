@@ -10,6 +10,7 @@ type Person = {
 	position: string;
 	level: string;
 	level_parent: string;
+	code?: string;
 };
 
 type OrgChartNode = {
@@ -33,12 +34,12 @@ const NodeContent: React.FC<{ people: Person[]; level: string }> = ({
 	people,
 	level,
 }) => (
-	<div style={nodeStyle}>
-		<strong>Level {level}</strong>
+	<div style={nodeStyle} className=''>
+		<strong className='dark:text-black'>Level {level}</strong>
 		<br />
 		{people.map((p) => (
-		<div key={p.id}>
-			{p.name} - {p.position}
+		<div key={p.id} className='dark:text-black'>
+			{p?.code} - {p.name} - {p.position}
 		</div>
 		))}
 	</div>
@@ -59,19 +60,13 @@ const OrgChartTree: React.FC = () => {
 	const [offset, setOffset] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 	const [isHoveringChart, setIsHoveringChart] = useState<boolean>(false);
 	const chartRef = useRef<HTMLDivElement | null>(null);
-	
 	const [department, setDepartment] = useState<number | null>(null);
 
 	const { data: departments = [] } = useQuery({
 		queryKey: ['departments'],
 		queryFn: async () => {
 			const res = await departmentApi.getAll({ page: 1, page_size: 100 });
-			const result = res.data.data;
-			if (result.length > 0) {
-				const hrDepartment = result.find((d: {name: string}) => d.name === 'HR');
-				setDepartment(hrDepartment.id ?? 1);
-			}
-			return result;
+			return res.data.data;
 		},
 	});
 
@@ -82,12 +77,18 @@ const OrgChartTree: React.FC = () => {
 
             const res = await userApi.orgChart(department);
             return res.data.data;
-        },
-		enabled: department !== null
+        }
     });
 
 	useEffect(() => {
-		if (department !== null) {
+		if (departments.length > 0) {
+			const hrDepartment = departments.find((d: {name: string}) => d.name === 'HR');
+			setDepartment(hrDepartment.id);
+		}
+	}, [departments]);
+
+	useEffect(() => {
+		if (department) {
 			refetchOrgChart();
 		}
 	}, [department, refetchOrgChart]);
@@ -145,7 +146,7 @@ const OrgChartTree: React.FC = () => {
 			<div className='flex items-center justify-between mb-3'>
 				<div>
 					<label htmlFor="department_id" className='mb-1 mr-2 font-bold'>Chọn phòng ban:</label>
-					<select value={department ?? ''} onChange={(e) => setDepartment(Number(e.target.value), )} name="department_id" id="department_id" className='border border-gray-300 px-[20px] py-[5px]'>
+					<select value={department ?? ''} onChange={(e) => setDepartment(Number(e.target.value), )} name="department_id" id="department_id" className='dark:bg-[#454545] border border-gray-300 px-[20px] py-[5px]'>
 						<option value="">--Chọn--</option>
 						{
 							departments.map((dept: {id: number, name: string}) => (

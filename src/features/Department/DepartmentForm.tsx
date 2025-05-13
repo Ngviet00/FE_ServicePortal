@@ -181,7 +181,7 @@ export default function DepartmentForm() {
 												variant="outline"
 												role="combobox"
 												aria-expanded={open}
-												className="w-[260px] justify-between text-gray-500"
+												className="w-[260px] justify-between text-gray-500 dark:text-white"
 											>
 												{field.value
 													? data?.find((item) => item.id === field.value)?.name

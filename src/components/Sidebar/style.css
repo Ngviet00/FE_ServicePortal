@@ -1,6 +1,5 @@
 .sidebar {
     flex: 0 0 15%;
-    background-color: #ffffff;
     color: white;
     padding: 0px 5px 5px 10px;
     box-sizing: border-box;
@@ -21,17 +20,9 @@
     border-radius: 3px;
 }
 
-.sidebar-link:hover {
-    background: #e3e3e3;
-}
-
 .menu-group {
     margin-top: 5px;
     color: black;
-}
-
-.menu-title:hover {
-    background: #e3e3e3;
 }
 
 .menu-title {
@@ -60,10 +51,6 @@
     width: 100%;
     font-size: 14px;
     border-radius: 3px;
-}
-
-.submenu li:hover {
-    background: #e3e3e3;
 }
 
 .submenu li a {
