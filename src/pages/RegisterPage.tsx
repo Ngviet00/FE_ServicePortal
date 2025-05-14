@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function RegisterPage() {
     return (
         <>
-            <div className="flex min-h-full flex-1 flex-col justify-center py-12 lg:px-8 bg-white">
+            <div className="flex min-h-full flex-1 flex-col justify-start py-12 lg:px-8 bg-white h-[100vh]">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 <img
                     alt="VS Industry Viet Nam"
@@ -55,7 +55,7 @@ export default function RegisterPage() {
                     <div>
                     <button
                         type="submit"
-                        className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        className="bg-black hover:cursor-pointer flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                         Register
                     </button>

@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import useHasRole from "@/hooks/HasRole"
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -115,6 +116,8 @@ export default function ListLeaveRequestWaitApproval () {
         }
       }, [showConfirm]);
 
+    const hasHRRole = useHasRole(['HR', 'HR_Manager']);
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
@@ -162,7 +165,7 @@ export default function ListLeaveRequestWaitApproval () {
                                     ))
                             ) : isError || leaveRequests.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (
@@ -180,9 +183,17 @@ export default function ListLeaveRequestWaitApproval () {
                                             <TableCell className="text-center text-red-800 font-bold">{item?.approved_by ?? "--"}</TableCell>
                                             <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                             <TableCell className="text-left">
-                                                <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
-                                                    Approval
-                                                </Button>
+                                                {
+                                                    hasHRRole ? (
+                                                        <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
+                                                            Xong
+                                                        </Button>
+                                                    ) : (
+                                                        <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
+                                                            Approval
+                                                        </Button>
+                                                    )
+                                                }
                                             </TableCell>
                                         </TableRow>
                                     ))

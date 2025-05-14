@@ -313,7 +313,7 @@ export default function LeaveRequestForm() {
                                                     onChange={field.onChange}
                                                     name={field.name}
                                                     id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
                                                     >
                                                         {Array.from({length: 24}, (_, i) => (
                                                             <option key={i} value={i.toString().padStart(2, "0")}>
@@ -341,7 +341,7 @@ export default function LeaveRequestForm() {
                                                     onChange={field.onChange}
                                                     name={field.name}
                                                     id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
                                                         <option key="00" value="00">00</option>
                                                         <option key="30" value="30">30</option>
                                                 </select>
@@ -365,7 +365,7 @@ export default function LeaveRequestForm() {
                                                     onChange={field.onChange}
                                                     name={field.name}
                                                     id="from_hour" 
-                                                    className={`shadow-xs border border-[#ebebeb] p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-200"}`}>
+                                                    className={`dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-200"}`}>
                                                     <option value="">--Select--</option>
                                                     {
                                                         isPending ? (
@@ -401,7 +401,7 @@ export default function LeaveRequestForm() {
                                                     onChange={field.onChange}
                                                     name={field.name}
                                                     id="from_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
                                                     <option value="">--Select--</option>
                                                     {
                                                         TIME_LEAVE.map((item) => (
@@ -457,7 +457,7 @@ export default function LeaveRequestForm() {
                                                     onChange={field.onChange}
                                                     name={field.name}
                                                     id="to_hour" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
                                                     {Array.from({length: 24}, (_, i) => (
                                                         <option key={i} value={i.toString().padStart(2, "0")}>
                                                             {i.toString().padStart(2, "0")}
@@ -484,7 +484,7 @@ export default function LeaveRequestForm() {
                                                     onChange={field.onChange}
                                                     name={field.name}
                                                     id="to_minutes" 
-                                                    className="shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
                                                         <option key="00" value="00">00</option>
                                                         <option key="30" value="30">30</option>
                                                 </select>

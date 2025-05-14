@@ -8,7 +8,6 @@ import authApi from "@/api/authApi";
 import axios from "axios"
 
 export default function LoginPage() {
-
     const [user_code, setEmployeeCode] = useState("0")
     const [password, setPassword] = useState("123456");
     const [loading, setLoading] = useState(false);
@@ -42,7 +41,7 @@ export default function LoginPage() {
 
     return (
         <>
-            <div className="flex min-h-full flex-1 flex-col justify-center py-12 lg:px-8 bg-white">
+            <div className="flex min-h-full flex-1 flex-col justify-start h-[100vh] py-12 lg:px-8 bg-white">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img
                         alt="VS Industry Viet Nam"
