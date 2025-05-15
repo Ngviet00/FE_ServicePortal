@@ -148,11 +148,14 @@ const OrgChartTree: React.FC = () => {
 					<label htmlFor="department_id" className='mb-1 mr-2 font-bold'>Chọn phòng ban:</label>
 					<select value={department ?? ''} onChange={(e) => setDepartment(Number(e.target.value), )} name="department_id" id="department_id" className='dark:bg-[#454545] border border-gray-300 px-[20px] py-[5px]'>
 						<option value="">--Chọn--</option>
-						{
+						<option value="1">HR</option>
+						<option value="2">MIS/IT</option>
+						<option value="3">Sản xuất</option>
+						{/* {
 							departments.map((dept: {id: number, name: string}) => (
 								<option key={dept.id} value={dept.id}>{dept.name}</option>
 							))
-						}
+						} */}
 					</select>
 				</div>
 				<div className='flex-1'>

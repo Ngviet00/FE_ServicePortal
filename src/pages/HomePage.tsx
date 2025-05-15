@@ -40,7 +40,7 @@ export default function HomePage() {
                         </div>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.code ?? "--"}</Label>
+                                <Label className='text-base font-bold'>{user?.userCode ?? "--"}</Label>
                             </div>
                             <div className='mb-5'>
                                 <Label className='text-base font-bold'>{user?.date_of_birth ? formatDate(user?.date_of_birth) : "--"}</Label>

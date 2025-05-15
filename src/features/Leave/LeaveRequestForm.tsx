@@ -251,7 +251,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.department')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input readOnly className="bg-gray-200 border-gray-300" placeholder={t('leave_request.create.department')} {...field} />
+                                                <Input className="border-gray-300" placeholder={t('leave_request.create.department')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

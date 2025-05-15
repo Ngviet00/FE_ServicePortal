@@ -17,19 +17,8 @@ interface ChangePasswordRequest {
 }
 
 export interface RegisterRequest {
-    code: string | null,
-    name: string | null,
-    password: string | null,
-    email: string | null,
-    date_join_company: string | null,
-    date_of_birth: string | null,
-    phone: string | null,
-    sex: number | null,
-    level: string,
-    level_parent: string,
-    position: string | null,
-    role_id: number | null,
-    department_id: number | null,
+    Usercode: string | null,
+    Password: string | null,
 }
 
 const authApi = {

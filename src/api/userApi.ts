@@ -20,25 +20,11 @@ interface GetUser {
 
 export interface ListUserData {
     id: string,
-    code: string,
-    name: string | null,
-    password: string | null,
-    email: string | null,
-    role_id: number | null,
-    department_id: number | null,
-    position_id: number | null,
-    date_join_company: string | null,
-    date_of_birth: string | null,
-    phone: string | null,
-    sex: number | null,
-    position: string | null,
-    level: string | null,
-    level_parent: string | null,
-    roles: IRole[],
-    department: {
-        id: number,
-        name: string
-    }
+    userCode: string,
+    positionId: string | null,
+    isActive: number,
+    isChangePassword: number,
+    roles: IRole[]
 }
 
 const userApi = {
@@ -66,6 +52,9 @@ const userApi = {
     updateUserRole(data: DataUserRole) {
         return axiosClient.post(`/user/update-user-role`, data)
     },
+    resetPassword (userCode: string) {
+        return axiosClient.post(`/user/reset-password`, JSON.stringify(userCode))
+    }
 }
 
 export default userApi;

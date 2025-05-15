@@ -8,8 +8,8 @@ import authApi from "@/api/authApi";
 import axios from "axios"
 
 export default function LoginPage() {
-    const [user_code, setEmployeeCode] = useState("0")
-    const [password, setPassword] = useState("123456");
+    const [user_code, setEmployeeCode] = useState("")
+    const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
                         style={{ width: '150px'}}
                     />
                     <h2 className="mt-2 text-left text-2xl/9 font-bold tracking-tight text-gray-900">
-                        Sign In
+                        Đăng nhập
                     </h2>
                 </div>
         
@@ -58,7 +58,7 @@ export default function LoginPage() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="mb-5">
                             <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                                Employee Code
+                                Mã nhân viên
                             </label>
                             <div className="mt-2">
                                 <input
@@ -76,7 +76,7 @@ export default function LoginPage() {
                         <div className="mb-3">
                             <div className="flex items-center justify-between">
                                 <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                                    Password
+                                    Mật khẩu
                                 </label>
                             </div>
                             <div className="mt-2">
@@ -103,14 +103,14 @@ export default function LoginPage() {
                                 disabled={ loading }
                                 className="cursor-pointer flex w-full bg-black hover:bg-gray-800 justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
                             >
-                                { loading ? <Spinner size='small' className="text-white"/> : "Login" }
+                                { loading ? <Spinner size='small' className="text-white"/> : "Đăng nhập" }
                             </button>
                         </div>
                     </form>
             
                     <p className="mt-3 text-center text-sm/6">
-                        <Link to="/register" className="sidebar-link font-semibol text-black" style={{ textDecoration: 'underline', textUnderlineOffset: '4px' }}>
-                            Register
+                        <Link to="/register" className="sidebar-link font-semibol text-black">
+                            Đăng ký
                         </Link>
                     </p>
                 </div>

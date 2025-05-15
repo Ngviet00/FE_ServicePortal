@@ -107,32 +107,19 @@ export default function Sidebar() {
 										<span>{t("Loại phép")}</span>
 									</Link>
 								</li>
-
-								{/* <li className={`text-blue-900 ${currentPath === "/department" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/department" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/department' ? 'dark:text-black' : 'dark:text-white'}`}>
-										<Dot />
-										<span>{t("sidebar.admin.department")}</span>
-									</Link>
-								</li> */}
 								<li className={`text-blue-900 ${currentPath === "/user" ? "bg-[#e3e3e3]" : ""}`}>
 									<Link to="/user" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user' ? 'dark:text-black' : 'dark:text-white'}`}>
 										<Dot />
 										<span>{t("sidebar.user.list")}</span>
 									</Link>
 								</li>
-								{/* <li className={`text-blue-900 ${currentPath === "/user/create" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/user/create" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user/create' ? 'dark:text-black' : 'dark:text-white'}`}>
-										<Dot />
-										<span>{t("sidebar.user.create")}</span>
-									</Link>
-								</li> */}
-								{/* <li className={`text-blue-900 ${currentPath === "/user/org-chart" ? "bg-[#e3e3e3]" : ""}`}>
+								<li className={`text-blue-900 ${currentPath === "/user/org-chart" ? "bg-[#e3e3e3]" : ""}`}>
 									<Link to="/user/org-chart" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user/org-chart' ? 'dark:text-black' : 'dark:text-white'}`}>
 										<Dot />
 										<span>{t("Sơ đồ tổ chức")}</span>
 									</Link>
-								</li> */}
-								{/* {
+								</li>
+								{
 									isSuperAdmin && (
 										<li className={`text-blue-900 ${currentPath === "/approval-flow" ? "bg-[#e3e3e3]" : ""}`}>
 											<Link to="/approval-flow" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/approval-flow' ? 'dark:text-black' : 'dark:text-white'}`}>
@@ -141,7 +128,7 @@ export default function Sidebar() {
 											</Link>
 										</li>
 									)
-								} */}
+								}
 							</ul>
 						</div>
 					</>)

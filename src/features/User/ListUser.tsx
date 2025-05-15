@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { formatDate, ShowToast, useDebounce } from "@/lib"
+import { formatDate, getErrorMessage, ShowToast, useDebounce } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import userApi, { ListUserData } from "@/api/userApi"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -133,6 +133,16 @@ export default function ListUser () {
         setSelectedItem(item);
     }
 
+    const handleResetPassword = async (item: ListUserData) => {
+        try {
+            await userApi.resetPassword(item.userCode)
+            ShowToast("Success", "success")
+        }   
+        catch (err) {
+            ShowToast(getErrorMessage(err), "error")
+        }
+    }
+
     const updateUserRoleMutation = useMutation({ mutationFn: userApi.updateUserRole });
 
     const handleConfirm = (userCode: string) => {
@@ -192,8 +202,6 @@ export default function ListUser () {
                                 <TableHead className="w-[150px] text-center">Sex</TableHead>
                                 <TableHead className="w-[150px] text-center">Phone</TableHead>
                                 <TableHead className="w-[120px] text-center">Email</TableHead>
-                                <TableHead className="w-[120px] text-center">Level</TableHead>
-                                <TableHead className="w-[120px] text-center">Level Parent</TableHead>
                                 <TableHead className="w-[150px] text-center">Date join company</TableHead>
                                 <TableHead className="w-[120px] text-center">Action</TableHead>
                             </TableRow>
@@ -210,28 +218,24 @@ export default function ListUser () {
                                         <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                     </TableRow>
                                 ))
                             ) : isError || users.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={11}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={9}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 users.map((item: ListUserData) => (
                                         <TableRow key={item.id}>
-                                            <TableCell className="font-medium text-center">{item?.code}</TableCell>
-                                            <TableCell className="text-center">{item?.name}</TableCell>
+                                            <TableCell className="font-medium text-center">{item?.userCode}</TableCell>
+                                            <TableCell className="text-center">{item?.name ?? "--"}</TableCell>
                                             <TableCell className="text-center">{item?.department?.name ?? "--"}</TableCell>
                                             <TableCell className="text-center">{item.position ? item.position : "--"}</TableCell>
                                             <TableCell className="text-center">{item?.sex == 1 ? "Nam" : "Nữ"}</TableCell>
                                             <TableCell className="text-center">{item.phone ? item.phone : "--"}</TableCell>
-                                            <TableCell className="text-center">{item?.email}</TableCell>
-                                            <TableCell className="text-center">{item?.level}</TableCell>
-                                            <TableCell className="text-center">{item?.level_parent ?? "--"}</TableCell>
+                                            <TableCell className="text-center">{item?.email ?? "--"}</TableCell>
                                             <TableCell className="text-center">{formatDate(item?.date_join_company ?? "", "dd/MM/yyyy")}</TableCell>
                                             <TableCell className="text-center">
                                                 {
@@ -239,11 +243,19 @@ export default function ListUser () {
                                                         <Button 
                                                             variant="outline" 
                                                             onClick={() => handleSetRole(item)}
-                                                            className="text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
+                                                            className="text-xs p-[5px] h-[20x] rounded-[5px] bg-blue-900 text-white hover:cursor-pointer hover:bg-dark hover:text-white"
                                                         >
                                                             Set role
                                                         </Button>
-                                                        <ButtonDeleteComponent id={item.code} onDelete={() => handleDelete(item.id)}/>
+                                                        <Button
+                                                            variant="outline" 
+                                                            onClick={() => handleResetPassword(item)}
+                                                            className="ml-2 text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
+                                                        >
+                                                            Reset PW
+                                                        </Button>
+                                                        
+                                                        <ButtonDeleteComponent id={item.userCode} onDelete={() => handleDelete(item.id)}/>
                                                     </>
                                                     ) : "--"
                                                 }
@@ -283,7 +295,7 @@ export default function ListUser () {
                                             }}
                                             />
                                     <div className="flex justify-end">
-                                        <Button type="submit" disabled={updateUserRoleMutation.isPending} onClick={() => handleConfirm(selectedItem.code)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
+                                        <Button type="submit" disabled={updateUserRoleMutation.isPending} onClick={() => handleConfirm(selectedItem.userCode)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
                                             {
                                                 updateUserRoleMutation.isPending ? <Spinner className="text-white"/> : "Confirm"
                                             }

@@ -6,11 +6,16 @@ import { Navigate } from "react-router-dom";
 interface PrivateRouteProps {
 	allowedRoles: string[] | undefined;
 	children: JSX.Element;
-  }
+}
 
 const PrivateRoute = ({ allowedRoles, children }: PrivateRouteProps) => {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const hasRole = useHasRole(allowedRoles ?? []);
+	const isChangePassword = useAuthStore((state) => state.user?.isChangePassword)
+
+	if ( isAuthenticated && Number(isChangePassword) === 0 && location.pathname !== "/change-password") {
+		return <Navigate to="/change-password" replace />;
+	}
 
 	if (!isAuthenticated) {
 		return <Navigate to="/login" replace />;

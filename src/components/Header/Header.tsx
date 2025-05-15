@@ -52,7 +52,7 @@ export default function Header() {
                 <SelectedLanguage/>
 
                 <div className='text-black mr-4 font-bold text-sm dark:text-white'>
-                    { user?.name ?? "undefined" }
+                    { user?.userCode ?? "Not set" }
                 </div>
 
                 <div className="pr-7 flex items-center">

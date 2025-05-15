@@ -1,9 +1,11 @@
 import authApi from "@/api/authApi";
 import { AlertError, AlertSuccess } from "@/components/Alert/AlertComponent";
 import { Spinner } from "@/components/ui/spinner";
-import axios from "axios";
+import { getErrorMessage } from "@/lib";
+import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export default function ChangePasswordPage() {
     const { t } = useTranslation();
@@ -12,6 +14,11 @@ export default function ChangePasswordPage() {
     const [loading, setLoading] = useState(false);
     const [successMsg, setSuccessMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
+
+    const setUser = useAuthStore((state) => state.setUser);
+    const user = useAuthStore((state) => state.user);
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,39 +29,16 @@ export default function ChangePasswordPage() {
         try {
             const res = await authApi.changePassword({ new_password, confirm_password });
             console.log(res);
-            if (res.status === 200) {
-                setSuccessMsg("Đổi mật khẩu thành công!");
-                setErrorMsg(""); // Clear lỗi nếu có
-                setNewPassword("");
-                setConfirmNewPassword("");
-            } else {
-                setErrorMsg("Có lỗi xảy ra, vui lòng thử lại.fdsfd");
+            if (user) {
+                setUser({
+                    ...user,
+                    isChangePassword: 1,
+                });
             }
+            navigate("/", { replace: true });
         }
         catch (err) {
-            if (axios.isAxiosError(err)) {
-                const data = err.response?.data;
-        
-                // Ưu tiên hiển thị lỗi validation nếu có
-                if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
-                    const firstFieldError = data.errors[0]?.errors?.[0];
-                    setErrorMsg(firstFieldError || "Đổi mật khẩu thất bại");
-                } 
-                // Nếu là lỗi message thông thường (401, 403, 500...)
-                else if (data?.message) {
-                    setErrorMsg(data.message);
-                } 
-                // Fallback nếu không có thông tin gì cụ thể
-                else {
-                    setErrorMsg("Đổi mật khẩu thất bại");
-                }
-        
-                setSuccessMsg(""); // Clear message success nếu có
-            } else {
-                console.error(err);
-                setErrorMsg("Đổi mật khẩu thất bại");
-                setSuccessMsg(""); // Clear message success nếu có
-            }
+            setErrorMsg(getErrorMessage(err));
         }
         finally {
             setLoading(false);
