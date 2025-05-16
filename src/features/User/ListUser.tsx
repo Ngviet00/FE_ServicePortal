@@ -195,15 +195,15 @@ export default function ListUser () {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[120px] text-center">User Code</TableHead>
-                                <TableHead className="w-[180px] text-center">Name</TableHead>
-                                <TableHead className="w-[130px] text-center">Department</TableHead>
-                                <TableHead className="w-[100px] text-center">Position</TableHead>
-                                <TableHead className="w-[150px] text-center">Sex</TableHead>
-                                <TableHead className="w-[150px] text-center">Phone</TableHead>
-                                <TableHead className="w-[120px] text-center">Email</TableHead>
-                                <TableHead className="w-[150px] text-center">Date join company</TableHead>
-                                <TableHead className="w-[120px] text-center">Action</TableHead>
+                                <TableHead className="w-[120px] text-left">User Code</TableHead>
+                                <TableHead className="w-[180px] text-left">Name</TableHead>
+                                <TableHead className="w-[130px] text-left">Department</TableHead>
+                                <TableHead className="w-[100px] text-left">Position</TableHead>
+                                <TableHead className="w-[150px] text-left">Sex</TableHead>
+                                <TableHead className="w-[150px] text-left">Phone</TableHead>
+                                <TableHead className="w-[120px] text-left">Email</TableHead>
+                                <TableHead className="w-[150px] text-left">Date join company</TableHead>
+                                <TableHead className="w-[120px] text-left">Action</TableHead>
                             </TableRow>
                         </TableHeader>
 
@@ -211,15 +211,15 @@ export default function ListUser () {
                             { isPending ? (
                                 Array.from({ length: 10 }).map((_, index) => (
                                     <TableRow key={index}>
-                                        <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[180px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[130px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[120px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[180px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[130px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[200px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                     </TableRow>
                                 ))
                             ) : isError || users.length == 0 ? (
@@ -229,15 +229,15 @@ export default function ListUser () {
                             ) : (
                                 users.map((item: ListUserData) => (
                                         <TableRow key={item.id}>
-                                            <TableCell className="font-medium text-center">{item?.userCode}</TableCell>
-                                            <TableCell className="text-center">{item?.name ?? "--"}</TableCell>
-                                            <TableCell className="text-center">{item?.department?.name ?? "--"}</TableCell>
-                                            <TableCell className="text-center">{item.position ? item.position : "--"}</TableCell>
-                                            <TableCell className="text-center">{item?.sex == 1 ? "Nam" : "Nữ"}</TableCell>
-                                            <TableCell className="text-center">{item.phone ? item.phone : "--"}</TableCell>
-                                            <TableCell className="text-center">{item?.email ?? "--"}</TableCell>
-                                            <TableCell className="text-center">{formatDate(item?.date_join_company ?? "", "dd/MM/yyyy")}</TableCell>
-                                            <TableCell className="text-center">
+                                            <TableCell className="font-medium text-left">{item?.userCode}</TableCell>
+                                            <TableCell className="text-left">{item?.name ?? "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.department?.name ?? "--"}</TableCell>
+                                            <TableCell className="text-left">{item.position ? item.position : "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.sex == 1 ? "Nam" : "Nữ"}</TableCell>
+                                            <TableCell className="text-left">{item.phone ? item.phone : "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.email ?? "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.date_join_company ? formatDate(item.date_join_company ?? "", "dd/MM/yyyy") : "--"}</TableCell>
+                                            <TableCell className="text-left">
                                                 {
                                                     isSuperAdmin ? (<>
                                                         <Button 

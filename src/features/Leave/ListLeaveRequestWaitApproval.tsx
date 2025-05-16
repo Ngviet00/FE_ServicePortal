@@ -37,7 +37,6 @@ export default function ListLeaveRequestWaitApproval () {
 
     const [selectedItem, setSelectedItem] = useState<LeaveRequestData | null>(null);
 
-
     const queryClient = useQueryClient();
 
     const [showConfirm, setShowConfirm] = useState(false);
@@ -50,9 +49,8 @@ export default function ListLeaveRequestWaitApproval () {
             await delay(Math.random() * 100 + 100);
             const res = await leaveRequestApi.getLeaveRequestWaitApproval({
                 page: page,
-                page_size: pageSize,
-                department_id: user?.department_id, //fake
-                level: user?.level
+                pageSize: pageSize,
+                positionId: user?.positionId,
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -79,11 +77,13 @@ export default function ListLeaveRequestWaitApproval () {
     const mutation = useMutation({
         mutationFn: async ({ item, approval }: { item: LeaveRequestData; approval: boolean, note: string | null }) => {
             await leaveRequestApi.approvalLeaveRequest({
-                user_code_approval: user?.code ?? "",
-                leave_request_id: item?.id ?? "",
-                status: approval,
-                note: note,
-                url_front_end: window.location.origin
+                PositionId: user?.positionId || null,
+                NameUserApproval: `name_${user?.userCode}_approval`,
+                UserCodeApproval: user?.userCode || null,
+                LeaveRequestId: item?.id ?? "",
+                Status: approval,
+                Note: note,
+                UrlFrontEnd: window.location.origin
             });
         },
         
@@ -137,9 +137,8 @@ export default function ListLeaveRequestWaitApproval () {
                                 <TableHead className="w-[150px] text-left">To</TableHead>
                                 <TableHead className="w-[120px] text-left">Type leave</TableHead>
                                 <TableHead className="w-[120px] text-left">Time leave</TableHead>
-                                <TableHead className="w-[200px] text-center">Reason</TableHead>
-                                <TableHead className="w-[180px] text-left">Register</TableHead>
-                                <TableHead className="w-[80px] text-center">Approve By</TableHead>
+                                <TableHead className="w-[200px] text-left">Reason</TableHead>
+                                <TableHead className="w-[80px] text-left">Approve By</TableHead>
                                 <TableHead className="w-[50px] text-left">Created at</TableHead>
                                 <TableHead className="w-[50px] text-left">Approval</TableHead>
                             </TableRow>
@@ -156,8 +155,7 @@ export default function ListLeaveRequestWaitApproval () {
                                         <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[180px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[200px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
@@ -165,23 +163,22 @@ export default function ListLeaveRequestWaitApproval () {
                                     ))
                             ) : isError || leaveRequests.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={12}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (
                                         <TableRow key={item.id}>
-                                            <TableCell className="font-medium text-left">{item?.user_code}</TableCell>
+                                            <TableCell className="font-medium text-left">{item?.requesterUserCode}</TableCell>
                                             <TableCell className="text-left">{item?.name}</TableCell>
                                             <TableCell className="text-left">{item?.department}</TableCell>
                                             <TableCell className="text-left">{item?.position}</TableCell>
-                                            <TableCell className="text-left">{formatDate(item?.from_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                            <TableCell className="text-left">{formatDate(item?.to_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                            <TableCell className="text-left">{getEnumName(item?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
-                                            <TableCell className="text-left">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
-                                            <TableCell className="text-center">{item?.reason}</TableCell>
-                                            <TableCell className="text-left text-red-800 font-bold">{item?.name_register}</TableCell>
-                                            <TableCell className="text-center text-red-800 font-bold">{item?.approved_by ?? "--"}</TableCell>
-                                            <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                            <TableCell className="text-left">{formatDate(item?.fromDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                            <TableCell className="text-left">{formatDate(item?.toDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                            <TableCell className="text-left">{getEnumName(item?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
+                                            <TableCell className="text-left">{getEnumName(item?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                            <TableCell className="text-left">{item?.reason}</TableCell>
+                                            <TableCell className="text-left text-red-800 font-bold">{item?.approvalAction?.approverName ?? "--"}</TableCell>
+                                            <TableCell className="text-left">{formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                             <TableCell className="text-left">
                                                 {
                                                     hasHRRole ? (
@@ -217,17 +214,16 @@ export default function ListLeaveRequestWaitApproval () {
                                     <DialogDescription></DialogDescription>
                                 </DialogHeader>
                                     <div className="flex flex-col w-full">
-                                        <div className="w-full mb-2 text-xl">User Code: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.user_code}</span></div>
+                                        <div className="w-full mb-2 text-xl">User Code: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.requesterUserCode}</span></div>
                                         <div className="w-full mb-2 text-xl">Name: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.name}</span></div>
                                         <div className="w-full mb-2 text-xl">Department: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.department}</span></div>
                                         <div className="w-full mb-2 text-xl">Position: <span className="pl-2 text-xl font-bold text-red-800">{selectedItem?.position}</span></div>
-                                        <div className="w-full mb-2 text-xl">From Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(selectedItem?.from_date ?? "", "yyyy/MM/dd HH:mm")}</span></div>
-                                        <div className="w-full mb-2 text-xl">To Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(selectedItem?.to_date ?? "", "yyyy/MM/dd HH:mm")}</span></div>
-                                        <div className="w-full mb-2 text-xl">Type Leave: <span className="pl-2 text-xl font-bold">{getEnumName(selectedItem?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</span></div>
-                                        <div className="w-full mb-2 text-xl">Time Leave: <span className="pl-2 text-xl font-bold">{getEnumName(selectedItem?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</span></div>
+                                        <div className="w-full mb-2 text-xl">From Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(selectedItem?.fromDate ?? "", "yyyy/MM/dd HH:mm")}</span></div>
+                                        <div className="w-full mb-2 text-xl">To Date: <span className="pl-2 text-xl font-bold text-red-800">{formatDate(selectedItem?.toDate ?? "", "yyyy/MM/dd HH:mm")}</span></div>
+                                        <div className="w-full mb-2 text-xl">Type Leave: <span className="pl-2 text-xl font-bold">{getEnumName(selectedItem?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</span></div>
+                                        <div className="w-full mb-2 text-xl">Time Leave: <span className="pl-2 text-xl font-bold">{getEnumName(selectedItem?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</span></div>
                                         <div className="w-full mb-2 text-xl">Reason: <span className="pl-2 text-xl font-bold">{selectedItem?.reason}</span></div>
-                                        <div className="w-full mb-2 text-xl">Register: <span className="pl-2 text-xl font-bold">{selectedItem?.name_register}</span></div>
-                                        <div className="w-full mb-2 text-xl">Created At: <span className="pl-2 text-xl font-bold">{formatDate(selectedItem?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
+                                        <div className="w-full mb-2 text-xl">Created At: <span className="pl-2 text-xl font-bold">{formatDate(selectedItem?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
                                     </div>
 
                                     <div className="note">

@@ -25,7 +25,7 @@ export default function ListLeaveRequest () {
     const [totalPage, setTotalPage] = useState(0) //search by name
     const [page, setPage] = useState(1) //current page
     const [pageSize, setPageSize] = useState(10) //per page 5 item
-    const [filterStatus, setFilterStatus] = useState(1)
+    const [filterStatus, setFilterStatus] = useState("PENDING")
     const [countPending, setCountPending] = useState(0)
     const [countInProcess, setCountInProcess] = useState(0)
 
@@ -34,14 +34,14 @@ export default function ListLeaveRequest () {
     const queryClient = useQueryClient();
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-leave-requests', { user_code: user?.code, page, pageSize, status: filterStatus }],
+        queryKey: ['get-leave-requests', { user_code: user?.userCode, page, pageSize, status: filterStatus }],
         queryFn: async () => {
             await delay(Math.random() * 100 + 100);
             const res = await leaveRequestApi.getAll({
-                user_code: user?.code ?? "",
-                page,
-                page_size: pageSize,
-                status: filterStatus
+                UserCode: user?.userCode ?? "",
+                Page: page,
+                PageSize: pageSize,
+                Status: filterStatus
             });
             console.log('call api leave request');
             setTotalPage(res.data.total_pages)
@@ -61,7 +61,7 @@ export default function ListLeaveRequest () {
     }
 
     const handleChangeFilter = (status: string) => {
-        setFilterStatus(Number(status));
+        setFilterStatus(status);
     }
 
     function handleSuccessDelete(shouldGoBack?: boolean) {
@@ -104,16 +104,12 @@ export default function ListLeaveRequest () {
                 </Button>
             </div>
 
-            <div className="flex items-center justify-between">
-            
-            </div>
-
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
                 <div className="max-h-[450px]">
                     {/*   onValueChange={setTab} */}
                     <Tabs defaultValue="1" className="w-full" onValueChange={handleChangeFilter}>
                         <TabsList style={{margin: '0px auto'}} className="mb-5 h-[40px]">
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="1">
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="PENDING">
                                 Pending
                                 {
                                     countPending > 0 ? (
@@ -121,7 +117,7 @@ export default function ListLeaveRequest () {
                                     ) : (<></>)
                                 }  
                             </TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="2">
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="IN_PROCESS">
                                 In-Process
                                 {
                                     countInProcess > 0 ? (
@@ -129,8 +125,8 @@ export default function ListLeaveRequest () {
                                     ) : (<></>)
                                 }  
                             </TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-green-200 text-green-600" value="3">Complete</TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-red-200 text-red-600" value="4">Reject</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-green-200 text-green-600" value="COMPLETED">Complete</TabsTrigger>
+                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-red-200 text-red-600" value="REJECT">Reject</TabsTrigger>
                         </TabsList>
                             <Table>
                                 <TableHeader>
@@ -144,11 +140,10 @@ export default function ListLeaveRequest () {
                                         <TableHead className="w-[120px] text-left">Type leave</TableHead>
                                         <TableHead className="w-[120px] text-left">Time leave</TableHead>
                                         <TableHead className="w-[200px] text-center">Reason</TableHead>
-                                        <TableHead className="w-[150px] text-center">Register</TableHead>
-                                        <TableHead className="w-[120px] text-center">{filterStatus == 4 ? "Reject By" : "Approve By"}</TableHead>
-                                        <TableHead className="w-[50px] text-left">{filterStatus == 1 ? "Created at" : filterStatus == 4 ? "Reject At" : "Approved At"}</TableHead>
-                                        <TableHead className={`w-[${filterStatus == 4 ? "120px" : "70px"}] text-left`}>
-                                            {filterStatus == 4 ? "Reason" : "Status"}
+                                        <TableHead className="w-[120px] text-center">{filterStatus == "REJECT" ? "Reject By" : "Approve By"}</TableHead>
+                                        <TableHead className="w-[50px] text-left">{filterStatus == "PENDING" ? "Created at" : filterStatus == "REJECT" ? "Reject At" : "Approved At"}</TableHead>
+                                        <TableHead className={`w-[${filterStatus == "REJECT" ? "120px" : "70px"}] text-left`}>
+                                            {filterStatus == "REJECT" ? "Reason" : "Status"}
                                         </TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -165,7 +160,6 @@ export default function ListLeaveRequest () {
                                                 <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                                 <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                                 <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[150px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                                 <TableCell className="w-[80px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                                 <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
                                                 <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
@@ -178,39 +172,41 @@ export default function ListLeaveRequest () {
                                     ) : (
                                         leaveRequests.map((item: LeaveRequestData) => (
                                                 <TableRow key={item.id}>
-                                                    <TableCell className="font-medium text-left">{item?.user_code}</TableCell>
+                                                    <TableCell className="font-medium text-left">{item?.requesterUserCode}</TableCell>
                                                     <TableCell className="text-left">{item?.name}</TableCell>
                                                     <TableCell className="text-left">{item?.department}</TableCell>
                                                     <TableCell className="text-left">{item?.position}</TableCell>
-                                                    <TableCell className="text-left">{formatDate(item?.from_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                                    <TableCell className="text-left">{formatDate(item?.to_date ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                                    <TableCell className="text-left">{getEnumName(item?.type_leave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
-                                                    <TableCell className="text-left">{getEnumName(item?.time_leave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                                    <TableCell className="text-left">{formatDate(item?.fromDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                                    <TableCell className="text-left">{formatDate(item?.toDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                                    <TableCell className="text-left">{getEnumName(item?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
+                                                    <TableCell className="text-left">{getEnumName(item?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
                                                     <TableCell className="text-center">{item?.reason}</TableCell>
-                                                    <TableCell className="text-center text-red-800 font-bold">{item?.name_register}</TableCell>
-                                                    <TableCell className="text-center text-red-800 font-bold">{item?.approved_by ?? "--"}</TableCell>
-                                                    <TableCell className="text-left">{formatDate(item?.created_at ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                                    <TableCell className="text-center text-red-800 font-bold">{item?.approvalAction?.approverName ?? "--"}</TableCell>
+                                                    <TableCell className="text-left">
+                                                        {
+                                                            item?.approvalAction?.createdAt ? formatDate(item.approvalAction.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")
+                                                            : formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")
+                                                        }
+                                                    </TableCell>
                                                     <TableCell className="text-left">
                                                         {
                                                             //reject
-                                                            filterStatus == 4 ? (
+                                                            filterStatus == "REJECT" ? (
                                                                 <span
-                                                                    className={`${item.note ? "text-red-500" : "text-black"} font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
-                                                                    title={item?.note ?? ""}
+                                                                    className={`${item.approvalAction?.comment ? "text-red-500" : "text-black"} font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
+                                                                    title={item.approvalAction?.comment ?? ""}
                                                                 >
-                                                                    {item?.note ? item.note : "--"}
+                                                                    {item.approvalAction?.comment ? item.approvalAction.comment : "--"}
                                                                 </span>
                                                             ) : (
                                                                 <>
                                                                     {
-                                                                        //pending
-                                                                        filterStatus == 1 ? (<>
+                                                                        filterStatus == "PENDING" ? (<>
+                                                                            <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] h-[23.98px]">Edit</Link>
                                                                             <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")}/>
-                                                                            <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] mx-1 h-[23.98px]">Edit</Link>
                                                                         </>
-                                                                        ) : (<StatusLeaveRequest status={item.status ? item.status : 1}/>)
+                                                                        ) : (<StatusLeaveRequest status={item?.approvalAction?.action ? item.approvalAction.action : "PENDING" }/>)
                                                                     }
-                                                                    
                                                                 </>
                                                             )
                                                         }

@@ -37,8 +37,7 @@ export default function Sidebar() {
 		queryKey: ["count-wait-approval-leave-request"],
 		queryFn: async () => {
 			const res = await leaveRequestApi.countWaitApprovalLeaveRequest({
-				department_id: user?.department?.id ?? undefined,
-				level: user?.level ?? undefined,
+				positionId: user?.positionId
 			});
 			return res.data.data;
 		},

@@ -2,49 +2,51 @@ import axiosClient from './axiosClient';
 
 export interface LeaveRequestData {
     id?: string | null,
-    user_code: string,
+    requesterUserCode: string | null,
+    writeLeaveUserCode: string | null,
     name: string | null,
-    user_code_register: string,
-    name_register: string | null,
-    position: string | null,
     department: string | null,
-    from_date: string | null,
-    to_date: string | null,
+    position: string | null,
+    fromDate: string | null,
+    toDate: string | null,
+    timeLeave: number | null,
+    typeLeave: number | null,
     reason: string| null
-    time_leave: number | null,
-    type_leave: number | null,
-    status?: number | null,
     image?: string | null,
-    note?: string | null,
-    approved_by?: string | null,
-    created_at?: string | null,
-    updated_at?: string | null,
-    deleted_at?: string | null,
-    url_front_end?: string | null
+    urlFrontend: string | null,
+    createdAt?: string | null,
+    approvalAction?: {
+        approverUserCode: string | null,
+        approverName: string | null,
+        action: string | null,
+        comment: string | null,
+        createdAt: string | null
+    }
 }
 
 interface GetLeaveRequest {
     position_id?: number,
-    user_code?: string,
-    page: number;
-    page_size: number;
-    year?: number
-    status?: number
+    UserCode?: string,
+    Page: number;
+    PageSize: number;
+    Year?: number
+    Status?: string
 }
 
 interface ApprovalData {
-    user_code_approval: string, 
-    leave_request_id: string,
-    status: boolean,
-    note: string | null,
-    url_front_end?: string
+    PositionId: number | null,
+    NameUserApproval: string | null,
+    UserCodeApproval: string | null,
+    LeaveRequestId: string,
+    Status: boolean,
+    Note: string | null,
+    UrlFrontEnd: string | null
 }
 
 interface GetWaitApproval {
     page?: number,
-    page_size?: number,
-    level?: string | undefined,
-    department_id?: number | undefined
+    pageSize?: number,
+    positionId?: number | undefined
 }
 
 const leaveRequestApi = {

@@ -1,30 +1,30 @@
-type LeaveStatus = 'Pending' | 'In-Process' | 'Completed' | 'Reject';
+type LeaveStatus = 'PENDING' | 'IN_PROCESS' | 'COMPLETED' | 'REJECT';
 
 interface StatusLeaveRequestProps {
-	status: LeaveStatus | number;
+    status: LeaveStatus | number | string | undefined | null;
 }
 
 const STATUS_MAP: Record<number, LeaveStatus> = {
-  1: 'Pending',
-  2: 'In-Process',
-  3: 'Completed',
-  4: 'Reject',
+  1: 'PENDING',
+  2: 'IN_PROCESS',
+  3: 'COMPLETED',
+  4: 'REJECT',
 };
 
 const STATUS_CONFIG: Record<LeaveStatus, { bg: string; text_color: string }> = {
-    Pending: {
+    PENDING: {
       bg: 'bg-gray-500',
       text_color: 'text-white',
     },
-    'In-Process': {
+    IN_PROCESS: {
       bg: 'bg-yellow-400',
       text_color: 'text-black',
     },
-    Completed: {
+    COMPLETED: {
       bg: 'bg-green-200',
       text_color: 'text-green-600',
     },
-    Reject: {
+    REJECT: {
       bg: 'bg-red-200',
       text_color: 'text-red-600',
     },
@@ -32,16 +32,18 @@ const STATUS_CONFIG: Record<LeaveStatus, { bg: string; text_color: string }> = {
   
 
 export function StatusLeaveRequest({ status }: StatusLeaveRequestProps) {
-    const normalizedStatus: LeaveStatus =
+  const normalizedStatus: LeaveStatus =
     typeof status === 'number'
-        ? STATUS_MAP[status] || 'Pending'
-        : status;
+      ? STATUS_MAP[status] || 'PENDING'
+      : typeof status === 'string' && STATUS_CONFIG[status as LeaveStatus]
+        ? (status as LeaveStatus)
+        : 'PENDING';
 
     const { bg, text_color } = STATUS_CONFIG[normalizedStatus];
 
     return (
-		<span className={`${bg} ${text_color} p-1 w-[67px] inline-block text-xs rounded-[3px] text-center`}>
-			{normalizedStatus}
-		</span>
+      <span className={`${bg} ${text_color} p-1 w-[72px] inline-block text-xs rounded-[3px] text-center`}>
+        {normalizedStatus}
+      </span>
     )
 }

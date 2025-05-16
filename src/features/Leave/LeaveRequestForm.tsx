@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
@@ -11,74 +11,58 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/ui/form"
-import { useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import { useTranslation } from "react-i18next"
-import { Input } from "@/components/ui/input"
-import { parseDateTime, ShowToast, TIME_LEAVE } from "@/lib"
-import { Textarea } from "@/components/ui/textarea"
-import { useAuthStore } from "@/store/authStore"
-import { AxiosError } from "axios"
-import { Spinner } from "@/components/ui/spinner"
-import { useQuery } from "@tanstack/react-query"
-import { ITypeLeave } from "../TypeLeave/ListTypeLeave"
-import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
-import DotRequireComponent from "@/components/DotRequireComponent"
-import typeLeaveApi from "@/api/typeLeaveApi"
+} from "@/components/ui/form";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuthStore } from "@/store/authStore";
+import { Spinner } from "@/components/ui/spinner";
+import DotRequireComponent from "@/components/DotRequireComponent";
+import { AxiosError } from "axios";
+import { ShowToast, TIME_LEAVE } from "@/lib";
+import { Checkbox } from "@/components/ui/checkbox";
+import typeLeaveApi from "@/api/typeLeaveApi";
+import { useQuery } from "@tanstack/react-query";
+import { ITypeLeave } from "../TypeLeave/ListTypeLeave";
+import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi";
 
 const formSchema = z.object({
-    user_code: z.string().nonempty({message: "Required"}),
-    name: z.string().nonempty({message: "Required"}),
-
-    user_code_register: z.string().nonempty({message: "Required"}),
-    name_register: z.string().nonempty({message: "Required"}),
-
-    department: z.string().nonempty({message: "Required"}),
-    position: z.string().nonempty({message: "Required"}),
-
-    from_date: z.string().nonempty({message: "Required"}),
-    from_hour: z.string().nonempty({message: "Required"}),
-    from_minutes: z.string().nonempty({message: "Required"}),
-
-    to_date: z.string().nonempty({message: "Required"}),
-    to_hour: z.string().nonempty({message: "Required"}),
-    to_minutes: z.string().nonempty({message: "Required"}),
-
-    type_leave: z.string().nonempty({message: "Required"}),
-    time_leave: z.string().nonempty({message: "Required"}),
-
-    reason: z.string().nonempty({message: "Required"}),
-}).refine(data => {
-    const from = new Date(data.from_date);
-    const to = new Date(data.to_date);
-
-    return to >= from;
-}, {
-    path: ["to_date"],
-    message: "To date cannot be earlier than From date",
+    user_code: z.string().nonempty({ message: "Required" }),
+    user_code_register: z.string().nonempty({ message: "Required" }),
+    name: z.string().nonempty({ message: "Required" }),
+    department: z.string().nonempty({ message: "Required" }),
+    position: z.string().nonempty({ message: "Required" }),
+    from_date: z.string().nonempty({ message: "Required" }),
+    to_date: z.string().nonempty({ message: "Required" }),
+    from_hour: z.string().nonempty({ message: "Required" }),
+    to_hour: z.string().nonempty({ message: "Required" }),
+    from_minutes: z.string().nonempty({ message: "Required" }),
+    to_minutes: z.string().nonempty({ message: "Required" }),
+    type_leave: z.string().nonempty({ message: "Required" }),
+    time_leave: z.string().nonempty({ message: "Required" }),
+    reason: z.string().nonempty({ message: "Required" }),
 });
 
 const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
-    user_code: values.user_code ?? null,
-    name: values.name ?? null,
+    requesterUserCode: values.user_code ?? null,
+    writeLeaveUserCode: values.user_code_register,
 
-    user_code_register: values.user_code_register ?? null,
-    name_register: values.name_register ?? "",
+    name: values.name,
 
-    position: values.position,
     department: values.department,
+    position: values.position,
 
-    from_date: `${values.from_date} ${values.from_hour}:${values.from_minutes}`,
-    to_date: `${values.to_date} ${values.to_hour}:${values.to_minutes}`,
+    fromDate: `${values.from_date} ${values.from_hour}:${values.from_minutes}`,
+    toDate: `${values.to_date} ${values.to_hour}:${values.to_minutes}`,
 
     reason: values.reason,
+    typeLeave: parseInt(values.type_leave),
+    timeLeave: parseInt(values.time_leave),
 
-    time_leave: parseInt(values.time_leave),
-    type_leave: parseInt(values.type_leave),
-
-    url_front_end: window.location.origin,
+    urlFrontend: window.location.origin,
 });
 
 export default function LeaveRequestForm() {
@@ -86,64 +70,54 @@ export default function LeaveRequestForm() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { user } = useAuthStore();
-    
-    const { id } = useParams<{ id: string }>()
+
+    const { id } = useParams<{ id: string }>();
     const isEdit = !!id;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            user_code: user?.code,
-            name: user?.name,
-
-            user_code_register: user?.code,
-            name_register: user?.name,
-
-            department: user?.department?.name,
-            position: user?.position,
-        
+            user_code: user?.userCode || "",
+            user_code_register: user?.userCode || "",
+            name: "",
+            department: "",
+            position: "",
             from_date: new Date().toISOString().slice(0, 10),
             from_hour: "08",
             from_minutes: "00",
-        
             to_date: new Date().toISOString().slice(0, 10),
             to_hour: "17",
             to_minutes: "00",
-        
-            type_leave: "1",
-            time_leave: "1",
-            reason: ""
+            time_leave: "1"
         },
-    })
+    });
 
-    //submit form
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        setLoading(true)
-        const data = formatData(values);
+        setLoading(true);
         try {
+            const data = formatData(values);
             if (isEdit) {
-                await leaveRequestApi.update(id, data)
-                ShowToast("Success", "success")
-                navigate("/leave")
+                await leaveRequestApi.update(id, data);
+                ShowToast("Success", "success");
+                navigate("/leave");
             } else {
-                await leaveRequestApi.create(data)
-                ShowToast("Success", "success")
-                form.setValue("reason", "")
-                navigate("/leave")
+                await leaveRequestApi.create(data);
+                ShowToast("Success", "success");
+                form.setValue("reason", "");
+                navigate("/leave");
             }
         } catch (err: unknown) {
-            const error = err as AxiosError<{ message: string }>
-            const message = error?.response?.data?.message ?? "Something went wrong"
-            form.setError("name", {
+            const error = err as AxiosError<{ message: string }>;
+            const message = error?.response?.data?.message ?? "Something went wrong";
+            form.setError("user_code", {
                 type: "server",
                 message,
-            })
+            });
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
-    //event click show calendar
     const handleInputClickShowPicker = (event: React.MouseEvent<HTMLInputElement>) => {
         (event.target as HTMLInputElement).showPicker();
     };
@@ -158,53 +132,20 @@ export default function LeaveRequestForm() {
             return res.data.data;
         },
     });
-    
 
-    //#region UPDATE
-    
-    //get by id
-    const { data: departmentData } = useQuery({
-        queryKey: ["department", id],
-        queryFn: async () => await leaveRequestApi.getById(id ?? ""),
-        enabled: !!id,
-    })
-
-    useEffect(() => {
-        if (departmentData) {
-            const data = departmentData.data.data
-
-            const from = parseDateTime(data.from_date);
-            const to = parseDateTime(data.to_date);
-
-            form.reset({
-                user_code: data.user_code,
-                name: data.name,
-                user_code_register: data.user_code_register,
-                name_register: data.name_register,
-                department: data.department,
-                position: data.position,
-                from_date: new Date(data.from_date).toISOString().slice(0, 10),
-                from_hour: from.hour,
-                from_minutes: from.minutes,
-
-                to_date: new Date(data.to_date).toISOString().slice(0, 10),
-                to_hour: to.hour,
-                to_minutes: to.minutes,
-
-                type_leave: data.type_leave.toString(),
-                time_leave: data.time_leave.toString(),
-                reason: data.reason
-            })
-        }
-    }, [departmentData, form])
-    
-    //#endregion
-    
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl">{isEdit ? "Update" : "Create"} Leave Request</h3>
-                <Button className="hover:cursor-pointer" onClick={() => navigate("/leave")}>{t('leave_request.create.link_to_list')}</Button>
+                <div className="flex content-center items-center">
+                    <h3 className="font-bold text-2xl">{isEdit ? "Sửa" : "Đăng ký"} nghỉ phép</h3>
+                    <Checkbox checked id="receive-mail" className="ml-4 hover:cursor-pointer w-[25px] h-[25px]" />
+                    <label htmlFor="receive-mail" className="hover:cursor-pointer ml-1 text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Nhận thông báo
+                     </label>
+                </div>
+                <Button onClick={() => navigate("/leave")}>
+                    {t("leave_request.create.link_to_list")}
+                </Button>
             </div>
 
             <div className="w-[100%] mt-5">
@@ -217,14 +158,17 @@ export default function LeaveRequestForm() {
                                     name="user_code"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>{t('leave_request.create.code')}<DotRequireComponent/></FormLabel>
+                                            <FormLabel>
+                                                {t("leave_request.create.code")}
+                                                <DotRequireComponent />
+                                            </FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.code')} {...field} />
+                                                <Input placeholder={t("leave_request.create.code")} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
-                                />
+                                    />
                             </div>
 
                             <div className="ml-5 w-[25%] flex-1">
@@ -242,7 +186,7 @@ export default function LeaveRequestForm() {
                                     )}
                                 />
                             </div>
-                            
+
                             <div className="ml-5 w-[25%]">
                                 <FormField
                                     control={form.control}
@@ -518,14 +462,12 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
                         </div>
-
                         <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[10%]">
-                            { loading ? <Spinner className="text-white"/> : "Save" }
+                            {loading ? <Spinner className="text-white" /> : "Save"}
                         </Button>
                     </form>
                 </Form>
             </div>
         </div>
-    )
+    );
 }
-

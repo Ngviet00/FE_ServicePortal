@@ -11,7 +11,7 @@ interface User {
     userCode: string,
     IsActive?: number;
     isChangePassword?: number;
-    position?: number,
+    positionId?: number,
     roles?: IRole[],
 }
 

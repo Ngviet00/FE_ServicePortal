@@ -30,11 +30,11 @@ const NodeContent: React.FC<{ people: Person[]; positionId: number }> = ({
 	positionId,
 }) => (
 	<div style={nodeStyle}>
-		<strong>Position {positionId}</strong>
+		<strong>Position - {positionId}</strong>
 		<br />
 		{people.map((p) => (
 		<div key={p.usercode}>
-			{p.usercode} - PositionId: {p.positionId}
+			{p.usercode}
 		</div>
 		))}
 	</div>
