@@ -1,16 +1,20 @@
 .sidebar {
-    flex: 0 0 15%;
+    width: 270px;
+    min-width: 270px;
+    max-width: 270px;
     color: white;
     padding: 0px 5px 5px 10px;
     box-sizing: border-box;
-    transition: flex 0.3s ease, padding 0.3s ease;
+    transition: width 0.3s ease, padding 0.3s ease;
     overflow: hidden;
     overflow-y: auto;
     height: 100vh;
 }
 
 .sidebar.collapsed {
-    flex: 0 0 0%;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
     padding: 0;
 }
 
@@ -43,7 +47,7 @@
 }
 
 .submenu.open {
-    height: auto; 
+    height: auto;
     opacity: 1;
 }
 
@@ -59,7 +63,7 @@
     padding: 4px 0px;
 }
 
-.submenu li a span{
+.submenu li a span {
     padding-left: 30px;
 }
 
@@ -69,4 +73,13 @@
 
 .submenu-toggle.open {
     transform: rotate(180deg);
+}
+
+@media (max-width: 1024px) {
+    /* .sidebar {
+		width: 0;
+        min-width: 0;
+        max-width: 0;
+        padding: 0;
+    } */
 }

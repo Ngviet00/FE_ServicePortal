@@ -5,6 +5,8 @@ import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import "./css/Login.css"
+
 export default function RegisterPage() {
     const [user_code, setUserCode] = useState("")
     const [password, setPassword] = useState("");
@@ -34,7 +36,7 @@ export default function RegisterPage() {
 
     return (
         <>
-            <div className="flex min-h-full flex-1 flex-col justify-start py-12 lg:px-8 bg-white h-[100vh]">
+            <div className="flex min-h-full flex-1 flex-col justify-start py-12 lg:px-8 bg-white h-[100vh] register-page">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 <img
                     alt="VS Industry Viet Nam"

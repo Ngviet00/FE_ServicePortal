@@ -60,9 +60,9 @@ const OrgChartTree: React.FC = () => {
 	const { data: orgChartData, isLoading } = useQuery({
 		queryKey: ['get-org-chart', department],
 		queryFn: async () => {
-		if (department == null) return null;
-		const res = await userApi.orgChart(department);
-		return res.data.data as OrgChartNode;
+		if (department == null || isNaN(department) ) return null;
+			const res = await userApi.orgChart(department);
+			return res.data.data as OrgChartNode;
 		},
 		enabled: department != null,
 	});
@@ -120,7 +120,11 @@ const OrgChartTree: React.FC = () => {
 
 	if (isLoading) return <div>Đang tải sơ đồ tổ chức...</div>;
 
-	if (!filteredData) return <div>Không tìm thấy dữ liệu phù hợp.</div>;
+	if (!filteredData) {
+		//alert("Không tìm thấy dữ liệu phù hợp.")
+	}
+
+	// if (!filteredData)  return <div>Không tìm thấy dữ liệu phù hợp.</div>;
 
 	return (
 		<div style={{ padding: '20px' }}>
@@ -174,11 +178,15 @@ const OrgChartTree: React.FC = () => {
 				lineWidth="2px"
 				lineColor="#bbb"
 				lineBorderRadius="8px"
-				label={<NodeContent people={filteredData.people} positionId={filteredData.positionId} />}
+				label={<NodeContent people={filteredData?.people ?? []} positionId={filteredData?.positionId ?? 0} />}
 				>
-				{filteredData.children.map((child, idx) => (
-					<RenderNode key={idx} node={child} />
-				))}
+				{
+					filteredData?.children ? 
+						filteredData.children.map((child, idx) => (
+							<RenderNode key={idx} node={child} />
+						))
+					: "Not data"
+				}
 				</Tree>
 			</div>
 		</div>

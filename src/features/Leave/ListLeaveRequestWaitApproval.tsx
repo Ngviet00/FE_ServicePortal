@@ -181,9 +181,9 @@ export default function ListLeaveRequestWaitApproval () {
                                             <TableCell className="text-left">{formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                             <TableCell className="text-left">
                                                 {
-                                                    hasHRRole ? (
+                                                    hasHRRole && item.approvalRequest?.currentPositionId == -10 ? (
                                                         <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
-                                                            Xong
+                                                            Đăng ký
                                                         </Button>
                                                     ) : (
                                                         <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">

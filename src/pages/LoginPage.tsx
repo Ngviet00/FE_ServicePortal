@@ -6,10 +6,11 @@ import { useNavigate } from "react-router-dom";
 
 import authApi from "@/api/authApi";
 import axios from "axios"
+import "./css/Login.css"
 
 export default function LoginPage() {
     const [user_code, setEmployeeCode] = useState("")
-    const [password, setPassword] = useState("");
+    const [password, setPassword] = useState("123456");
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -41,7 +42,7 @@ export default function LoginPage() {
 
     return (
         <>
-            <div className="flex min-h-full flex-1 flex-col justify-start h-[100vh] py-12 lg:px-8 bg-white">
+            <div className="flex min-h-full flex-1 flex-col justify-start h-[100vh] py-12 lg:px-8 bg-white login-page">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <img
                         alt="VS Industry Viet Nam"

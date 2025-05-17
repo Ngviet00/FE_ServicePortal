@@ -50,9 +50,9 @@ export default function MainLayout({ children }: Props) {
 			<Sidebar />
 			<div className="main dark:bg-[#1b1b1f]">
 				<Header/>
-                <div className="overflow-y-auto mt-3 ml-3 min-h-[95%]">
+                <div className="wrap-main-layout overflow-y-auto mt-2 mx-2 min-h-[95%]">
                     <BreadCrumbComponent/>
-                    <div className="main-content mt-3 bg-white dark:bg-[#454545] min-h-[90%]">
+                    <div className="main-content mt-2 bg-white dark:bg-[#454545] min-h-[90%]">
                         {children}
                     </div>
                 </div>

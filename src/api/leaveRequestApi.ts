@@ -15,6 +15,10 @@ export interface LeaveRequestData {
     image?: string | null,
     urlFrontend: string | null,
     createdAt?: string | null,
+    approvalRequest?: {
+        currentPositionId: number | null,
+        status: string | null
+    },
     approvalAction?: {
         approverUserCode: string | null,
         approverName: string | null,

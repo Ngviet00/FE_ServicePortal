@@ -5,82 +5,86 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { formatDate } from '@/lib';
 
+import "./css/Homepage.css"
+
 export default function HomePage() {
     const { t } = useTranslation();
     const { user } = useAuthStore();
 
     return (
-        <div className="p-4 pl-1 pt-0 space-y-4">
+        <div className="p-1 pt-0 home-page">
             <div className="flex justify-between mb-3">
-                <h3 className="font-bold text-2xl m-0 pb-2">{t('home_page.home_page')}</h3>
+                <h3 className="title font-bold text-2xl m-0 pb-2">{t('home_page.home_page')}</h3>
             </div>
 
-            <div className='wrap-home-page h-[200px] rounded-3xl flex bg-[#f3f4ff]'>
-                <div className='w-[20%] bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
-                    <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
-                    <div>
-                        <Label className='text-base font-bold dark:text-white'>{user?.sex == 1? t('home_page.sex.male') : t('home_page.sex.female')}</Label>
+            <div className="wrap-home-page rounded-3xl bg-[#f3f4ff] flex flex-col md:flex-row md:h-[240px]">
+                <div className="wrap-avatar w-[20%]">
+                    <div className='bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
+                        <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
+                        <div>
+                            <Label className='text-base font-bold dark:text-white'>{user?.sex == 1? t('home_page.sex.male') : t('home_page.sex.female')}</Label>
+                        </div>
                     </div>
                 </div>
-                <div className='py-4 px-2 flex flex-1 bg-[#f3f4ff] dark:bg-[#454545]'>
-                    <div className='w-[50%] flex justify-around'>
+                <div className="py-4 px-2 flex-1 bg-[#f3f4ff] dark:bg-[#454545] flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 flex justify-around wrap-info-1">
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.code')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.code')}</label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.dob')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.dob')}</label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.phone')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.phone')}</label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.position')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.position')}</label>
                             </div>
                         </div>
                         <div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.userCode ?? "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='text-base font-bold'>{user?.userCode ?? "--"}</label>
                             </div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.date_of_birth ? formatDate(user?.date_of_birth) : "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='truncate max-w-[150px] text-base font-bold'>{user?.date_of_birth ? formatDate(user?.date_of_birth) : "02/05/2000"}</label>
                             </div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.phone ? user.phone : "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='text-base font-bold'>{user?.phone ? user.phone : "0345248120"}</label>
                             </div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.position ?? "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='text-base font-bold'>{user?.position ?? "Staff"}</label>
                             </div>
                         </div>
                     </div>
 
-                    <div className='flex-1 flex justify-around'>
+                    <div className='flex-1 flex justify-around wrap-info-2'>
                         <div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.name')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.name')}</label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.email')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.email')}</label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.date_join_company')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.date_join_company')}</label>
                             </div>
                             <div className='mb-5'>
-                                <Label className='text-base text-gray-500 dark:text-white'>{t('home_page.department')}</Label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.department')}</label>
                             </div>
                         </div>
                         <div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.name ?? "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='text-base font-bold'>{user?.name ?? "Nguyen Van Viet"}</label>
                             </div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.email ?? "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='text-base font-bold'>{user?.email ?? "nguyenviet@vsvn.com.vn"}</label>
                             </div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.date_join_company ? formatDate(user?.date_join_company) : "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='text-base font-bold'>{user?.date_join_company ? formatDate(user?.date_join_company) : "01/04/2025"}</label>
                             </div>
-                            <div className='mb-5'>
-                                <Label className='text-base font-bold'>{user?.department?.name ?? "--"}</Label>
+                            <div className='mb-5 truncate max-w-[200px]'>
+                                <label className='text-base font-bold'>{user?.department?.name ?? "MIS/IT"}</label>
                             </div>
                         </div>
                     </div>
@@ -88,14 +92,14 @@ export default function HomePage() {
             </div>
 
             <div className='flex mt-5'>
-                <div className='link-function ml-5 flex-1'>
+                <div className='link-function flex-1'>
                     <Tabs defaultValue="account" className="w-[100%] h-full hover:cursor-pointer">
                         <TabsList className='mb-3'>
                             <TabsTrigger value="account" className="hover:cursor-pointer w-[150px]">Leave</TabsTrigger>
                         </TabsList>
                         <TabsContent value="account">
                             <div className='flex flex-wrap'>
-                                <div className='w-[31%] mr-5 border border-gray-300 rounded-2xl'>
+                                <div className="w-full sm:w-[48%] md:w-[31%] mb-4 mr-0 md:mr-5 border border-gray-300 rounded-2xl">
                                     <span className="flex justify-between p-1 align-middle">
                                         <span className='p-1'>
                                             <Label className='text-sm'>{t('home_page.path')}</Label>

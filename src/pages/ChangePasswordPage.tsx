@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import "./css/Login.css";
 
 export default function ChangePasswordPage() {
     const { t } = useTranslation();
@@ -46,7 +47,7 @@ export default function ChangePasswordPage() {
     };
 
     return <>
-        <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white">
+        <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white change-password-page">
             <h2 className="font-bold text-2xl mb-3">{t('change_password.change_password')}</h2>
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 {successMsg && <AlertSuccess message={successMsg} />}

@@ -43,7 +43,7 @@ export default function Header() {
             </button>
             <div style={{ height: "40px"}} className='flex items-center'>
 
-                <div className="mr-3">
+                <div className="mr-3 display-none">
                     { darkMode ? 
                         <Moon className="dark:text-white hover:cursor-pointer" onClick={handDarkMode}/>
                          : <Sun className="dark:text-white hover:cursor-pointer" onClick={handDarkMode}/>}
@@ -55,7 +55,7 @@ export default function Header() {
                     { user?.userCode ?? "Not set" }
                 </div>
 
-                <div className="pr-7 flex items-center">
+                <div className="flex items-center avatar-dropdown">
                     <AvatarDropdown/>
                 </div>
             </div>

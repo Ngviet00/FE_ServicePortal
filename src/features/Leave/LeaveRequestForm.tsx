@@ -13,7 +13,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
@@ -22,12 +22,13 @@ import { useAuthStore } from "@/store/authStore";
 import { Spinner } from "@/components/ui/spinner";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import { AxiosError } from "axios";
-import { ShowToast, TIME_LEAVE } from "@/lib";
+import { getErrorMessage, ShowToast, TIME_LEAVE } from "@/lib";
 import { Checkbox } from "@/components/ui/checkbox";
 import typeLeaveApi from "@/api/typeLeaveApi";
 import { useQuery } from "@tanstack/react-query";
 import { ITypeLeave } from "../TypeLeave/ListTypeLeave";
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi";
+import userConfigApi from "@/api/userConfigApi";
 
 const formSchema = z.object({
     user_code: z.string().nonempty({ message: "Required" }),
@@ -70,6 +71,7 @@ export default function LeaveRequestForm() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { user } = useAuthStore();
+    const [checkReceiveEmail, setCheckReceiveEmail] = useState(false);
 
     const { id } = useParams<{ id: string }>();
     const isEdit = !!id;
@@ -133,14 +135,49 @@ export default function LeaveRequestForm() {
         },
     });
 
+    //get status if receive email or not
+    const { data: receiveEmail } = useQuery({
+        queryKey: ['get-email-by-usercode-and-key'],
+        queryFn: async () => {
+            const res = await userConfigApi.getConfigByUsercodeAndkey({ userCode: user?.userCode, key: "RECEIVE_MAIL_LEAVE_REQUEST" });
+            console.log(res.data.data, 22);
+            return res.data.data;
+        },
+    });
+
+    useEffect(() => {
+        if (receiveEmail) {
+            setCheckReceiveEmail(receiveEmail.configValue == "true")
+        } else {
+            setCheckReceiveEmail(true);
+        }
+    }, [receiveEmail])
+
+    const handleCheckChange = async (checked: boolean) => {
+        try {
+            await userConfigApi.saveOrUpdate({
+                userCode: user?.userCode,
+                configKey: "RECEIVE_MAIL_LEAVE_REQUEST",
+                configValue: checked ? "true" : "false",
+            });
+            setCheckReceiveEmail(checked)
+            ShowToast("Success", "success")
+        } catch (error) {
+            ShowToast(getErrorMessage(error), "error")
+        }
+    }
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <div className="flex content-center items-center">
                     <h3 className="font-bold text-2xl">{isEdit ? "Sửa" : "Đăng ký"} nghỉ phép</h3>
-                    <Checkbox checked id="receive-mail" className="ml-4 hover:cursor-pointer w-[25px] h-[25px]" />
+                    <Checkbox
+                        checked={checkReceiveEmail}
+                        onCheckedChange={(checked) => handleCheckChange(!!checked)}
+                        id="receive-mail" className="ml-4 hover:cursor-pointer w-[25px] h-[25px]" />
                     <label htmlFor="receive-mail" className="hover:cursor-pointer ml-1 text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                        Nhận thông báo
+                        Nhận thông báo qua email
                      </label>
                 </div>
                 <Button onClick={() => navigate("/leave")}>

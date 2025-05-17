@@ -1,0 +1,54 @@
+@media (max-width: 1024px) {
+
+}
+
+@media (max-width: 862px) {
+    .wrap-home-page label {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 767px) {
+    .home-page .wrap-avatar {
+        width: 100%;
+    }
+
+    .home-page .wrap-info-1 > div, .home-page .wrap-info-2 > div {
+        width: 150px;
+    }
+
+    .home-page label {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-page label {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 320px) {
+    .home-page label {
+        font-size: 14px;
+    }
+
+    .home-page {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .home-page .title {
+        padding-left: 10px;
+    }
+
+    .home-page .link-function {
+        padding: 0px 5px;
+    }
+}
+
+@media (max-width: 240px) {
+    .home-page label {
+        font-size: 13px;
+    }
+}

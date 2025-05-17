@@ -1,0 +1,9 @@
+@media (max-width: 640px) {
+    .login-page, .register-page {
+		  padding: 20px
+    }
+
+    .change-password-page {
+        padding-left: 4px;
+    }
+}
