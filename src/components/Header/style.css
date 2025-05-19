@@ -1,7 +1,7 @@
 .header {
     padding: 5px 10px;
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -14,9 +14,20 @@
     color: black;
     border: none;
     outline: none;
+    display: none;
 }
 
 .header .toggle-btn:focus {
     border: none;
     outline: none;
+}
+
+@media (max-width: 1024px) {
+    .header {
+        justify-content: space-between;
+    }
+
+    .header .toggle-btn {
+        display: block;
+    }
 }

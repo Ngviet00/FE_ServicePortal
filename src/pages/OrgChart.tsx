@@ -49,7 +49,7 @@ const RenderNode: React.FC<{ node: OrgChartNode }> = ({ node }) => (
 );
 
 const OrgChartTree: React.FC = () => {
-	const [searchQuery, setSearchQuery] = useState<string>('');
+	const [searchQuery] = useState<string>('');
 	const [zoom, setZoom] = useState<number>(1);
 	const [isDragging, setIsDragging] = useState<boolean>(false);
 	const [offset, setOffset] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
@@ -67,27 +67,23 @@ const OrgChartTree: React.FC = () => {
 		enabled: department != null,
 	});
 
-	const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchQuery(e.target.value);
-	};
-
   	// Hàm filter theo usercode hoặc positionId (string)
 	const filterTree = (node: OrgChartNode): OrgChartNode | null => {
 		const filteredChildren = node.children
-		.map(filterTree)
-		.filter((child): child is OrgChartNode => child !== null);
+			.map(filterTree)
+			.filter((child): child is OrgChartNode => child !== null);
 
 		// Kiểm tra người trong node có match search query?
 		const matchPeople = node.people.some(p =>
-		p.usercode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-		p.positionId.toString().includes(searchQuery)
+			p.usercode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			p.positionId.toString().includes(searchQuery)
 		);
 
 		if (matchPeople || filteredChildren.length > 0) {
-		return {
-			...node,
-			children: filteredChildren,
-		};
+			return {
+				...node,
+				children: filteredChildren,
+			};
 		}
 
 		return null;
@@ -143,15 +139,6 @@ const OrgChartTree: React.FC = () => {
 					<option value="2">MIS/IT</option>
 					<option value="3">Sản xuất</option>
 				</select>
-				</div>
-				<div className="flex-1 ml-3">
-				<input
-					type="text"
-					className="border-gray-300 border rounded-[3px] w-full p-2"
-					value={searchQuery}
-					onChange={handleSearch}
-					placeholder="Tìm kiếm usercode hoặc positionId..."
-				/>
 				</div>
 			</div>
 

@@ -1,3 +1,9 @@
+.wrap-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 @media (max-width: 1024px) {
 
 }
@@ -11,6 +17,7 @@
 @media (max-width: 767px) {
     .home-page .wrap-avatar {
         width: 100%;
+        padding-top: 10px;
     }
 
     .home-page .wrap-info-1 > div, .home-page .wrap-info-2 > div {

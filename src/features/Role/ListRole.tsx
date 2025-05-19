@@ -86,7 +86,7 @@ export default function ListRole () {
     };
 
     return (
-        <div className="p-4 pl-1 pt-0 space-y-4">
+        <div className="p-4 pl-1 pt-0 list-role">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">Roles</h3>
                 <CreateRoleComponent onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
@@ -101,9 +101,9 @@ export default function ListRole () {
                 />
             </div>
 
-            <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
-                <div className="max-h-[450px] overflow-y-auto">
-                    <Table>
+            <div className="my-5 relative shadow-md sm:rounded-lg pb-3">
+                <div className="max-h-[450px] w-full overflow-x-auto">
+                    <Table className="min-w-[1024px] w-full">
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-[20px] text-left">ID</TableHead>

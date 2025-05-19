@@ -5,8 +5,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { useNavigate } from "react-router-dom";
 
 import authApi from "@/api/authApi";
-import axios from "axios"
 import "./css/Login.css"
+import { getErrorMessage } from "@/lib";
 
 export default function LoginPage() {
     const [user_code, setEmployeeCode] = useState("")
@@ -28,12 +28,7 @@ export default function LoginPage() {
             navigate("/")
         }
         catch (err) {
-            const msg =
-                axios.isAxiosError(err)
-                    ? err.response?.data?.message ||
-                      (err.request ? "Server error" : err.message)
-                    : "Login failed";
-            setErrorMsg(msg);
+            setErrorMsg(getErrorMessage(err))
         }
         finally {
             setLoading(false);

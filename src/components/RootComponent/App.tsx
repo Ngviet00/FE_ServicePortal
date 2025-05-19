@@ -14,7 +14,6 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import RedirectIfAuthenticated from '@/routes/IsAuthenticated';
 import PrivateRoute from '@/routes/PrivateRoute';
-import CreateUserForm from '@/features/User/CreateUserForm';
 import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
 import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 import OrgChart from '@/pages/OrgChart';
@@ -51,8 +50,6 @@ function App() {
 		{ path: "/department/edit/:id", element: <DepartmentForm />, allowedRoles: ['HR', 'HR_Manager'] },
 
 		{ path: "/user", element: <ListUser />, allowedRoles: ['HR', 'HR_Manager'] },
-		{ path: "/user/create", element: <CreateUserForm />, allowedRoles: ['HR', 'HR_Manager'] },
-		{ path: "/user/edit/:code", element: <CreateUserForm />, allowedRoles: ['HR', 'HR_Manager'] },
 		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: ['HR', 'HR_Manager'] },
 
 		{ path: "/leave", element: <ListLeaveRequest/> },

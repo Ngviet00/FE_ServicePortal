@@ -6,12 +6,15 @@ import { useSidebarStore } from "@/store/sidebarStore"
 import "./style.css"
 import AvatarDropdown from "./components/AvatarDropdown"
 import { useEffect, useState } from "react"
+import { useAppStore } from "@/store/appStore"
 
 export default function Header() {
     const { user } = useAuthStore();
     const handleToggleSidebar = useSidebarStore((s) => s.toggleSidebar);
 
     const [darkMode, setDarkMode] = useState(false);
+
+    const numberWait = useAppStore((state) => state.numberWait);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
@@ -38,8 +41,11 @@ export default function Header() {
 
     return (
         <header className="header bg-white dark:bg-[#1b1b1f]">
-            <button className="toggle-btn" onClick={handleToggleSidebar}>
+            <button className="toggle-btn relative" onClick={handleToggleSidebar}>
                 <Menu className="dark:text-white"/>
+                {
+                    numberWait > 0 ? <span className="absolute w-[15px] h-[15px] bg-red-500 rounded-[50%] text-[11px] text-white top-[0px] left-[15px]"></span> : ""
+                }
             </button>
             <div style={{ height: "40px"}} className='flex items-center'>
 

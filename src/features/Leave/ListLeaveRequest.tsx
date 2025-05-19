@@ -97,127 +97,141 @@ export default function ListLeaveRequest () {
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
-            <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">List leave request</h3>
-                <Button>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                <h3 className="font-bold text-xl md:text-2xl m-0">List leave request</h3>
+                <Button asChild className="w-full md:w-auto">
                     <Link to="/leave/create">Create leave request</Link>
                 </Button>
             </div>
 
-            <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
-                <div className="max-h-[450px]">
-                    {/*   onValueChange={setTab} */}
+            <div className="mb-5 shadow-md sm:rounded-lg pb-3">
+                <div className="p-3">
                     <Tabs defaultValue="1" className="w-full" onValueChange={handleChangeFilter}>
-                        <TabsList style={{margin: '0px auto'}} className="mb-5 h-[40px]">
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-gray-200 text-gray-600" value="PENDING">
-                                Pending
-                                {
-                                    countPending > 0 ? (
-                                        <span className="text-red-500">({countPending})</span>
-                                    ) : (<></>)
-                                }  
+                        <TabsList className="mb-5 flex flex-wrap justify-center gap-2 p-0">
+                            <TabsTrigger
+                            className="min-w-[120px] px-3 py-1 text-sm bg-gray-200 text-gray-600 hover:cursor-pointer"
+                            value="PENDING"
+                            >
+                            Pending
+                            {countPending > 0 && <span className="ml-1 text-red-500">({countPending})</span>}
                             </TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-yellow-200 text-yellow-600" value="IN_PROCESS">
-                                In-Process
-                                {
-                                    countInProcess > 0 ? (
-                                        <span className="text-red-500">({countInProcess})</span>
-                                    ) : (<></>)
-                                }  
+
+                            <TabsTrigger
+                            className="min-w-[120px] px-3 py-1 text-sm bg-yellow-200 text-yellow-600 hover:cursor-pointer"
+                            value="IN_PROCESS"
+                            >
+                            In-Process
+                            {countInProcess > 0 && <span className="ml-1 text-red-500">({countInProcess})</span>}
                             </TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-green-200 text-green-600" value="COMPLETED">Complete</TabsTrigger>
-                            <TabsTrigger className="w-[150px] hover:cursor-pointer bg-red-200 text-red-600" value="REJECT">Reject</TabsTrigger>
+
+                            <TabsTrigger
+                            className="min-w-[120px] px-3 py-1 text-sm bg-green-200 text-green-600 hover:cursor-pointer"
+                            value="COMPLETED"
+                            >
+                            Complete
+                            </TabsTrigger>
+
+                            <TabsTrigger
+                            className="min-w-[120px] px-3 py-1 text-sm bg-red-200 text-red-600 hover:cursor-pointer"
+                            value="REJECT"
+                            >
+                            Reject
+                            </TabsTrigger>
                         </TabsList>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[100px] text-left">User Code</TableHead>
-                                        <TableHead className="w-[150px] text-left">Name</TableHead>
-                                        <TableHead className="w-[130px] text-left">Department</TableHead>
-                                        <TableHead className="w-[100px] text-left">Position</TableHead>
-                                        <TableHead className="w-[150px] text-left">From</TableHead>
-                                        <TableHead className="w-[150px] text-left">To</TableHead>
-                                        <TableHead className="w-[120px] text-left">Type leave</TableHead>
-                                        <TableHead className="w-[120px] text-left">Time leave</TableHead>
-                                        <TableHead className="w-[200px] text-center">Reason</TableHead>
-                                        <TableHead className="w-[120px] text-center">{filterStatus == "REJECT" ? "Reject By" : "Approve By"}</TableHead>
-                                        <TableHead className="w-[50px] text-left">{filterStatus == "PENDING" ? "Created at" : filterStatus == "REJECT" ? "Reject At" : "Approved At"}</TableHead>
-                                        <TableHead className={`w-[${filterStatus == "REJECT" ? "120px" : "70px"}] text-left`}>
-                                            {filterStatus == "REJECT" ? "Reason" : "Status"}
-                                        </TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    { isPending ? (
-                                         Array.from({ length: 3 }).map((_, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[180px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[130px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                                <TableCell className="w-[80px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
-                                                <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
-                                            </TableRow>
-                                         ))
-                                    ) : isError || leaveRequests.length == 0 ? (
-                                        <TableRow>
-                                            <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        leaveRequests.map((item: LeaveRequestData) => (
-                                                <TableRow key={item.id}>
-                                                    <TableCell className="font-medium text-left">{item?.requesterUserCode}</TableCell>
-                                                    <TableCell className="text-left">{item?.name}</TableCell>
-                                                    <TableCell className="text-left">{item?.department}</TableCell>
-                                                    <TableCell className="text-left">{item?.position}</TableCell>
-                                                    <TableCell className="text-left">{formatDate(item?.fromDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                                    <TableCell className="text-left">{formatDate(item?.toDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                                    <TableCell className="text-left">{getEnumName(item?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
-                                                    <TableCell className="text-left">{getEnumName(item?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
-                                                    <TableCell className="text-center">{item?.reason}</TableCell>
-                                                    <TableCell className="text-center text-red-800 font-bold">{item?.approvalAction?.approverName ?? "--"}</TableCell>
-                                                    <TableCell className="text-left">
-                                                        {
-                                                            item?.approvalAction?.createdAt ? formatDate(item.approvalAction.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")
-                                                            : formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell className="text-left">
-                                                        {
-                                                            //reject
-                                                            filterStatus == "REJECT" ? (
-                                                                <span
-                                                                    className={`${item.approvalAction?.comment ? "text-red-500" : "text-black"} font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
-                                                                    title={item.approvalAction?.comment ?? ""}
-                                                                >
-                                                                    {item.approvalAction?.comment ? item.approvalAction.comment : "--"}
-                                                                </span>
-                                                            ) : (
-                                                                <>
-                                                                    {
-                                                                        filterStatus == "PENDING" ? (<>
-                                                                            <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] h-[23.98px]">Edit</Link>
-                                                                            <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")}/>
-                                                                        </>
-                                                                        ) : (<StatusLeaveRequest status={item?.approvalAction?.action ? item.approvalAction.action : "PENDING" }/>)
-                                                                    }
-                                                                </>
-                                                            )
-                                                        }
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        )
-                                    }
-                                </TableBody>
-                            </Table>
                     </Tabs>
+                </div>
+
+                <div className="overflow-x-auto max-h-[500px] mt-8">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[100px] text-left">User Code</TableHead>
+                                <TableHead className="w-[150px] text-left">Name</TableHead>
+                                <TableHead className="w-[130px] text-left">Department</TableHead>
+                                <TableHead className="w-[100px] text-left">Position</TableHead>
+                                <TableHead className="w-[150px] text-left">From</TableHead>
+                                <TableHead className="w-[150px] text-left">To</TableHead>
+                                <TableHead className="w-[120px] text-left">Type leave</TableHead>
+                                <TableHead className="w-[120px] text-left">Time leave</TableHead>
+                                <TableHead className="w-[200px] text-center">Reason</TableHead>
+                                <TableHead className="w-[120px] text-center">{filterStatus == "REJECT" ? "Reject By" : "Approve By"}</TableHead>
+                                <TableHead className="w-[50px] text-left">{filterStatus == "PENDING" ? "Created at" : filterStatus == "REJECT" ? "Reject At" : "Approved At"}</TableHead>
+                                <TableHead className={`w-[${filterStatus == "REJECT" ? "120px" : "70px"}] text-left`}>
+                                    {filterStatus == "REJECT" ? "Reason" : "Status"}
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+
+                        <TableBody>
+                            { isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[180px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[130px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[200px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[80px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[50px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300 text-center" /></div></TableCell>
+                                    </TableRow>
+                                    ))
+                            ) : isError || leaveRequests.length == 0 ? (
+                                <TableRow>
+                                    <TableCell className={`text-red-700 font-medium text-left dark:text-white`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
+                                </TableRow>
+                            ) : (
+                                leaveRequests.map((item: LeaveRequestData) => (
+                                        <TableRow key={item.id}>
+                                            <TableCell className="font-medium text-left">{item?.requesterUserCode}</TableCell>
+                                            <TableCell className="text-left">{item?.name}</TableCell>
+                                            <TableCell className="text-left">{item?.department}</TableCell>
+                                            <TableCell className="text-left">{item?.position}</TableCell>
+                                            <TableCell className="text-left">{formatDate(item?.fromDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                            <TableCell className="text-left">{formatDate(item?.toDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                            <TableCell className="text-left">{getEnumName(item?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
+                                            <TableCell className="text-left">{getEnumName(item?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                            <TableCell className="text-center">{item?.reason}</TableCell>
+                                            <TableCell className="text-center text-red-800 font-bold">{item?.approvalAction?.approverName ?? "--"}</TableCell>
+                                            <TableCell className="text-left">
+                                                {
+                                                    item?.approvalAction?.createdAt ? formatDate(item.approvalAction.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")
+                                                    : formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")
+                                                }
+                                            </TableCell>
+                                            <TableCell className="text-left">
+                                                {
+                                                    //reject
+                                                    filterStatus == "REJECT" ? (
+                                                        <span
+                                                            className={`${item.approvalAction?.comment ? "text-red-500" : "text-black"} font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
+                                                            title={item.approvalAction?.comment ?? ""}
+                                                        >
+                                                            {item.approvalAction?.comment ? item.approvalAction.comment : "--"}
+                                                        </span>
+                                                    ) : (
+                                                        <>
+                                                            {
+                                                                filterStatus == "PENDING" ? (<>
+                                                                    <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] h-[23.98px]">Edit</Link>
+                                                                    <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")}/>
+                                                                </>
+                                                                ) : (<StatusLeaveRequest status={item?.approvalAction?.action ? item.approvalAction.action : "PENDING" }/>)
+                                                            }
+                                                        </>
+                                                    )
+                                                }
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )
+                            }
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
             {

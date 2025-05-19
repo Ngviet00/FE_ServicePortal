@@ -49,7 +49,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             name: "",
-            modified_by: user?.name
+            modified_by: user?.userCode
         },
     })
 
@@ -65,7 +65,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
         try {
             const data = {
                 name: values.name,
-                modified_by: user?.name
+                modified_by: user?.userCode
             }
             console.log(data, 22);
             if (typeLeave?.id) {

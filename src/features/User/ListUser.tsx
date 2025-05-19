@@ -4,9 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { formatDate, getErrorMessage, ShowToast, useDebounce } from "@/lib"
+import { getErrorMessage, ShowToast, useDebounce } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import userApi, { ListUserData } from "@/api/userApi"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -174,20 +173,15 @@ export default function ListUser () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">User</h3>
-                <Button>
-                    <Link to="/user/create">Create User</Link>
-                </Button>
             </div>
 
             <div className="flex items-center justify-start">
-                <div className="w-[17%]">
-                    <Input
-                        placeholder="Tìm kiếm tên, email, số điện thoaị..."
-                        value={name}
-                        onChange={handleSearchByName}
-                        className="max-w-sm"
-                    />
-                </div>
+                <Input
+                    placeholder="Tìm kiếm"
+                    value={name}
+                    onChange={handleSearchByName}
+                    className="w-full"
+                />
             </div>
 
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
@@ -230,13 +224,13 @@ export default function ListUser () {
                                 users.map((item: ListUserData) => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium text-left">{item?.userCode}</TableCell>
-                                            <TableCell className="text-left">{item?.name ?? "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.department?.name ?? "--"}</TableCell>
-                                            <TableCell className="text-left">{item.position ? item.position : "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.sex == 1 ? "Nam" : "Nữ"}</TableCell>
-                                            <TableCell className="text-left">{item.phone ? item.phone : "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.email ?? "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.date_join_company ? formatDate(item.date_join_company ?? "", "dd/MM/yyyy") : "--"}</TableCell>
+                                            <TableCell className="text-left">--</TableCell>
+                                            <TableCell className="text-left">--</TableCell>
+                                            <TableCell className="text-left">--</TableCell>
+                                            <TableCell className="text-left">Nam</TableCell>
+                                            <TableCell className="text-left">--</TableCell>
+                                            <TableCell className="text-left">--</TableCell>
+                                            <TableCell className="text-left">--</TableCell>
                                             <TableCell className="text-left">
                                                 {
                                                     isSuperAdmin ? (<>

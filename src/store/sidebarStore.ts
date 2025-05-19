@@ -4,6 +4,7 @@ import { SIDEBAR_MENUS } from "@/lib/sidebar";
 type SidebarMenuKey = NonNullable<typeof SIDEBAR_MENUS[number]["key"]>;
 
 interface SidebarState {
+	closeSidebar: () => void;
 	setVisibleSubmenuByPath: (path: string) => void;
 	isOpen: boolean;
 	submenusVisible: Record<SidebarMenuKey, boolean>;
@@ -19,7 +20,7 @@ const initialSubmenusVisible = SIDEBAR_MENUS.reduce((acc, item) => {
 }, {} as Record<SidebarMenuKey, boolean>);
 
 export const useSidebarStore = create<SidebarState>((set, get) => ({
-	isOpen: true,
+	isOpen: false,
 	submenusVisible: initialSubmenusVisible,
 
 	toggleSidebar: () => {
@@ -27,6 +28,13 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
 		set({
 			isOpen: next,
 			submenusVisible: next ? get().submenusVisible : initialSubmenusVisible,
+		});
+	},
+
+	closeSidebar: () => {
+		set({
+			isOpen: false,
+			submenusVisible: initialSubmenusVisible,
 		});
 	},
 

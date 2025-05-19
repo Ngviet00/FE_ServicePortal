@@ -9,13 +9,11 @@
     overflow: hidden;
     overflow-y: auto;
     height: 100vh;
+    z-index: 41;
 }
 
 .sidebar.collapsed {
-    width: 0;
-    min-width: 0;
-    max-width: 0;
-    padding: 0;
+    left: 0;
 }
 
 .sidebar-link {
@@ -75,11 +73,17 @@
     transform: rotate(180deg);
 }
 
+.sidebar .toggle-btn-mobile {
+    display: none;
+}
+
 @media (max-width: 1024px) {
-    /* .sidebar {
-		width: 0;
-        min-width: 0;
-        max-width: 0;
-        padding: 0;
-    } */
+    .sidebar {
+        position: absolute;
+        left: -270px;
+    }
+
+    .sidebar .toggle-btn-mobile {
+        display: block;
+    }
 }

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
-import { formatDate } from '@/lib';
 
 import "./css/Homepage.css"
 
@@ -22,7 +21,7 @@ export default function HomePage() {
                     <div className='bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                         <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                         <div>
-                            <Label className='text-base font-bold dark:text-white'>{user?.sex == 1? t('home_page.sex.male') : t('home_page.sex.female')}</Label>
+                            <Label className='text-base font-bold dark:text-white'>{t('home_page.sex.male')}</Label>
                         </div>
                     </div>
                 </div>
@@ -47,13 +46,13 @@ export default function HomePage() {
                                 <label className='text-base font-bold'>{user?.userCode ?? "--"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='truncate max-w-[150px] text-base font-bold'>{user?.date_of_birth ? formatDate(user?.date_of_birth) : "02/05/2000"}</label>
+                                <label className='truncate max-w-[150px] text-base font-bold'>{"02/05/2000"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{user?.phone ? user.phone : "0345248120"}</label>
+                                <label className='text-base font-bold'>{"0345248120"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{user?.position ?? "Staff"}</label>
+                                <label className='text-base font-bold'>{"Staff"}</label>
                             </div>
                         </div>
                     </div>
@@ -75,16 +74,16 @@ export default function HomePage() {
                         </div>
                         <div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{user?.name ?? "Nguyen Van Viet"}</label>
+                                <label className='text-base font-bold'>{"Nguyen Van Viet"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{user?.email ?? "nguyenviet@vsvn.com.vn"}</label>
+                                <label className='text-base font-bold'>{"nguyenviet@vsvn.com.vn"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{user?.date_join_company ? formatDate(user?.date_join_company) : "01/04/2025"}</label>
+                                <label className='text-base font-bold'>{"01/04/2025"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{user?.department?.name ?? "MIS/IT"}</label>
+                                <label className='text-base font-bold'>{"MIS/IT"}</label>
                             </div>
                         </div>
                     </div>

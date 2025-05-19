@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, Dot, House, LockKeyhole, Ticket } from "lucide-react";
+import { ChevronDown, Dot, House, LockKeyhole, Ticket, X } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,11 +9,17 @@ import leaveRequestApi from "@/api/leaveRequestApi";
 
 import "./style.css";
 import useHasRole from "../../hooks/HasRole";
+import useIsReponsive from "@/hooks/IsResponsive";
+import { useAppStore } from "@/store/appStore";
 
 export default function Sidebar() {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const currentPath = location.pathname;
+
+	const closeSidebar = useSidebarStore((s) => s.closeSidebar)
+
+	const setNumberWait = useAppStore((state) => state.setNumberWait);
 
 	const {
 		isOpen,
@@ -39,6 +45,7 @@ export default function Sidebar() {
 			const res = await leaveRequestApi.countWaitApprovalLeaveRequest({
 				positionId: user?.positionId
 			});
+			setNumberWait(res.data.data ?? 0)
 			return res.data.data;
 		},
 	});
@@ -47,12 +54,23 @@ export default function Sidebar() {
 
 	const isSuperAdmin = useHasRole(['superadmin']);
 
+	const isMobile = useIsReponsive();
+
+	useEffect(() => {
+		if (isMobile) {
+			closeSidebar()
+		}
+	}, [location.pathname, isMobile, closeSidebar])
+
 	return (
-		<div className={`sidebar ${isOpen ? "" : "collapsed"} bg-white dark:bg-[#1b1b1f] w-[250px]`}>
-			<div>
-				<a href="/">
+		<div className={`sidebar ${!isOpen ? "" : "collapsed"} bg-white dark:bg-[#1b1b1f] w-[250px]`}>
+			<div className="relative">
+				<a href="/" className="inline-block">
 					<img src="/logo.png" alt="Logo" style={{ height: "80px" }} />
 				</a>
+				<button className="toggle-btn-mobile hover:cursor-pointer absolute top-[45%] right-2" onClick={closeSidebar}>
+					<X className="text-black"/>
+				</button>
 			</div>
 
 			<hr className="mt-1" />
@@ -118,7 +136,7 @@ export default function Sidebar() {
 										<span>{t("Sơ đồ tổ chức")}</span>
 									</Link>
 								</li>
-								{
+								{/* {
 									isSuperAdmin && (
 										<li className={`text-blue-900 ${currentPath === "/approval-flow" ? "bg-[#e3e3e3]" : ""}`}>
 											<Link to="/approval-flow" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/approval-flow' ? 'dark:text-black' : 'dark:text-white'}`}>
@@ -127,7 +145,7 @@ export default function Sidebar() {
 											</Link>
 										</li>
 									)
-								}
+								} */}
 							</ul>
 						</div>
 					</>)

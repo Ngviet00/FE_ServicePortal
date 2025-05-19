@@ -163,7 +163,7 @@ export default function ListLeaveRequestWaitApproval () {
                                     ))
                             ) : isError || leaveRequests.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={12}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`text-red-700 font-medium text-left dark:text-white`} colSpan={12}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (
@@ -208,7 +208,7 @@ export default function ListLeaveRequestWaitApproval () {
                                 }
                                 setNote("")
                             }}>
-                            <DialogContent className="sm:max-w-[50%] h-[650px] flex flex-col">
+                            <DialogContent className="sm:max-w-[600px] max-w-full max-h-[90vh] h-auto flex flex-col overflow-auto">
                                 <DialogHeader>
                                     <DialogTitle></DialogTitle>
                                     <DialogDescription></DialogDescription>

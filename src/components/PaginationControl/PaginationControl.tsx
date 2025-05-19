@@ -145,7 +145,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({
 			</div>
 
 			<div className="ml-4 flex items-center space-x-2">
-				<Label htmlFor="page-size">Rows per page</Label>
+				<Label htmlFor="page-size">Per page</Label>
 				<Select
 					value={pageSize.toString()}
 					onValueChange={(val) => {

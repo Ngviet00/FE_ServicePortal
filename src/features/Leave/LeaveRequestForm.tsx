@@ -167,20 +167,42 @@ export default function LeaveRequestForm() {
         }
     }
 
+    useEffect(() => {
+        const firstErrorField = Object.keys(form.formState.errors)[0];
+        if (firstErrorField) {
+            const el = document.querySelector(`[name="${firstErrorField}"]`);
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                (el as HTMLElement).focus?.();
+            }
+        }
+    }, [form.formState.errors]);
+
     return (
-        <div className="p-4 pl-1 pt-0 space-y-4">
-            <div className="flex justify-between mb-1">
-                <div className="flex content-center items-center">
-                    <h3 className="font-bold text-2xl">{isEdit ? "Sửa" : "Đăng ký"} nghỉ phép</h3>
-                    <Checkbox
-                        checked={checkReceiveEmail}
-                        onCheckedChange={(checked) => handleCheckChange(!!checked)}
-                        id="receive-mail" className="ml-4 hover:cursor-pointer w-[25px] h-[25px]" />
-                    <label htmlFor="receive-mail" className="hover:cursor-pointer ml-1 text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                        Nhận thông báo qua email
-                     </label>
+        <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                <div className="flex flex-col gap-2">
+                    <h3 className="font-bold text-xl md:text-2xl">
+                        {isEdit ? "Sửa" : "Đăng ký"} nghỉ phép
+                    </h3>
+
+                    <div className="flex items-center">
+                        <Checkbox
+                            checked={checkReceiveEmail}
+                            onCheckedChange={(checked) => handleCheckChange(!!checked)}
+                            id="receive-mail"
+                            className="w-[20px] h-[20px] md:w-[25px] md:h-[25px] hover:cursor-pointer"
+                        />
+                        <label
+                            htmlFor="receive-mail"
+                            className="ml-2 text-sm md:text-base font-medium leading-none hover:cursor-pointer"
+                        >
+                            Nhận thông báo qua email
+                        </label>
+                    </div>
                 </div>
-                <Button onClick={() => navigate("/leave")}>
+
+                <Button onClick={() => navigate("/leave")} className="w-full md:w-auto">
                     {t("leave_request.create.link_to_list")}
                 </Button>
             </div>
@@ -188,8 +210,8 @@ export default function LeaveRequestForm() {
             <div className="w-[100%] mt-5">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
-                        <div className="first-row flex flex-wrap w-full">
-                            <div className="w-[15%]">
+                        <div className="first-row flex flex-wrap gap-4 w-full">
+                            <div className="w-full md:w-[48%] lg:w-[23%]">
                                 <FormField
                                     control={form.control}
                                     name="user_code"
@@ -208,7 +230,7 @@ export default function LeaveRequestForm() {
                                     />
                             </div>
 
-                            <div className="ml-5 w-[25%] flex-1">
+                            <div className="w-full md:w-[48%] lg:w-[23%] flex-1">
                                 <FormField
                                     control={form.control}
                                     name="name"
@@ -224,7 +246,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="ml-5 w-[25%]">
+                            <div className="w-full md:w-[48%] lg:w-[23%]">
                                 <FormField
                                     control={form.control}
                                     name="department"
@@ -240,7 +262,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
 
-                            <div className="ml-5 w-[20%]">
+                            <div className="w-full md:w-[48%] lg:w-[23%]">
                                 <FormField
                                     control={form.control}
                                     name="position"
@@ -257,228 +279,237 @@ export default function LeaveRequestForm() {
                             </div>
                         </div>
 
-                        <div className="second-row flex flex-wrap w-full">
-                            <div className="w-[10%]">
-                                <FormField
-                                    control={form.control}
-                                    name="from_date"
-                                    render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.from_date')}</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    onClick={handleInputClickShowPicker}
-                                                    onChange={field.onChange}
-                                                    value={field.value}
-                                                    type="date"
-                                                    id="to_date"
-                                                    name={field.name}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                        <div className="second-row w-full flex flex-col gap-4 mb-5">
+                            <div className="flex flex-wrap gap-4 w-full">
+                                <div className="w-full sm:w-[48%] lg:w-[18%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="from_date"
+                                        render={({ field }) => (
+                                            <FormItem className="hover:cursor-pointer">
+                                                <FormLabel>{t('leave_request.create.from_date')}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        className="justify-center"
+                                                        onClick={handleInputClickShowPicker}
+                                                        onChange={field.onChange}
+                                                        value={field.value}
+                                                        type="date"
+                                                        id="to_date"
+                                                        name={field.name}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="from_hour"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t('leave_request.create.from_hour')}</FormLabel>
+                                                <FormControl>
+                                                    <select
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        name={field.name}
+                                                        id="from_hour" 
+                                                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                                        >
+                                                            {Array.from({length: 24}, (_, i) => (
+                                                                <option key={i} value={i.toString().padStart(2, "0")}>
+                                                                    {i.toString().padStart(2, "0")}
+                                                                </option>
+                                                            ))}
+                                                    </select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="from_minutes"
+                                        render={({ field }) => (
+                                            <FormItem className="hover:cursor-pointer">
+                                                <FormLabel>{t('leave_request.create.from_minutes')}</FormLabel>
+                                                <FormControl>
+                                                    <select
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        name={field.name}
+                                                        id="from_hour" 
+                                                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                            <option key="00" value="00">00</option>
+                                                            <option key="30" value="30">30</option>
+                                                    </select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                             </div>
 
-                            <div className="w-[10%] ml-5">
-                                <FormField
-                                    control={form.control}
-                                    name="from_hour"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('leave_request.create.from_hour')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="from_hour" 
-                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
-                                                    >
-                                                        {Array.from({length: 24}, (_, i) => (
-                                                            <option key={i} value={i.toString().padStart(2, "0")}>
-                                                                {i.toString().padStart(2, "0")}
-                                                            </option>
-                                                        ))}
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="w-[10%] ml-5">
-                                <FormField
-                                    control={form.control}
-                                    name="from_minutes"
-                                    render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.from_minutes')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="from_hour" 
-                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                        <option key="00" value="00">00</option>
-                                                        <option key="30" value="30">30</option>
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="w-[15%] ml-5">
-                                <FormField
-                                    control={form.control}
-                                    name="type_leave"
-                                    render={({ field, fieldState }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.type_leave.type_leave')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="from_hour" 
-                                                    className={`dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-200"}`}>
-                                                    <option value="">--Select--</option>
-                                                    {
-                                                        isPending ? (
-                                                            <option value="">Loading...</option>
-                                                        ) : isError || typeLeaves.length == 0 ? (
-                                                            <option value="" className="text-red-500">{isError ? error.message : "No results"}</option>
-                                                        ) : (
-                                                            typeLeaves.map((item: ITypeLeave) => (
-                                                                <option key={item.id} value={item.id}>
-                                                                    {t(item.name)}
+                            <div className="flex flex-wrap gap-4 w-full">
+                                <div className="w-full sm:w-[48%] lg:w-[15%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="type_leave"
+                                        render={({ field, fieldState }) => (
+                                            <FormItem className="hover:cursor-pointer">
+                                                <FormLabel>{t('leave_request.create.type_leave.type_leave')}</FormLabel>
+                                                <FormControl>
+                                                    <select
+                                                        ref={field.ref}
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        name={field.name}
+                                                        id="type_leave" 
+                                                        className={`dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"}`}>
+                                                        <option value="">--Select--</option>
+                                                        {
+                                                            isPending ? (
+                                                                <option value="">Loading...</option>
+                                                            ) : isError || typeLeaves.length == 0 ? (
+                                                                <option value="" className="text-red-500">{isError ? error.message : "No results"}</option>
+                                                            ) : (
+                                                                typeLeaves.map((item: ITypeLeave) => (
+                                                                    <option key={item.id} value={item.id}>
+                                                                        {t(item.name)}
+                                                                    </option>
+                                                                ))
+                                                            )
+                                                        }
+                                                    </select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className="w-full sm:w-[48%] lg:w-[15%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="time_leave"
+                                        render={({ field }) => (
+                                            <FormItem className="hover:cursor-pointer">
+                                                <FormLabel>{t('leave_request.create.time_leave.time_leave')}</FormLabel>
+                                                <FormControl>
+                                                    <select
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        name={field.name}
+                                                        id="from_hour" 
+                                                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                        <option value="">--Select--</option>
+                                                        {
+                                                            TIME_LEAVE.map((item) => (
+                                                                <option key={item.value} value={item.value}>
+                                                                    {t(item.label)}
                                                                 </option>
                                                             ))
-                                                        )
-                                                    }
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="w-[15%] ml-5">
-                                <FormField
-                                    control={form.control}
-                                    name="time_leave"
-                                    render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.time_leave.time_leave')}</FormLabel>
-                                            <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="from_hour" 
-                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                    <option value="">--Select--</option>
-                                                    {
-                                                        TIME_LEAVE.map((item) => (
-                                                            <option key={item.value} value={item.value}>
-                                                                {t(item.label)}
-                                                            </option>
-                                                        ))
-                                                    }
-                                                </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                                        }
+                                                    </select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="third-row flex flex-wrap w-full">
-                            <div className="w-[10%]">
-                                <FormField
-                                    control={form.control}
-                                    name="to_date"
-                                    render={({ field }) => (
+                        <div className="third-row w-full flex flex-col gap-4">
+                            <div className="flex flex-wrap gap-4 w-full">
+                                <div className="w-full sm:w-[48%] lg:w-[18%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="to_date"
+                                        render={({ field }) => (
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.to_date')}</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    className="w-full"
-                                                    onClick={handleInputClickShowPicker}
-                                                    onChange={field.onChange}
-                                                    value={field.value}
-                                                    type="date"
-                                                    id="from_date"
-                                                    name={field.name}
-                                                />
+                                            <Input
+                                                className="w-full justify-center"
+                                                onClick={handleInputClickShowPicker}
+                                                onChange={field.onChange}
+                                                value={field.value}
+                                                type="date"
+                                                id="from_date"
+                                                name={field.name}
+                                            />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
-                                    )}
-                                />
-                            </div>
+                                        )}
+                                    />
+                                </div>
 
-                            <div className="w-[10%] ml-5">
-                                <FormField
-                                    control={form.control}
-                                    name="to_hour"
-                                    render={({ field }) => (
+                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="to_hour"
+                                        render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.to_hour')}</FormLabel>
                                             <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="to_hour" 
-                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                    {Array.from({length: 24}, (_, i) => (
-                                                        <option key={i} value={i.toString().padStart(2, "0")}>
-                                                            {i.toString().padStart(2, "0")}
-                                                        </option>
-                                                    ))}
-                                                </select>
+                                            <select
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                name={field.name}
+                                                id="to_hour"
+                                                className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                            >
+                                                {Array.from({ length: 24 }, (_, i) => (
+                                                <option key={i} value={i.toString().padStart(2, "0")}>
+                                                    {i.toString().padStart(2, "0")}
+                                                </option>
+                                                ))}
+                                            </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
-                                    )}
-                                />
-                            </div>
+                                        )}
+                                    />
+                                </div>
 
-                            <div className="w-[10%] ml-5">
-                                <FormField
-                                    control={form.control}
-                                    name="to_minutes"
-                                    render={({ field }) => (
+                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
+                                    <FormField
+                                        control={form.control}
+                                        name="to_minutes"
+                                        render={({ field }) => (
                                         <FormItem className="hover:cursor-pointer">
                                             <FormLabel>{t('leave_request.create.to_minutes')}</FormLabel>
                                             <FormControl>
-                                                <select
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    name={field.name}
-                                                    id="to_minutes" 
-                                                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                        <option key="00" value="00">00</option>
-                                                        <option key="30" value="30">30</option>
-                                                </select>
+                                            <select
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                name={field.name}
+                                                id="to_minutes"
+                                                className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
+                                            >
+                                                <option key="00" value="00">00</option>
+                                                <option key="30" value="30">30</option>
+                                            </select>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
-                                    )}
-                                />
+                                        )}
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         <div className="fourth-row flex flex-wrap w-full">
-                            <div className="w-[50%]">
+                            <div className="w-[80%]">
                                 <FormField
                                     control={form.control}
                                     name="reason"
@@ -499,7 +530,7 @@ export default function LeaveRequestForm() {
                                 />
                             </div>
                         </div>
-                        <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[10%]">
+                        <Button disabled={loading} type="submit" className="hover:cursor-pointer w-[30%]">
                             {loading ? <Spinner className="text-white" /> : "Save"}
                         </Button>
                     </form>
