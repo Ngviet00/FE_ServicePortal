@@ -6,13 +6,10 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-
 import { Link, useLocation } from "react-router-dom";
 import { capitalizeFirstLetter } from "@/lib";
 
-
 export default function BreadCrumbComponent () {
-
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter((x) => x);
 

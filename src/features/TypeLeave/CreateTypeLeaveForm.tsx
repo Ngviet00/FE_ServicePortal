@@ -19,9 +19,9 @@ import {
 } from "@/components/ui/form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ShowToast } from "@/lib"
-import { AxiosError } from "axios"
+import { getErrorMessage, ShowToast } from "@/lib"
 import { useAuthStore } from "@/store/authStore"
+import { useTranslation } from "react-i18next"
 import typeLeaveApi from "@/api/typeLeaveApi"
 
 const createUserSchema = z.object({
@@ -42,8 +42,8 @@ type Props = {
 
 export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
     const [open, setOpen] = useState(false)
-
     const { user } = useAuthStore();
+    const { t } = useTranslation();
 
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
@@ -67,24 +67,18 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                 name: values.name,
                 modified_by: user?.userCode
             }
-            console.log(data, 22);
             if (typeLeave?.id) {
                 await typeLeaveApi.update(typeLeave.id, data);
-                ShowToast("Success", "success");
+                ShowToast("Success");
             } else {
                 await typeLeaveApi.create(data);
-                ShowToast("Success", "success");
+                ShowToast("Success");
             }
             onAction?.();
             setOpen(false);
             form.reset();
-        } catch (err: unknown) {
-            const error = err as AxiosError<{ message: string }>
-            const message = error?.response?.data?.message ?? "Something went wrong"
-			form.setError("name", {
-				type: "server",
-				message,
-			})
+        } catch (err) {
+            ShowToast(getErrorMessage(err), "error")
         }
     };
 
@@ -97,14 +91,16 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                             Edit
                         </button>
                     ) : (
-                        <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">Create Type Leave</Button>
+                        <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">
+                            {t('type_leave_page.btn_create_type_leave')}
+                        </Button>
                     )
                 }
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
                 <DialogHeader>
-                    <DialogTitle>{typeLeave?.id ? "Update" : "Create New"} Type Leave</DialogTitle>
+                    <DialogTitle>{typeLeave?.id ? t('type_leave_page.btn_update_type_leave') : t('type_leave_page.btn_create_type_leave')}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -114,9 +110,9 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="name">{t('type_leave_page.name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="Input role..." {...field} />
+                                        <Input id="name" placeholder="..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -125,7 +121,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                         
                         <div className="flex justify-end">
                             <Button type="submit" className="hover:cursor-pointer">
-                                Submit
+                                {t('submit')}
                             </Button>
                         </div>
                     </form>

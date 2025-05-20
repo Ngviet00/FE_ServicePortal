@@ -3,25 +3,24 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { ChevronDown, User } from "lucide-react";
-
-import authApi from "@/api/authApi";
 import { useTranslation } from "react-i18next";
+import { getErrorMessage, ShowToast } from "@/lib";
+import authApi from "@/api/authApi";
 
 export default function AvatarDropdown() {
 	const { t } = useTranslation();
 	const { logout, refreshToken } = useAuthStore();
 	const navigate = useNavigate();
 
-
 	const handleLogout = async () => {
 		try {
 			await authApi.logout({
-				RefreshToken: refreshToken
+				refreshToken: refreshToken
 			});
 			logout();
 			navigate("/login");
 		} catch (err) {
-			console.error("Logout API failed", err);
+			ShowToast(getErrorMessage(err))
 		}
 	}
 
@@ -42,13 +41,13 @@ export default function AvatarDropdown() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
 				<DropdownMenuItem className="cursor-pointer" onClick={() => handleChangePage("change-password")}>
-				{t('header.change_password')}
+					{t('header.change_password')}
 				</DropdownMenuItem>
 
 				<DropdownMenuSeparator />
 
 				<DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
-				{t('header.log_out')}
+					{t('header.log_out')}
 				</DropdownMenuItem>
 
 			</DropdownMenuContent>

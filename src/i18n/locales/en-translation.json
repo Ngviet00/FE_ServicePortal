@@ -1,9 +1,17 @@
 {
-    "welcome": "Welcome",
-    "about": "About us",
+	"add": "Add",
+	"edit": "Edit",
+	"update": "Update",
+	"submit": "Submit",
+
+	"org_chart_page": {
+		"loading": "Loading...",
+		"select": "Select",
+		"select_department": "Select department"
+	},
 
 	"home_page": {
-		"home_page": "Dashboard",
+		"title": "Dashboard",
 		"code": "Employee Code",
 		"dob": "Date of birth",
 		"phone": "Phone",
@@ -26,54 +34,48 @@
 	},
 
 	"header": {
-		"hi": "Hi",
-		"my_account": "My Profile",
 		"change_password": "Change Password",
 		"log_out": "Logout"
 	},
 
-	"breadcrumb": {
-
-	},
-
 	"sidebar": {
 		"home": "Dashboard",
-		"admin": {
-			"admin": "Admin",
+		"hr": {
 			"role": "Role",
-			"department": "Department",
-			"position": "Position",
-			"team": "Team"
-		},
-		"user": {
-			"user": "User",
-			"create": "Add user",
-			"list": "List user"
+			"type_leave": "Type leave",
+			"list_user": "List user",
+			"org": "Organizational chart"
 		},
 		"leave_request": {
-			"leave_request": "Leave request",
-			"create": "Create leave request",
-			"list": "List leave request"
+			"title": "Leave request",
+			"create_leave": "Create leave request",
+			"list_leave": "List leave request",
+			"wait_approval": "Wait approval"
 		}
 	},
 
-	"change_password": {
-		"change_password": "Change Password",
-		"new_password": "New password",
-		"confirm_password": "Confirm password"
+	"login_page": {
+		"title": "Login",
+		"usercode": "User code",
+		"password": "Password"
 	},
 
-	"profile": {
-		"profile": "Profile",
-		"name": "Name",
-		"code": "Code",
-		"email": "Email",
-		"date_join_company": "Date Join Company"
+	"register_page": {
+		"title": "Register",
+		"usercode": "User code",
+		"password": "Password"
+	},
+
+	"change_password_page": {
+		"title": "Change Password",
+		"new_password": "New Password",
+		"confirm_password": "Confirm Password"
 	},
 
 	"leave_request": {
 		"create": {
 			"title": "Create leave request",
+			"receive_email": "Receive email",
 			"link_to_list": "List leave request",
 			"department": "Department",
 			"code": "Code",
@@ -104,12 +106,62 @@
 		}
 	},
 
-	"user": {
-		"create": {
-			"create": "Create New User"
-		},
-		"list": {
-			"list": "List User"
-		}
+	"list_user_page": {
+		"title": "Users",
+		"search": "Search",
+		"usercode": "Usercode",
+		"name": "Name",
+		"department": "Department",
+		"position": "Position",
+		"sex": "Sex",
+		"phone": "Phone",
+		"email": "Email",
+		"date_join_company": "Date join company",
+		"action": "Action"
+	},
+	"type_leave_page": {
+		"title": "Type leaves",
+		"btn_create_type_leave": "Create type leave",
+		"search": "Search",
+		"name": "Name",
+		"modified_at": "Modified At",
+		"modified_by": "Modified By",
+		"action": "Action",
+		"btn_update_type_leave": "Update type leave"
+	},
+	"list_role_page": {
+		"title": "Roles",
+		"btn_create_role": "Create role",
+		"search": "Search",
+		"name": "Name",
+		"code": "Code",
+		"action": "Action",
+		"btn_update_role": "Update role"
+	},
+	"list_leave_request": {
+		"title_wait_approval": "Wait Approval",
+		"title_list": "List leave request",
+		"btn_create_leave_request": "Create leave request",
+		"pending": "Pending",
+		"in_process": "In-Process",
+		"complete": "Complete",
+		"reject": "Reject",
+		"usercode": "Usercode",
+		"name": "Name",
+		"department": "Department",
+		"position": "Position",
+		"from": "From",
+		"to": "To",
+		"type_leave": "Type leave",
+		"time_leave": "Time leave",
+		"reason": "Reason",
+		"approve_by": "Approved By",
+		"created_at": "Approved At",
+		"status": "Status",
+		"reject_by": "Rejected By",
+		"reject_at": "Rejected At",
+		"no_result": "No result",
+		"note": "Note",
+		"approval": "Approval"
 	}
 }

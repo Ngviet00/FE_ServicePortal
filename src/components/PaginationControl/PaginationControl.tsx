@@ -6,19 +6,17 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/pagination";
-
 import { FC, useState } from "react";
 import { Label } from "@/components/ui/label";
-import React from "react";
-
 import { ListPerPage } from "@/lib";
+import React from "react";
 
 type PaginationWithPageSizeProps = {
 	currentPage: number;
 	totalPages: number;
-	pageSize: number; //perpage
-	onPageChange: (page: number) => void; //when click button previous, next, page 1 2 5
-	onPageSizeChange: (size: number) => void; //onPageSizeChange 5 10 20 50
+	pageSize: number;
+	onPageChange: (page: number) => void;
+	onPageSizeChange: (size: number) => void;
 };
 
 const getVisiblePages = (currentPage: number, totalPages: number): (number | "...")[] => {
@@ -53,16 +51,9 @@ const getVisiblePages = (currentPage: number, totalPages: number): (number | "..
 	return pages;
 };
 
-const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({
-	currentPage,
-	totalPages,
-	pageSize,
-	onPageChange,
-	onPageSizeChange,
-}) => {
+const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentPage, totalPages, pageSize, onPageChange, onPageSizeChange}) => {
 	const [editingDotIndex, setEditingDotIndex] = useState<number | null>(null);
 	const [inputValue, setInputValue] = useState("");
-
 	const visiblePages = getVisiblePages(currentPage, totalPages);
 
 	return (
@@ -88,23 +79,23 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({
 											value={inputValue}
 											autoFocus
 											onChange={(e) => {
-											const val = e.target.value;
-											if (/^\d*$/.test(val)) {
-												setInputValue(val);
-											}
+												const val = e.target.value;
+												if (/^\d*$/.test(val)) {
+													setInputValue(val);
+												}
 											}}
 											onKeyDown={(e) => {
-											if (e.key === "Enter") {
-												const page = parseInt(inputValue, 10);
-												if (!isNaN(page) && page >= 1 && page <= totalPages) {
-												onPageChange(page);
+												if (e.key === "Enter") {
+													const page = parseInt(inputValue, 10);
+													if (!isNaN(page) && page >= 1 && page <= totalPages) {
+													onPageChange(page);
+													}
+													setEditingDotIndex(null);
+													setInputValue("");
+												} else if (e.key === "Escape") {
+													setEditingDotIndex(null);
+													setInputValue("");
 												}
-												setEditingDotIndex(null);
-												setInputValue("");
-											} else if (e.key === "Escape") {
-												setEditingDotIndex(null);
-												setInputValue("");
-											}
 											}}
 											onBlur={() => {
 												setEditingDotIndex(null);

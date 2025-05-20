@@ -1,33 +1,31 @@
-import authApi from "@/api/authApi";
 import { Spinner } from "@/components/ui/spinner";
-import { getErrorMessage } from "@/lib";
+import { getErrorMessage, ShowToast } from "@/lib";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
+import { useTranslation } from "react-i18next";
+import authApi from "@/api/authApi";
 
 import "./css/Login.css"
 
 export default function RegisterPage() {
-    const [user_code, setUserCode] = useState("")
+    const { t } = useTranslation();
+    const [userCode, setUserCode] = useState("")
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
-
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setErrorMsg("");
-    
         try {
-            const res = await authApi.register({ Usercode: user_code, Password: password });
+            const res = await authApi.register({ userCode, password });
             const { user, accessToken, refreshToken } = res.data;
             useAuthStore.getState().setUser(user, accessToken, refreshToken);
             navigate("/")
         }
         catch (err) {
-            setErrorMsg(getErrorMessage(err));
+            ShowToast(getErrorMessage(err), "error")
         }
         finally {
             setLoading(false);
@@ -35,9 +33,8 @@ export default function RegisterPage() {
     };
 
     return (
-        <>
-            <div className="flex min-h-full flex-1 flex-col justify-start py-12 lg:px-8 bg-white h-[100vh] register-page">
-                <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="flex min-h-full flex-1 flex-col justify-start py-12 lg:px-8 bg-white h-[100vh] register-page">
+            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 <img
                     alt="VS Industry Viet Nam"
                     src="/logo.png"
@@ -45,22 +42,22 @@ export default function RegisterPage() {
                     style={{ width: '150px'}}
                 />
                 <h2 className="mt-2 text-left text-2xl/9 font-bold tracking-tight text-gray-900">
-                    Đăng ký
+                    {t('register_page.title')}
                 </h2>
-                </div>
+            </div>
         
-                <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
+            <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="mb-5">
                         <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                            Mã nhân viên
+                            {t('register_page.usercode')}
                         </label>
                         <div className="mt-2">
                             <input
                                 id="employee_code"
                                 name="employee_code"
                                 type="text"
-                                value={user_code}
+                                value={userCode}
                                 onChange={(e) => setUserCode(e.target.value)}
                                 required
                                 autoComplete="email"
@@ -72,7 +69,7 @@ export default function RegisterPage() {
                     <div className="mb-3">
                         <div className="flex items-center justify-between">
                             <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                                Mật khẩu
+                                {t('register_page.password')}
                             </label>
                         </div>
                         <div className="mt-2">
@@ -88,8 +85,6 @@ export default function RegisterPage() {
                             />
                         </div>
                     </div>
-        
-                    { errorMsg && (<div className="text-red-500 text-sm mb-3">{errorMsg}</div>)}
 
                     <div>
                         <button
@@ -97,18 +92,17 @@ export default function RegisterPage() {
                             type="submit"
                             className="bg-black hover:cursor-pointer flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
-                            { loading ? <Spinner size='small' className="text-white"/> : "Đăng ký" }
+                            { loading ? <Spinner size='small' className="text-white"/> : t('register_page.title') }
                         </button>
                     </div>
                 </form>
         
                 <p className="mt-3 text-center text-sm/6">
                     <Link to="/login" className="sidebar-link underline">
-                        Đăng nhập
+                        {t('login_page.title')}
                     </Link>
                 </p>
-                </div>
             </div>
-        </>
-      )
+        </div>
+    )
 }

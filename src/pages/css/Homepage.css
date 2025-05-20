@@ -4,10 +4,6 @@
     justify-content: center;
 }
 
-@media (max-width: 1024px) {
-
-}
-
 @media (max-width: 862px) {
     .wrap-home-page label {
         font-size: 15px;

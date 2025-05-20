@@ -28,9 +28,6 @@ export interface ListUserData {
 }
 
 const userApi = {
-    getMe() {
-        return axiosClient.get(`/user/me`)
-    },
     getAll(params: GetUser) {
         return axiosClient.get('/user/get-all', {params})
     },

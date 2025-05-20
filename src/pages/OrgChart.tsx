@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import React, { useState, useRef } from 'react';
+
 import userApi from '@/api/userApi';
 
 type Person = {
@@ -25,37 +27,39 @@ const nodeStyle: React.CSSProperties = {
 	boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 };
 
-const NodeContent: React.FC<{ people: Person[]; positionId: number }> = ({
-	people,
-	positionId,
-}) => (
+const NodeContent: React.FC<{ people: Person[]; positionId: number }> = ({people, positionId}) => (
 	<div style={nodeStyle}>
-		<strong>Position - {positionId}</strong>
+		<strong className="dark:text-black">Position - {positionId}</strong>
 		<br />
-		{people.map((p) => (
-		<div key={p.usercode}>
-			{p.usercode}
-		</div>
-		))}
+		{
+			people.map((p) => (
+				<div key={p.usercode} className='dark:text-black'>
+					{p.usercode}
+				</div>
+			))
+		}
 	</div>
 );
 
 const RenderNode: React.FC<{ node: OrgChartNode }> = ({ node }) => (
 	<TreeNode label={<NodeContent people={node.people} positionId={node.positionId} />}>
-		{node.children.map((child, idx) => (
-		<RenderNode key={idx} node={child} />
-		))}
+		{
+			node.children.map((child, idx) => (
+				<RenderNode key={idx} node={child} />
+			))
+		}
 	</TreeNode>
 );
 
 const OrgChartTree: React.FC = () => {
+	const { t } = useTranslation();
 	const [searchQuery] = useState<string>('');
 	const [zoom, setZoom] = useState<number>(1);
 	const [isDragging, setIsDragging] = useState<boolean>(false);
 	const [offset, setOffset] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 	const [isHoveringChart, setIsHoveringChart] = useState<boolean>(false);
 	const chartRef = useRef<HTMLDivElement | null>(null);
-	const [department, setDepartment] = useState<number | null>(1); // default chọn 1
+	const [department, setDepartment] = useState<number | null>(1); //default set 1
 
 	const { data: orgChartData, isLoading } = useQuery({
 		queryKey: ['get-org-chart', department],
@@ -67,13 +71,11 @@ const OrgChartTree: React.FC = () => {
 		enabled: department != null,
 	});
 
-  	// Hàm filter theo usercode hoặc positionId (string)
 	const filterTree = (node: OrgChartNode): OrgChartNode | null => {
 		const filteredChildren = node.children
 			.map(filterTree)
 			.filter((child): child is OrgChartNode => child !== null);
 
-		// Kiểm tra người trong node có match search query?
 		const matchPeople = node.people.some(p =>
 			p.usercode.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			p.positionId.toString().includes(searchQuery)
@@ -93,40 +95,35 @@ const OrgChartTree: React.FC = () => {
 
 	const handleWheel = (e: React.WheelEvent) => {
 		if (isHoveringChart) {
-		if (e.deltaY < 0) {
-			setZoom((prevZoom) => Math.min(prevZoom + 0.1, 2));
-		} else {
-			setZoom((prevZoom) => Math.max(prevZoom - 0.1, 0.5));
-		}
+			if (e.deltaY < 0) {
+				setZoom((prevZoom) => Math.min(prevZoom + 0.1, 2));
+			} else {
+				setZoom((prevZoom) => Math.max(prevZoom - 0.1, 0.5));
+			}
 		}
 	};
 
 	const handleMouseDown = () => setIsDragging(true);
 	const handleMouseMove = (e: React.MouseEvent) => {
 		if (isDragging) {
-		setOffset((prev) => ({
-			x: prev.x + e.movementX,
-			y: prev.y + e.movementY,
-		}));
+			setOffset((prev) => ({
+				x: prev.x + e.movementX,
+				y: prev.y + e.movementY,
+			}));
 		}
 	};
 	const handleMouseUp = () => setIsDragging(false);
 	const handleMouseEnter = () => setIsHoveringChart(true);
 	const handleMouseLeave = () => setIsHoveringChart(false);
 
-	if (isLoading) return <div>Đang tải sơ đồ tổ chức...</div>;
-
-	if (!filteredData) {
-		//alert("Không tìm thấy dữ liệu phù hợp.")
-	}
-
-	// if (!filteredData)  return <div>Không tìm thấy dữ liệu phù hợp.</div>;
+	if (isLoading)
+		return <div>{t('org_chart_page.loading')}</div>;
 
 	return (
 		<div style={{ padding: '20px' }}>
 			<div className="flex items-center justify-between mb-3">
 				<div>
-				<label htmlFor="department_id" className="mb-1 mr-2 font-bold">Chọn phòng ban:</label>
+				<label htmlFor="department_id" className="mb-1 mr-2 font-bold">{t('org_chart_page.select_department')}:</label>
 				<select
 					value={department ?? ''}
 					onChange={(e) => setDepartment(Number(e.target.value))}
@@ -134,7 +131,7 @@ const OrgChartTree: React.FC = () => {
 					id="department_id"
 					className="dark:bg-[#454545] border border-gray-300 px-[20px] py-[5px]"
 				>
-					<option value="">--Chọn--</option>
+					<option value="">--{t('org_chart_page.select')}--</option>
 					<option value="1">HR</option>
 					<option value="2">MIS/IT</option>
 					<option value="3">Sản xuất</option>

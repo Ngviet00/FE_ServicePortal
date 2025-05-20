@@ -2,14 +2,13 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { useTranslation } from "react-i18next";
 
 export default function SelectedLanguage() {
-
     const { i18n } = useTranslation();
 
     const handleLanguageChange = (value: string) => {
         i18n.changeLanguage(value);
     }
 
-    return  <>
+    return <>
         <div className="pr-3 flex items-center">
             <div>
                 <Select onValueChange={handleLanguageChange}>

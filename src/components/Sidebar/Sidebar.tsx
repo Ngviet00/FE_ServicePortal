@@ -1,26 +1,23 @@
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, Dot, House, LockKeyhole, Ticket, X } from "lucide-react";
-import { useSidebarStore } from "@/store/sidebarStore";
+import { ChevronDown, Dot, X } from "lucide-react";
+import { useSidebarStore, SIDEBAR_MENUS } from "@/store/sidebarStore";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
+import { useAppStore } from "@/store/appStore";
 import leaveRequestApi from "@/api/leaveRequestApi";
+import useHasRole from "@/hooks/HasRole";
+import useIsReponsive from "@/hooks/IsResponsive";
 
 import "./style.css";
-import useHasRole from "../../hooks/HasRole";
-import useIsReponsive from "@/hooks/IsResponsive";
-import { useAppStore } from "@/store/appStore";
 
 export default function Sidebar() {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const currentPath = location.pathname;
 
-	const closeSidebar = useSidebarStore((s) => s.closeSidebar)
-
-	const setNumberWait = useAppStore((state) => state.setNumberWait);
-
+	const closeSidebar = useSidebarStore((s) => s.closeSidebar);
 	const {
 		isOpen,
 		submenusVisible,
@@ -30,174 +27,119 @@ export default function Sidebar() {
 		setVisibleSubmenuByPath,
 	} = useSidebarStore();
 
-	useEffect(() => {
-		setVisibleSubmenuByPath(currentPath);
-		closeMenuIfNotChild(currentPath);
-	}, [currentPath, setVisibleSubmenuByPath, closeMenuIfNotChild]);
-
-	const handleMenuHomeClick = () => closeAllSubmenus();
+	const setNumberWait = useAppStore((s) => s.setNumberWait);
 
 	const { user } = useAuthStore();
+	const isSuperAdmin = useHasRole(["superadmin"]);
+	const hasHRRole = useHasRole(["HR", "HR_Manager"]);
+	const isMobile = useIsReponsive();
 
 	const { data: countWaitApprovalLeaveRequest } = useQuery({
 		queryKey: ["count-wait-approval-leave-request"],
 		queryFn: async () => {
 			const res = await leaveRequestApi.countWaitApprovalLeaveRequest({
-				positionId: user?.positionId
+				positionId: user?.positionId,
 			});
-			setNumberWait(res.data.data ?? 0)
+			setNumberWait(res.data.data ?? 0);
 			return res.data.data;
 		},
 	});
 
-	const hasHRRole = useHasRole(['HR', 'HR_Manager']);
-
-	const isSuperAdmin = useHasRole(['superadmin']);
-
-	const isMobile = useIsReponsive();
-
 	useEffect(() => {
-		if (isMobile) {
-			closeSidebar()
-		}
-	}, [location.pathname, isMobile, closeSidebar])
+		setVisibleSubmenuByPath(currentPath);
+		closeMenuIfNotChild(currentPath);
+		if (isMobile) closeSidebar();
+	}, [closeMenuIfNotChild, closeSidebar, currentPath, isMobile, setVisibleSubmenuByPath]);
+
+	const handleMenuHomeClick = () => closeAllSubmenus();
 
 	return (
-		<div className={`sidebar ${!isOpen ? "" : "collapsed"} bg-white dark:bg-[#1b1b1f] w-[250px]`}>
+		<div className={`sidebar ${isOpen ? "collapsed" : ""} bg-white dark:bg-[#1b1b1f] w-[250px]`}>
 			<div className="relative">
 				<a href="/" className="inline-block">
 					<img src="/logo.png" alt="Logo" style={{ height: "80px" }} />
 				</a>
-				<button className="toggle-btn-mobile hover:cursor-pointer absolute top-[45%] right-2" onClick={closeSidebar}>
-					<X className="text-black"/>
+				<button className="toggle-btn-mobile absolute top-[45%] right-2" onClick={closeSidebar}>
+					<X className="text-black" />
 				</button>
 			</div>
 
 			<hr className="mt-1" />
 
 			<nav className="pt-2">
-				{/* HOME MENU */}
-				<div className="menu-group">
-					<Link
-						onClick={handleMenuHomeClick}
-						to="/"
-						className={`sidebar-link flex items-center hover:bg-[#e3e3e3] text-blue-900 dark:hover:bg-[#e3e3e3] dark:hover:text-black ${
-							currentPath === "/" ? "bg-[#e3e3e3] dark:text-black" : "dark:text-white"
-						}`}
-					>
-						<House size={20} />
-						<span className="pl-5">{t("sidebar.home")}</span>
-					</Link>
-				</div>
-			    
-				{
-					hasHRRole && (<>
-						<div className="menu-group">
+				{SIDEBAR_MENUS.map((menu) => {
+					if (menu.key === "home") {
+						return (
+							<div className="menu-group" key={menu.key}>
+								<Link
+									onClick={handleMenuHomeClick}
+									to={menu.route ?? "/"}
+									className={`sidebar-link flex items-center hover:bg-[#e3e3e3] text-blue-900 dark:hover:bg-[#e3e3e3] dark:hover:text-black ${
+										currentPath === menu.route ? "bg-[#e3e3e3] dark:text-black" : "dark:text-white"
+									}`}
+								>
+									<menu.icon size={20} />
+									<span className="pl-5">{t(menu.label)}</span>
+								</Link>
+							</div>
+						);
+					}
+
+					if (menu.key === "HR" && !hasHRRole) return null;
+
+					return (
+						<div className="menu-group" key={menu.key}>
 							<div
 								className="menu-title hover:bg-[#e3e3e3] flex items-center cursor-pointer text-blue-900 dark:text-white dark:hover:text-black"
-								onClick={() => toggleSubmenu("HR")}
+								onClick={() => toggleSubmenu(menu.key)}
 							>
-								<LockKeyhole size={20} />
-								<span className="pl-5 flex-1">HR</span>
+								<menu.icon size={20} />
+								<span className="pl-5 flex-1">
+									{t(menu.label)}
+									{
+										countWaitApprovalLeaveRequest > 0 && menu.key == "leave_request"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalLeaveRequest})</span>
+											: <></>
+									}
+								</span>
 								<ChevronDown
 									size={18}
 									className={`submenu-toggle transition-transform ${
-										submenusVisible["HR"] ? "rotate-180" : ""
+										submenusVisible[menu.key] ? "rotate-180" : ""
 									}`}
 								/>
 							</div>
-							<ul className={`submenu ${submenusVisible["HR"] ? "open" : ""} `}>
-								{
-									isSuperAdmin && (
-										<li className={`text-blue-900 ${currentPath === "/role" ? "bg-[#e3e3e3]" : ""}`}>
-											<Link to="/role" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/role' ? 'dark:text-black' : 'dark:text-white'}`}>
-												<Dot />
-												<span>{t("sidebar.admin.role")}</span>
-											</Link>
-										</li>
-									)
-								}
+							<ul className={`submenu ${submenusVisible[menu.key] ? "open" : ""}`}>
+								{menu.children?.map((child) => {
+									if (child.route === "/role" && !isSuperAdmin) return null;
+									if (child.route === "/approval-flow" && !isSuperAdmin) return null;
 
-								<li className={`text-blue-900 ${currentPath === "/type-leave" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/type-leave" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/type-leave' ? 'dark:text-black' : 'dark:text-white'}`}>
-										<Dot />
-										<span>{t("Loại phép")}</span>
-									</Link>
-								</li>
-								<li className={`text-blue-900 ${currentPath === "/user" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/user" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user' ? 'dark:text-black' : 'dark:text-white'}`}>
-										<Dot />
-										<span>{t("sidebar.user.list")}</span>
-									</Link>
-								</li>
-								<li className={`text-blue-900 ${currentPath === "/user/org-chart" ? "bg-[#e3e3e3]" : ""}`}>
-									<Link to="/user/org-chart" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/user/org-chart' ? 'dark:text-black' : 'dark:text-white'}`}>
-										<Dot />
-										<span>{t("Sơ đồ tổ chức")}</span>
-									</Link>
-								</li>
-								{/* {
-									isSuperAdmin && (
-										<li className={`text-blue-900 ${currentPath === "/approval-flow" ? "bg-[#e3e3e3]" : ""}`}>
-											<Link to="/approval-flow" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/approval-flow' ? 'dark:text-black' : 'dark:text-white'}`}>
+									const isActive = currentPath === child.route;
+									return (
+										<li key={child.route} className={`text-blue-900 ${isActive ? "bg-[#e3e3e3]" : ""}`}>
+											<Link
+												to={child.route}
+												className={`dark:hover:text-black sidebar-link hover:bg-[#e3e3e3] flex items-center ${
+													isActive ? "dark:text-black" : "dark:text-white"
+												}`}
+											>
 												<Dot />
-												<span>{t("Tùy chỉnh phê duyệt")}</span>
+												<span>
+													{t(child.label)}
+													{countWaitApprovalLeaveRequest > 0 && child.route == "/leave/wait-approval" && (
+														<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+															({countWaitApprovalLeaveRequest})
+														</span>
+													)}
+												</span>
 											</Link>
 										</li>
-									)
-								} */}
+									);
+								})}
 							</ul>
 						</div>
-					</>)
-				}
-
-				<div className="menu-group">
-					<div
-						className="menu-title hover:bg-[#e3e3e3] flex items-center cursor-pointer text-blue-900 dark:text-white dark:hover:text-black"
-						onClick={() => toggleSubmenu("leave_request")}
-					>
-						<Ticket size={20} />
-						<span className="pl-5 flex-1">
-							{t("sidebar.leave_request.leave_request")}
-							{countWaitApprovalLeaveRequest > 0 && (
-								<span className="pl-1 text-red-500 font-bold">
-									({countWaitApprovalLeaveRequest})
-								</span>
-							)}
-						</span>
-						<ChevronDown
-							size={18}
-							className={`submenu-toggle transition-transform ${
-								submenusVisible["leave_request"] ? "rotate-180" : ""
-							}`}
-						/>
-					</div>
-					<ul className={`submenu ${submenusVisible["leave_request"] ? "open" : ""}`}>
-						<li className={`text-blue-900 ${currentPath === "/leave/create" ? "bg-[#e3e3e3]" : ""} dark:text-white dark:hover:text-black`}>
-							<Link to="/leave/create" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/leave/create' ? 'dark:text-black' : 'dark:text-white'}`}>
-								<Dot />
-								<span>{t("sidebar.leave_request.create")}</span>
-							</Link>
-						</li>
-						<li className={`text-blue-900 ${currentPath === "/leave" ? "bg-[#e3e3e3]" : ""} dark:text-white dark:hover:text-black`}>
-							<Link to="/leave" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/leave' ? 'dark:text-black' : 'dark:text-white'}`}>
-								<Dot />
-								<span>{t("sidebar.leave_request.list")}</span>
-							</Link>
-						</li>
-						<li className={`text-blue-900 ${currentPath === "/leave/wait-approval" ? "bg-[#e3e3e3]" : ""} dark:text-white dark:hover:text-black`}>
-							<Link to="/leave/wait-approval" className={`sidebar-link hover:bg-[#e3e3e3] flex items-center dark:hover:text-black ${currentPath == '/leave/wait-approval' ? 'dark:text-black' : 'dark:text-white'}`}>
-								<Dot />
-								<span>Chờ duyệt</span>
-								{countWaitApprovalLeaveRequest > 0 && (
-									<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
-										({countWaitApprovalLeaveRequest})
-									</span>
-								)}
-							</Link>
-						</li>
-					</ul>
-				</div>
+					);
+				})}
 			</nav>
 		</div>
 	);

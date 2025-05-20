@@ -1,7 +1,4 @@
 import { Routes, Route, useLocation  } from 'react-router-dom';
-import './App.css'
-import DepartmentForm from '@/features/Department/DepartmentForm';
-import ListDepartment from '@/features/Department/ListDepartment';
 import LeaveRequestForm from '@/features/Leave/LeaveRequestForm';
 import ListLeaveRequest from '@/features/Leave/ListLeaveRequest';
 import ListRole from '@/features/Role/ListRole';
@@ -18,13 +15,11 @@ import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitA
 import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 import OrgChart from '@/pages/OrgChart';
 import Forbidden from '@/pages/Forbidden';
-import ListCustomApprovalFlow from '@/features/CustomApprovalFlow/ListCustomApprovalFlow';
-import CustomApprovalFlowForm from '@/features/CustomApprovalFlow/CustomApprovalForm';
+
+import './App.css'
 
 function App() {
-
 	const location = useLocation();
-	
 	const authRoutes = ["/login", "/register"];
 	const isAuthRoute = authRoutes.includes(location.pathname);
 
@@ -37,21 +32,10 @@ function App() {
 		{ path: "/", element: <HomePage /> },
 		{ path: "/forbidden", element: <Forbidden /> },
 		{ path: "/change-password", element: <ChangePasswordPage /> },
-		
 		{ path: "/role", element: <ListRole />, allowedRoles: ['superadmin']},
-		{ path: "/approval-flow", element: <ListCustomApprovalFlow />, allowedRoles: ['superadmin']},
-		{ path: "/approval-flow/create", element: <CustomApprovalFlowForm />, allowedRoles: ['superadmin']},
-		{ path: "/approval-flow/edit/:id", element: <CustomApprovalFlowForm />, allowedRoles: ['superadmin']},
-
 		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: ['HR', 'HR_Manager'] },
-
-		{ path: "/department", element: <ListDepartment />, allowedRoles: ['HR', 'HR_Manager'] },
-		{ path: "/department/create", element: <DepartmentForm />, allowedRoles: ['HR', 'HR_Manager'] },
-		{ path: "/department/edit/:id", element: <DepartmentForm />, allowedRoles: ['HR', 'HR_Manager'] },
-
 		{ path: "/user", element: <ListUser />, allowedRoles: ['HR', 'HR_Manager'] },
 		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: ['HR', 'HR_Manager'] },
-
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },

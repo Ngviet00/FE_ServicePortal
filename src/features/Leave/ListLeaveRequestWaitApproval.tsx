@@ -13,7 +13,6 @@ import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName, getErrorMessage, ShowToast } from "@/lib"
-
 import {
     Dialog,
     DialogContent,
@@ -24,29 +23,24 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { useTranslation } from "react-i18next"
 import useHasRole from "@/hooks/HasRole"
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 export default function ListLeaveRequestWaitApproval () {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false)
-    const [totalPage, setTotalPage] = useState(0) //search by name
-    const [page, setPage] = useState(1) //current page
-    const [pageSize, setPageSize] = useState(10) //per page 5 item
+    const [totalPage, setTotalPage] = useState(0)
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
     const [note, setNote] = useState("");
-
     const [selectedItem, setSelectedItem] = useState<LeaveRequestData | null>(null);
-
-    const queryClient = useQueryClient();
-
     const [showConfirm, setShowConfirm] = useState(false);
-
     const {user} = useAuthStore()
+    const queryClient = useQueryClient();
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
         queryKey: ['get-leave-request-wait-approval', page, pageSize],
         queryFn: async () => {
-            await delay(Math.random() * 100 + 100);
             const res = await leaveRequestApi.getLeaveRequestWaitApproval({
                 page: page,
                 pageSize: pageSize,
@@ -88,7 +82,7 @@ export default function ListLeaveRequestWaitApproval () {
         },
         
         onSuccess: () => {
-            ShowToast("Success", "success");
+            ShowToast("Success");
             setShowConfirm(false)
             queryClient.invalidateQueries({
                 queryKey: ['count-wait-approval-leave-request'],
@@ -104,7 +98,7 @@ export default function ListLeaveRequestWaitApproval () {
             handleApproval(shouldGoBack);
             setSelectedItem(null)
         } catch (error) {
-            ShowToast(getErrorMessage(error), "error", 7000);
+            ShowToast(getErrorMessage(error), "error");
         } finally {
             setLoading(false);
         }
@@ -121,7 +115,7 @@ export default function ListLeaveRequestWaitApproval () {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">Wait Approval</h3>
+                <h3 className="font-bold text-2xl m-0 pb-2">{t('list_leave_request.title_wait_approval')}</h3>
             </div>
 
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
@@ -129,18 +123,18 @@ export default function ListLeaveRequestWaitApproval () {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[120px] text-left">User Code</TableHead>
-                                <TableHead className="w-[180px] text-left">Name</TableHead>
-                                <TableHead className="w-[130px] text-left">Department</TableHead>
-                                <TableHead className="w-[100px] text-left">Position</TableHead>
-                                <TableHead className="w-[150px] text-left">From</TableHead>
-                                <TableHead className="w-[150px] text-left">To</TableHead>
-                                <TableHead className="w-[120px] text-left">Type leave</TableHead>
-                                <TableHead className="w-[120px] text-left">Time leave</TableHead>
-                                <TableHead className="w-[200px] text-left">Reason</TableHead>
-                                <TableHead className="w-[80px] text-left">Approve By</TableHead>
-                                <TableHead className="w-[50px] text-left">Created at</TableHead>
-                                <TableHead className="w-[50px] text-left">Approval</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.usercode')}</TableHead>
+                                <TableHead className="w-[180px] text-left">{t('list_leave_request.name')}</TableHead>
+                                <TableHead className="w-[130px] text-left">{t('list_leave_request.department')}</TableHead>
+                                <TableHead className="w-[100px] text-left">{t('list_leave_request.position')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.from')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.to')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.type_leave')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
+                                <TableHead className="w-[200px] text-left">{t('list_leave_request.reason')}</TableHead>
+                                <TableHead className="w-[80px] text-left">{t('list_leave_request.approve_by')}</TableHead>
+                                <TableHead className="w-[50px] text-left">{t('list_leave_request.created_at')}</TableHead>
+                                <TableHead className="w-[50px] text-left">{t('list_leave_request.approval')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -163,7 +157,7 @@ export default function ListLeaveRequestWaitApproval () {
                                     ))
                             ) : isError || leaveRequests.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`text-red-700 font-medium text-left dark:text-white`} colSpan={12}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`text-red-700 font-medium text-left dark:text-white`} colSpan={12}>{error?.message ?? t('list_leave_request.no_result')}</TableCell>
                                 </TableRow>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (

@@ -19,9 +19,9 @@ import {
 } from "@/components/ui/form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ShowToast } from "@/lib"
+import { getErrorMessage, ShowToast } from "@/lib"
 import roleApi from "@/api/roleApi"
-import { AxiosError } from "axios"
+import { useTranslation } from "react-i18next"
 
 const createUserSchema = z.object({
     name: z.string().min(1, { message: "Tên không được để trống" }),
@@ -41,7 +41,8 @@ type Props = {
 
 export default function CreateRoleComponent({ role, onAction }: Props) {
     const [open, setOpen] = useState(false)
-
+    const { t } = useTranslation();
+    
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
         defaultValues: {
@@ -62,21 +63,16 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
         try {
             if (role?.id) {
                 await roleApi.update(role.id, values);
-                ShowToast("Update role success", "success");
+                ShowToast("Success");
             } else {
                 await roleApi.create(values);
-                ShowToast("Add new role success", "success");
+                ShowToast("Success");
             }
             onAction?.();
             setOpen(false);
             form.reset();
-        } catch (err: unknown) {
-            const error = err as AxiosError<{ message: string }>
-            const message = error?.response?.data?.message ?? "Something went wrong"
-			form.setError("name", {
-				type: "server",
-				message,
-			})
+        } catch (err) {
+            ShowToast(getErrorMessage(err), "error")
         }
     };
 
@@ -89,14 +85,16 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                             Edit
                         </button>
                     ) : (
-                        <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">Create Role</Button>
+                        <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">
+                            {t('list_role_page.btn_create_role')}
+                        </Button>
                     )
                 }
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
                 <DialogHeader>
-                    <DialogTitle>{role?.id ? "Update" : "Create New"} Role</DialogTitle>
+                    <DialogTitle>{role?.id ? t('list_role_page.btn_update_role') : t('list_role_page.btn_create_role')}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -106,9 +104,9 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="name">{t('list_role_page.name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="Input role..." {...field} />
+                                        <Input id="name" placeholder="..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -120,9 +118,9 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                             name="code"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="name">Code</Label>
+                                    <Label htmlFor="name">{t('list_role_page.code')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder="Input code..." {...field} />
+                                        <Input id="code" placeholder="..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
