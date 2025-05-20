@@ -186,8 +186,8 @@ export default function ListLeaveRequest () {
                                             <TableCell className="text-left">{item?.name}</TableCell>
                                             <TableCell className="text-left">{item?.department}</TableCell>
                                             <TableCell className="text-left">{item?.position}</TableCell>
-                                            <TableCell className="text-left">{formatDate(item?.fromDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
-                                            <TableCell className="text-left">{formatDate(item?.toDate ?? "", "yyyy/MM/dd HH:mm")}</TableCell>
+                                            <TableCell className="text-left">{item?.fromDate}</TableCell>
+                                            <TableCell className="text-left">{item?.toDate}</TableCell>
                                             <TableCell className="text-left">{getEnumName(item?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
                                             <TableCell className="text-left">{getEnumName(item?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
                                             <TableCell className="text-center">{item?.reason}</TableCell>
