@@ -1,11 +1,11 @@
 import { ReactNode, useEffect } from "react";
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-
+import { useSidebarStore } from "@/store/sidebarStore";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Header from "../components/Header/Header";
 import BreadCrumbComponent from "../components/BreadCrumbComponent/BreadCrumbComponent";
+
 import '../components/RootComponent/App.css'
-import { useSidebarStore } from "@/store/sidebarStore";
 
 type Props = {
     children: ReactNode;
@@ -19,9 +19,7 @@ export default function MainLayout({ children }: Props) {
         let connection: HubConnection | null = null;
 
         const startConnection = async () => {
-            connection = new HubConnectionBuilder()
-                .withUrl(import.meta.env.VITE_URL_HUB)
-                .build();
+            connection = new HubConnectionBuilder().withUrl(import.meta.env.VITE_URL_HUB).build();
 
             connection.on("login_again", () => {
 				localStorage.removeItem('auth-storage')

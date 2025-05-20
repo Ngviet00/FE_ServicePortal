@@ -16,19 +16,19 @@ export default function useIsReponsive() {
 }
 
 export function useSidebarResponsiveReset() {
-  const closeSidebar = useSidebarStore((s) => s.closeSidebar);
+    const closeSidebar = useSidebarStore((s) => s.closeSidebar);
 
-  useEffect(() => {
-    const handleResize = () => {
-        if (window.innerWidth >= 1024) {
-            closeSidebar();
-        }
-    };
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        };
 
-    window.addEventListener("resize", handleResize);
+        window.addEventListener("resize", handleResize);
 
-    handleResize();
+        handleResize();
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, [closeSidebar]);
+        return () => window.removeEventListener("resize", handleResize);
+    }, [closeSidebar]);
 }

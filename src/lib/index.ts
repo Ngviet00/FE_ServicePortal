@@ -5,14 +5,10 @@ export const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export const ShowToast = (
-    message: string,
-    type: "success" | "error" | "info" | "warning" = "success",
-    autoClose: number = 3000
-) => {
+export const ShowToast = (message: string, type: "success" | "error" | "info" | "warning" = "success", autoClose?: number) => {
     toast[type](message, {
         position: "top-right",
-        autoClose: autoClose,
+        autoClose: autoClose ?? (type === "error" ? 5000 : 3000),
         hideProgressBar: false,
         closeOnClick: false,
         pauseOnHover: true,
@@ -63,16 +59,14 @@ export const formatDate = (dateStr: string | undefined, type: "dd/MM/yyyy" | "yy
 
 export function parseDateTime(datetimeStr: string) {
     const date = new Date(datetimeStr);
-  
-    // Lấy giờ và phút, thêm số 0 phía trước nếu cần
     const hour = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
   
     return {
-      original: datetimeStr,
-      date: date.toLocaleDateString("en-US"),
-      hour,
-      minutes,
+        original: datetimeStr,
+        date: date.toLocaleDateString("en-US"),
+        hour,
+        minutes,
     };
 }
 
@@ -137,8 +131,8 @@ export const getEnumName = (value: string, enumObj: object): string => {
     const entry = Object.entries(enumObj).find(([, val]) => val == value);
 
     if (entry) {
-      const name = entry[0];
-      return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        const name = entry[0];
+        return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
     }
     
     return "UNKNOWN"; 
@@ -148,9 +142,22 @@ export function getErrorMessage(error: unknown): string {
     if (typeof error === "string") return error;
 
     const err = error as {
-        response?: { data?: { message?: string } };
+        response?: {
+            data?: {
+                message?: string;
+                errors?: { field: string; errors: string[] }[];
+            };
+        };
         message?: string;
     };
 
-    return err.response?.data?.message || err.message || "Unexpected error occurred";
+    const detailedErrors = err.response?.data?.errors;
+    if (Array.isArray(detailedErrors) && detailedErrors.length > 0) {
+        const firstFieldError = detailedErrors[0];
+        if (Array.isArray(firstFieldError.errors) && firstFieldError.errors.length > 0) {
+            return firstFieldError.errors[0];
+        }
+    }
+
+    return err.response?.data?.message || err.message || "Server error!";
 }

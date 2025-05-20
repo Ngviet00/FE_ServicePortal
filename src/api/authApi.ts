@@ -1,29 +1,22 @@
 import axiosClient from './axiosClient';
 
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    code: string;
-}
-
 interface LoginRequest {
-    user_code: string
+    userCode: string
     password: string
 }
 
 interface ChangePasswordRequest {
-    new_password: string 
-    confirm_password: string
+    newPassword: string 
+    confirmPassword: string
 }
 
 export interface RegisterRequest {
-    Usercode: string | null,
-    Password: string | null,
+    userCode: string
+    password: string
 }
 
 interface RefreshTokenRequest {
-    RefreshToken: string | null,
+    refreshToken: string | null,
 }
 
 const authApi = {

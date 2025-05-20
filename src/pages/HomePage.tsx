@@ -13,11 +13,11 @@ export default function HomePage() {
     return (
         <div className="p-1 pt-0 home-page">
             <div className="flex justify-between mb-3">
-                <h3 className="title font-bold text-2xl m-0 pb-2">{t('home_page.home_page')}</h3>
+                <h3 className="title font-bold text-2xl m-0 pb-2">{t('home_page.title')}</h3>
             </div>
 
             <div className="wrap-home-page rounded-3xl bg-[#f3f4ff] flex flex-col md:flex-row md:h-[240px]">
-                <div className="wrap-avatar w-[20%]">
+                <div className="wrap-avatar w-[20%] dark:bg-[#454545]">
                     <div className='bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                         <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                         <div>

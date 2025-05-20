@@ -1,21 +1,60 @@
+import { House, LockKeyhole, Ticket } from "lucide-react";
 import { create } from "zustand";
-import { SIDEBAR_MENUS } from "@/lib/sidebar";
 
-type SidebarMenuKey = NonNullable<typeof SIDEBAR_MENUS[number]["key"]>;
+export interface SidebarMenuItem {
+	key: string;
+	label: string;
+	icon: React.ElementType;
+	route?: string;
+	children?: { label: string; route: string }[];
+}
+
+export const SIDEBAR_MENUS: SidebarMenuItem[] = [
+	{
+		key: "home",
+		label: "sidebar.home",
+		icon: House,
+		route: "/",
+		children: [],
+	},
+	{
+		key: "HR",
+		label: "HR",
+		icon: LockKeyhole,
+		children: [
+			{ label: "sidebar.hr.role", route: "/role" },
+			{ label: "sidebar.hr.type_leave", route: "/type-leave" },
+			{ label: "sidebar.hr.list_user", route: "/user" },
+			{ label: "sidebar.hr.org", route: "/user/org-chart" },
+		],
+	},
+	{
+		key: "leave_request",
+		label: "sidebar.leave_request.title",
+		icon: Ticket,
+		children: [
+			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
+			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
+			{ label: "sidebar.leave_request.wait_approval", route: "/leave/wait-approval" },
+		],
+	},
+];
+
+type SidebarMenuKey = typeof SIDEBAR_MENUS[number]["key"];
 
 interface SidebarState {
-	closeSidebar: () => void;
-	setVisibleSubmenuByPath: (path: string) => void;
 	isOpen: boolean;
 	submenusVisible: Record<SidebarMenuKey, boolean>;
 	toggleSidebar: () => void;
+	closeSidebar: () => void;
 	toggleSubmenu: (menu: SidebarMenuKey) => void;
 	closeAllSubmenus: () => void;
+	setVisibleSubmenuByPath: (path: string) => void;
 	closeMenuIfNotChild: (pathname: string) => void;
 }
 
 const initialSubmenusVisible = SIDEBAR_MENUS.reduce((acc, item) => {
-	if (item.key) acc[item.key] = false;
+	acc[item.key] = false;
 	return acc;
 }, {} as Record<SidebarMenuKey, boolean>);
 
@@ -48,30 +87,31 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
 	},
 
 	closeAllSubmenus: () => set({ submenusVisible: initialSubmenusVisible }),
-	
+
 	setVisibleSubmenuByPath: (pathname: string) => {
-		const matchedMenu = SIDEBAR_MENUS.find(
-			(menu) => menu.children?.some((child) => pathname.startsWith(child.route))
+		const matchedMenu = SIDEBAR_MENUS.find((menu) =>
+			menu.children?.some((child) => pathname.startsWith(child.route))
 		);
-	
-		if (matchedMenu?.key) {
+		if (matchedMenu) {
 			set({
 				submenusVisible: {
 					...Object.fromEntries(SIDEBAR_MENUS.map((m) => [m.key, false])),
-					[matchedMenu.key]: true
-				}
+					[matchedMenu.key]: true,
+				},
 			});
 		}
 	},
 
 	closeMenuIfNotChild: (pathname: string) => {
-        const matchedMenu = SIDEBAR_MENUS.find((menu) => 
-            menu.children?.some((child) => pathname.startsWith(child.route))
-        );
-        if (!matchedMenu) {
-            set({
-                submenusVisible: Object.fromEntries(SIDEBAR_MENUS.map((m) => [m.key, false])),
-            });
-        }
-    },
+		const matchedMenu = SIDEBAR_MENUS.find((menu) =>
+			menu.children?.some((child) => pathname.startsWith(child.route))
+		);
+		if (!matchedMenu) {
+			set({
+				submenusVisible: Object.fromEntries(
+					SIDEBAR_MENUS.map((m) => [m.key, false])
+				),
+			});
+		}
+	},
 }));

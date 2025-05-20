@@ -1,5 +1,4 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -20,15 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/store/authStore";
 import { Spinner } from "@/components/ui/spinner";
-import DotRequireComponent from "@/components/DotRequireComponent";
-import { AxiosError } from "axios";
 import { getErrorMessage, ShowToast, TIME_LEAVE } from "@/lib";
 import { Checkbox } from "@/components/ui/checkbox";
-import typeLeaveApi from "@/api/typeLeaveApi";
+import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
 import { useQuery } from "@tanstack/react-query";
-import { ITypeLeave } from "../TypeLeave/ListTypeLeave";
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi";
 import userConfigApi from "@/api/userConfigApi";
+import DotRequireComponent from "@/components/DotRequireComponent";
 
 const formSchema = z.object({
     user_code: z.string().nonempty({ message: "Required" }),
@@ -50,31 +47,25 @@ const formSchema = z.object({
 const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
     requesterUserCode: values.user_code ?? null,
     writeLeaveUserCode: values.user_code_register,
-
     name: values.name,
-
     department: values.department,
     position: values.position,
-
     fromDate: `${values.from_date} ${values.from_hour}:${values.from_minutes}`,
     toDate: `${values.to_date} ${values.to_hour}:${values.to_minutes}`,
-
     reason: values.reason,
     typeLeave: parseInt(values.type_leave),
     timeLeave: parseInt(values.time_leave),
-
     urlFrontend: window.location.origin,
 });
 
 export default function LeaveRequestForm() {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
     const { user } = useAuthStore();
     const [checkReceiveEmail, setCheckReceiveEmail] = useState(false);
-
     const { id } = useParams<{ id: string }>();
     const isEdit = !!id;
+    const navigate = useNavigate();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -100,21 +91,16 @@ export default function LeaveRequestForm() {
             const data = formatData(values);
             if (isEdit) {
                 await leaveRequestApi.update(id, data);
-                ShowToast("Success", "success");
+                ShowToast("Success");
                 navigate("/leave");
             } else {
                 await leaveRequestApi.create(data);
-                ShowToast("Success", "success");
+                ShowToast("Success");
                 form.setValue("reason", "");
                 navigate("/leave");
             }
-        } catch (err: unknown) {
-            const error = err as AxiosError<{ message: string }>;
-            const message = error?.response?.data?.message ?? "Something went wrong";
-            form.setError("user_code", {
-                type: "server",
-                message,
-            });
+        } catch (err) {
+            ShowToast(getErrorMessage(err))
         } finally {
             setLoading(false);
         }
@@ -140,7 +126,6 @@ export default function LeaveRequestForm() {
         queryKey: ['get-email-by-usercode-and-key'],
         queryFn: async () => {
             const res = await userConfigApi.getConfigByUsercodeAndkey({ userCode: user?.userCode, key: "RECEIVE_MAIL_LEAVE_REQUEST" });
-            console.log(res.data.data, 22);
             return res.data.data;
         },
     });
@@ -161,7 +146,7 @@ export default function LeaveRequestForm() {
                 configValue: checked ? "true" : "false",
             });
             setCheckReceiveEmail(checked)
-            ShowToast("Success", "success")
+            ShowToast("Success")
         } catch (error) {
             ShowToast(getErrorMessage(error), "error")
         }
@@ -197,7 +182,7 @@ export default function LeaveRequestForm() {
                             htmlFor="receive-mail"
                             className="ml-2 text-sm md:text-base font-medium leading-none hover:cursor-pointer"
                         >
-                            Nhận thông báo qua email
+                            {t('leave_request.create.receive_email')}
                         </label>
                     </div>
                 </div>

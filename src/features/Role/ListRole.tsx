@@ -2,31 +2,27 @@ import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { ShowToast, useDebounce } from "@/lib"
+import { getErrorMessage, ShowToast, useDebounce } from "@/lib"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-
 import roleApi, { IRole } from "@/api/roleApi"
 import React from "react"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import CreateRoleComponent from "./CreateRoleForm"
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import { useTranslation } from "react-i18next"
 
 export default function ListRole () {
-    const [name, setName] = useState("") //search by name
+    const { t } = useTranslation();
+    const [name, setName] = useState("")
     const [totalPage, setTotalPage] = useState(0)
-    const [page, setPage] = useState(1) //current page
-    const [pageSize, setPageSize] = useState(20) //per page 5 item
-
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(20)
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
     
-    //get list roles 
     const { data: roles = [], isPending, isError, error } = useQuery({
         queryKey: ['get-all-role', debouncedName, page, pageSize],
         queryFn: async () => {
-            await delay(Math.random() * 100 + 100);
             const res = await roleApi.getAll({
                 page: page,
                 page_size: pageSize,
@@ -67,11 +63,10 @@ export default function ListRole () {
             await roleApi.delete(id);
         },
         onSuccess: () => {
-            ShowToast("Delete role success", "success");
+            ShowToast("Success");
         },
         onError: (error) => {
-            console.error("Delete failed:", error);
-            ShowToast("Delete role failed", "error");
+            ShowToast(getErrorMessage(error), "error");
         }
     });
 
@@ -81,20 +76,20 @@ export default function ListRole () {
             await mutation.mutateAsync(id);
             handleSuccessDelete(shouldGoBack);
         } catch (error) {
-            console.error("Failed to delete:", error);
+            ShowToast(getErrorMessage(error), "error");
         }
     };
 
     return (
         <div className="p-4 pl-1 pt-0 list-role">
             <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">Roles</h3>
+                <h3 className="font-bold text-2xl m-0 pb-2">{t('list_role_page.title')}</h3>
                 <CreateRoleComponent onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
             </div>
 
             <div className="flex items-center justify-between">
                 <Input
-                    placeholder="Tìm kiếm role..."
+                    placeholder={t('list_role_page.search')}
                     value={name}
                     onChange={handleSearchByName}
                     className="max-w-sm"
@@ -107,9 +102,9 @@ export default function ListRole () {
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-[20px] text-left">ID</TableHead>
-                                <TableHead className="w-[50px] text-left">Name</TableHead>
-                                <TableHead className="w-[50px] text-left">Code</TableHead>
-                                <TableHead className="w-[100px] text-right">Action</TableHead>
+                                <TableHead className="w-[50px] text-left">{t('list_role_page.name')}</TableHead>
+                                <TableHead className="w-[50px] text-left">{t('list_role_page.code')}</TableHead>
+                                <TableHead className="w-[100px] text-right">{t('list_role_page.action')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

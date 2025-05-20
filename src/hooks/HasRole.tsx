@@ -2,7 +2,6 @@ import { IRole } from '@/api/roleApi';
 import { useAuthStore } from '@/store/authStore';
 import { useMemo } from 'react';
 
-
 const hasAccess = (userRoles: IRole[], allowedRoles: string[]): boolean => {
 	const userRoleCodes = userRoles.map(role => role.code?.toLowerCase()).filter(Boolean);
 	return (

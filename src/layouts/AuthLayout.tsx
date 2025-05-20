@@ -7,8 +7,8 @@ type Props = {
 };
 
 export default function AuthLayout({ children }: Props) {
+    const navigate = useNavigate();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-    const navigate = useNavigate(); 
 
 	useEffect(() => {
 		if (isAuthenticated) {

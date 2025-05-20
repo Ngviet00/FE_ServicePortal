@@ -15,35 +15,31 @@ import {
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
+import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName, getErrorMessage, ShowToast } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName, ShowToast } from "@/lib"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import { useTranslation } from "react-i18next"
 
 export default function ListLeaveRequest () {
-    const [totalPage, setTotalPage] = useState(0) //search by name
-    const [page, setPage] = useState(1) //current page
-    const [pageSize, setPageSize] = useState(10) //per page 5 item
+    const { t } = useTranslation();
+    const [totalPage, setTotalPage] = useState(0)
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
     const [filterStatus, setFilterStatus] = useState("PENDING")
     const [countPending, setCountPending] = useState(0)
     const [countInProcess, setCountInProcess] = useState(0)
-
     const {user} = useAuthStore()
-
     const queryClient = useQueryClient();
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
         queryKey: ['get-leave-requests', { user_code: user?.userCode, page, pageSize, status: filterStatus }],
         queryFn: async () => {
-            await delay(Math.random() * 100 + 100);
             const res = await leaveRequestApi.getAll({
                 UserCode: user?.userCode ?? "",
                 Page: page,
                 PageSize: pageSize,
                 Status: filterStatus
             });
-            console.log('call api leave request');
             setTotalPage(res.data.total_pages)
             setCountPending(res.data.count_pending)
             setCountInProcess(res.data.count_in_process)
@@ -77,11 +73,10 @@ export default function ListLeaveRequest () {
             await leaveRequestApi.delete(id);
         },
         onSuccess: () => {
-            ShowToast("Success", "success");
+            ShowToast("Success");
         },
         onError: (error) => {
-            console.error("Delete failed:", error);
-            ShowToast("Delete failed", "error");
+            ShowToast(getErrorMessage(error), "error");
         }
     });
 
@@ -91,16 +86,16 @@ export default function ListLeaveRequest () {
             await mutation.mutateAsync(id);
             handleSuccessDelete(shouldGoBack);
         } catch (error) {
-            console.error("Failed to delete:", error);
+            ShowToast(getErrorMessage(error), "error");
         }
     };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
-                <h3 className="font-bold text-xl md:text-2xl m-0">List leave request</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('list_leave_request.title_list')}</h3>
                 <Button asChild className="w-full md:w-auto">
-                    <Link to="/leave/create">Create leave request</Link>
+                    <Link to="/leave/create">{t('list_leave_request.btn_create_leave_request')}</Link>
                 </Button>
             </div>
 
@@ -109,33 +104,33 @@ export default function ListLeaveRequest () {
                     <Tabs defaultValue="1" className="w-full" onValueChange={handleChangeFilter}>
                         <TabsList className="mb-5 flex flex-wrap justify-center gap-2 p-0">
                             <TabsTrigger
-                            className="min-w-[120px] px-3 py-1 text-sm bg-gray-200 text-gray-600 hover:cursor-pointer"
+                            className="dark:text-black min-w-[120px] px-3 py-1 text-sm bg-gray-200 text-gray-600 hover:cursor-pointer"
                             value="PENDING"
                             >
-                            Pending
-                            {countPending > 0 && <span className="ml-1 text-red-500">({countPending})</span>}
+                                {t('list_leave_request.pending')}
+                                {countPending > 0 && <span className="ml-1 text-red-500">({countPending})</span>}
                             </TabsTrigger>
 
                             <TabsTrigger
-                            className="min-w-[120px] px-3 py-1 text-sm bg-yellow-200 text-yellow-600 hover:cursor-pointer"
+                            className="dark:text-black min-w-[120px] px-3 py-1 text-sm bg-yellow-200 text-yellow-600 hover:cursor-pointer"
                             value="IN_PROCESS"
                             >
-                            In-Process
-                            {countInProcess > 0 && <span className="ml-1 text-red-500">({countInProcess})</span>}
+                                {t('list_leave_request.in_process')}
+                                {countInProcess > 0 && <span className="ml-1 text-red-500">({countInProcess})</span>}
                             </TabsTrigger>
 
                             <TabsTrigger
-                            className="min-w-[120px] px-3 py-1 text-sm bg-green-200 text-green-600 hover:cursor-pointer"
+                            className="dark:text-black min-w-[120px] px-3 py-1 text-sm bg-green-200 text-green-600 hover:cursor-pointer"
                             value="COMPLETED"
                             >
-                            Complete
+                                {t('list_leave_request.complete')}
                             </TabsTrigger>
 
                             <TabsTrigger
-                            className="min-w-[120px] px-3 py-1 text-sm bg-red-200 text-red-600 hover:cursor-pointer"
+                            className="dark:text-black min-w-[120px] px-3 py-1 text-sm bg-red-200 text-red-600 hover:cursor-pointer"
                             value="REJECT"
                             >
-                            Reject
+                                {t('list_leave_request.reject')}
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -145,19 +140,19 @@ export default function ListLeaveRequest () {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[100px] text-left">User Code</TableHead>
-                                <TableHead className="w-[150px] text-left">Name</TableHead>
-                                <TableHead className="w-[130px] text-left">Department</TableHead>
-                                <TableHead className="w-[100px] text-left">Position</TableHead>
-                                <TableHead className="w-[150px] text-left">From</TableHead>
-                                <TableHead className="w-[150px] text-left">To</TableHead>
-                                <TableHead className="w-[120px] text-left">Type leave</TableHead>
-                                <TableHead className="w-[120px] text-left">Time leave</TableHead>
-                                <TableHead className="w-[200px] text-center">Reason</TableHead>
-                                <TableHead className="w-[120px] text-center">{filterStatus == "REJECT" ? "Reject By" : "Approve By"}</TableHead>
-                                <TableHead className="w-[50px] text-left">{filterStatus == "PENDING" ? "Created at" : filterStatus == "REJECT" ? "Reject At" : "Approved At"}</TableHead>
+                                <TableHead className="w-[100px] text-left">{t('list_leave_request.usercode')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.name')}</TableHead>
+                                <TableHead className="w-[130px] text-left">{t('list_leave_request.department')}</TableHead>
+                                <TableHead className="w-[100px] text-left">{t('list_leave_request.position')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.from')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.to')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.type_leave')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
+                                <TableHead className="w-[200px] text-center">{t('list_leave_request.reason')}</TableHead>
+                                <TableHead className="w-[120px] text-center">{filterStatus == "REJECT" ? t('list_leave_request.reject_by') : t('list_leave_request.approve_by')}</TableHead>
+                                <TableHead className="w-[50px] text-left">{filterStatus == "PENDING" ? t('list_leave_request.created_at') : filterStatus == "REJECT" ? t('list_leave_request.reject_at') : t('list_leave_request.created_at')}</TableHead>
                                 <TableHead className={`w-[${filterStatus == "REJECT" ? "120px" : "70px"}] text-left`}>
-                                    {filterStatus == "REJECT" ? "Reason" : "Status"}
+                                    {filterStatus == "REJECT" ? t('list_leave_request.note') : t('list_leave_request.status')}
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
@@ -182,7 +177,7 @@ export default function ListLeaveRequest () {
                                     ))
                             ) : isError || leaveRequests.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`text-red-700 font-medium text-left dark:text-white`} colSpan={13}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`text-red-700 font-medium text-left dark:text-white`} colSpan={13}>{error?.message ?? t('list_leave_request.no_result')}</TableCell>
                                 </TableRow>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (

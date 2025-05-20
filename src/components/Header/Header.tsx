@@ -1,20 +1,18 @@
 import { useAuthStore } from "@/store/authStore"
 import { Menu, Moon, Sun } from "lucide-react"
-import SelectedLanguage from "./components/SelectLanguage"
 import { useSidebarStore } from "@/store/sidebarStore"
-
-import "./style.css"
-import AvatarDropdown from "./components/AvatarDropdown"
 import { useEffect, useState } from "react"
 import { useAppStore } from "@/store/appStore"
+import SelectedLanguage from "./components/SelectLanguage"
+import AvatarDropdown from "./components/AvatarDropdown"
+
+import "./style.css"
 
 export default function Header() {
     const { user } = useAuthStore();
-    const handleToggleSidebar = useSidebarStore((s) => s.toggleSidebar);
-
     const [darkMode, setDarkMode] = useState(false);
-
     const numberWait = useAppStore((state) => state.numberWait);
+    const handleToggleSidebar = useSidebarStore((s) => s.toggleSidebar);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');

@@ -1,22 +1,19 @@
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
-
-import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getErrorMessage, ShowToast, useDebounce } from "@/lib"
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import userApi, { ListUserData } from "@/api/userApi"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import roleApi, { IRole } from "@/api/roleApi"
-
 import { MultiSelect } from "react-multi-select-component";
 import { Spinner } from "@/components/ui/spinner"
+import PaginationControl from "@/components/PaginationControl/PaginationControl"
+import React, { useEffect, useState } from "react"
+import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
+import userApi, { ListUserData } from "@/api/userApi"
+import roleApi, { IRole } from "@/api/roleApi"
 import useHasRole from "@/hooks/HasRole"
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import { useTranslation } from "react-i18next"
 
 type Option = {
     value: string;
@@ -24,24 +21,21 @@ type Option = {
 };
 
 export default function ListUser () {
-    const queryClient = useQueryClient();
-
+    const { t } = useTranslation();
     const [name, setName] = useState("")
-    const debouncedName = useDebounce(name, 300);
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-
     const [selectedItem, setSelectedItem] = useState<ListUserData | null>(null);
-    
     const [options, setOptions] = useState<Option[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<Option[]>([]);
+    const queryClient = useQueryClient();
+    const debouncedName = useDebounce(name, 300);
     
     //get list users 
     const { data: users = [], isPending, isError, error } = useQuery({
         queryKey: ['get-all-user', debouncedName, page, pageSize],
         queryFn: async () => {
-            await delay(Math.random() * 100 + 100);
             const res = await userApi.getAll({
                 page: page,
                 page_size: pageSize,
@@ -82,11 +76,10 @@ export default function ListUser () {
             await userApi.delete(id);
         },
         onSuccess: () => {
-            ShowToast("Success", "success");
+            ShowToast("Success");
         },
         onError: (error) => {
-            console.error("Delete failed:", error);
-            ShowToast("Delete failed", "error");
+            ShowToast(getErrorMessage(error), "error");
         }
     });
 
@@ -96,11 +89,10 @@ export default function ListUser () {
             await mutation.mutateAsync(id);
             handleSuccessDelete(shouldGoBack);
         } catch (error) {
-            console.error("Failed to delete:", error);
+            ShowToast(getErrorMessage(error), "error");
         }
     };
 
-    //fetch list role
     const { data: roles = [] } = useQuery({
         queryKey: ['list-roles'],
         queryFn: async () => {
@@ -135,7 +127,7 @@ export default function ListUser () {
     const handleResetPassword = async (item: ListUserData) => {
         try {
             await userApi.resetPassword(item.userCode)
-            ShowToast("Success", "success")
+            ShowToast("Success")
         }   
         catch (err) {
             ShowToast(getErrorMessage(err), "error")
@@ -159,45 +151,41 @@ export default function ListUser () {
                 queryClient.invalidateQueries({ queryKey: ['get-all-user'] });
             },
             onError: (err) => {
-                ShowToast("Lỗi không thể cập nhật role, hãy liên hệ team IT", "error", 5000)
-                console.log('error update user role', err)
+                ShowToast(getErrorMessage(err), "error")
             },
         })
     }
 
     const selectedLabels = selectedRoles.map(role => role.label).join(', ');
-
     const isSuperAdmin = useHasRole(['superadmin']);
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">User</h3>
+                <h3 className="font-bold text-2xl m-0 pb-2">{t('list_user_page.title')}</h3>
             </div>
-
             <div className="flex items-center justify-start">
                 <Input
-                    placeholder="Tìm kiếm"
+                    placeholder={t('list_user_page.search')}
                     value={name}
                     onChange={handleSearchByName}
                     className="w-full"
                 />
             </div>
-
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
                 <div className="min-w-[1200px]">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[120px] text-left">User Code</TableHead>
-                                <TableHead className="w-[180px] text-left">Name</TableHead>
-                                <TableHead className="w-[130px] text-left">Department</TableHead>
-                                <TableHead className="w-[100px] text-left">Position</TableHead>
-                                <TableHead className="w-[150px] text-left">Sex</TableHead>
-                                <TableHead className="w-[150px] text-left">Phone</TableHead>
-                                <TableHead className="w-[120px] text-left">Email</TableHead>
-                                <TableHead className="w-[150px] text-left">Date join company</TableHead>
-                                <TableHead className="w-[120px] text-left">Action</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_user_page.usercode')}</TableHead>
+                                <TableHead className="w-[180px] text-left">{t('list_user_page.name')}</TableHead>
+                                <TableHead className="w-[130px] text-left">{t('list_user_page.department')}</TableHead>
+                                <TableHead className="w-[100px] text-left">{t('list_user_page.position')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_user_page.sex')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_user_page.phone')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_user_page.email')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_user_page.date_join_company')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_user_page.action')}</TableHead>
                             </TableRow>
                         </TableHeader>
 
@@ -227,7 +215,7 @@ export default function ListUser () {
                                             <TableCell className="text-left">--</TableCell>
                                             <TableCell className="text-left">--</TableCell>
                                             <TableCell className="text-left">--</TableCell>
-                                            <TableCell className="text-left">Nam</TableCell>
+                                            <TableCell className="text-left">Male</TableCell>
                                             <TableCell className="text-left">--</TableCell>
                                             <TableCell className="text-left">--</TableCell>
                                             <TableCell className="text-left">--</TableCell>
