@@ -1,9 +1,9 @@
 import authApi from "@/api/authApi";
 import { Spinner } from "@/components/ui/spinner";
 import { getErrorMessage } from "@/lib";
-import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
 
 import "./css/Login.css"
 
@@ -13,7 +13,6 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
-    const setUser = useAuthStore((state) => state.setUser);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +22,8 @@ export default function RegisterPage() {
     
         try {
             const res = await authApi.register({ Usercode: user_code, Password: password });
-            setUser(res.data.user);
+            const { user, accessToken, refreshToken } = res.data;
+            useAuthStore.getState().setUser(user, accessToken, refreshToken);
             navigate("/")
         }
         catch (err) {

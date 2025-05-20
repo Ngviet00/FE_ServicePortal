@@ -9,13 +9,15 @@ import { useTranslation } from "react-i18next";
 
 export default function AvatarDropdown() {
 	const { t } = useTranslation();
-	const { logout } = useAuthStore();
+	const { logout, refreshToken } = useAuthStore();
 	const navigate = useNavigate();
+
 
 	const handleLogout = async () => {
 		try {
-			await authApi.logout();
-
+			await authApi.logout({
+				RefreshToken: refreshToken
+			});
 			logout();
 			navigate("/login");
 		} catch (err) {

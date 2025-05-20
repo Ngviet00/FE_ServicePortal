@@ -16,8 +16,7 @@ export default function ChangePasswordPage() {
     const [successMsg, setSuccessMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
-    const setUser = useAuthStore((state) => state.setUser);
-    const user = useAuthStore((state) => state.user);
+    const { updateUser } = useAuthStore();
 
     const navigate = useNavigate();
 
@@ -30,12 +29,7 @@ export default function ChangePasswordPage() {
         try {
             const res = await authApi.changePassword({ new_password, confirm_password });
             console.log(res);
-            if (user) {
-                setUser({
-                    ...user,
-                    isChangePassword: 1,
-                });
-            }
+            updateUser({ isChangePassword: 1 });
             navigate("/", { replace: true });
         }
         catch (err) {

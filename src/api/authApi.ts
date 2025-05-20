@@ -6,6 +6,7 @@ export interface User {
     email: string;
     code: string;
 }
+
 interface LoginRequest {
     user_code: string
     password: string
@@ -21,6 +22,10 @@ export interface RegisterRequest {
     Password: string | null,
 }
 
+interface RefreshTokenRequest {
+    RefreshToken: string | null,
+}
+
 const authApi = {
     login: (data: LoginRequest) => {
         return axiosClient.post('/auth/login', data);
@@ -30,8 +35,12 @@ const authApi = {
         return axiosClient.post("/auth/register", data);
     },
 
-    logout () {
-        return axiosClient.post("/auth/logout");
+    logout (data: RefreshTokenRequest) {
+        return axiosClient.post("/auth/logout", data);
+    },
+
+    refreshAccessToken(data: RefreshTokenRequest) {
+        return axiosClient.post("/auth/refresh-token", data);
     },
 
     changePassword(data: ChangePasswordRequest) {

@@ -14,7 +14,6 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
-    const setUser = useAuthStore((state) => state.setUser);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -24,7 +23,8 @@ export default function LoginPage() {
     
         try {
             const res = await authApi.login({ user_code, password });
-            setUser(res.data.user);
+            const { user, accessToken, refreshToken } = res.data;
+            useAuthStore.getState().setUser(user, accessToken, refreshToken);
             navigate("/")
         }
         catch (err) {
