@@ -1,4 +1,6 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
+import { getErrorMessage, ShowToast } from '@/lib';
 
 export interface LeaveRequestData {
     id?: string | null,
@@ -77,7 +79,29 @@ const leaveRequestApi = {
     },
     delete(id: string) {
         return axiosClient.delete(`/leave-request/delete/${id}`)
+    },
+    registerAllLeaveRequest(userCode: string | undefined) {
+        return axiosClient.post('/leave-request/hr-register-all-leave-rq', {userCode: userCode})
     }
+}
+
+export function useRegisterAllLeaveRequest(userCode: string | undefined) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async () => {
+            await leaveRequestApi.registerAllLeaveRequest(userCode)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+            queryClient.invalidateQueries({
+                queryKey: ['get-leave-request-wait-approval'],
+            });
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export default leaveRequestApi;

@@ -101,7 +101,6 @@ export default function ListRole () {
                     <Table className="min-w-[1024px] w-full">
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[20px] text-left">ID</TableHead>
                                 <TableHead className="w-[50px] text-left">{t('list_role_page.name')}</TableHead>
                                 <TableHead className="w-[50px] text-left">{t('list_role_page.code')}</TableHead>
                                 <TableHead className="w-[100px] text-right">{t('list_role_page.action')}</TableHead>
@@ -111,7 +110,6 @@ export default function ListRole () {
                             {isPending ? (
                                     Array.from({ length: 3 }).map((_, index) => (
                                         <TableRow key={index}>
-                                            <TableCell className="w-[20px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
                                             <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                             <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                             <TableCell className="w-[100px] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center"/></div></TableCell>
@@ -124,10 +122,8 @@ export default function ListRole () {
                                 ) : (
                                     roles.map((item: IRole) => (
                                         <TableRow key={item.id}>
-                                            <TableCell className="font-medium text-left">{item?.id}</TableCell>
                                             <TableCell className="font-medium text-left">{item?.name}</TableCell>
                                             <TableCell className="font-medium text-left">{item?.code}</TableCell>
-
                                             <TableCell className="text-right">
                                                 <CreateRoleComponent role={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>

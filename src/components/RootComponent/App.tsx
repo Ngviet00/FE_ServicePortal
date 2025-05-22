@@ -14,9 +14,11 @@ import PrivateRoute from '@/routes/PrivateRoute';
 import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
 import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 import OrgChart from '@/pages/OrgChart';
+import Timekeeping from '@/features/TimeKeeping/Timekeeping';
 import Forbidden from '@/pages/Forbidden';
 
 import './App.css'
+import MngTimekeeping from '@/features/TimeKeeping/MngTimeKeeping';
 
 function App() {
 	const location = useLocation();
@@ -39,7 +41,9 @@ function App() {
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
-		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>}
+		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>},
+		{ path: "/time-keeping", element: <Timekeeping/>},
+		{ path: "/management-time-keeping", element: <MngTimekeeping/>}
 	];
   
 	return (

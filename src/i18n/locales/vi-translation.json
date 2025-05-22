@@ -40,17 +40,27 @@
 
 	"sidebar": {
 		"home": "Trang chủ",
+		"admin": {
+			"role": "Vai trò"
+		},
 		"hr": {
-			"role": "Vai trò",
 			"type_leave": "Loại phép",
 			"list_user": "Danh sách người dùng",
 			"org": "Sơ đồ tổ chức"
+		},
+		"union": {
+			"union": "Công đoàn",
+			"create_notify": "Tạo thông báo"
 		},
 		"leave_request": {
 			"title": "Nghỉ phép",
 			"create_leave": "Xin nghỉ phép",
 			"list_leave": "Danh sách nghỉ",
 			"wait_approval": "Chờ duyệt"
+		},
+		"time_keeping": {
+			"time_keeping": "Chấm công",
+			"mng_time_keeping": "Quản lý chấm công"
 		}
 	},
 
@@ -163,5 +173,26 @@
 		"no_result": "Không có kết quả",
 		"note": "Ghi chú",
 		"approval": "Duyệt"
+	},
+	"time_keeping": {
+		"error_from_date_larger_than_to_date": "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu",
+		"more_than_30_day": "Vui lòng chọn lại trong khoảng 30 ngày",
+		"btn_search": "Tìm kiếm",
+		"time_keeping": "Chấm công",
+		"date": "Ngày",
+		"day": "Thứ",
+		"from": "Từ",
+		"to" : "Đến",
+		"day_time_work": "Làm ngày (phút)",
+		"night_time_work": "Làm đêm (phút)",
+		"day_ot_work": "Tăng ca ngày (phút)",
+		"night_ot_work": "Tăng ca đêm (phút)",
+		"late": "Đi muộn (phút)",
+		"early": "Về sớm (phút)",
+		"go_out": "Ra ngoài (phút)",
+		"note": "Ghi chú"
+	},
+	"mng_time_keeping": {
+		"mng_time_keeping": "Quản lý chấm công"
 	}
 }

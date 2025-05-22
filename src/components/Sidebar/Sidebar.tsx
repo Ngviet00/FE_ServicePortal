@@ -29,10 +29,11 @@ export default function Sidebar() {
 
 	const setNumberWait = useAppStore((s) => s.setNumberWait);
 
-	const { user } = useAuthStore();
-	const isSuperAdmin = useHasRole(["superadmin"]);
-	const hasHRRole = useHasRole(["HR", "HR_Manager"]);
-	const isMobile = useIsReponsive();
+	const { user } = useAuthStore()
+	const isSuperAdmin = useHasRole(["superadmin"])
+	const hasHRRole = useHasRole(["HR", "HR_Manager"])
+	const isUnion = useHasRole(['union'])
+	const isMobile = useIsReponsive()
 
 	const { data: countWaitApprovalLeaveRequest } = useQuery({
 		queryKey: ["count-wait-approval-leave-request"],
@@ -85,7 +86,9 @@ export default function Sidebar() {
 						);
 					}
 
-					if (menu.key === "HR" && !hasHRRole) return null;
+					if (menu.key == 'Admin' && !isSuperAdmin) return null;
+					if (menu.key == 'HR' && !hasHRRole) return null;
+					if (menu.key == 'Union' && !isUnion) return null;
 
 					return (
 						<div className="menu-group" key={menu.key}>

@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi"
+import leaveRequestApi, { LeaveRequestData, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, formatDate, getEnumName, getErrorMessage, ShowToast } from "@/lib"
@@ -29,6 +29,7 @@ import useHasRole from "@/hooks/HasRole"
 export default function ListLeaveRequestWaitApproval () {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false)
+    const [loadingRegisterAll, setLoadingRegisterAll] = useState(false)
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
@@ -37,6 +38,7 @@ export default function ListLeaveRequestWaitApproval () {
     const [showConfirm, setShowConfirm] = useState(false);
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
+    const registerAllLeaveMutation = useRegisterAllLeaveRequest(user?.userCode);
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
         queryKey: ['get-leave-request-wait-approval', page, pageSize],
@@ -112,10 +114,30 @@ export default function ListLeaveRequestWaitApproval () {
 
     const hasHRRole = useHasRole(['HR', 'HR_Manager']);
 
+    const registerAllLeave = async () => {
+        if (leaveRequests.length > 0) {
+            setLoadingRegisterAll(true)
+            try
+            {
+                await registerAllLeaveMutation.mutateAsync()
+            }
+            finally {   
+                setLoadingRegisterAll(false)
+            }
+        }
+    }
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('list_leave_request.title_wait_approval')}</h3>
+                {
+                    hasHRRole && 
+                    <Button variant="outline" disabled={loadingRegisterAll} onClick={registerAllLeave} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
+                        Đăng ký tất cả
+                    </Button>
+                }
+                
             </div>
 
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">

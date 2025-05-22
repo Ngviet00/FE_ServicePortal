@@ -40,17 +40,27 @@
 
 	"sidebar": {
 		"home": "Dashboard",
+		"admin": {
+			"role": "Role"
+		},
 		"hr": {
-			"role": "Role",
 			"type_leave": "Type leave",
 			"list_user": "List user",
 			"org": "Organizational chart"
+		},
+		"union": {
+			"union": "Union",
+			"create_notify": "Create Notify"
 		},
 		"leave_request": {
 			"title": "Leave request",
 			"create_leave": "Create leave request",
 			"list_leave": "List leave request",
 			"wait_approval": "Wait approval"
+		},
+		"time_keeping": {
+			"time_keeping": "Time keeping",
+			"mng_time_keeping": "Manage time keeping"
 		}
 	},
 
@@ -164,5 +174,26 @@
 		"no_result": "No result",
 		"note": "Note",
 		"approval": "Approval"
+	},
+	"time_keeping": {
+		"error_from_date_larger_than_to_date": "Start date must be less than or equal to end date",
+		"more_than_30_day": "Please select again, in about 30 days",
+		"btn_search": "Search",
+		"time_keeping": "Time keeping",
+		"date": "Date",
+		"day": "Day",
+		"from": "From",
+		"to" : "To",
+		"day_time_work": "Day work (minutes)",
+		"night_time_work": "Night work (minutes)",
+		"day_ot_work": "Overtime day (minutes)",
+		"night_ot_work": "Overtime night (minutes)",
+		"late": "Go to work leave (minutes)",
+		"early": "Go home early (minutes)",
+		"go_out": "Go out (minutes)",
+		"note": "Note"
+	},
+	"mng_time_keeping": {
+		"mng_time_keeping": "Management timekeeping"
 	}
 }

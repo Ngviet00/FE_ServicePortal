@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/store/authStore";
 import { Spinner } from "@/components/ui/spinner";
-import { getErrorMessage, ShowToast, TIME_LEAVE } from "@/lib";
+import { getErrorMessage, handleInputClickShowPicker, ShowToast, TIME_LEAVE } from "@/lib";
 import { Checkbox } from "@/components/ui/checkbox";
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
 import { useQuery } from "@tanstack/react-query";
@@ -42,6 +42,15 @@ const formSchema = z.object({
     type_leave: z.string().nonempty({ message: "Required" }),
     time_leave: z.string().nonempty({ message: "Required" }),
     reason: z.string().nonempty({ message: "Required" }),
+})
+.refine(data => {
+    const from = new Date(data.from_date);
+    const to = new Date(data.to_date);
+
+    return to >= from;
+}, {
+    path: ["to_date"],
+    message: "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu",
 });
 
 const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
@@ -100,14 +109,10 @@ export default function LeaveRequestForm() {
                 navigate("/leave");
             }
         } catch (err) {
-            ShowToast(getErrorMessage(err))
+            ShowToast(getErrorMessage(err), "error")
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleInputClickShowPicker = (event: React.MouseEvent<HTMLInputElement>) => {
-        (event.target as HTMLInputElement).showPicker();
     };
 
     const { data: typeLeaves = [], isPending, isError, error } = useQuery({
@@ -165,7 +170,7 @@ export default function LeaveRequestForm() {
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-7">
                 <div className="flex flex-col gap-2">
                     <h3 className="font-bold text-xl md:text-2xl">
                         {isEdit ? "Sửa" : "Đăng ký"} nghỉ phép
@@ -187,7 +192,7 @@ export default function LeaveRequestForm() {
                     </div>
                 </div>
 
-                <Button onClick={() => navigate("/leave")} className="w-full md:w-auto">
+                <Button onClick={() => navigate("/leave")} className="w-full md:w-auto hover:cursor-pointer">
                     {t("leave_request.create.link_to_list")}
                 </Button>
             </div>
@@ -275,7 +280,7 @@ export default function LeaveRequestForm() {
                                                 <FormLabel>{t('leave_request.create.from_date')}</FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        className="justify-center"
+                                                        className="justify-center hover:cursor-pointer"
                                                         onClick={handleInputClickShowPicker}
                                                         onChange={field.onChange}
                                                         value={field.value}

@@ -1,5 +1,7 @@
+import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { IRole } from './roleApi';
+import { getErrorMessage, ShowToast } from '@/lib';
 
 interface data {
     name: string | null
@@ -16,6 +18,11 @@ interface GetUser {
     page: number;
     page_size: number;
     name?: string;
+}
+
+interface ResetPasswordRequest {
+    userCode: string | undefined,
+    password: string | undefined
 }
 
 export interface ListUserData {
@@ -49,9 +56,23 @@ const userApi = {
     updateUserRole(data: DataUserRole) {
         return axiosClient.post(`/user/update-user-role`, data)
     },
-    resetPassword (userCode: string) {
-        return axiosClient.post(`/user/reset-password`, JSON.stringify(userCode))
+    resetPassword (data: ResetPasswordRequest) {
+        return axiosClient.post(`/user/reset-password`, data)
     }
+}
+
+export function useResetPassword () {
+    return useMutation({
+        mutationFn: async (request: ResetPasswordRequest) => {
+            await userApi.resetPassword(request)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export default userApi;

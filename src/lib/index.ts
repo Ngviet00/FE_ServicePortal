@@ -192,3 +192,7 @@ export function getErrorMessage(error: unknown): string {
 
     return err.response?.data?.message || err.message || "Server error!";
 }
+
+export const handleInputClickShowPicker = (e: React.FocusEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
+    (e.target as HTMLInputElement).showPicker?.();
+};

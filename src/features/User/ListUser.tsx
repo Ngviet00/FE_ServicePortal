@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui/spinner"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import React, { useEffect, useState } from "react"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import userApi, { ListUserData } from "@/api/userApi"
+import userApi, { ListUserData, useResetPassword } from "@/api/userApi"
 import roleApi, { IRole } from "@/api/roleApi"
 import useHasRole from "@/hooks/HasRole"
 import { useTranslation } from "react-i18next"
@@ -26,11 +26,14 @@ export default function ListUser () {
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const [selectedItem, setSelectedItem] = useState<ListUserData | null>(null);
-    const [options, setOptions] = useState<Option[]>([]);
-    const [selectedRoles, setSelectedRoles] = useState<Option[]>([]);
+    const [selectedItem, setSelectedItem] = useState<ListUserData | null>(null)
+    const [selectTypeModal, setSelectTypeModal] = useState("")
+    const [options, setOptions] = useState<Option[]>([])
+    const [selectedRoles, setSelectedRoles] = useState<Option[]>([])
+    const [passwordReset, setNewPasswordReset] = useState("")
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
+    const resetPassword = useResetPassword();
     
     //get list users 
     const { data: users = [], isPending, isError, error } = useQuery({
@@ -115,23 +118,19 @@ export default function ListUser () {
         setSelectedRoles(selected);
     };
     
-    const handleSetRole = (item: ListUserData) => {
-        const formattedRoles = item.roles.map((role: IRole) => ({
-            value: role.id.toString(),
-            label: role.name,
-        }));
-        setSelectedRoles(formattedRoles);
-        setSelectedItem(item);
-    }
-
-    const handleResetPassword = async (item: ListUserData) => {
-        try {
-            await userApi.resetPassword(item.userCode)
-            ShowToast("Success")
-        }   
-        catch (err) {
-            ShowToast(getErrorMessage(err), "error")
+    const handleShowModal = (item: ListUserData, type: string) => {
+        if (type == "role") {
+            const formattedRoles = item.roles.map((role: IRole) => ({
+                value: role.id.toString(),
+                label: role.name,
+            }));
+            setSelectedRoles(formattedRoles);
+            
+        } else {
+            console.log(1);
         }
+        setSelectTypeModal(type)
+        setSelectedItem(item);
     }
 
     const updateUserRoleMutation = useMutation({ mutationFn: userApi.updateUserRole });
@@ -158,6 +157,16 @@ export default function ListUser () {
 
     const selectedLabels = selectedRoles.map(role => role.label).join(', ');
     const isSuperAdmin = useHasRole(['superadmin']);
+
+    const handleResetPassword = async (item: ListUserData) => {
+        try {
+            await resetPassword.mutateAsync({ userCode: item.userCode, password: passwordReset });
+            setSelectedItem(null)
+        }
+        catch (err) {
+            ShowToast(getErrorMessage(err), "error")
+        }
+    }
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -224,14 +233,14 @@ export default function ListUser () {
                                                     isSuperAdmin ? (<>
                                                         <Button 
                                                             variant="outline" 
-                                                            onClick={() => handleSetRole(item)}
+                                                            onClick={() => handleShowModal(item, "role")}
                                                             className="text-xs p-[5px] h-[20x] rounded-[5px] bg-blue-900 text-white hover:cursor-pointer hover:bg-dark hover:text-white"
                                                         >
                                                             Set role
                                                         </Button>
                                                         <Button
                                                             variant="outline" 
-                                                            onClick={() => handleResetPassword(item)}
+                                                            onClick={() => handleShowModal(item, "reset")}
                                                             className="ml-2 text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
                                                         >
                                                             Reset PW
@@ -254,35 +263,56 @@ export default function ListUser () {
                             onOpenChange={(open) => {
                                 if (!open) {
                                     setSelectedItem(null)
+                                    setNewPasswordReset("")
                                 }
                             }}>
                             <DialogContent className="sm:max-w-[50%] h-[250px] flex flex-col top-[20%]">
                                 <DialogHeader>
-                                    <DialogTitle>Role</DialogTitle>
+                                    <DialogTitle>{selectTypeModal == "role" ? "Role" : "Reset Password"}</DialogTitle>
                                     <DialogDescription></DialogDescription>
                                 </DialogHeader>
-                                        <MultiSelect
-                                            className="dark:text-black"
-                                            options={options}
-                                            value={selectedRoles}
-                                            onChange={handleRoleChange}
-                                            labelledBy="Select"
-                                            hasSelectAll={false}
-                                            overrideStrings={{
-                                                selectSomeItems: "Chọn vai trò...",
-                                                search: "Tìm kiếm...",
-                                                clearSearch: "Xoá tìm kiếm",
-                                                noOptions: "Không có vai trò nào",
-                                                allItemsAreSelected: selectedLabels || "Chọn vai trò..."
-                                            }}
-                                            />
-                                    <div className="flex justify-end">
-                                        <Button type="submit" disabled={updateUserRoleMutation.isPending} onClick={() => handleConfirm(selectedItem.userCode)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
-                                            {
-                                                updateUserRoleMutation.isPending ? <Spinner className="text-white"/> : "Confirm"
-                                            }
-                                        </Button>
-                                    </div>
+                                    {
+                                        selectTypeModal == "role" ?
+                                        (
+                                            <>
+                                                <MultiSelect
+                                                    className="dark:text-black"
+                                                    options={options}
+                                                    value={selectedRoles}
+                                                    onChange={handleRoleChange}
+                                                    labelledBy="Select"
+                                                    hasSelectAll={false}
+                                                    overrideStrings={{
+                                                        selectSomeItems: "Chọn vai trò...",
+                                                        search: "Tìm kiếm...",
+                                                        clearSearch: "Xoá tìm kiếm",
+                                                        noOptions: "Không có vai trò nào",
+                                                        allItemsAreSelected: selectedLabels || "Chọn vai trò..."
+                                                    }}
+                                                />
+                                                <div className="flex justify-end">
+                                                    <Button type="submit" disabled={updateUserRoleMutation.isPending} onClick={() => handleConfirm(selectedItem.userCode)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
+                                                        {
+                                                            updateUserRoleMutation.isPending ? <Spinner className="text-white"/> : "Confirm"
+                                                        }
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        ) : (<>
+                                            <div className="flex flex-col items-end gap-2 mb-3">
+                                                <Input 
+                                                    placeholder="Nhập mật khẩu"
+                                                    value={passwordReset} 
+                                                    onChange={(e) => {setNewPasswordReset(e.target.value)}} className="mb-3"
+                                                />
+                                                <Button type="submit" disabled={resetPassword.isPending} onClick={() => handleResetPassword(selectedItem)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
+                                                    {
+                                                        resetPassword.isPending ? <Spinner className="text-white"/> : "Confirm"
+                                                    }
+                                                </Button>
+                                            </div>
+                                        </>)
+                                    }
                                 </DialogContent>
                         </Dialog>
                     )}

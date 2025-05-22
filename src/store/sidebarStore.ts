@@ -1,4 +1,4 @@
-import { House, LockKeyhole, Ticket } from "lucide-react";
+import { House, LockKeyhole, Ticket, ShieldCheck, Users } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -18,14 +18,29 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [],
 	},
 	{
-		key: "HR",
-		label: "HR",
+		key: "Admin",
+		label: "Admin",
 		icon: LockKeyhole,
 		children: [
-			{ label: "sidebar.hr.role", route: "/role" },
+			{ label: "sidebar.admin.role", route: "/role" },
+		],
+	},
+	{
+		key: "HR",
+		label: "HR",
+		icon: Users,
+		children: [
 			{ label: "sidebar.hr.type_leave", route: "/type-leave" },
 			{ label: "sidebar.hr.list_user", route: "/user" },
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
+		],
+	},
+	{
+		key: "Union",
+		label: "sidebar.union.union",
+		icon: ShieldCheck,
+		children: [
+			{ label: "sidebar.union.create_notify", route: "/create-notify" },
 		],
 	},
 	{
@@ -36,6 +51,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
 			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
 			{ label: "sidebar.leave_request.wait_approval", route: "/leave/wait-approval" },
+			{ label: "sidebar.time_keeping.time_keeping", route: "/time-keeping" },
+			{ label: "sidebar.time_keeping.mng_time_keeping", route: "/management-time-keeping" },
 		],
 	},
 ];
