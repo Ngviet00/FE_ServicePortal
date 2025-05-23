@@ -129,7 +129,7 @@ export default function Timekeeping () {
                             ) : 
                             (
                                 personalTimekeepingData.map((item: DataTimeKeeping, idx: number) => (
-                                    <TableRow key={idx} className="border-b hover:bg-gray-400">
+                                    <TableRow key={idx} className="border-b hover:bg-gray-300">
                                         <TableCell className="text-left border-r">{item.date}</TableCell>
                                         <TableCell className="text-left border-r">3</TableCell>
                                         <TableCell className="text-left border-r">08:00:00</TableCell>

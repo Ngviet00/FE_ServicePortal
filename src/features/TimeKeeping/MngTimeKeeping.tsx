@@ -1,145 +1,255 @@
-import timekeepingApi, { DataTimeKeeping } from "@/api/timeKeeping";
-import { DateInput } from "@/components/DateInput";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ShowToast } from "@/lib";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeeping";
 
-function formatDateToInputString(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+type AttendanceStatus =
+    | "O"
+    | "ND"
+    | "AL"
+    | "S"
+    | "SH"
+    | "X"
+    | "O1"
+    | "CN"
+    
+interface AttendanceEntry {
+    date: string;
+    status: AttendanceStatus;
+}
+
+interface AttendanceRecord {
+    userCode: string;
+    name: string;
+    attendances: AttendanceEntry[];
+}
+
+const statusLabels: Record<AttendanceStatus, string> = {
+    O: "O",
+    ND: "ND",
+    AL: "AL",
+    S: "S",
+    SH: "SH",
+    X: "X",
+    O1: "O1",
+    CN: "CN"
+};
+
+const statusColors: Record<AttendanceStatus, string> = {
+    O: "#fc8600",
+    ND: "#8a7d75",
+    AL: "#00ecff",
+    S: "#e800ff",
+    SH: "#07ee15",
+    X: "#dedede",
+    O1: "#f7e4ff",
+    CN: "#000000"
+};
+
+const statusDefine: Record<AttendanceStatus, string> = {
+    O: "Have permission",
+    ND: "Maternity",
+    AL: "Annual",
+    S: "Sick",
+    SH: "Special Holiday",
+    X: "Work",
+    O1: "No permission",
+    CN: "Sunday"
+};
+
+function getDefaultMonth(date: Date) {
+    return date.getMonth() + 1;
+}
+
+function getDefaultYear(date: Date) {
+    return date.getFullYear();
+}
+
+function getDaysInMonth(year: number, month: number) {
+    return new Date(year, month, 0).getDate();
+}
+
+function getToday() {
+    return new Date()
 }
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
+    const {user} = useAuthStore()
 
-    // const [fromDate, setFromDate] = useState("")
-    // const [toDate, setToDate] = useState("")
-    // const {user} = useAuthStore()
+    const today = getToday()
+    
+    const defaultMonth = getDefaultMonth(today)
+    const defaultYear = getDefaultYear(today)
 
-    // useEffect(() => {
-    //     const now = new Date();
-    //     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const [month, setMonth] = useState(defaultMonth)
+    const [year, setYear] = useState(defaultYear)
 
-    //     setFromDate(formatDateToInputString(firstDay));
-    //     setToDate(formatDateToInputString(now));
-    // }, []);
+    const confirmTimeKeeping = useConfirmTimeKeeping();
 
-    // const handleSearch = async () => {
-    //     const from = new Date(fromDate);
-    //     const to = new Date(toDate);
+    const daysInMonth = getDaysInMonth(year, month)
+    const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        const dateObj = new Date(year, month - 1, day);
+        const isSunday = dateObj.getDay() === 0;
+        return {
+            dayStr: day.toString().padStart(2, "0"),
+            isSunday,
+            dateObj,
+        };
+    });
+    
+    const { data: attendancesData, isPending, isError, error } = useQuery({
+        queryKey: ['management-timekeeping', year, month],
+        queryFn: async () => {
+            const res = await timekeepingApi.getMngTimeKeeping({
+                UserCode: user?.userCode ?? "",
+                Year: year,
+                Month: month
+            })
 
-    //     const diffTime = to.getTime() - from.getTime();
-    //     const diffDays = diffTime / (1000 * 3600 * 24);
+            return res.data.data;
+        },
+        enabled: !!year && !!month && !!user?.userCode
+    });
 
-    //     if (diffDays < 0) {
-    //         ShowToast(t('time_keeping.error_from_date_larger_than_to_date'), "error");
-    //         return;
-    //     }
-
-    //     if (diffDays > 32) {
-    //         ShowToast(t('time_keeping.more_than_30_day'), "error");
-    //         return;
-    //     }
-
-    //     refetch();
-    // }
-
-    // const { data: personalTimekeepingData, isPending, isError, error, refetch } = useQuery({
-    //     queryKey: ['personal-timekeeping'],
-    //     queryFn: async () => {
-    //         const res = await timekeepingApi.getPersonalTimeKeeping({
-    //             UserCode: user?.userCode ?? "",
-    //             FromDate: fromDate,
-    //             ToDate: toDate
-    //         });
-    //         return res.data.data;
-    //     },
-    //     enabled: !!fromDate && !!toDate && !!user?.userCode
-    // });
+    const handleSendToHR = async () => {
+        await confirmTimeKeeping.mutateAsync({
+            UserCode: user?.userCode ?? "",
+            Year: year,
+            Month: month,
+        });
+    }
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
-            <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">{t('mng_time_keeping.mng_time_keeping')}</h3>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
+                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('mng_time_keeping.mng_time_keeping')}</h3>
+                <Button className="hover:cursor-pointer">Tạo nhóm quản lý chấm công</Button>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-                <Button className="w-full sm:w-auto mt-2 sm:mt-0 hover:cursor-pointer" onClick={handleConfirm} disabled={isPending}>
-                    {isPending ? <Spinner className="text-white"/> : t('time_keeping.btn_search')}
-                </Button>
+            <div className="flex flex-wrap gap-4 items-center mt-7 mb-3 lg:justify-between">
+                <div className="flex space-x-4">
+                    <div>
+                        <Label className="mb-1">Tháng</Label>
+                        <select className="border  w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+                            {Array.from({ length: 12 }, (_, i) => (
+                                <option key={i+1} value={i+1}>{i+1}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <Label className="mb-1">Năm</Label>
+                        <select className="border w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={year} onChange={(e) => setYear(Number(e.target.value))}>
+                            <option value={defaultYear - 1}>{defaultYear - 1}</option>
+                            <option value={defaultYear}>{defaultYear}</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="font-bold text-xl lg:text-3xl">
+                    <span>{month} - {year}</span>
+                </div>
+                <AlertDialog>
+                    <AlertDialogTrigger className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">Confirm to HR</AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Do you want to continue?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action will send data to HR department
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel className="hover:cursor-pointer">Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleSendToHR} className="hover:cursor-pointer">Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
 
-            <div>
-                
+            <div className="flex flex-wrap my-5 lg:justify-around">
+                {
+                    Object.entries(statusLabels).map(([key]) => {
+                        const color = statusColors[key as AttendanceStatus];
+                        const label = statusLabels[key as AttendanceStatus];
+                        const define = statusDefine[key as AttendanceStatus]
+
+                        return (
+                            <span className="w-1/3 sm:w-1/2 md:w-1/4 lg:w-auto p-1 flex items-center" key={key}>
+                                <span style={{backgroundColor: color}} className={`w-[30px] text-center inline-block p-[2px] rounded-[3px] ${label == 'CN' ? "text-white" : "text-black"} mr-1 flex-shrink-0`}>{label}</span>
+                                <span className="text-xs sm:text-sm">{define}</span>
+                            </span>
+                        )
+                    })
+                }
             </div>
 
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
                 <div className="min-w-[1200px]">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-b bg-gray-300 hover:bg-gray-300 dark:bg-black dark:text-white">
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.date')}</TableHead>
-                                <TableHead className="w-[50px] text-left border-r">{t('time_keeping.day')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.from')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.to')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.day_time_work')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.night_time_work')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.day_ot_work')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.night_ot_work')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.late')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.early')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.go_out')}</TableHead>
-                                <TableHead className="w-[100px] text-left border-r">{t('time_keeping.note')}</TableHead>
+                            <TableRow className="border-b bg-gray-300 hover:bg-gray-400 dark:bg-black dark:text-white">
+                                <TableHead className="w-[0px] text-center border-r text-black">Mã nhân viên</TableHead>
+                                <TableHead className="w-[100px] text-center border-r text-black">Họ Tên</TableHead>
+                                {
+                                    daysHeader.map(({ dayStr, isSunday }) => (
+                                        <TableHead key={dayStr} className={`w-[5px] text-center text-black border-r ${isSunday ? "bg-black text-white" : ""}`}>{dayStr}</TableHead>
+                                    ))
+                                }
                             </TableRow>
                         </TableHeader>
-
                         <TableBody>
-                            { 
+                            {
                             isPending ? (
-                                Array.from({ length: 10 }).map((_, index) => (
+                                Array.from({ length: 1 }).map((_, index) => (
                                     <TableRow key={index}>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[0px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></TableCell>
+                                        {
+                                            daysHeader.map(({ dayStr }) => (
+                                                <TableCell key={dayStr} className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-3 w-[17px] bg-gray-300" /></div></TableCell>
+                                            ))
+                                        }
                                     </TableRow>
                                 ))
-                            ) : isError || personalTimekeepingData.length == 0 ? (
+                            ) : isError || attendancesData.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={11}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={daysInMonth + 2}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : 
                             (
-                                personalTimekeepingData.map((item: DataTimeKeeping, idx: number) => (
-                                    <TableRow key={idx} className="border-b hover:bg-gray-400">
-                                        <TableCell className="text-left border-r">{item.date}</TableCell>
-                                        <TableCell className="text-left border-r">3</TableCell>
-                                        <TableCell className="text-left border-r">08:00:00</TableCell>
-                                        <TableCell className="text-left border-r">17:25:05</TableCell>
-                                        <TableCell className="text-left border-r">480</TableCell>
-                                        <TableCell className="text-left border-r">--</TableCell>
-                                        <TableCell className="text-left border-r">90</TableCell>
-                                        <TableCell className="text-left border-r">0</TableCell>
-                                        <TableCell className="text-left border-r">0</TableCell>
-                                        <TableCell className="text-left border-r">0</TableCell>
-                                        <TableCell className="text-left border-r">0</TableCell>
-                                        <TableCell className="text-left border-r">NPL</TableCell>
+                                attendancesData.map((itemAtt: AttendanceRecord, idx: number) => (
+                                    <TableRow key={idx} className="border-b">
+                                        <TableCell className="text-center border-r">{itemAtt.userCode}</TableCell>
+                                        <TableCell className="text-center border-r">{itemAtt.name}</TableCell>
+                                        {
+                                            daysHeader.map(({dayStr, isSunday}) => {
+                                                const dateStr = `${year}-${(month).toString().padStart(2, "0")}-${dayStr}`
+                                                const attendance = itemAtt.attendances.find((a) => a.date === dateStr)
+                                                const label = attendance ? statusLabels[attendance.status] : "_"
+
+                                                const bgColor = isSunday ? "#000000" : attendance && label != "X" ? statusColors[attendance.status] : "#FFFFFF"
+
+                                                return (
+                                                    <TableCell key={dayStr} style={{backgroundColor: bgColor}} className={`text-center text-xs border-r ${isSunday ? "text-white" : ""}`}>{isSunday ? "CN" : label}</TableCell>
+                                                )
+                                            })
+                                        }
                                     </TableRow>
                                 )))
                             }
