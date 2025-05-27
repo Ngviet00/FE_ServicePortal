@@ -113,6 +113,10 @@
 				"afternoon": "Buổi chiều"
 			},
 			"reason": "Lý do"
+		},
+		"wait_approval": {
+			"register": "Đăng ký",
+			"register_all": "Đăng ký tất cả"
 		}
 	},
 	"list_user_page": {
@@ -175,6 +179,9 @@
 		"approval": "Duyệt"
 	},
 	"time_keeping": {
+		"total_date_work": "Số ngày đi làm",
+		"day_ot": "Tăng ca ngày (tiếng)",
+		"night_ot": "Tăng ca đêm (tiếng)",
 		"error_from_date_larger_than_to_date": "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu",
 		"more_than_30_day": "Vui lòng chọn lại trong khoảng 30 ngày",
 		"btn_search": "Tìm kiếm",

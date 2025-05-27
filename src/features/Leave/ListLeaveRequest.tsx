@@ -136,7 +136,7 @@ export default function ListLeaveRequest () {
                     </Tabs>
                 </div>
 
-                <div className="overflow-x-auto max-h-[500px] mt-8">
+                <div className="overflow-x-auto max-h-[500px] mt-2">
                     <Table>
                         <TableHeader>
                             <TableRow>

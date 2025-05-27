@@ -90,7 +90,6 @@ export default function LeaveRequestForm() {
             to_date: new Date().toISOString().slice(0, 10),
             to_hour: "17",
             to_minutes: "00",
-            time_leave: "1"
         },
     });
 
@@ -389,7 +388,7 @@ export default function LeaveRequestForm() {
                                     <FormField
                                         control={form.control}
                                         name="time_leave"
-                                        render={({ field }) => (
+                                        render={({ field, fieldState }) => (
                                             <FormItem className="hover:cursor-pointer">
                                                 <FormLabel>{t('leave_request.create.time_leave.time_leave')}</FormLabel>
                                                 <FormControl>
@@ -398,7 +397,7 @@ export default function LeaveRequestForm() {
                                                         onChange={field.onChange}
                                                         name={field.name}
                                                         id="from_hour" 
-                                                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
+                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"} p-1 rounded-[5px]`}>
                                                         <option value="">--Select--</option>
                                                         {
                                                             TIME_LEAVE.map((item) => (

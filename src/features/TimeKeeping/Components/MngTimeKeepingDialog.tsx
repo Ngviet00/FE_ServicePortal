@@ -1,0 +1,211 @@
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
+import timekeepingApi, { useSaveManageTimeKeeping } from "@/api/timeKeeping";
+import { useAuthStore } from "@/store/authStore";
+import { useEffect, useRef, useState } from "react";
+import { useDebounce } from "@/lib";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import PaginationControl from "@/components/PaginationControl/PaginationControl";
+
+interface ListUserToChooseManageData {
+    userCode: string,
+    isCheckedHaveManageUserTimeKeeping: boolean
+}
+
+export default function MgnTimeKeepingDialog() {
+    const [openModal, setOpenModal] = useState(false);
+    const { user } = useAuthStore()
+    const [nameSearch, setNameSearch] = useState("")
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+    const [totalPage, setTotalPage] = useState(0)
+    const [userCodeSelected, setUserCodeSelected] = useState<string[]>([])
+    const debouncedName = useDebounce(nameSearch, 300);
+    const saveManageTimeKeeping = useSaveManageTimeKeeping()
+    const didInitCheckboxState = useRef(false);
+
+    const { data: dataUserToChooseManage, isPending, isError, error } = useQuery({
+        queryKey: ['get-list-user-to-choose-manage-time-keeping', debouncedName, page, pageSize],
+        queryFn: async () => {
+            const res = await timekeepingApi.GetListUserToChooseManage({
+                Position: user?.positionId,
+                UserCode: user?.userCode ?? "",
+                Name: debouncedName,
+                Page: page,
+                PageSize: pageSize,
+            })
+            setTotalPage(res.data.total_pages)
+            return res.data.data
+        },
+        enabled: openModal
+    });
+
+    useEffect(() => {
+        if (openModal && !didInitCheckboxState.current && dataUserToChooseManage?.length) {
+            const initiallySelected = dataUserToChooseManage
+                .filter((item: ListUserToChooseManageData) => item.isCheckedHaveManageUserTimeKeeping)
+                .map((item: ListUserToChooseManageData) => item.userCode);
+
+            setUserCodeSelected(initiallySelected);
+            didInitCheckboxState.current = true;
+        }
+    }, [openModal, dataUserToChooseManage]);
+
+    const handleCheckAll = (checked: boolean) => {
+        if (checked) {
+            const newCodes = dataUserToChooseManage.map((u: ListUserToChooseManageData) => u.userCode);
+            setUserCodeSelected(prev => Array.from(new Set([...prev, ...newCodes])));
+        } else {
+            const currentPageUserCodes = dataUserToChooseManage.map((u: ListUserToChooseManageData) => u.userCode);
+            setUserCodeSelected(prev => prev.filter(code => !currentPageUserCodes.includes(code)));
+        }
+    };
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNameSearch(e.target.value)
+    }
+
+    function setCurrentPage(page: number): void {
+        setPage(page)
+    }
+
+    function handlePageSizeChange(size: number): void {
+        setPage(1)
+        setPageSize(size)
+    }
+
+    const handleOnCheckedChange = async (checked: boolean, userData: ListUserToChooseManageData) => {
+        setUserCodeSelected((prev) => {
+            let updated: string[];
+
+            if (checked) {
+                if (!prev.includes(userData.userCode)) {
+                    updated = [...prev, userData.userCode];
+                } else {
+                    updated = prev;
+                }
+            } else {
+                return prev.filter(code => code !== userData.userCode);
+            }
+
+            return updated;
+        })
+    };
+
+    const allSelected = 
+        Array.isArray(dataUserToChooseManage) && 
+        dataUserToChooseManage.length > 0 &&
+        dataUserToChooseManage.every(item => userCodeSelected.includes(item.userCode));
+
+    const handleSaveManageUserTimeKeeping = async () => {
+        await saveManageTimeKeeping.mutateAsync({
+            UserCodeManage: user?.userCode ?? null,
+            UserCodes: userCodeSelected
+        });
+
+        setOpenModal(false)
+
+        window.location.reload()
+    }
+
+    useEffect(() => {
+        if (!openModal) {
+            setUserCodeSelected([]);
+            didInitCheckboxState.current = false;
+        }
+    }, [openModal]);
+
+    return (
+        <Dialog open={openModal} onOpenChange={setOpenModal}>
+            <DialogTrigger className="hover:cursor-pointer bg-black text-white px-4 py-1 rounded-[8px]">
+                TimeKeeping User
+            </DialogTrigger>
+            <DialogContent className="h-[80%] block" style={{maxWidth: '60em'}}>
+                <DialogHeader>
+                    <DialogTitle>Choose user</DialogTitle><DialogDescription></DialogDescription>
+                </DialogHeader>
+                <div className="w-full">
+                    <div className="flex items-end">
+                        <div className="flex-1 mr-2">
+                            <Label className="my-2">Search</Label>
+                            <Input type="text" className="border" placeholder="Search..." value={nameSearch} onChange={handleSearch} />
+                        </div>
+                        <Button disabled={saveManageTimeKeeping.isPending} onClick={handleSaveManageUserTimeKeeping} className="hover:cursor-pointer">
+                            {saveManageTimeKeeping.isPending ? <Spinner className="text-white"/> : "Save"}
+                        </Button>
+                    </div>
+                    <div className="" style={{maxHeight: '450px', overflowX: 'scroll'}}>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[50px] text-left">
+                                        <Checkbox
+                                            className="bg-gray-300"
+                                            checked={allSelected}
+                                            onCheckedChange={(checked) => handleCheckAll(!!checked)}
+                                        />
+                                    </TableHead>
+                                    <TableHead className="w-[150px] text-left">UserCode</TableHead>
+                                    <TableHead className="w-[150px] text-left">Name</TableHead>
+                                    <TableHead className="w-[150px] text-left">Department</TableHead>
+                                    <TableHead className="w-[150px] text-left">Position</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                { isPending ? (
+                                    Array.from({ length: 10 }).map((_, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></TableCell>
+                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300 text-center" /></div></TableCell>
+                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></TableCell>
+                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300 text-center" /></div></TableCell>
+                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300 text-center" /></div></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : isError || dataUserToChooseManage.length == 0 ? (
+                                    <TableRow>
+                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={5}>{error?.message ?? "No results"}</TableCell>
+                                    </TableRow>
+                                ) : (
+                                    dataUserToChooseManage.map((item: ListUserToChooseManageData, idx: number) => (
+                                            <TableRow key={idx}>
+                                                <TableCell className="font-medium text-left">
+                                                    <Checkbox
+                                                        className="bg-gray-300"
+                                                        key={item.userCode}
+                                                        value={item.userCode}
+                                                        checked={userCodeSelected.includes(item.userCode)}
+                                                        onCheckedChange={(checked) => handleOnCheckedChange(!!checked, item)}
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="text-left">{item.userCode}</TableCell>
+                                                <TableCell className="text-left">Name - {item.userCode}</TableCell>
+                                                <TableCell className="text-left">Department - {item.userCode}</TableCell>
+                                                <TableCell className="text-left">Position - {item.userCode}</TableCell>
+                                            </TableRow>
+                                        ))
+                                    )
+                                }
+                            </TableBody>
+                        </Table>
+                    </div>
+                    {
+                        dataUserToChooseManage && dataUserToChooseManage.length > 0 ? (<PaginationControl
+                            currentPage={page}
+                            totalPages={totalPage}
+                            pageSize={pageSize}
+                            onPageChange={setCurrentPage}
+                            onPageSizeChange={handlePageSizeChange}
+                        />) : (null)
+                    }
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}

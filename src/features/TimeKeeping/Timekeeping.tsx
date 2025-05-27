@@ -65,6 +65,40 @@ export default function Timekeeping () {
         enabled: !!fromDate && !!toDate && !!user?.userCode
     });
 
+    const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newFromDate = e.target.value;
+        setFromDate(newFromDate);
+
+        const newDate = new Date(newFromDate);
+        const currentTo = new Date(toDate);
+
+        if (
+            newDate.getFullYear() !== currentTo.getFullYear() ||
+            newDate.getMonth() !== currentTo.getMonth()
+        ) {
+            const lastDay = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
+            const lastDayStr = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
+            setToDate(lastDayStr);
+        }
+    };
+
+    const handleToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newToDate = e.target.value;
+        setToDate(newToDate);
+
+        const newDate = new Date(newToDate);
+        const currentFrom = new Date(fromDate);
+
+        if (
+            newDate.getFullYear() !== currentFrom.getFullYear() ||
+            newDate.getMonth() !== currentFrom.getMonth()
+        ) {
+            const firstDay = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+            const firstDayStr = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
+            setFromDate(firstDayStr);
+        }
+    };
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
@@ -72,22 +106,27 @@ export default function Timekeeping () {
             </div>
             <div className="flex flex-wrap items-center gap-2">
                 <Label className="min-w-[40px]">{t('time_keeping.from')}</Label>
-                <DateInput value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-[160px] sm:w-40"/>
+                <DateInput value={fromDate} onChange={handleFromDateChange} className="w-[160px] sm:w-40"/>
 
                 <div className="flex">
                     <Label className="min-w-[20px] sm:ml-4 w-[50px]">{t('time_keeping.to')}</Label>
-                    <DateInput value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-[160px] sm:w-40"/>
+                    <DateInput value={toDate} onChange={handleToDateChange} className="w-[160px] sm:w-40"/>
                 </div>
 
                 <Button className="w-full sm:w-auto mt-2 sm:mt-0 hover:cursor-pointer" onClick={handleSearch} disabled={isPending}>
                     {isPending ? <Spinner className="text-white"/> : t('time_keeping.btn_search')}
                 </Button>
             </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 gap-y-2 mt-4">
+                <span>{t('time_keeping.total_date_work')}: <span className="font-bold text-red-800">20</span></span>
+                <span>{t('time_keeping.day_ot')}: <span className="font-bold text-red-800">24</span></span>
+                <span>{t('time_keeping.night_ot')}: <span className="font-bold text-red-800">24</span></span>
+            </div>
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
                 <div className="min-w-[1200px]">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-b bg-gray-300 hover:bg-gray-300 dark:bg-black dark:text-white">
+                            <TableRow className="border-b bg-gray-300 hover:bg-gray-400 dark:bg-black dark:text-white">
                                 <TableHead className="w-[100px] text-left border-r">{t('time_keeping.date')}</TableHead>
                                 <TableHead className="w-[50px] text-left border-r">{t('time_keeping.day')}</TableHead>
                                 <TableHead className="w-[100px] text-left border-r">{t('time_keeping.from')}</TableHead>

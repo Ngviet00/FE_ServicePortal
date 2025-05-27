@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -18,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeeping";
+import MgnTimeKeepingDialog from "./Components/MngTimeKeepingDialog";
 
 type AttendanceStatus =
     | "O"
@@ -32,6 +32,11 @@ type AttendanceStatus =
 interface AttendanceEntry {
     date: string;
     status: AttendanceStatus;
+}
+
+interface Holidays {
+    date: string,
+    type: string  
 }
 
 interface AttendanceRecord {
@@ -57,15 +62,15 @@ const statusColors: Record<AttendanceStatus, string> = {
     AL: "#00ecff",
     S: "#e800ff",
     SH: "#07ee15",
-    X: "#dedede",
+    X: "#f7f7f7",
     O1: "#f7e4ff",
-    CN: "#000000"
+    CN: "#d9d9d9"
 };
 
 const statusDefine: Record<AttendanceStatus, string> = {
     O: "Have permission",
     ND: "Maternity",
-    AL: "Annual",
+    AL: "Annual leave",
     S: "Sick",
     SH: "Special Holiday",
     X: "Work",
@@ -89,6 +94,16 @@ function getToday() {
     return new Date()
 }
 
+function getHolidayColor(types: string[]) {
+    if (types.includes("special_holiday")) 
+        return { bgColor: "#07ee15", textColor: "#000000" };
+    
+    if (types.includes("sunday"))
+         return { bgColor: "#000000", textColor: "#ffffff" };
+    
+    return { bgColor: "", textColor: "" };
+}
+
 export default function MngTimekeeping () {
     const { t } = useTranslation()
     const {user} = useAuthStore()
@@ -107,15 +122,13 @@ export default function MngTimekeeping () {
     const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
         const day = i + 1;
         const dateObj = new Date(year, month - 1, day);
-        const isSunday = dateObj.getDay() === 0;
         return {
             dayStr: day.toString().padStart(2, "0"),
-            isSunday,
             dateObj,
         };
     });
     
-    const { data: attendancesData, isPending, isError, error } = useQuery({
+    const { data: dataAttendances, isPending, isError, error } = useQuery({
         queryKey: ['management-timekeeping', year, month],
         queryFn: async () => {
             const res = await timekeepingApi.getMngTimeKeeping({
@@ -123,8 +136,8 @@ export default function MngTimekeeping () {
                 Year: year,
                 Month: month
             })
-
-            return res.data.data;
+            const { holidays, userData } = res.data.data;
+            return { holidays, userData }
         },
         enabled: !!year && !!month && !!user?.userCode
     });
@@ -141,7 +154,7 @@ export default function MngTimekeeping () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('mng_time_keeping.mng_time_keeping')}</h3>
-                <Button className="hover:cursor-pointer">Tạo nhóm quản lý chấm công</Button>
+               <MgnTimeKeepingDialog />
             </div>
             <div className="flex flex-wrap gap-4 items-center mt-7 mb-3 lg:justify-between">
                 <div className="flex space-x-4">
@@ -191,7 +204,7 @@ export default function MngTimekeeping () {
 
                         return (
                             <span className="w-1/3 sm:w-1/2 md:w-1/4 lg:w-auto p-1 flex items-center" key={key}>
-                                <span style={{backgroundColor: color}} className={`w-[30px] text-center inline-block p-[2px] rounded-[3px] ${label == 'CN' ? "text-white" : "text-black"} mr-1 flex-shrink-0`}>{label}</span>
+                                <span style={{backgroundColor: color}} className={`w-[30px] text-center inline-block p-[2px] rounded-[3px] mr-1 flex-shrink-0`}>{label}</span>
                                 <span className="text-xs sm:text-sm">{define}</span>
                             </span>
                         )
@@ -207,9 +220,19 @@ export default function MngTimekeeping () {
                                 <TableHead className="w-[0px] text-center border-r text-black">Mã nhân viên</TableHead>
                                 <TableHead className="w-[100px] text-center border-r text-black">Họ Tên</TableHead>
                                 {
-                                    daysHeader.map(({ dayStr, isSunday }) => (
-                                        <TableHead key={dayStr} className={`w-[5px] text-center text-black border-r ${isSunday ? "bg-black text-white" : ""}`}>{dayStr}</TableHead>
-                                    ))
+                                    daysHeader.map(({ dayStr }) => {
+                                        const fullDateStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
+                                        const matchedHolidays = dataAttendances?.holidays.filter(
+                                            (e: Holidays) => e.date === fullDateStr
+                                        ) || [];
+
+                                        const holidayTypes = matchedHolidays.map((h: Holidays) => h.type);
+                                        const { bgColor, textColor } = getHolidayColor(holidayTypes);
+
+                                        return (
+                                            <TableHead style={{backgroundColor: bgColor, color: textColor}} key={dayStr} className={`w-[5px] text-center text-black border-r`}>{dayStr}</TableHead>
+                                        )
+                                    })
                                 }
                             </TableRow>
                         </TableHeader>
@@ -227,26 +250,25 @@ export default function MngTimekeeping () {
                                         }
                                     </TableRow>
                                 ))
-                            ) : isError || attendancesData.length == 0 ? (
+                            ) : isError || dataAttendances?.userData?.length == 0 ? (
                                 <TableRow>
                                     <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={daysInMonth + 2}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
-                            ) : 
+                            ) :
                             (
-                                attendancesData.map((itemAtt: AttendanceRecord, idx: number) => (
+                                dataAttendances?.userData.map((itemAtt: AttendanceRecord, idx: number) => (
                                     <TableRow key={idx} className="border-b">
                                         <TableCell className="text-center border-r">{itemAtt.userCode}</TableCell>
                                         <TableCell className="text-center border-r">{itemAtt.name}</TableCell>
                                         {
-                                            daysHeader.map(({dayStr, isSunday}) => {
+                                            daysHeader.map(({dayStr}) => {
                                                 const dateStr = `${year}-${(month).toString().padStart(2, "0")}-${dayStr}`
                                                 const attendance = itemAtt.attendances.find((a) => a.date === dateStr)
-                                                const label = attendance ? statusLabels[attendance.status] : "_"
-
-                                                const bgColor = isSunday ? "#000000" : attendance && label != "X" ? statusColors[attendance.status] : "#FFFFFF"
+                                                const label = attendance ? statusLabels[attendance.status] : ""
+                                                const bgColor = attendance && label != "X" ? statusColors[attendance.status] : "#FFFFFF"
 
                                                 return (
-                                                    <TableCell key={dayStr} style={{backgroundColor: bgColor}} className={`text-center text-xs border-r ${isSunday ? "text-white" : ""}`}>{isSunday ? "CN" : label}</TableCell>
+                                                    <TableCell key={dayStr} style={{backgroundColor: bgColor}} className={`text-center text-xs border-r`}>{label}</TableCell>
                                                 )
                                             })
                                         }

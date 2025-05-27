@@ -113,6 +113,10 @@
 				"afternoon": "Afternoon"
 			},
 			"reason": "Reason"
+		},
+		"wait_approval": {
+			"register": "Register",
+			"register_all": "Register all"
 		}
 	},
 
@@ -176,6 +180,9 @@
 		"approval": "Approval"
 	},
 	"time_keeping": {
+		"total_date_work": "Total work",
+		"day_ot": "Overtime day (hour)",
+		"night_ot": "Overtime night (hour)",
 		"error_from_date_larger_than_to_date": "Start date must be less than or equal to end date",
 		"more_than_30_day": "Please select again, in about 30 days",
 		"btn_search": "Search",

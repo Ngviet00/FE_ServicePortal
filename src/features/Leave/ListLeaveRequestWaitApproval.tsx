@@ -119,7 +119,13 @@ export default function ListLeaveRequestWaitApproval () {
             setLoadingRegisterAll(true)
             try
             {
+                const shouldGoBack = leaveRequests.length === 1;
                 await registerAllLeaveMutation.mutateAsync()
+                handleApproval(shouldGoBack);
+                
+                queryClient.invalidateQueries({
+                    queryKey: ['count-wait-approval-leave-request'],
+                });
             }
             finally {   
                 setLoadingRegisterAll(false)
@@ -134,7 +140,7 @@ export default function ListLeaveRequestWaitApproval () {
                 {
                     hasHRRole && 
                     <Button variant="outline" disabled={loadingRegisterAll} onClick={registerAllLeave} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
-                        Đăng ký tất cả
+                        {t('leave_request.wait_approval.register_all')}
                     </Button>
                 }
                 
@@ -199,7 +205,7 @@ export default function ListLeaveRequestWaitApproval () {
                                                 {
                                                     hasHRRole && item.approvalRequest?.currentPositionId == -10 ? (
                                                         <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
-                                                            Đăng ký
+                                                            {t('leave_request.wait_approval.register')}
                                                         </Button>
                                                     ) : (
                                                         <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
