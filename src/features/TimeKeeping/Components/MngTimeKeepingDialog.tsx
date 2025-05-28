@@ -25,10 +25,27 @@ export default function MgnTimeKeepingDialog() {
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [totalPage, setTotalPage] = useState(0)
-    const [userCodeSelected, setUserCodeSelected] = useState<string[]>([])
+    const [userCodeSelected, setUserCodeSelected] = useState<string[]>([]);
     const debouncedName = useDebounce(nameSearch, 300);
     const saveManageTimeKeeping = useSaveManageTimeKeeping()
     const didInitCheckboxState = useRef(false);
+
+    const { data: dataUserCodeSelected } = useQuery({
+        queryKey: ['get-list-usercode-selected'],
+        queryFn: async () => {
+            const res = await timekeepingApi.GetListUserCodeSelected({
+                UserCodeManage: user?.userCode ?? "",
+            })
+            return res.data.data
+        },
+        enabled: openModal
+    });
+
+    useEffect(() => {
+        if (openModal && dataUserCodeSelected) {
+            setUserCodeSelected(dataUserCodeSelected);
+        }
+    }, [openModal, dataUserCodeSelected]);
 
     const { data: dataUserToChooseManage, isPending, isError, error } = useQuery({
         queryKey: ['get-list-user-to-choose-manage-time-keeping', debouncedName, page, pageSize],
@@ -45,17 +62,6 @@ export default function MgnTimeKeepingDialog() {
         },
         enabled: openModal
     });
-
-    useEffect(() => {
-        if (openModal && !didInitCheckboxState.current && dataUserToChooseManage?.length) {
-            const initiallySelected = dataUserToChooseManage
-                .filter((item: ListUserToChooseManageData) => item.isCheckedHaveManageUserTimeKeeping)
-                .map((item: ListUserToChooseManageData) => item.userCode);
-
-            setUserCodeSelected(initiallySelected);
-            didInitCheckboxState.current = true;
-        }
-    }, [openModal, dataUserToChooseManage]);
 
     const handleCheckAll = (checked: boolean) => {
         if (checked) {
@@ -81,27 +87,14 @@ export default function MgnTimeKeepingDialog() {
     }
 
     const handleOnCheckedChange = async (checked: boolean, userData: ListUserToChooseManageData) => {
-        setUserCodeSelected((prev) => {
-            let updated: string[];
-
-            if (checked) {
-                if (!prev.includes(userData.userCode)) {
-                    updated = [...prev, userData.userCode];
-                } else {
-                    updated = prev;
-                }
-            } else {
-                return prev.filter(code => code !== userData.userCode);
-            }
-
-            return updated;
-        })
+        setUserCodeSelected(prev => {
+            if (checked) return [...prev, userData.userCode];
+            return prev.filter(code => code !== userData.userCode);
+        });
     };
 
-    const allSelected = 
-        Array.isArray(dataUserToChooseManage) && 
-        dataUserToChooseManage.length > 0 &&
-        dataUserToChooseManage.every(item => userCodeSelected.includes(item.userCode));
+    const allSelectedOnCurrentPage = Array.isArray(dataUserToChooseManage) &&  dataUserToChooseManage?.length > 0 &&
+        dataUserToChooseManage.every(u => userCodeSelected.includes(u.userCode));
 
     const handleSaveManageUserTimeKeeping = async () => {
         await saveManageTimeKeeping.mutateAsync({
@@ -117,9 +110,13 @@ export default function MgnTimeKeepingDialog() {
     useEffect(() => {
         if (!openModal) {
             setUserCodeSelected([]);
-            didInitCheckboxState.current = false;
         }
     }, [openModal]);
+
+    useEffect(() => {
+        setUserCodeSelected([]);
+        didInitCheckboxState.current = false;
+    }, [user?.userCode]);
 
     return (
         <Dialog open={openModal} onOpenChange={setOpenModal}>
@@ -147,7 +144,7 @@ export default function MgnTimeKeepingDialog() {
                                     <TableHead className="w-[50px] text-left">
                                         <Checkbox
                                             className="bg-gray-300"
-                                            checked={allSelected}
+                                            checked={allSelectedOnCurrentPage}
                                             onCheckedChange={(checked) => handleCheckAll(!!checked)}
                                         />
                                     </TableHead>

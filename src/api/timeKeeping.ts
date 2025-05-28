@@ -12,6 +12,8 @@ interface GetManagementTimeKeepingRequest {
     UserCode: string,
     Year: number,
     Month: number,
+    StatusColors?: Record<string, string>,
+    StatusDefine?: Record<string, string>,
 }
 
 interface GetListUserToChooseManageTimeKeepingRequest {
@@ -45,6 +47,10 @@ const timekeepingApi = {
 
     sendTimeKeepingToHR(data: GetManagementTimeKeepingRequest) {
         return axiosClient.post('/time-keeping/confirm-time-keeping-to-hr', data)
+    },
+
+    GetListUserCodeSelected(params: {UserCodeManage: string}) {
+        return axiosClient.get(`/time-keeping/get-list-usercode-selected`, {params})
     },
 
     GetListUserToChooseManage(params: GetListUserToChooseManageTimeKeepingRequest) {

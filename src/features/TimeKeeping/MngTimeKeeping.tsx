@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeeping";
 import MgnTimeKeepingDialog from "./Components/MngTimeKeepingDialog";
+import useHasRole from "@/hooks/HasRole";
+import { Spinner } from "@/components/ui/spinner";
 
 type AttendanceStatus =
     | "O"
@@ -147,14 +149,18 @@ export default function MngTimekeeping () {
             UserCode: user?.userCode ?? "",
             Year: year,
             Month: month,
+            StatusColors: statusColors,
+            StatusDefine: statusDefine
         });
     }
+
+    const isConfirmTimeKeeping = useHasRole(['time_keeping.confirm_timekeeping']);
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('mng_time_keeping.mng_time_keeping')}</h3>
-               <MgnTimeKeepingDialog />
+                <MgnTimeKeepingDialog />
             </div>
             <div className="flex flex-wrap gap-4 items-center mt-7 mb-3 lg:justify-between">
                 <div className="flex space-x-4">
@@ -177,22 +183,30 @@ export default function MngTimekeeping () {
                 <div className="font-bold text-xl lg:text-3xl">
                     <span>{month} - {year}</span>
                 </div>
-                <AlertDialog>
-                    <AlertDialogTrigger className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">Confirm to HR</AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Do you want to continue?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action will send data to HR department
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
+                <div>
+                    {
+                        isConfirmTimeKeeping ?
+                            <AlertDialog>
+                                <AlertDialogTrigger className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">
+                                    { confirmTimeKeeping.isPending ? <Spinner className="text-white"/> : "Confirm to HR"}
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Do you want to continue?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action will send data to HR department
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
 
-                        <AlertDialogFooter>
-                            <AlertDialogCancel className="hover:cursor-pointer">Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleSendToHR} className="hover:cursor-pointer">Continue</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel className="hover:cursor-pointer">Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleSendToHR} className="hover:cursor-pointer">Continue</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        : <span></span>
+                    }
+                </div>
             </div>
 
             <div className="flex flex-wrap my-5 lg:justify-around">
@@ -204,7 +218,7 @@ export default function MngTimekeeping () {
 
                         return (
                             <span className="w-1/3 sm:w-1/2 md:w-1/4 lg:w-auto p-1 flex items-center" key={key}>
-                                <span style={{backgroundColor: color}} className={`w-[30px] text-center inline-block p-[2px] rounded-[3px] mr-1 flex-shrink-0`}>{label}</span>
+                                <span style={{backgroundColor: color}} className={`w-[30px] dark:text-black text-center inline-block p-[2px] rounded-[3px] mr-1 flex-shrink-0`}>{label}</span>
                                 <span className="text-xs sm:text-sm">{define}</span>
                             </span>
                         )
@@ -217,8 +231,8 @@ export default function MngTimekeeping () {
                     <Table>
                         <TableHeader>
                             <TableRow className="border-b bg-gray-300 hover:bg-gray-400 dark:bg-black dark:text-white">
-                                <TableHead className="w-[0px] text-center border-r text-black">Mã nhân viên</TableHead>
-                                <TableHead className="w-[100px] text-center border-r text-black">Họ Tên</TableHead>
+                                <TableHead className="w-[0px] text-center border-r text-black dark:text-white">Mã nhân viên</TableHead>
+                                <TableHead className="w-[100px] text-center border-r text-black dark:text-white">Họ Tên</TableHead>
                                 {
                                     daysHeader.map(({ dayStr }) => {
                                         const fullDateStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
@@ -230,7 +244,7 @@ export default function MngTimekeeping () {
                                         const { bgColor, textColor } = getHolidayColor(holidayTypes);
 
                                         return (
-                                            <TableHead style={{backgroundColor: bgColor, color: textColor}} key={dayStr} className={`w-[5px] text-center text-black border-r`}>{dayStr}</TableHead>
+                                            <TableHead style={{backgroundColor: bgColor, color: textColor}} key={dayStr} className={`w-[5px] dark:text-white text-center text-black border-r`}>{dayStr}</TableHead>
                                         )
                                     })
                                 }

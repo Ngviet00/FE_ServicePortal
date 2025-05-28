@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import authApi from "@/api/authApi";
 
 import "./css/Login.css";
+import { useNavigate } from "react-router-dom";
 
 export default function ChangePasswordPage() {
     const { t } = useTranslation();
@@ -13,6 +14,7 @@ export default function ChangePasswordPage() {
     const [confirmPassword, setConfirmNewPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const { updateUser } = useAuthStore();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,6 +26,7 @@ export default function ChangePasswordPage() {
             ShowToast("Success", "success")
             setNewPassword("")
             setConfirmNewPassword("")
+            navigate("/")
         }
         catch (err) {
             ShowToast(getErrorMessage(err), "error")
