@@ -3,17 +3,61 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
-
+import { ArrowRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import memoNotificationApi, { IMemoNotify } from '@/api/memoNotificationApi';
+import { formatDate } from '@/lib/time';
 import "./css/Homepage.css"
 
 export default function HomePage() {
     const { t } = useTranslation();
     const { user } = useAuthStore();
 
+    const { data } = useQuery({
+        queryKey: ['get-all-memo-notify-in-homepage'],
+        queryFn: async () => {
+            const res = await memoNotificationApi.getAllInHomePage();
+            return res.data.data;
+        },
+    });
+
     return (
         <div className="p-1 pt-0 home-page">
             <div className="flex justify-between mb-3">
                 <h3 className="title font-bold text-2xl m-0 pb-2">{t('home_page.title')}</h3>
+            </div>
+            <div className='mb-3'>
+                {
+                    data && data.length > 0 && data.map((item: IMemoNotify, idx: number) => (
+                        <Link key={idx} to={`/detail-memo-notify/${item.id}`}>
+                            <div
+                                className="bg-[#eff6ff] py-4 px-5 mb-3 rounded-md font-inter shadow-sm hover:shadow-md transition dark:bg-[#1e1e1e69]"
+                            >
+                                <div className="flex flex-wrap justify-between items-center gap-x-2 gap-y-1 title-memo-notify">
+                                    <span className="text-sm sm:text-base font-bold leading-snug text-[oklch(48.8%_.243_264.376)] dark:text-white">
+                                        {item.title}
+                                    </span>
+                                    <span className="flex items-center text-sm font-medium whitespace-nowrap">
+                                        <span className="hidden sm:inline text-[oklch(48.8%_.243_264.376)] dark:text-white">Details</span>
+                                        <ArrowRight size={16} className="ml-1 text-[oklch(48.8%_.243_264.376)] dark:text-white" />
+                                    </span>
+                                </div>
+
+                                <div className="pt-3 text-sm line-clamp-5 content-memo-notify" dangerouslySetInnerHTML={{ __html: item.content }}/>
+
+                                <div className="flex flex-nowrap items-center mt-4 text-xs text-gray-600 gap-2">
+                                    <span className="whitespace-nowrap dark:text-white">
+                                        Created By <strong className="text-gray-800 dark:text-white">{item.createdBy}</strong>
+                                    </span>
+                                    <span className="whitespace-nowrap dark:text-white">-</span>
+                                    <span className="whitespace-nowrap dark:text-white">
+                                        Created At <strong className="text-black dark:text-white">{formatDate(item?.createdAt, "yyyy/MM/dd HH:mm")}</strong>
+                                    </span>
+                                </div>
+                            </div>
+                        </Link>
+                    ))
+                }
             </div>
 
             <div className="wrap-home-page rounded-3xl bg-[#f3f4ff] flex flex-col md:flex-row md:h-[240px]">

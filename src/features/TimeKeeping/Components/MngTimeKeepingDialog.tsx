@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -123,84 +123,88 @@ export default function MgnTimeKeepingDialog() {
             <DialogTrigger className="hover:cursor-pointer bg-black text-white px-4 py-1 rounded-[8px]">
                 TimeKeeping User
             </DialogTrigger>
-            <DialogContent className="h-[80%] block" style={{maxWidth: '60em'}}>
+            <DialogContent className="h-[80%] block" style={{ maxWidth: '60em' }}>
                 <DialogHeader>
-                    <DialogTitle>Choose user</DialogTitle><DialogDescription></DialogDescription>
+                    <DialogTitle>Choose user</DialogTitle>
                 </DialogHeader>
                 <div className="w-full">
                     <div className="flex items-end">
                         <div className="flex-1 mr-2">
-                            <Label className="my-2">Search</Label>
-                            <Input type="text" className="border" placeholder="Search..." value={nameSearch} onChange={handleSearch} />
+                        <Label className="my-2">Search</Label>
+                        <Input type="text" className="border" placeholder="Search..." value={nameSearch} onChange={handleSearch} />
                         </div>
-                        <Button disabled={saveManageTimeKeeping.isPending} onClick={handleSaveManageUserTimeKeeping} className="hover:cursor-pointer">
-                            {saveManageTimeKeeping.isPending ? <Spinner className="text-white"/> : "Save"}
+                        <Button disabled={saveManageTimeKeeping.isPending} onClick={handleSaveManageUserTimeKeeping}>
+                        {saveManageTimeKeeping.isPending ? <Spinner className="text-white" /> : 'Save'}
                         </Button>
                     </div>
-                    <div className="" style={{maxHeight: '450px', overflowX: 'scroll'}}>
+
+                    <div className="table-responsive" style={{ maxHeight: '450px', overflowX: 'auto' }}>
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[50px] text-left">
-                                        <Checkbox
-                                            className="bg-gray-300"
-                                            checked={allSelectedOnCurrentPage}
-                                            onCheckedChange={(checked) => handleCheckAll(!!checked)}
-                                        />
-                                    </TableHead>
-                                    <TableHead className="w-[150px] text-left">UserCode</TableHead>
-                                    <TableHead className="w-[150px] text-left">Name</TableHead>
-                                    <TableHead className="w-[150px] text-left">Department</TableHead>
-                                    <TableHead className="w-[150px] text-left">Position</TableHead>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead className="w-[50px] text-left">
+                                <Checkbox
+                                className="bg-gray-300"
+                                checked={allSelectedOnCurrentPage}
+                                onCheckedChange={(checked) => handleCheckAll(!!checked)}
+                                />
+                            </TableHead>
+                            <TableHead className="w-[150px] text-left">UserCode</TableHead>
+                            <TableHead className="w-[150px] text-left">Name</TableHead>
+                            <TableHead className="w-[150px] text-left">Department</TableHead>
+                            <TableHead className="w-[150px] text-left">Position</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isPending ? (
+                            Array.from({ length: 10 }).map((_, index) => (
+                                <TableRow key={index}>
+                                {Array.from({ length: 5 }).map((__, i) => (
+                                    <TableCell key={i} data-label="">
+                                    <div className="flex justify-center">
+                                        <Skeleton className="h-4 w-[80px] bg-gray-300" />
+                                    </div>
+                                    </TableCell>
+                                ))}
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                { isPending ? (
-                                    Array.from({ length: 10 }).map((_, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300 text-center" /></div></TableCell>
-                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300 text-center" /></div></TableCell>
-                                            <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300 text-center" /></div></TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : isError || dataUserToChooseManage.length == 0 ? (
-                                    <TableRow>
-                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={5}>{error?.message ?? "No results"}</TableCell>
-                                    </TableRow>
-                                ) : (
-                                    dataUserToChooseManage.map((item: ListUserToChooseManageData, idx: number) => (
-                                            <TableRow key={idx}>
-                                                <TableCell className="font-medium text-left">
-                                                    <Checkbox
-                                                        className="bg-gray-300"
-                                                        key={item.userCode}
-                                                        value={item.userCode}
-                                                        checked={userCodeSelected.includes(item.userCode)}
-                                                        onCheckedChange={(checked) => handleOnCheckedChange(!!checked, item)}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className="text-left">{item.userCode}</TableCell>
-                                                <TableCell className="text-left">Name - {item.userCode}</TableCell>
-                                                <TableCell className="text-left">Department - {item.userCode}</TableCell>
-                                                <TableCell className="text-left">Position - {item.userCode}</TableCell>
-                                            </TableRow>
-                                        ))
-                                    )
-                                }
-                            </TableBody>
+                            ))
+                            ) : isError || dataUserToChooseManage.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={5} className={`${isError ? 'text-red-700' : 'text-black'} font-medium text-center`}>
+                                {error?.message ?? 'No results'}
+                                </TableCell>
+                            </TableRow>
+                            ) : (
+                            dataUserToChooseManage.map((item: ListUserToChooseManageData, idx: number) => (
+                                <TableRow key={idx}>
+                                <TableCell data-label="Select">
+                                    <Checkbox
+                                    className="bg-gray-300"
+                                    value={item.userCode}
+                                    checked={userCodeSelected.includes(item.userCode)}
+                                    onCheckedChange={(checked) => handleOnCheckedChange(!!checked, item)}
+                                    />
+                                </TableCell>
+                                <TableCell data-label="UserCode">{item.userCode}</TableCell>
+                                <TableCell data-label="Name">Name - {item.userCode}</TableCell>
+                                <TableCell data-label="Department">Department - {item.userCode}</TableCell>
+                                <TableCell data-label="Position">Position - {item.userCode}</TableCell>
+                                </TableRow>
+                            ))
+                            )}
+                        </TableBody>
                         </Table>
                     </div>
-                    {
-                        dataUserToChooseManage && dataUserToChooseManage.length > 0 ? (<PaginationControl
-                            currentPage={page}
-                            totalPages={totalPage}
-                            pageSize={pageSize}
-                            onPageChange={setCurrentPage}
-                            onPageSizeChange={handlePageSizeChange}
-                        />) : (null)
-                    }
+
+                    {dataUserToChooseManage && dataUserToChooseManage.length > 0 && (
+                        <PaginationControl
+                        currentPage={page}
+                        totalPages={totalPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={handlePageSizeChange}
+                        />
+                    )}
                 </div>
             </DialogContent>
         </Dialog>

@@ -19,6 +19,9 @@ import Forbidden from '@/pages/Forbidden';
 
 import './App.css'
 import MngTimekeeping from '@/features/TimeKeeping/MngTimeKeeping';
+import MemoNotification from '@/features/MemoNotification/MemoNotification';
+import CreateMemoNotification from '@/features/MemoNotification/CreateMemoNotification';
+import DetailMemoNotification from '@/pages/DetailMemoNotification';
 
 function App() {
 	const location = useLocation();
@@ -36,14 +39,23 @@ function App() {
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		{ path: "/role", element: <ListRole />, allowedRoles: ['superadmin']},
 		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: ['HR', 'HR_Manager'] },
+		
 		{ path: "/user", element: <ListUser />, allowedRoles: ['HR', 'HR_Manager'] },
 		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: ['HR', 'HR_Manager'] },
+		
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
+
 		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>},
 		{ path: "/time-keeping", element: <Timekeeping/>},
-		{ path: "/management-time-keeping", element: <MngTimekeeping/>}
+		{ path: "/management-time-keeping", element: <MngTimekeeping/>},
+
+		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: ['HR', 'HR_Manager', 'union'] },
+		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: ['HR', 'HR_Manager', 'union'] },
+		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: ['HR', 'HR_Manager', 'union'] },
+		
+		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
 	];
   
 	return (

@@ -36,10 +36,10 @@ interface AttendanceEntry {
     status: AttendanceStatus;
 }
 
-interface Holidays {
-    date: string,
-    type: string  
-}
+// interface Holidays {
+//     date: string,
+//     type: string  
+// }
 
 interface AttendanceRecord {
     userCode: string;
@@ -96,15 +96,15 @@ function getToday() {
     return new Date()
 }
 
-function getHolidayColor(types: string[]) {
-    if (types.includes("special_holiday")) 
-        return { bgColor: "#07ee15", textColor: "#000000" };
+// function getHolidayColor(types: string[]) {
+//     if (types.includes("special_holiday")) 
+//         return { bgColor: "#07ee15", textColor: "#000000" };
     
-    if (types.includes("sunday"))
-         return { bgColor: "#000000", textColor: "#ffffff" };
+//     if (types.includes("sunday"))
+//          return { bgColor: "#000000", textColor: "#ffffff" };
     
-    return { bgColor: "", textColor: "" };
-}
+//     return { bgColor: "", textColor: "" };
+// }
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
@@ -187,7 +187,7 @@ export default function MngTimekeeping () {
                     {
                         isConfirmTimeKeeping ?
                             <AlertDialog>
-                                <AlertDialogTrigger className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">
+                                <AlertDialogTrigger disabled={confirmTimeKeeping.isPending} className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">
                                     { confirmTimeKeeping.isPending ? <Spinner className="text-white"/> : "Confirm to HR"}
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
@@ -235,16 +235,16 @@ export default function MngTimekeeping () {
                                 <TableHead className="w-[100px] text-center border-r text-black dark:text-white">Họ Tên</TableHead>
                                 {
                                     daysHeader.map(({ dayStr }) => {
-                                        const fullDateStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
-                                        const matchedHolidays = dataAttendances?.holidays.filter(
-                                            (e: Holidays) => e.date === fullDateStr
-                                        ) || [];
+                                        // const fullDateStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
+                                        // const matchedHolidays = dataAttendances?.holidays.filter(
+                                        //     (e: Holidays) => e.date === fullDateStr
+                                        // ) || [];
 
-                                        const holidayTypes = matchedHolidays.map((h: Holidays) => h.type);
-                                        const { bgColor, textColor } = getHolidayColor(holidayTypes);
+                                        // const holidayTypes = matchedHolidays.map((h: Holidays) => h.type);
+                                        // const { bgColor, textColor } = getHolidayColor(holidayTypes);
 
                                         return (
-                                            <TableHead style={{backgroundColor: bgColor, color: textColor}} key={dayStr} className={`w-[5px] dark:text-white text-center text-black border-r`}>{dayStr}</TableHead>
+                                            <TableHead key={dayStr} className={`w-[5px] dark:text-white text-center text-black border-r`}>{dayStr}</TableHead>
                                         )
                                     })
                                 }
@@ -271,7 +271,7 @@ export default function MngTimekeeping () {
                             ) :
                             (
                                 dataAttendances?.userData.map((itemAtt: AttendanceRecord, idx: number) => (
-                                    <TableRow key={idx} className="border-b">
+                                    <TableRow key={idx} className="border-b dark:border-[#9b9b9b]">
                                         <TableCell className="text-center border-r">{itemAtt.userCode}</TableCell>
                                         <TableCell className="text-center border-r">{itemAtt.name}</TableCell>
                                         {
@@ -282,7 +282,7 @@ export default function MngTimekeeping () {
                                                 const bgColor = attendance && label != "X" ? statusColors[attendance.status] : "#FFFFFF"
 
                                                 return (
-                                                    <TableCell key={dayStr} style={{backgroundColor: bgColor}} className={`text-center text-xs border-r`}>{label}</TableCell>
+                                                    <TableCell key={dayStr} style={{backgroundColor: bgColor}} className={`dark:border-[#9b9b9b] text-center text-xs border-r dark:text-black`}>{label}</TableCell>
                                                 )
                                             })
                                         }

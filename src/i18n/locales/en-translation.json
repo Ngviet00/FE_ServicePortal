@@ -50,7 +50,7 @@
 		},
 		"union": {
 			"union": "Union",
-			"create_notify": "Create Notify"
+			"create_notify": "Internal Communication"
 		},
 		"leave_request": {
 			"title": "Leave request",

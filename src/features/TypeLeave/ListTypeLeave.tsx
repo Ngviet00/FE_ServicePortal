@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { formatDate, getErrorMessage, ShowToast, useDebounce } from "@/lib"
+import { getErrorMessage, ShowToast, useDebounce } from "@/lib"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import React from "react"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
@@ -10,6 +10,7 @@ import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import CreateTypeLeaveForm from "./CreateTypeLeaveForm"
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi"
 import { useTranslation } from "react-i18next"
+import { formatDate } from "@/lib/time"
 
 export default function ListTypeLeave () {
     const { t } = useTranslation();

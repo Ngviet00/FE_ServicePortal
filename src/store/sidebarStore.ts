@@ -33,6 +33,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.type_leave", route: "/type-leave" },
 			{ label: "sidebar.hr.list_user", route: "/user" },
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
+			{ label: "sidebar.union.create_notify", route: "/memo-notify" },
 		],
 	},
 	{
@@ -40,7 +41,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		label: "sidebar.union.union",
 		icon: ShieldCheck,
 		children: [
-			{ label: "sidebar.union.create_notify", route: "/create-notify" },
+			{ label: "sidebar.union.create_notify", route: "/memo-notify" },
 		],
 	},
 	{
