@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label"
 import { useTranslation } from "react-i18next"
 import useHasRole from "@/hooks/HasRole"
 import { formatDate } from "@/lib/time"
+import { Link } from "react-router-dom"
 
 export default function ListLeaveRequestWaitApproval () {
     const { t } = useTranslation();
@@ -75,7 +76,7 @@ export default function ListLeaveRequestWaitApproval () {
         mutationFn: async ({ item, approval }: { item: LeaveRequestData; approval: boolean, note: string | null }) => {
             await leaveRequestApi.approvalLeaveRequest({
                 PositionId: user?.positionId || null,
-                NameUserApproval: `name_${user?.userCode}_approval`,
+                NameUserApproval: user?.userName || null,
                 UserCodeApproval: user?.userCode || null,
                 LeaveRequestId: item?.id ?? "",
                 Status: approval,
@@ -136,15 +137,32 @@ export default function ListLeaveRequestWaitApproval () {
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
-            <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">{t('list_leave_request.title_wait_approval')}</h3>
-                {
-                    hasHRRole && 
-                    <Button variant="outline" disabled={loadingRegisterAll} onClick={registerAllLeave} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
-                        {t('leave_request.wait_approval.register_all')}
-                    </Button>
-                }
-                
+            <div className="flex flex-col sm:flex-row sm:justify-between mb-1 items-start sm:items-center">
+                <h3 className="font-bold text-xl sm:text-2xl m-0 pb-2 sm:pb-0">
+                    {t('list_leave_request.title_wait_approval')}
+                </h3>
+
+                {hasHRRole && (
+                    <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
+                        <Link to="/leave/history-approve">
+                            <Button
+                                variant="outline"
+                                className="text-xs px-2 bg-blue-600 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                            >
+                                {t('leave_request.wait_approval.history_leave_request')}
+                            </Button>
+                        </Link>
+
+                        <Button
+                            variant="outline"
+                            disabled={loadingRegisterAll}
+                            onClick={registerAllLeave}
+                            className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                        >
+                            {t('leave_request.wait_approval.register_all')}
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
@@ -201,11 +219,11 @@ export default function ListLeaveRequestWaitApproval () {
                                 <TableCell className="text-left">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                 <TableCell className="text-left">
                                     {hasHRRole && item.approvalRequest?.currentPositionId == -10 ? (
-                                    <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white">
+                                    <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
                                         {t('leave_request.wait_approval.register')}
                                     </Button>
                                     ) : (
-                                    <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer">
+                                    <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-black hover:text-white">
                                         Approval
                                     </Button>
                                     )}
@@ -246,11 +264,11 @@ export default function ListLeaveRequestWaitApproval () {
                             <div className="pt-2">
                                 {hasHRRole && item.approvalRequest?.currentPositionId == -10 ? (
                                     <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs bg-black text-white">
-                                    {t('leave_request.wait_approval.register')}
+                                        {t('leave_request.wait_approval.register')}
                                     </Button>
                                 ) : (
                                     <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs bg-black text-white">
-                                    Approval
+                                        Approval
                                     </Button>
                                 )}
                             </div>
@@ -265,32 +283,32 @@ export default function ListLeaveRequestWaitApproval () {
                         }}>
                         <DialogContent className="sm:max-w-[600px] max-w-full max-h-[90vh] h-auto flex flex-col overflow-auto">
                             <DialogHeader>
-                            <DialogTitle></DialogTitle>
-                            <DialogDescription></DialogDescription>
-                            </DialogHeader>
+                                <DialogTitle></DialogTitle>
+                                <DialogDescription></DialogDescription>
+                                </DialogHeader>
 
-                            <div className="flex flex-col w-full space-y-2 text-xl">
-                            <div>User Code: <span className="pl-2 font-bold text-red-800">{selectedItem?.requesterUserCode}</span></div>
-                            <div>Name: <span className="pl-2 font-bold text-red-800">{selectedItem?.name}</span></div>
-                            <div>Department: <span className="pl-2 font-bold text-red-800">{selectedItem?.department}</span></div>
-                            <div>Position: <span className="pl-2 font-bold text-red-800">{selectedItem?.position}</span></div>
-                            <div>From Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.fromDate}</span></div>
-                            <div>To Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.toDate}</span></div>
-                            <div>Type Leave: <span className="pl-2 font-bold">{getEnumName(selectedItem?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</span></div>
-                            <div>Time Leave: <span className="pl-2 font-bold">{getEnumName(selectedItem?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</span></div>
-                            <div>Reason: <span className="pl-2 font-bold">{selectedItem?.reason}</span></div>
-                            <div>Created At: <span className="pl-2 font-bold">{formatDate(selectedItem?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
-                            </div>
+                                <div className="flex flex-col w-full space-y-2 text-xl">
+                                    <div>User Code: <span className="pl-2 font-bold text-red-800">{selectedItem?.requesterUserCode}</span></div>
+                                    <div>Name: <span className="pl-2 font-bold text-red-800">{selectedItem?.name}</span></div>
+                                    <div>Department: <span className="pl-2 font-bold text-red-800">{selectedItem?.department}</span></div>
+                                    <div>Position: <span className="pl-2 font-bold text-red-800">{selectedItem?.position}</span></div>
+                                    <div>From Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.fromDate}</span></div>
+                                    <div>To Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.toDate}</span></div>
+                                    <div>Type Leave: <span className="pl-2 font-bold">{getEnumName(selectedItem?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</span></div>
+                                    <div>Time Leave: <span className="pl-2 font-bold">{getEnumName(selectedItem?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</span></div>
+                                    <div>Reason: <span className="pl-2 font-bold">{selectedItem?.reason}</span></div>
+                                    <div>Created At: <span className="pl-2 font-bold">{formatDate(selectedItem?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
+                                </div>
 
-                            <div className="note mt-4">
-                            <Label htmlFor="note" className="mb-2">Ghi chú</Label>
-                            <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Nội dung..." id="note" />
-                            </div>
+                                <div className="note mt-4">
+                                    <Label htmlFor="note" className="mb-2">Ghi chú</Label>
+                                    <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Nội dung..." id="note" />
+                                </div>
 
-                            <div className="flex justify-end mt-4">
-                            <Button disabled={loading} onClick={() => handleConfirm(selectedItem, false, note)} className="mr-4 bg-red-800 hover:bg-red-900">Reject</Button>
-                            <Button disabled={loading} onClick={() => handleConfirm(selectedItem, true, note)} className="bg-green-800 hover:bg-green-900">Approval</Button>
-                            </div>
+                                <div className="flex justify-end mt-4">
+                                    <Button disabled={loading} onClick={() => handleConfirm(selectedItem, false, note)} className="mr-4 bg-red-800 hover:bg-red-900">Reject</Button>
+                                    <Button disabled={loading} onClick={() => handleConfirm(selectedItem, true, note)} className="bg-green-800 hover:bg-green-900">Approval</Button>
+                                </div>
                         </DialogContent>
                     </Dialog>
                 )}

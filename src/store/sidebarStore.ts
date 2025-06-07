@@ -22,6 +22,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		label: "Admin",
 		icon: LockKeyhole,
 		children: [
+			{ label: "sidebar.admin.admin_setting", route: "/admin-setting" },
 			{ label: "sidebar.admin.role", route: "/role" },
 		],
 	},

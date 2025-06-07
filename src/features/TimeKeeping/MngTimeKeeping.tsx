@@ -80,6 +80,17 @@ const statusDefine: Record<AttendanceStatus, string> = {
     CN: "Sunday"
 };
 
+const statusTranslate: Record<AttendanceStatus, string> = {
+    O: "mng_time_keeping.have_permission",
+    ND: "mng_time_keeping.maternity",
+    AL: "mng_time_keeping.annual_leave",
+    S: "mng_time_keeping.sick",
+    SH: "mng_time_keeping.special_holiday",
+    X: "mng_time_keeping.work",
+    O1: "mng_time_keeping.no_permission",
+    CN: "mng_time_keeping.sunday"
+};
+
 function getDefaultMonth(date: Date) {
     return date.getMonth() + 1;
 }
@@ -165,7 +176,7 @@ export default function MngTimekeeping () {
             <div className="flex flex-wrap gap-4 items-center mt-7 mb-3 lg:justify-between">
                 <div className="flex space-x-4">
                     <div>
-                        <Label className="mb-1">Tháng</Label>
+                        <Label className="mb-1">{t('mng_time_keeping.month')}</Label>
                         <select className="border  w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
                             {Array.from({ length: 12 }, (_, i) => (
                                 <option key={i+1} value={i+1}>{i+1}</option>
@@ -173,7 +184,7 @@ export default function MngTimekeeping () {
                         </select>
                     </div>
                     <div>
-                        <Label className="mb-1">Năm</Label>
+                        <Label className="mb-1">{t('mng_time_keeping.year')}</Label>
                         <select className="border w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={year} onChange={(e) => setYear(Number(e.target.value))}>
                             <option value={defaultYear - 1}>{defaultYear - 1}</option>
                             <option value={defaultYear}>{defaultYear}</option>
@@ -188,19 +199,19 @@ export default function MngTimekeeping () {
                         isConfirmTimeKeeping ?
                             <AlertDialog>
                                 <AlertDialogTrigger disabled={confirmTimeKeeping.isPending} className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">
-                                    { confirmTimeKeeping.isPending ? <Spinner className="text-white"/> : "Confirm to HR"}
+                                    { confirmTimeKeeping.isPending ? <Spinner className="text-white"/> : t('mng_time_keeping.btn_confirm_hr')}
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>Do you want to continue?</AlertDialogTitle>
+                                        <AlertDialogTitle>{t('mng_time_keeping.want_to_continue')}</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            This action will send data to HR department
+                                            {t('mng_time_keeping.description')}
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
 
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel className="hover:cursor-pointer">Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleSendToHR} className="hover:cursor-pointer">Continue</AlertDialogAction>
+                                        <AlertDialogCancel className="hover:cursor-pointer">{t('mng_time_keeping.cancel')}</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleSendToHR} className="hover:cursor-pointer">{t('mng_time_keeping.continue')}</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
@@ -214,12 +225,12 @@ export default function MngTimekeeping () {
                     Object.entries(statusLabels).map(([key]) => {
                         const color = statusColors[key as AttendanceStatus];
                         const label = statusLabels[key as AttendanceStatus];
-                        const define = statusDefine[key as AttendanceStatus]
+                        const define = statusTranslate[key as AttendanceStatus]
 
                         return (
                             <span className="w-1/3 sm:w-1/2 md:w-1/4 lg:w-auto p-1 flex items-center" key={key}>
                                 <span style={{backgroundColor: color}} className={`w-[30px] dark:text-black text-center inline-block p-[2px] rounded-[3px] mr-1 flex-shrink-0`}>{label}</span>
-                                <span className="text-xs sm:text-sm">{define}</span>
+                                <span className="text-xs sm:text-sm">{t(define)}</span>
                             </span>
                         )
                     })
@@ -231,8 +242,8 @@ export default function MngTimekeeping () {
                     <Table>
                         <TableHeader>
                             <TableRow className="border-b bg-gray-300 hover:bg-gray-400 dark:bg-black dark:text-white">
-                                <TableHead className="w-[0px] text-center border-r text-black dark:text-white">Mã nhân viên</TableHead>
-                                <TableHead className="w-[100px] text-center border-r text-black dark:text-white">Họ Tên</TableHead>
+                                <TableHead className="w-[0px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.usercode')}</TableHead>
+                                <TableHead className="w-[100px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.name')}</TableHead>
                                 {
                                     daysHeader.map(({ dayStr }) => {
                                         // const fullDateStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;

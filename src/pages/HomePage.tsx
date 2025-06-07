@@ -2,21 +2,49 @@ import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
 import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import memoNotificationApi, { IMemoNotify } from '@/api/memoNotificationApi';
 import { formatDate } from '@/lib/time';
+import { useAuthStore } from '@/store/authStore';
+import { Skeleton } from '@/components/ui/skeleton';
+import userApi from '@/api/userApi';
+
 import "./css/Homepage.css"
+
+function formatData(data: string | null | undefined):string {
+    if (data === "" || data === null || data === undefined) {
+        return "---";
+    }
+    return data;
+}
 
 export default function HomePage() {
     const { t } = useTranslation();
+    const { updateUser } = useAuthStore();
     const { user } = useAuthStore();
 
     const { data } = useQuery({
         queryKey: ['get-all-memo-notify-in-homepage'],
         queryFn: async () => {
-            const res = await memoNotificationApi.getAllInHomePage();
+            const res = await memoNotificationApi.getAllInHomePage({
+                DepartmentId: user?.departmentId
+            });
+            return res.data.data;
+        },
+    });
+
+    const { data: UserData, isPending } = useQuery({
+        queryKey: ['get-me'],
+        queryFn: async () => {
+            const res = await userApi.getMe();
+            const userName = res?.data?.data?.nvHoTen;
+            const departmentId = res?.data?.data?.nvMaBP;
+
+            if (user?.userName != userName) {
+                updateUser({ userName: userName ?? "....", departmentId: departmentId})
+            }
+            
             return res.data.data;
         },
     });
@@ -87,16 +115,16 @@ export default function HomePage() {
                         </div>
                         <div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{user?.userCode ?? "--"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "0" : formatData(UserData?.nvMaNV)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='truncate max-w-[150px] text-base font-bold'>{"02/05/2000"}</label>
+                                <label className='truncate max-w-[150px] text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.nvNgaySinh ? formatDate(formatData(UserData?.nvNgaySinh), "dd/MM/yyyy") : "---"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{"0345248120"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : formatData(UserData?.nvDienThoai)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{"Staff"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "superadmin" :  UserData?.cvTen && (UserData?.cvTen != "" || UserData?.cvTen != null) ? UserData?.cvTen : "Staff"}</label>
                             </div>
                         </div>
                     </div>
@@ -118,16 +146,16 @@ export default function HomePage() {
                         </div>
                         <div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{"Nguyen Van Viet"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "superadmin" : formatData(UserData?.nvHoTen)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{"nguyenviet@vsvn.com.vn"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : formatData(UserData?.NVEmail)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{"01/04/2025"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.nvNgayVao ? formatDate(formatData(UserData?.nvNgayVao), "dd/MM/yyyy") : "---"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{"MIS/IT"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "MIS" : formatData(UserData?.bpTen)}</label>
                             </div>
                         </div>
                     </div>

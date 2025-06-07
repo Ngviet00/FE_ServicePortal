@@ -152,7 +152,7 @@ export default function ListLeaveRequest () {
                                     <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
                                     <TableHead className="w-[200px] text-center">{t('list_leave_request.reason')}</TableHead>
                                     <TableHead className="w-[120px] text-center">
-                                        {filterStatus === "REJECT" ? t('list_leave_request.reject_by') : t('list_leave_request.approve_by')}
+                                        {filterStatus === "REJECT" ? t('list_leave_request.reject_by') : filterStatus == "IN_PROCESS" ? t('list_leave_request.have_approved_by') : t('list_leave_request.approve_by')}
                                     </TableHead>
                                     <TableHead className="w-[120px] text-left">
                                         {filterStatus === "REJECT" ? t('list_leave_request.reject_at') : t('list_leave_request.created_at')}
@@ -201,26 +201,26 @@ export default function ListLeaveRequest () {
                                             </TableCell>
                                             <TableCell className="text-left">
                                                 {filterStatus === "REJECT" ? (
-                                                <span
-                                                    className={`${
-                                                    item.approvalAction?.comment ? "text-red-500" : "text-black"
-                                                    } font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
-                                                    title={item.approvalAction?.comment ?? ""}
-                                                >
-                                                    {item.approvalAction?.comment || "--"}
-                                                </span>
-                                                ) : filterStatus === "PENDING" ? (
-                                                <>
-                                                    <Link
-                                                    to={`/leave/edit/${item.id}`}
-                                                    className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm"
+                                                    <span
+                                                        className={`${
+                                                        item.approvalAction?.comment ? "text-red-500" : "text-black"
+                                                        } font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
+                                                        title={item.approvalAction?.comment ?? ""}
                                                     >
-                                                    Edit
-                                                    </Link>
-                                                    <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
-                                                </>
+                                                        {item.approvalAction?.comment || "--"}
+                                                    </span>
+                                                ) : filterStatus === "PENDING" ? (
+                                                    <>
+                                                        <Link
+                                                        to={`/leave/edit/${item.id}`}
+                                                        className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm"
+                                                        >
+                                                        Edit
+                                                        </Link>
+                                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
+                                                    </>
                                                 ) : (
-                                                <StatusLeaveRequest status={item.approvalAction?.action ?? "PENDING"} />
+                                                    <StatusLeaveRequest status={item.approvalRequest?.status == "IN_PROCESS" && item.approvalRequest.currentPositionId == -10 ? 'WAIT_HR' : item.approvalAction?.action ?? "PENDING"} />
                                                 )}
                                             </TableCell>
                                         </TableRow>

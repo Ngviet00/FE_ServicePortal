@@ -26,6 +26,7 @@ import { useQuery } from "@tanstack/react-query";
 import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi";
 import userConfigApi from "@/api/userConfigApi";
 import DotRequireComponent from "@/components/DotRequireComponent";
+import userApi from "@/api/userApi";
 
 const formSchema = z.object({
     user_code: z.string().nonempty({ message: "Required" }),
@@ -99,14 +100,12 @@ export default function LeaveRequestForm() {
             const data = formatData(values);
             if (isEdit) {
                 await leaveRequestApi.update(id, data);
-                ShowToast("Success");
-                navigate("/leave");
             } else {
                 await leaveRequestApi.create(data);
-                ShowToast("Success");
                 form.setValue("reason", "");
-                navigate("/leave");
             }
+            ShowToast("Success");
+            navigate("/leave");
         } catch (err) {
             ShowToast(getErrorMessage(err), "error")
         } finally {
@@ -117,10 +116,7 @@ export default function LeaveRequestForm() {
     const { data: typeLeaves = [], isPending, isError, error } = useQuery({
         queryKey: ['get-all-type-leave'],
         queryFn: async () => {
-            const res = await typeLeaveApi.getAll({
-                page: 1,
-                page_size: 50,
-            });
+            const res = await typeLeaveApi.getAll({});
             return res.data.data;
         },
     });
@@ -167,12 +163,67 @@ export default function LeaveRequestForm() {
         }
     }, [form.formState.errors]);
 
+    useEffect(() => {
+        if (id) {
+            const fetchData = async () => {
+                try {
+                    const data = await leaveRequestApi.getById(id);
+                    const results = data.data.data;
+
+                    const from = new Date(results.fromDate);
+                    const to = new Date(results.toDate);
+
+                    form.reset({
+                        user_code: user?.userCode || "",
+                        name: results?.name,
+                        department: results?.department,
+                        position: results?.position ?? "Staff",
+
+                        from_date: from.toISOString().slice(0, 10),
+                        from_hour: String(from.getHours()).padStart(2, "0"),
+                        from_minutes: String(from.getMinutes()).padStart(2, "0"),
+
+                        to_date: to.toISOString().slice(0, 10),
+                        to_hour: String(to.getHours()).padStart(2, "0"),
+                        to_minutes: String(to.getMinutes()).padStart(2, "0"),
+
+                        time_leave: results?.timeLeave,
+                        type_leave: results?.typeLeave,
+
+                        reason: results?.reason
+                    });
+                    console.log(results);
+                } catch (err) {
+                    ShowToast(getErrorMessage(err), "error")
+                }
+            };
+
+            fetchData();
+        }
+    }, [form, id, user?.userCode])
+
+    const { isPending: isPendingLoadUser } = useQuery({
+        queryKey: ['get-me'],
+        queryFn: async () => {
+            const res = await userApi.getMe();
+            const deptName = res?.data?.data?.bpTen;
+            const position = res?.data?.data?.cvTen;
+            form.reset({
+                user_code: user?.userCode || "",
+                name: user?.userName || null || undefined,
+                department: deptName,
+                position: position ?? "Staff",
+            });
+            return res.data.data;
+        },
+    });
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-7">
                 <div className="flex flex-col gap-2">
                     <h3 className="font-bold text-xl md:text-2xl">
-                        {isEdit ? "Sửa" : "Đăng ký"} nghỉ phép
+                        {isEdit ? t('leave_request.create.title_edit') : t('leave_request.create.title') }
                     </h3>
 
                     <div className="flex items-center">
@@ -211,7 +262,7 @@ export default function LeaveRequestForm() {
                                                 <DotRequireComponent />
                                             </FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t("leave_request.create.code")} {...field} />
+                                                <Input readOnly className="bg-gray-300 border-gray-400" placeholder={t("leave_request.create.code")} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -227,7 +278,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.name')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.name')} {...field} />
+                                                <Input readOnly className="bg-gray-300 border-gray-400" placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.name')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -243,7 +294,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.department')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input className="border-gray-300" placeholder={t('leave_request.create.department')} {...field} />
+                                                <Input readOnly className="bg-gray-300 border-gray-400" placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.department')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -259,7 +310,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.position')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t('leave_request.create.position')} {...field} />
+                                                <Input className="bg-gray-300 border-gray-400" readOnly placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.position')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

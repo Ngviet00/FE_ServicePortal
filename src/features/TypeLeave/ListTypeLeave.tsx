@@ -1,11 +1,8 @@
-import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getErrorMessage, ShowToast, useDebounce } from "@/lib"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import React from "react"
-import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import CreateTypeLeaveForm from "./CreateTypeLeaveForm"
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi"
@@ -14,23 +11,15 @@ import { formatDate } from "@/lib/time"
 
 export default function ListTypeLeave () {
     const { t } = useTranslation();
-    const [name, setName] = useState("") 
-    const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
     
-    //get list roles 
+    //get list type leave 
     const { data: typeLeaves = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-all-type-leave', debouncedName, page, pageSize],
+        queryKey: ['get-all-type-leave', debouncedName],
         queryFn: async () => {
-            const res = await typeLeaveApi.getAll({
-                page: page,
-                page_size: pageSize,
-                name: debouncedName
-            });
-            setTotalPage(res.data.total_pages)
+            const res = await typeLeaveApi.getAll({ });
             return res.data.data;
         },
     });
@@ -45,19 +34,6 @@ export default function ListTypeLeave () {
         } else {
             queryClient.invalidateQueries({ queryKey: ['get-all-type-leave'] });
         }
-    }
-
-    const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value)
-    }
-
-    function setCurrentPage(page: number): void {
-        setPage(page)
-    }
-
-    function handlePageSizeChange(size: number): void {
-        setPage(1)
-        setPageSize(size)
     }
 
     const mutation = useMutation({
@@ -87,14 +63,6 @@ export default function ListTypeLeave () {
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('type_leave_page.title')}</h3>
                 <CreateTypeLeaveForm onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-type-leave'] })}/>
-            </div>
-            <div className="flex items-center justify-between">
-                <Input
-                    placeholder={t('type_leave_page.search')}
-                    value={name}
-                    onChange={handleSearchByName}
-                    className="max-w-sm"
-                />
             </div>
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
                 <div className="max-h-[450px] overflow-y-auto">
@@ -142,15 +110,6 @@ export default function ListTypeLeave () {
                     </Table>
                 </div>
             </div>
-            {
-                typeLeaves.length > 0 ? (<PaginationControl
-                    currentPage={page}
-                    totalPages={totalPage}
-                    pageSize={pageSize}
-                    onPageChange={setCurrentPage}
-                    onPageSizeChange={handlePageSizeChange}
-                />) : (null)
-            }
         </div>
     )
 }

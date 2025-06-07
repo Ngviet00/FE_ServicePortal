@@ -1,4 +1,4 @@
-type LeaveStatus = 'PENDING' | 'IN_PROCESS' | 'COMPLETED' | 'REJECT';
+type LeaveStatus = 'PENDING' | 'IN_PROCESS' | 'COMPLETED' | 'REJECT' | 'WAIT_HR';
 
 interface StatusLeaveRequestProps {
     status: LeaveStatus | number | string | undefined | null;
@@ -9,6 +9,7 @@ const STATUS_MAP: Record<number, LeaveStatus> = {
 	2: 'IN_PROCESS',
 	3: 'COMPLETED',
 	4: 'REJECT',
+	5: 'WAIT_HR',
 };
 
 const STATUS_CONFIG: Record<LeaveStatus, { bg: string; text_color: string }> = {
@@ -27,6 +28,10 @@ const STATUS_CONFIG: Record<LeaveStatus, { bg: string; text_color: string }> = {
     REJECT: {
 		bg: 'bg-red-200',
 		text_color: 'text-red-600',
+    },
+	WAIT_HR: {
+		bg: 'bg-pink-200',
+		text_color: 'text-pink-600',
     },
 };
   

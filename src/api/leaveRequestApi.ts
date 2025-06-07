@@ -30,6 +30,22 @@ export interface LeaveRequestData {
     }
 }
 
+export interface HistoryLeaveRequestApproval {
+    id?: string | null,
+    requesterUserCode: string | null,
+    name: string | null,
+    department: string | null,
+    position: string | null,
+    fromDate: string | null,
+    toDate: string | null,
+    timeLeave: number | null,
+    typeLeave: number | null,
+    reason: string| null
+    image?: string | null,
+    approverName?: string | null,
+    approvalAt?: string | null,
+}
+
 interface GetLeaveRequest {
     position_id?: number,
     UserCode?: string,
@@ -82,6 +98,9 @@ const leaveRequestApi = {
     },
     registerAllLeaveRequest(userCode: string | undefined) {
         return axiosClient.post('/leave-request/hr-register-all-leave-rq', {userCode: userCode})
+    },
+    getHistoryLeaveRequestApproval(params: GetLeaveRequest) {
+        return axiosClient.get(`/leave-request/history-approval/`, {params})
     }
 }
 

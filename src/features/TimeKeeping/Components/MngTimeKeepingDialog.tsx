@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
+import { useTranslation } from "react-i18next";
 
 interface ListUserToChooseManageData {
     userCode: string,
@@ -19,6 +20,7 @@ interface ListUserToChooseManageData {
 }
 
 export default function MgnTimeKeepingDialog() {
+    const { t } = useTranslation()
     const [openModal, setOpenModal] = useState(false);
     const { user } = useAuthStore()
     const [nameSearch, setNameSearch] = useState("")
@@ -121,20 +123,20 @@ export default function MgnTimeKeepingDialog() {
     return (
         <Dialog open={openModal} onOpenChange={setOpenModal}>
             <DialogTrigger className="hover:cursor-pointer bg-black text-white px-4 py-1 rounded-[8px]">
-                TimeKeeping User
+                {t('mng_time_keeping.timekeeping_user')}
             </DialogTrigger>
             <DialogContent className="h-[80%] block" style={{ maxWidth: '60em' }}>
                 <DialogHeader>
-                    <DialogTitle>Choose user</DialogTitle>
+                    <DialogTitle>{t('modal_btn_timekeeping.title')}</DialogTitle>
                 </DialogHeader>
                 <div className="w-full">
                     <div className="flex items-end">
                         <div className="flex-1 mr-2">
-                        <Label className="my-2">Search</Label>
-                        <Input type="text" className="border" placeholder="Search..." value={nameSearch} onChange={handleSearch} />
+                        <Label className="my-2">{t('modal_btn_timekeeping.search')}</Label>
+                        <Input type="text" className="border" placeholder={`${t('modal_btn_timekeeping.title')}...`} value={nameSearch} onChange={handleSearch} />
                         </div>
                         <Button disabled={saveManageTimeKeeping.isPending} onClick={handleSaveManageUserTimeKeeping}>
-                        {saveManageTimeKeeping.isPending ? <Spinner className="text-white" /> : 'Save'}
+                            {saveManageTimeKeeping.isPending ? <Spinner className="text-white" /> : t('modal_btn_timekeeping.save')}
                         </Button>
                     </div>
 
@@ -149,10 +151,10 @@ export default function MgnTimeKeepingDialog() {
                                 onCheckedChange={(checked) => handleCheckAll(!!checked)}
                                 />
                             </TableHead>
-                            <TableHead className="w-[150px] text-left">UserCode</TableHead>
-                            <TableHead className="w-[150px] text-left">Name</TableHead>
-                            <TableHead className="w-[150px] text-left">Department</TableHead>
-                            <TableHead className="w-[150px] text-left">Position</TableHead>
+                            <TableHead className="w-[150px] text-left">{t('modal_btn_timekeeping.usercode')}</TableHead>
+                            <TableHead className="w-[150px] text-left">{t('modal_btn_timekeeping.name')}</TableHead>
+                            <TableHead className="w-[150px] text-left">{t('modal_btn_timekeeping.department')}</TableHead>
+                            <TableHead className="w-[150px] text-left">{t('modal_btn_timekeeping.position')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

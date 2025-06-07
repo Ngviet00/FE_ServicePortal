@@ -1,8 +1,8 @@
 import axiosClient from './axiosClient';
 
 interface GetAllParams {
-    page: number;
-    page_size: number;
+    page?: number;
+    page_size?: number;
     name?: string;
 }
 

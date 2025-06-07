@@ -20,7 +20,7 @@ export default function AvatarDropdown() {
 			logout();
 			navigate("/login");
 		} catch (err) {
-			ShowToast(getErrorMessage(err))
+			ShowToast(getErrorMessage(err), "error")
 		}
 	}
 

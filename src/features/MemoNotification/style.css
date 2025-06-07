@@ -24,6 +24,10 @@
 }
 
 @media (min-width: 769px) { 
+    tbody tr td {
+        border-bottom: none;
+    }
+    
     .list-memo-notify table {
         border-collapse: collapse;
     }

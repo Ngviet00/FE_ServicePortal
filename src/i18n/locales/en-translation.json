@@ -41,7 +41,8 @@
 	"sidebar": {
 		"home": "Dashboard",
 		"admin": {
-			"role": "Role"
+			"role": "Role",
+			"admin_setting": "Setting"
 		},
 		"hr": {
 			"type_leave": "Type leave",
@@ -85,6 +86,7 @@
 	"leave_request": {
 		"create": {
 			"title": "Create leave request",
+			"title_edit": "Edit leave request",
 			"receive_email": "Receive email",
 			"link_to_list": "List leave request",
 			"department": "Department",
@@ -116,7 +118,8 @@
 		},
 		"wait_approval": {
 			"register": "Register",
-			"register_all": "Register all"
+			"register_all": "Register all",
+			"history_leave_request": "History approval"
 		}
 	},
 
@@ -171,6 +174,7 @@
 		"reason": "Reason",
 		"created_at": "Created At",
 		"approve_by": "Approved By",
+		"have_approved_by": "Have Approved",
 		"approved_at": "Approved At",
 		"status": "Status",
 		"reject_by": "Rejected By",
@@ -201,6 +205,49 @@
 		"note": "Note"
 	},
 	"mng_time_keeping": {
-		"mng_time_keeping": "Management timekeeping"
+		"mng_time_keeping": "Management timekeeping",
+		"month": "Month",
+		"year": "Year",
+		"btn_confirm_hr": "Confirm HR",
+		"timekeeping_user": "Timekeeping User",
+		"usercode": "Usercode",
+		"name": "Name",
+		"have_permission": "Have Permission",
+		"maternity": "Maternity",
+		"annual_leave": "Annual Leave",
+		"sick": "Sick",
+		"special_holiday": "Special Holiday",
+		"work": "Work",
+		"no_permission": "No Permission",
+		"sunday": "Sunday",
+		"want_to_continue": "Do you want to continue?",
+		"description": "This action will send data to HR department",
+		"cancel": "Cancel",
+		"continue": "Continue"
+	},
+	"modal_btn_timekeeping": {
+		"title": "Choose user",
+		"search": "Search",
+		"save": "Save",
+		"usercode": "Usercode",
+		"name": "Name",
+		"department": "Department",
+		"position": "Position"
+	},
+	"memo_notification": {
+		"list": {
+			"title_page": "List memo notify",
+			"btn_create_memo_notify": "Create memo notify",
+			"title": "Title",
+			"content": "Content",
+			"department_apply": "Department Apply",
+			"display": "Display",
+			"status": "Status",
+			"created_at": "Created At",
+			"created_by": "Created by",
+			"action": "Action",
+			"btn_save": "Save",
+			"attachments": "Attach file"
+		}
 	}
 }

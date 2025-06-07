@@ -1,19 +1,38 @@
 import { useParams } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import memoNotificationApi, { IMemoNotify } from '@/api/memoNotificationApi'
+import { useState } from 'react'
 import { formatDate } from '@/lib/time'
+import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify'
+import { getErrorMessage, ShowToast } from '@/lib'
+import { useQuery } from '@tanstack/react-query'
+import memoNotificationApi from '@/api/memoNotificationApi'
 
 export default function DetailMemoNotification() {
-    const { id } = useParams()
-    const [memo, setMemo] = useState<IMemoNotify | null>(null)
+    const [uploadedFiles, setUploadedFiles] = useState<{ id: string, fileName: string; contentType: string }[]>([]);
+    const { id } = useParams<{ id: string }>();
 
-    useEffect(() => {
-        const fetchMemo = async () => {
-            const result = await memoNotificationApi.getById(id!);
-            setMemo(result.data.data)
+    const { data: memo } = useQuery({
+        queryKey: ['get-detail-memk-notify'],
+        queryFn: async () => {
+            const res = await memoNotificationApi.getById(id!);
+            setUploadedFiles(res?.data?.data?.files || []);
+            return res.data.data;
+        },
+        enabled: id != null || id != undefined
+    });
+
+    const handleDownloadFile = async (file: UploadedFileType) => {
+        try {
+            const result = await memoNotificationApi.downloadFile(file.id)
+            const url = window.URL.createObjectURL(result.data);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            ShowToast(`Download file failed,${getErrorMessage(err)}`, "error")
         }
-        fetchMemo()
-    }, [id])
+    }
 
     if (!memo) {
         return <div className="p-6">Đang tải...</div>
@@ -33,6 +52,10 @@ export default function DetailMemoNotification() {
                         {formatDate(memo.createdAt, "yyyy/MM/dd HH:mm:ss")}
                     </span>
                 </span>
+            </div>
+
+            <div>
+                <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles}/>
             </div>
 
             <div className="w-full overflow-x-auto">

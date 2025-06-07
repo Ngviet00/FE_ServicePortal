@@ -41,7 +41,8 @@
 	"sidebar": {
 		"home": "Trang chủ",
 		"admin": {
-			"role": "Vai trò"
+			"role": "Vai trò",
+			"admin_setting": "Cài đặt"
 		},
 		"hr": {
 			"type_leave": "Loại phép",
@@ -85,6 +86,7 @@
 	"leave_request": {
 		"create": {
 			"title": "Xin nghỉ phép",
+			"title_edit": "Sửa nghỉ phép",
 			"receive_email": "Nhận thông báo qua email",
 			"link_to_list": "Danh sách nghỉ",
 			"department": "Phòng ban",
@@ -116,7 +118,8 @@
 		},
 		"wait_approval": {
 			"register": "Đăng ký",
-			"register_all": "Đăng ký tất cả"
+			"register_all": "Đăng ký tất cả",
+			"history_leave_request": "Danh sách đã duyệt"
 		}
 	},
 	"list_user_page": {
@@ -170,6 +173,7 @@
 		"reason": "Lý do",
 		"created_at": "Thời gian tạo",
 		"approve_by": "Người duyệt",
+		"have_approved_by": "Đã duyệt",
 		"approved_at": "Thời gian duyệt",
 		"status": "Trạng thái",
 		"reject_by": "Từ chối",
@@ -200,6 +204,49 @@
 		"note": "Ghi chú"
 	},
 	"mng_time_keeping": {
-		"mng_time_keeping": "Quản lý chấm công"
+		"mng_time_keeping": "Quản lý chấm công",
+		"month": "Tháng",
+		"year": "Năm",
+		"btn_confirm_hr": "Xác nhận HR",
+		"timekeeping_user": "Chọn người xem chấm công",
+		"usercode": "Mã nhân viên",
+		"name": "Tên",
+		"have_permission": "Có phép",
+		"maternity": "Nghỉ đẻ",
+		"annual_leave": "Phép năm",
+		"sick": "Ốm",
+		"special_holiday": "Nghỉ đặc biệt",
+		"work": "Đi làm",
+		"no_permission": "Không phép",
+		"sunday": "Chủ nhật",
+		"want_to_continue": "Bạn có muốn tiếp tục?",
+		"description": "Sau khi bấm tiếp tục sẽ gửi tới HR",
+		"cancel": "Hủy",
+		"continue": "Tiếp tục"
+	},
+	"modal_btn_timekeeping": {
+		"title": "Chọn người dùng",
+		"search": "Tìm kiếm",
+		"save": "Lưu",
+		"usercode": "Mã nhân viên",
+		"name": "Tên",
+		"department": "Bộ phận/Phòng ban",
+		"position": "Chức vụ"
+	},
+	"memo_notification": {
+		"list": {
+			"title_page": "Danh sách thông báo",
+			"btn_create_memo_notify": "Tạo thông báo",
+			"title": "Tiêu đề",
+			"content": "Nội dung",
+			"department_apply": "Bộ phận áp dụng",
+			"display": "Hiển thị",
+			"status": "Trạng thái",
+			"created_at": "Thời gian tạo",
+			"created_by": "Người tạo",
+			"action": "Hành động",
+			"btn_save": "Lưu",
+			"attachments": "Đính kèm file"
+		}
 	}
 }

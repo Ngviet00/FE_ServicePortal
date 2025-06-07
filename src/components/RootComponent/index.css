@@ -45,6 +45,10 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+html {
+  overflow: hidden;
+}
+
 body {
     height: 100%;
     margin: 0;
@@ -75,6 +79,41 @@ h1 {
 
 .ql-editor.ql-blank {
     height: 300px;
+}
+
+/* Chrome, Edge, Safari */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-inner-spin-button,
+input[type="password"]::-webkit-outer-spin-button {
+  display: none;
+}
+
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none;
+}
+
+/* Ẩn nút show/hide password mặc định trên Chrome */
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
+/* Ẩn nút show password mặc định trên Chrome */
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none;
+}
+
+/* Ẩn nút show password mặc định trên Chrome (cách phổ biến hơn) */
+input[type="password"]::-webkit-textfield-decoration {
+  display: none;
+}
+
+/* Ẩn nút show password mặc định trên Chrome */
+input[type="password"]::-webkit-password-toggle-button {
+  display: none;
 }
 
 @import "tailwindcss";

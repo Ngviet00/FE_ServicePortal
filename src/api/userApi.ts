@@ -58,6 +58,9 @@ const userApi = {
     },
     resetPassword (data: ResetPasswordRequest) {
         return axiosClient.post(`/user/reset-password`, data)
+    },
+    getMe() {
+        return axiosClient.get(`/user/me`)
     }
 }
 

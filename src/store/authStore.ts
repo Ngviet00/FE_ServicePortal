@@ -9,6 +9,8 @@ interface IRole {
 interface User {
     id: string;
     userCode: string,
+    userName?: string | undefined | null,
+    departmentId?: number | undefined | null,
     IsActive?: number;
     isChangePassword?: number;
     positionId?: number,
