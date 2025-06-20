@@ -38,8 +38,8 @@ export default function HomePage() {
         queryKey: ['get-me'],
         queryFn: async () => {
             const res = await userApi.getMe();
-            const userName = res?.data?.data?.nvHoTen;
-            const departmentId = res?.data?.data?.nvMaBP;
+            const userName = res?.data?.data?.nvHoTen ?? "user";
+            const departmentId = res?.data?.data?.nvMaBP ?? 0;
 
             if (user?.userName != userName) {
                 updateUser({ userName: userName ?? "....", departmentId: departmentId})

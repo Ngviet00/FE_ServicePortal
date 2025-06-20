@@ -56,6 +56,7 @@
 		"leave_request": {
 			"title": "Leave request",
 			"create_leave": "Create leave request",
+			"create_leave_for_others" : "Create leave for others",
 			"list_leave": "List leave request",
 			"wait_approval": "Wait approval"
 		},
@@ -156,6 +157,7 @@
 		"btn_update_role": "Update role"
 	},
 	"list_leave_request": {
+		"write_leave_name": "Write leave",
 		"title_wait_approval": "Wait Approval",
 		"title_list": "List leave request",
 		"btn_create_leave_request": "Create leave request",
@@ -184,6 +186,10 @@
 		"approval": "Approval"
 	},
 	"time_keeping": {
+		"usercode": "Usercode",
+		"username": "Name",
+		"dept": "Department",
+		"shift": "Shift",
 		"total_date_work": "Total work",
 		"day_ot": "Overtime day (hour)",
 		"night_ot": "Overtime night (hour)",
@@ -205,6 +211,7 @@
 		"note": "Note"
 	},
 	"mng_time_keeping": {
+		"dept": "Dept",
 		"mng_time_keeping": "Management timekeeping",
 		"month": "Month",
 		"year": "Year",

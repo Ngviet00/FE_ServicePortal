@@ -5,131 +5,28 @@ import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeeping";
-import MgnTimeKeepingDialog from "./Components/MngTimeKeepingDialog";
-import useHasRole from "@/hooks/HasRole";
 import { Spinner } from "@/components/ui/spinner";
-
-type AttendanceStatus =
-    | "O"
-    | "ND"
-    | "AL"
-    | "S"
-    | "SH"
-    | "X"
-    | "O1"
-    | "CN"
-    
-interface AttendanceEntry {
-    date: string;
-    status: AttendanceStatus;
-}
-
-// interface Holidays {
-//     date: string,
-//     type: string  
-// }
-
-interface AttendanceRecord {
-    userCode: string;
-    name: string;
-    attendances: AttendanceEntry[];
-}
-
-const statusLabels: Record<AttendanceStatus, string> = {
-    O: "O",
-    ND: "ND",
-    AL: "AL",
-    S: "S",
-    SH: "SH",
-    X: "X",
-    O1: "O1",
-    CN: "CN"
-};
-
-const statusColors: Record<AttendanceStatus, string> = {
-    O: "#fc8600",
-    ND: "#8a7d75",
-    AL: "#00ecff",
-    S: "#e800ff",
-    SH: "#07ee15",
-    X: "#f7f7f7",
-    O1: "#f7e4ff",
-    CN: "#d9d9d9"
-};
-
-const statusDefine: Record<AttendanceStatus, string> = {
-    O: "Have permission",
-    ND: "Maternity",
-    AL: "Annual leave",
-    S: "Sick",
-    SH: "Special Holiday",
-    X: "Work",
-    O1: "No permission",
-    CN: "Sunday"
-};
-
-const statusTranslate: Record<AttendanceStatus, string> = {
-    O: "mng_time_keeping.have_permission",
-    ND: "mng_time_keeping.maternity",
-    AL: "mng_time_keeping.annual_leave",
-    S: "mng_time_keeping.sick",
-    SH: "mng_time_keeping.special_holiday",
-    X: "mng_time_keeping.work",
-    O1: "mng_time_keeping.no_permission",
-    CN: "mng_time_keeping.sunday"
-};
-
-function getDefaultMonth(date: Date) {
-    return date.getMonth() + 1;
-}
-
-function getDefaultYear(date: Date) {
-    return date.getFullYear();
-}
-
-function getDaysInMonth(year: number, month: number) {
-    return new Date(year, month, 0).getDate();
-}
-
-function getToday() {
-    return new Date()
-}
-
-// function getHolidayColor(types: string[]) {
-//     if (types.includes("special_holiday")) 
-//         return { bgColor: "#07ee15", textColor: "#000000" };
-    
-//     if (types.includes("sunday"))
-//          return { bgColor: "#000000", textColor: "#ffffff" };
-    
-//     return { bgColor: "", textColor: "" };
-// }
+import { Button } from "@/components/ui/button";
+import { ConfirmDialogToHR } from "./Components/ConfirmDialogToHR";
+import { UpdateTimeKeepingDialog } from "./Components/UpdateTimeKeepingDialog";
+import { getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
+import { AttendanceStatus, TimeKeeping, UpdateTimeKeeping, UserTimeKeeping } from "./Components/types";
+import { statusColors, statusDefine, statusLabels } from "./Components/constants";
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
     const {user} = useAuthStore()
 
     const today = getToday()
-    
     const defaultMonth = getDefaultMonth(today)
     const defaultYear = getDefaultYear(today)
-
     const [month, setMonth] = useState(defaultMonth)
     const [year, setYear] = useState(defaultYear)
-
     const confirmTimeKeeping = useConfirmTimeKeeping();
+    const [openUpdateTimeKeeping, setOpenUpdateTimeKeeping] = useState(false);
+    const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
+    const [dataAttendances, setDataAttendances] = useState<UserTimeKeeping[]>([])
 
     const daysInMonth = getDaysInMonth(year, month)
     const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
@@ -141,7 +38,7 @@ export default function MngTimekeeping () {
         };
     });
     
-    const { data: dataAttendances, isPending, isError, error } = useQuery({
+    const { isPending, isError, error } = useQuery({
         queryKey: ['management-timekeeping', year, month],
         queryFn: async () => {
             const res = await timekeepingApi.getMngTimeKeeping({
@@ -149,8 +46,8 @@ export default function MngTimekeeping () {
                 Year: year,
                 Month: month
             })
-            const { holidays, userData } = res.data.data;
-            return { holidays, userData }
+            setDataAttendances(res.data.data)
+            return res.data.data
         },
         enabled: !!year && !!month && !!user?.userCode
     });
@@ -165,13 +62,32 @@ export default function MngTimekeeping () {
         });
     }
 
-    const isConfirmTimeKeeping = useHasRole(['time_keeping.confirm_timekeeping']);
+    const saveChangeUpdateTimeKeeping = () => {
+        if (selectedData?.rowIndex === undefined || selectedData?.colIndex === undefined)
+            return;
+
+        const updated = [...dataAttendances];
+
+        updated[selectedData.rowIndex] = {
+            ...updated[selectedData.rowIndex],
+            dataTimeKeeping: updated[selectedData.rowIndex].dataTimeKeeping.map((item, idx) =>
+            idx === selectedData.colIndex
+                ? {
+                    ...item,
+                    result: selectedData.currentValue,
+                }
+                : item
+            ),
+        };
+
+        setDataAttendances(updated);
+        setOpenUpdateTimeKeeping(false);
+    }
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('mng_time_keeping.mng_time_keeping')}</h3>
-                <MgnTimeKeepingDialog />
             </div>
             <div className="flex flex-wrap gap-4 items-center mt-7 mb-3 lg:justify-between">
                 <div className="flex space-x-4">
@@ -188,6 +104,7 @@ export default function MngTimekeeping () {
                         <select className="border w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={year} onChange={(e) => setYear(Number(e.target.value))}>
                             <option value={defaultYear - 1}>{defaultYear - 1}</option>
                             <option value={defaultYear}>{defaultYear}</option>
+                            <option value={defaultYear + 1}>{defaultYear + 1}</option>
                         </select>
                     </div>
                 </div>
@@ -195,44 +112,53 @@ export default function MngTimekeeping () {
                     <span>{month} - {year}</span>
                 </div>
                 <div>
-                    {
-                        isConfirmTimeKeeping ?
-                            <AlertDialog>
-                                <AlertDialogTrigger disabled={confirmTimeKeeping.isPending} className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">
-                                    { confirmTimeKeeping.isPending ? <Spinner className="text-white"/> : t('mng_time_keeping.btn_confirm_hr')}
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{t('mng_time_keeping.want_to_continue')}</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            {t('mng_time_keeping.description')}
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
+                    <UpdateTimeKeepingDialog
+                        open={openUpdateTimeKeeping}
+                        onOpenChange={setOpenUpdateTimeKeeping}
+                        selectedData={selectedData}
+                        setSelectedData={setSelectedData}
+                        onSave={saveChangeUpdateTimeKeeping}
+                    />
 
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel className="hover:cursor-pointer">{t('mng_time_keeping.cancel')}</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleSendToHR} className="hover:cursor-pointer">{t('mng_time_keeping.continue')}</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        : <span></span>
-                    }
+                    <Button className="mr-1 hover:cursor-pointer">Export Excel</Button>
+                    <ConfirmDialogToHR 
+                            title={t('mng_time_keeping.want_to_continue')}
+                            description={t('mng_time_keeping.description')}
+                            onConfirm={handleSendToHR}
+                            isPending={confirmTimeKeeping.isPending}
+                            confirmText={t('mng_time_keeping.continue')}
+                            cancelText={t('mng_time_keeping.cancel')}
+                        >
+                        <button className="hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800">
+                            {confirmTimeKeeping.isPending ? <Spinner className="text-white" /> : t('mng_time_keeping.btn_confirm_hr')}
+                        </button>
+                    </ConfirmDialogToHR>
                 </div>
             </div>
-
-            <div className="flex flex-wrap my-5 lg:justify-around">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 gap-y-2 items-start">
                 {
                     Object.entries(statusLabels).map(([key]) => {
-                        const color = statusColors[key as AttendanceStatus];
-                        const label = statusLabels[key as AttendanceStatus];
-                        const define = statusTranslate[key as AttendanceStatus]
-
                         return (
-                            <span className="w-1/3 sm:w-1/2 md:w-1/4 lg:w-auto p-1 flex items-center" key={key}>
-                                <span style={{backgroundColor: color}} className={`w-[30px] dark:text-black text-center inline-block p-[2px] rounded-[3px] mr-1 flex-shrink-0`}>{label}</span>
-                                <span className="text-xs sm:text-sm">{t(define)}</span>
+                            <span className="p-1 flex items-center transition-colors duration-150 ease-in-out group" key={key}>
+                                <span
+                                    style={{ backgroundColor: statusColors[key as AttendanceStatus] || '' }}
+                                    className={`
+                                        ${['X', 'SH'].includes(statusLabels[key as AttendanceStatus]) ? 'text-black' : 'text-white'}
+                                        w-[37px] h-[20px]
+                                        dark:text-black text-xs font-semibold text-center
+                                        inline-flex items-center justify-center
+                                        p-[2px] rounded-[3px] mr-1 flex-shrink-0
+                                        bg-[var(--legend-bg-color)]
+                                        group-hover:bg-gray-200 
+                                    `}
+                                >
+                                    {statusLabels[key as AttendanceStatus]}
+                                </span>
+                                <span className="text-xs sm:text-sm flex-grow">
+                                    {statusDefine[key as AttendanceStatus]}
+                                </span>
                             </span>
-                        )
+                        );
                     })
                 }
             </div>
@@ -241,21 +167,24 @@ export default function MngTimekeeping () {
                 <div className="min-w-[1200px]">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-b bg-gray-300 hover:bg-gray-400 dark:bg-black dark:text-white">
+                            <TableRow className="border-b bg-gray-300 hover:bg-gray-300 dark:bg-black dark:text-white">
                                 <TableHead className="w-[0px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.usercode')}</TableHead>
                                 <TableHead className="w-[100px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.name')}</TableHead>
+                                <TableHead className="w-[100px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.dept')}</TableHead>
                                 {
                                     daysHeader.map(({ dayStr }) => {
-                                        // const fullDateStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
-                                        // const matchedHolidays = dataAttendances?.holidays.filter(
-                                        //     (e: Holidays) => e.date === fullDateStr
-                                        // ) || [];
-
-                                        // const holidayTypes = matchedHolidays.map((h: Holidays) => h.type);
-                                        // const { bgColor, textColor } = getHolidayColor(holidayTypes);
+                                        const fullDayStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
+                                        const bgSunday = new Date(fullDayStr).getDay() == 0 ? statusColors['CN' as AttendanceStatus] : ''
+                                        const colorSunday = new Date(fullDayStr).getDay() == 0 ? '#FFFFFF' : ''
 
                                         return (
-                                            <TableHead key={dayStr} className={`w-[5px] dark:text-white text-center text-black border-r`}>{dayStr}</TableHead>
+                                            <TableHead
+                                                key={dayStr}
+                                                style={{ backgroundColor: bgSunday || '', color: colorSunday}}
+                                                className={`w-[5px] dark:text-white text-center text-black border-r`}
+                                            >
+                                                {dayStr}
+                                            </TableHead>
                                         )
                                     })
                                 }
@@ -268,6 +197,7 @@ export default function MngTimekeeping () {
                                     <TableRow key={index}>
                                         <TableCell className="w-[0px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></TableCell>
+                                        <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></TableCell>
                                         {
                                             daysHeader.map(({ dayStr }) => (
                                                 <TableCell key={dayStr} className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-3 w-[17px] bg-gray-300" /></div></TableCell>
@@ -275,26 +205,59 @@ export default function MngTimekeeping () {
                                         }
                                     </TableRow>
                                 ))
-                            ) : isError || dataAttendances?.userData?.length == 0 ? (
+                            ) : isError || dataAttendances?.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={daysInMonth + 2}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={daysInMonth + 3}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) :
                             (
-                                dataAttendances?.userData.map((itemAtt: AttendanceRecord, idx: number) => (
+                                dataAttendances?.map((item: UserTimeKeeping, idx: number) => (
                                     <TableRow key={idx} className="border-b dark:border-[#9b9b9b]">
-                                        <TableCell className="text-center border-r">{itemAtt.userCode}</TableCell>
-                                        <TableCell className="text-center border-r">{itemAtt.name}</TableCell>
+                                        <TableCell className="text-center border-r">{item.nvMaNV}</TableCell>
+                                        <TableCell className="text-center border-r">{item.nvHoTen}</TableCell>
+                                        <TableCell className="text-center border-r">{item.bpTen}</TableCell>
                                         {
-                                            daysHeader.map(({dayStr}) => {
-                                                const dateStr = `${year}-${(month).toString().padStart(2, "0")}-${dayStr}`
-                                                const attendance = itemAtt.attendances.find((a) => a.date === dateStr)
-                                                const label = attendance ? statusLabels[attendance.status] : ""
-                                                const bgColor = attendance && label != "X" ? statusColors[attendance.status] : "#FFFFFF"
+                                            item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
+                                                let result = data.result
+                                                let bgColor = ''
+
+                                                if (result == 'CN-X' || result == 'CN' || !isNaN(parseFloat(result ?? ''))) {
+                                                    bgColor = '#FFFFFF'
+                                                } 
+                                                else {
+                                                    bgColor = statusColors[result ?? ''] ?? ''
+                                                }
+
+                                                if (result == '?' && new Date(data.bcNgay) < new Date()) {
+                                                    bgColor = '#FF7B7D'
+                                                }
+
+                                                if ((data.bcGhiChu != '' || data.bcGhiChu != null) && !isNaN(parseFloat(result ?? ''))) {
+                                                    bgColor = statusColors[data.bcGhiChu] ?? ''
+                                                    result = `${result}${data.bcGhiChu}`
+                                                }
 
                                                 return (
-                                                    <TableCell key={dayStr} style={{backgroundColor: bgColor}} className={`dark:border-[#9b9b9b] text-center text-xs border-r dark:text-black`}>{label}</TableCell>
-                                                )
+                                                    <TableCell
+                                                        onClick={() => {
+                                                            setSelectedData({
+                                                                nvMaNV: item.nvMaNV,
+                                                                nvHoTen: item.nvHoTen,
+                                                                bpTen: item.bpTen,
+                                                                date: data.bcNgay,
+                                                                currentValue: result,
+                                                                currentBgColor: bgColor,
+                                                                rowIndex: idx,
+                                                                colIndex: index
+                                                            });
+                                                            setOpenUpdateTimeKeeping(true);
+                                                        }}
+                                                        style={{backgroundColor: bgColor ?? ''}} key={index} className={`p-0 w-[100px] text-center border-r hover:cursor-pointer`}>
+                                                        <div className="flex justify-center font-bold">
+                                                            {result == 'CN' ? '' : result}
+                                                        </div>
+                                                    </TableCell>
+                                                );
                                             })
                                         }
                                     </TableRow>

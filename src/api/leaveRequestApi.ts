@@ -6,6 +6,7 @@ export interface LeaveRequestData {
     id?: string | null,
     requesterUserCode: string | null,
     writeLeaveUserCode: string | null,
+    writeLeaveName: string | null,
     name: string | null,
     department: string | null,
     position: string | null,
@@ -28,6 +29,10 @@ export interface LeaveRequestData {
         comment: string | null,
         createdAt: string | null
     }
+}
+
+export interface CreateLeaveRequestForManyPeople {
+    Leaves: LeaveRequestData[]
 }
 
 export interface HistoryLeaveRequestApproval {
@@ -71,6 +76,11 @@ interface GetWaitApproval {
     positionId?: number | undefined
 }
 
+interface HrRegisterAllLeave {
+    UserCode: string | undefined,
+    UserName: string | undefined
+}
+
 const leaveRequestApi = {
     getAll(params: GetLeaveRequest) {
         return axiosClient.get('/leave-request/get-all', {params})
@@ -96,26 +106,43 @@ const leaveRequestApi = {
     delete(id: string) {
         return axiosClient.delete(`/leave-request/delete/${id}`)
     },
-    registerAllLeaveRequest(userCode: string | undefined) {
-        return axiosClient.post('/leave-request/hr-register-all-leave-rq', {userCode: userCode})
+    registerAllLeaveRequest(data: HrRegisterAllLeave) {
+        return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
     },
     getHistoryLeaveRequestApproval(params: GetLeaveRequest) {
         return axiosClient.get(`/leave-request/history-approval/`, {params})
+    },
+    createLeaveRequestForOther(data: CreateLeaveRequestForManyPeople) {
+        return axiosClient.post('/leave-request/create-leave-for-others', data)
     }
 }
 
-export function useRegisterAllLeaveRequest(userCode: string | undefined) {
+export function useRegisterAllLeaveRequest() {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async () => {
-            await leaveRequestApi.registerAllLeaveRequest(userCode)
+        mutationFn: async (data: HrRegisterAllLeave) => {
+            await leaveRequestApi.registerAllLeaveRequest(data)
         },
         onSuccess: () => {
             ShowToast("Success");
             queryClient.invalidateQueries({
                 queryKey: ['get-leave-request-wait-approval'],
             });
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useCreateLeaveRequestForManyPeople() {
+    return useMutation({
+        mutationFn: async (data: CreateLeaveRequestForManyPeople) => {
+            await leaveRequestApi.createLeaveRequestForOther(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
         },
         onError: (err) => {
             ShowToast(getErrorMessage(err), "error");

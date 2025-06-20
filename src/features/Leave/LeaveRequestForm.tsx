@@ -31,6 +31,7 @@ import userApi from "@/api/userApi";
 const formSchema = z.object({
     user_code: z.string().nonempty({ message: "Required" }),
     user_code_register: z.string().nonempty({ message: "Required" }),
+    name_register: z.string().nonempty({ message: "Required" }),
     name: z.string().nonempty({ message: "Required" }),
     department: z.string().nonempty({ message: "Required" }),
     position: z.string().nonempty({ message: "Required" }),
@@ -57,6 +58,7 @@ const formSchema = z.object({
 const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
     requesterUserCode: values.user_code ?? null,
     writeLeaveUserCode: values.user_code_register,
+    writeLeaveName: values.name_register,
     name: values.name,
     department: values.department,
     position: values.position,
@@ -82,6 +84,7 @@ export default function LeaveRequestForm() {
         defaultValues: {
             user_code: user?.userCode || "",
             user_code_register: user?.userCode || "",
+            name_register: user?.userName || "",
             name: "",
             department: "",
             position: "",
@@ -102,7 +105,6 @@ export default function LeaveRequestForm() {
                 await leaveRequestApi.update(id, data);
             } else {
                 await leaveRequestApi.create(data);
-                form.setValue("reason", "");
             }
             ShowToast("Success");
             navigate("/leave");
@@ -173,26 +175,19 @@ export default function LeaveRequestForm() {
                     const from = new Date(results.fromDate);
                     const to = new Date(results.toDate);
 
-                    form.reset({
-                        user_code: user?.userCode || "",
-                        name: results?.name,
-                        department: results?.department,
-                        position: results?.position ?? "Staff",
-
-                        from_date: from.toISOString().slice(0, 10),
-                        from_hour: String(from.getHours()).padStart(2, "0"),
-                        from_minutes: String(from.getMinutes()).padStart(2, "0"),
-
-                        to_date: to.toISOString().slice(0, 10),
-                        to_hour: String(to.getHours()).padStart(2, "0"),
-                        to_minutes: String(to.getMinutes()).padStart(2, "0"),
-
-                        time_leave: results?.timeLeave,
-                        type_leave: results?.typeLeave,
-
-                        reason: results?.reason
-                    });
-                    console.log(results);
+                    form.setValue("user_code", user?.userCode || "")
+                    form.setValue("name", results?.name)
+                    form.setValue("department", results?.department)
+                    form.setValue("position", results?.position ?? "Staff")
+                    form.setValue("from_date", from.toISOString().slice(0, 10))
+                    form.setValue("from_hour", String(from.getHours()).padStart(2, "0"))
+                    form.setValue("from_minutes", String(from.getMinutes()).padStart(2, "0"))
+                    form.setValue("to_date", to.toISOString().slice(0, 10))
+                    form.setValue("to_hour", String(to.getHours()).padStart(2, "0"))
+                    form.setValue("to_minutes", String(to.getMinutes()).padStart(2, "0"))
+                    form.setValue("time_leave", results?.timeLeave?.toString())
+                    form.setValue("type_leave", results?.typeLeave?.toString())
+                    form.setValue("reason", results?.reason)
                 } catch (err) {
                     ShowToast(getErrorMessage(err), "error")
                 }
@@ -208,12 +203,12 @@ export default function LeaveRequestForm() {
             const res = await userApi.getMe();
             const deptName = res?.data?.data?.bpTen;
             const position = res?.data?.data?.cvTen;
-            form.reset({
-                user_code: user?.userCode || "",
-                name: user?.userName || null || undefined,
-                department: deptName,
-                position: position ?? "Staff",
-            });
+
+            form.setValue('user_code', user?.userCode || "")
+            form.setValue('name', user?.userName ?? "")
+            form.setValue('department', deptName)
+            form.setValue('position', position ?? "Staff")
+
             return res.data.data;
         },
     });
@@ -262,7 +257,7 @@ export default function LeaveRequestForm() {
                                                 <DotRequireComponent />
                                             </FormLabel>
                                             <FormControl>
-                                                <Input readOnly className="bg-gray-300 border-gray-400" placeholder={t("leave_request.create.code")} {...field} />
+                                                <Input placeholder={t("leave_request.create.code")} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -278,7 +273,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.name')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input readOnly className="bg-gray-300 border-gray-400" placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.name')} {...field} />
+                                                <Input placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.name')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -294,7 +289,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.department')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input readOnly className="bg-gray-300 border-gray-400" placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.department')} {...field} />
+                                                <Input placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.department')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -310,7 +305,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.position')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input className="bg-gray-300 border-gray-400" readOnly placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.position')} {...field} />
+                                                <Input readOnly placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.position')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -385,7 +380,7 @@ export default function LeaveRequestForm() {
                                                         value={field.value}
                                                         onChange={field.onChange}
                                                         name={field.name}
-                                                        id="from_hour" 
+                                                        id="from_minutes" 
                                                         className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
                                                             <option key="00" value="00">00</option>
                                                             <option key="30" value="30">30</option>

@@ -151,6 +151,7 @@ export default function ListLeaveRequest () {
                                     <TableHead className="w-[120px] text-left">{t('list_leave_request.type_leave')}</TableHead>
                                     <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
                                     <TableHead className="w-[200px] text-center">{t('list_leave_request.reason')}</TableHead>
+                                    <TableHead className="w-[150px] text-left">{t('list_leave_request.write_leave_name')}</TableHead>
                                     <TableHead className="w-[120px] text-center">
                                         {filterStatus === "REJECT" ? t('list_leave_request.reject_by') : filterStatus == "IN_PROCESS" ? t('list_leave_request.have_approved_by') : t('list_leave_request.approve_by')}
                                     </TableHead>
@@ -166,7 +167,7 @@ export default function ListLeaveRequest () {
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <TableRow key={index}>
-                                        {Array.from({ length: 12 }).map((_, i) => (
+                                        {Array.from({ length: 13 }).map((_, i) => (
                                             <TableCell key={i}>
                                             <div className="flex justify-center">
                                                 <Skeleton className="h-4 w-[100px] bg-gray-300" />
@@ -182,49 +183,53 @@ export default function ListLeaveRequest () {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    leaveRequests.map((item: LeaveRequestData) => (
-                                        <TableRow key={item.id}>
-                                            <TableCell className="text-left">{item.requesterUserCode}</TableCell>
-                                            <TableCell className="text-left">{item.name}</TableCell>
-                                            <TableCell className="text-left">{item.department}</TableCell>
-                                            <TableCell className="text-left">{item.position}</TableCell>
-                                            <TableCell className="text-left">{item.fromDate}</TableCell>
-                                            <TableCell className="text-left">{item.toDate}</TableCell>
-                                            <TableCell className="text-left">{getEnumName(item.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
-                                            <TableCell className="text-left">{getEnumName(item.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
-                                            <TableCell className="text-center">{item.reason}</TableCell>
-                                            <TableCell className="text-center text-red-800 font-bold">{item.approvalAction?.approverName ?? "--"}</TableCell>
-                                            <TableCell className="text-left">
-                                                {item.approvalAction?.createdAt
-                                                ? formatDate(item.approvalAction.createdAt, "yyyy/MM/dd HH:mm:ss")
-                                                : formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
-                                            </TableCell>
-                                            <TableCell className="text-left">
-                                                {filterStatus === "REJECT" ? (
-                                                    <span
-                                                        className={`${
-                                                        item.approvalAction?.comment ? "text-red-500" : "text-black"
-                                                        } font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
-                                                        title={item.approvalAction?.comment ?? ""}
-                                                    >
-                                                        {item.approvalAction?.comment || "--"}
-                                                    </span>
-                                                ) : filterStatus === "PENDING" ? (
-                                                    <>
-                                                        <Link
-                                                        to={`/leave/edit/${item.id}`}
-                                                        className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm"
+                                    leaveRequests.map((item: LeaveRequestData) => {
+                                        console.log(item, 6);
+                                        return (
+                                            <TableRow key={item.id}>
+                                                <TableCell className="text-left">{item.requesterUserCode}</TableCell>
+                                                <TableCell className="text-left">{item.name}</TableCell>
+                                                <TableCell className="text-left">{item.department}</TableCell>
+                                                <TableCell className="text-left">{item.position}</TableCell>
+                                                <TableCell className="text-left">{item.fromDate}</TableCell>
+                                                <TableCell className="text-left">{item.toDate}</TableCell>
+                                                <TableCell className="text-left">{getEnumName(item.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
+                                                <TableCell className="text-left">{getEnumName(item.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                                <TableCell className="text-center">{item.reason}</TableCell>
+                                                <TableCell className="text-center">{item.writeLeaveName}</TableCell>
+                                                <TableCell className="text-center text-red-800 font-bold">{item.approvalAction?.approverName ?? "--"}</TableCell>
+                                                <TableCell className="text-left">
+                                                    {item.approvalAction?.createdAt
+                                                    ? formatDate(item.approvalAction.createdAt, "yyyy/MM/dd HH:mm:ss")
+                                                    : formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                                </TableCell>
+                                                <TableCell className="text-left">
+                                                    {filterStatus === "REJECT" ? (
+                                                        <span
+                                                            className={`${
+                                                            item.approvalAction?.comment ? "text-red-500" : "text-black"
+                                                            } font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
+                                                            title={item.approvalAction?.comment ?? ""}
                                                         >
-                                                        Edit
-                                                        </Link>
-                                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
-                                                    </>
-                                                ) : (
-                                                    <StatusLeaveRequest status={item.approvalRequest?.status == "IN_PROCESS" && item.approvalRequest.currentPositionId == -10 ? 'WAIT_HR' : item.approvalAction?.action ?? "PENDING"} />
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                                            {item.approvalAction?.comment || "--"}
+                                                        </span>
+                                                    ) : filterStatus === "PENDING" ? (
+                                                        <>
+                                                            <Link
+                                                            to={`/leave/edit/${item.id}`}
+                                                            className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm"
+                                                            >
+                                                            Edit
+                                                            </Link>
+                                                            <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
+                                                        </>
+                                                    ) : (
+                                                        <StatusLeaveRequest status={item.approvalRequest?.status == "IN_PROCESS" && item.approvalRequest.currentPositionId == -10 ? 'WAIT_HR' : item.approvalAction?.action ?? "PENDING"} />
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    })
                                 )}
                             </TableBody>
                         </Table>
@@ -252,6 +257,7 @@ export default function ListLeaveRequest () {
                                         <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {getEnumName(item.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {getEnumName(item.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
+                                        <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.writeLeaveName}</div>
                                         <div className="mb-1"><strong>{filterStatus === "REJECT" ? t('list_leave_request.reject_by') : t('list_leave_request.approve_by')}:</strong> {item.approvalAction?.approverName ?? "--"}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.created_at')}:</strong> {
                                             item.approvalAction?.createdAt

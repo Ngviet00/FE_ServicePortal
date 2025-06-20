@@ -6,7 +6,7 @@ interface IRole {
     code?: string
 }
 
-interface User {
+export interface User {
     id: string;
     userCode: string,
     userName?: string | undefined | null,

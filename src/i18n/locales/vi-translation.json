@@ -51,11 +51,12 @@
 		},
 		"union": {
 			"union": "Công đoàn",
-			"create_notify": "Truyền thông nội bộ"
+			"create_notify": "Thông báo"
 		},
 		"leave_request": {
 			"title": "Nghỉ phép",
 			"create_leave": "Xin nghỉ phép",
+			"create_leave_for_others" : "Xin nghỉ phép nhiều người",
 			"list_leave": "Danh sách nghỉ",
 			"wait_approval": "Chờ duyệt"
 		},
@@ -155,6 +156,7 @@
 		"btn_update_role": "Cập nhật"
 	},
 	"list_leave_request": {
+		"write_leave_name": "Người làm đơn",
 		"title_wait_approval": "Chờ duyệt",
 		"title_list": "Danh sách nghỉ",
 		"btn_create_leave_request": "Xin nghỉ phép",
@@ -183,6 +185,10 @@
 		"approval": "Duyệt"
 	},
 	"time_keeping": {
+		"usercode": "Mã nhân viên",
+		"username": "Họ Tên",
+		"dept": "Bộ phận",
+		"shift": "Ca",
 		"total_date_work": "Số ngày đi làm",
 		"day_ot": "Tăng ca ngày (tiếng)",
 		"night_ot": "Tăng ca đêm (tiếng)",
@@ -204,6 +210,7 @@
 		"note": "Ghi chú"
 	},
 	"mng_time_keeping": {
+		"dept": "Bộ phận",
 		"mng_time_keeping": "Quản lý chấm công",
 		"month": "Tháng",
 		"year": "Năm",
@@ -215,7 +222,7 @@
 		"maternity": "Nghỉ đẻ",
 		"annual_leave": "Phép năm",
 		"sick": "Ốm",
-		"special_holiday": "Nghỉ đặc biệt",
+		"special_holiday": "Nghỉ lễ",
 		"work": "Đi làm",
 		"no_permission": "Không phép",
 		"sunday": "Chủ nhật",

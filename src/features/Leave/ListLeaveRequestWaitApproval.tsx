@@ -40,7 +40,7 @@ export default function ListLeaveRequestWaitApproval () {
     const [showConfirm, setShowConfirm] = useState(false);
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
-    const registerAllLeaveMutation = useRegisterAllLeaveRequest(user?.userCode);
+    const registerAllLeaveMutation = useRegisterAllLeaveRequest();
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
         queryKey: ['get-leave-request-wait-approval', page, pageSize],
@@ -122,7 +122,10 @@ export default function ListLeaveRequestWaitApproval () {
             try
             {
                 const shouldGoBack = leaveRequests.length === 1;
-                await registerAllLeaveMutation.mutateAsync()
+                await registerAllLeaveMutation.mutateAsync({
+                    UserCode: user?.userCode,
+                    UserName: user?.userName ?? ""
+                })
                 handleApproval(shouldGoBack);
                 
                 queryClient.invalidateQueries({

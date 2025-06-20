@@ -35,6 +35,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.list_user", route: "/user" },
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
 			{ label: "sidebar.union.create_notify", route: "/memo-notify" },
+			{ label: "Quản lý chấm công", route: "/hr-management-timekeeping" },
 		],
 	},
 	{
@@ -51,6 +52,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		icon: Ticket,
 		children: [
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
+			{ label: "sidebar.leave_request.create_leave_for_others", route: "/leave/create-leave-for-others" },
 			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
 			{ label: "sidebar.leave_request.wait_approval", route: "/leave/wait-approval" },
 			{ label: "sidebar.time_keeping.time_keeping", route: "/time-keeping" },

@@ -16,14 +16,16 @@ import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 import OrgChart from '@/pages/OrgChart';
 import Timekeeping from '@/features/TimeKeeping/Timekeeping';
 import Forbidden from '@/pages/Forbidden';
-
-import './App.css'
 import MngTimekeeping from '@/features/TimeKeeping/MngTimeKeeping';
 import MemoNotification from '@/features/MemoNotification/MemoNotification';
 import CreateMemoNotification from '@/features/MemoNotification/CreateMemoNotification';
 import DetailMemoNotification from '@/pages/DetailMemoNotification';
 import HistoryListApproval from '@/features/Leave/HistoryListApproval';
 import AdminSetting from '@/pages/AdminSetting';
+import HRManagementTimekeeping from '@/features/TimeKeeping/HRManagementTimekeeping';
+
+import './App.css'
+import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOthers';
 
 function App() {
 	const location = useLocation();
@@ -48,6 +50,7 @@ function App() {
 		
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
+		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>, allowedRoles: ['leave_request.create_leave_rquest_for_multiple_people'] },
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
 		{ path: "/leave/history-approve", element: <HistoryListApproval/>, allowedRoles: ['HR', 'HR_Manager'] },
 
@@ -62,6 +65,8 @@ function App() {
 		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
 
 		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: ['superadmin'] },
+
+		{ path: "/hr-management-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: ['HR', 'HR_Manager'] },
 	];
   
 	return (
@@ -93,7 +98,7 @@ function App() {
 									<Route 
 										key={path}
 										path={path} 
-										element={<PrivateRoute allowedRoles={allowedRoles}>{element}</PrivateRoute>}
+										element={<PrivateRoute allowedRoles={allowedRoles} requireAttendanceManager={path == '/management-time-keeping'}>{element}</PrivateRoute>}
 									/>
 								))
 							}

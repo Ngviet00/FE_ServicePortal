@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useAppStore } from "@/store/appStore";
+import { useCheckIfCurrentUserIsAttendanceManager } from "@/hooks/checkIfCurrentUserIsAttendanceManager";
 import leaveRequestApi from "@/api/leaveRequestApi";
 import useHasRole from "@/hooks/HasRole";
 import useIsReponsive from "@/hooks/IsResponsive";
-
-import "./style.css";
+import "./style.css"
 
 export default function Sidebar() {
 	const { t } = useTranslation();
@@ -34,6 +34,7 @@ export default function Sidebar() {
 	const hasHRRole = useHasRole(["HR", "HR_Manager"])
 	const isUnion = useHasRole(['union'])
 	const isMobile = useIsReponsive()
+	const { isCurrentUserManagerAttendance } = useCheckIfCurrentUserIsAttendanceManager();
 
 	const { data: countWaitApprovalLeaveRequest } = useQuery({
 		queryKey: ["count-wait-approval-leave-request"],
@@ -116,8 +117,10 @@ export default function Sidebar() {
 								{menu.children?.map((child) => {
 									if (child.route === "/role" && !isSuperAdmin) return null;
 									if (child.route === "/approval-flow" && !isSuperAdmin) return null;
+									if (child.route === "/management-time-keeping" && !isCurrentUserManagerAttendance) return null;
 
 									const isActive = currentPath === child.route;
+									
 									return (
 										<li key={child.route} className={`text-blue-900 ${isActive ? "bg-[#e3e3e3]" : ""}`}>
 											<Link

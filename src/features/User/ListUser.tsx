@@ -10,10 +10,14 @@ import { Spinner } from "@/components/ui/spinner"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import React, { useEffect, useState } from "react"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import userApi, { ListUserData, useResetPassword } from "@/api/userApi"
+import userApi, { GetListUserData, useResetPassword } from "@/api/userApi"
 import roleApi, { IRole } from "@/api/roleApi"
 import useHasRole from "@/hooks/HasRole"
 import { useTranslation } from "react-i18next"
+import { formatDate } from "@/lib/time"
+import { Label } from "@/components/ui/label"
+import departmentApi from "@/api/departmentApi"
+import positionApi from "@/api/positionApi"
 
 type Option = {
     value: string;
@@ -26,27 +30,50 @@ export default function ListUser () {
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const [selectedItem, setSelectedItem] = useState<ListUserData | null>(null)
+    const [selectedItem, setSelectedItem] = useState<GetListUserData | null>(null)
     const [selectTypeModal, setSelectTypeModal] = useState("")
     const [options, setOptions] = useState<Option[]>([])
     const [selectedRoles, setSelectedRoles] = useState<Option[]>([])
     const [passwordReset, setNewPasswordReset] = useState("")
+    const [selectedDepartment, setSelectedDepartment] = useState('');
+    const [selectedPosition, setSelectedPosition] = useState('');
+    const [selectedSex, setSelectedSex] = useState('');
+
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
     const resetPassword = useResetPassword();
     
     //get list users 
     const { data: users = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-all-user', debouncedName, page, pageSize],
+        queryKey: ['get-all-user', debouncedName, page, pageSize, selectedSex, selectedPosition, selectedDepartment],
         queryFn: async () => {
             const res = await userApi.getAll({
                 page: page,
                 page_size: pageSize,
-                name: debouncedName
+                name: debouncedName,
+                sex: selectedSex,
+                positionId: selectedPosition,
+                departmentId: selectedDepartment
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
         }
+    });
+
+    const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-department'],
+        queryFn: async () => {
+            const res = await departmentApi.getAll()
+            return res.data.data
+        },
+    });
+
+    const { data: positions = [] } = useQuery({
+        queryKey: ['get-all-position'],
+        queryFn: async () => {
+            const res = await positionApi.getAll()
+            return res.data.data
+        },
     });
 
     useEffect(() => {
@@ -118,7 +145,7 @@ export default function ListUser () {
         setSelectedRoles(selected);
     };
     
-    const handleShowModal = (item: ListUserData, type: string) => {
+    const handleShowModal = (item: GetListUserData, type: string) => {
         if (type == "role") {
             const formattedRoles = item.roles.map((role: IRole) => ({
                 value: role.id.toString(),
@@ -158,7 +185,7 @@ export default function ListUser () {
     const selectedLabels = selectedRoles.map(role => role.label).join(', ');
     const isSuperAdmin = useHasRole(['superadmin']);
 
-    const handleResetPassword = async (item: ListUserData) => {
+    const handleResetPassword = async (item: GetListUserData) => {
         try {
             await resetPassword.mutateAsync({ userCode: item.userCode, password: passwordReset });
             setSelectedItem(null)
@@ -173,13 +200,62 @@ export default function ListUser () {
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('list_user_page.title')}</h3>
             </div>
-            <div className="flex items-center justify-start">
-                <Input
-                    placeholder={t('list_user_page.search')}
-                    value={name}
-                    onChange={handleSearchByName}
-                    className="w-full"
-                />
+            <div className="flex flex-col md:flex-row items-center justify-start md:justify-between gap-4 p-4 dark:bg-gray-800 rounded-lg">
+                <div className="w-full md:w-1/4">
+                    <Label htmlFor="search" className="mb-1">Search</Label>
+                    <Input
+                        id="search"
+                        placeholder={t('list_user_page.search')}
+                        value={name}
+                        onChange={handleSearchByName}
+                        className="w-full"
+                    />
+                </div>
+                <div className="w-full md:w-1/4">
+                    <Label htmlFor="department" className="mb-1">Department</Label>
+                    <select
+                        value={selectedDepartment}
+                        id="department"
+                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="">--Chọn--</option>
+                        {
+                            departments.map((dept: {bpMa: number, bpTen: string}) => (
+                                <option key={dept.bpMa} value={dept.bpMa}>{dept.bpTen}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+                <div className="w-full md:w-1/4">
+                    <Label htmlFor="position" className="mb-1">Position</Label>
+                    <select
+                        value={selectedPosition}
+                        id="position"
+                        onChange={(e) => setSelectedPosition(e.target.value)}
+                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="">--Chọn--</option>
+                        {
+                            positions.map((pos: {cvMa: number, cvTen: string}) => (
+                                <option key={pos.cvMa} value={pos.cvMa}>{pos.cvTen}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+                <div className="w-full md:w-1/4">
+                    <Label htmlFor="sex" className="mb-1">Sex</Label>
+                    <select
+                        value={selectedSex}
+                        onChange={(e) => setSelectedSex(e.target.value)}
+                        id="sex"
+                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="">--Chọn--</option>
+                        <option value="0">Nam</option>
+                        <option value="1">Nữ</option>
+                    </select>
+                </div>
             </div>
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
                 <div className="min-w-[1200px]">
@@ -218,16 +294,16 @@ export default function ListUser () {
                                     <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={9}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
-                                users.map((item: ListUserData) => (
+                                users.map((item: GetListUserData) => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium text-left">{item?.userCode}</TableCell>
-                                            <TableCell className="text-left">--</TableCell>
-                                            <TableCell className="text-left">--</TableCell>
-                                            <TableCell className="text-left">--</TableCell>
-                                            <TableCell className="text-left">Male</TableCell>
-                                            <TableCell className="text-left">--</TableCell>
-                                            <TableCell className="text-left">--</TableCell>
-                                            <TableCell className="text-left">--</TableCell>
+                                            <TableCell className="text-left">{item?.nvHoTen}</TableCell>
+                                            <TableCell className="text-left">{item?.bpTen}</TableCell>
+                                            <TableCell className="text-left">{item?.cvTen ?? "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.nvGioiTinh == false ? "Male" : "Female"}</TableCell>
+                                            <TableCell className="text-left">{item?.nvDienThoai ? item.nvDienThoai : "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.nvEmail ? item?.nvEmail : "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.nvNgayVao ? formatDate(item?.nvNgayVao, "dd/MM/yyyy") : "--"}</TableCell>
                                             <TableCell className="text-left">
                                                 {
                                                     isSuperAdmin ? (<>

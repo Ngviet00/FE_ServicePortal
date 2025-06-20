@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
-import axiosClient from './axiosClient';
 import { IRole } from './roleApi';
 import { getErrorMessage, ShowToast } from '@/lib';
+import axiosClient from './axiosClient';
 
 interface data {
     name: string | null
@@ -15,9 +15,12 @@ interface DataUserRole {
 }
 
 interface GetUser {
-    page: number;
-    page_size: number;
+    page?: number;
+    page_size?: number;
     name?: string;
+    sex?: string,
+    positionId?: string,
+    departmentId?: string
 }
 
 interface ResetPasswordRequest {
@@ -31,6 +34,19 @@ export interface ListUserData {
     positionId: string | null,
     isActive: number,
     isChangePassword: number,
+    roles: IRole[]
+}
+
+export interface GetListUserData {
+    id: string,
+    userCode: string,
+    nvHoTen?: string,
+    bpTen?: string,
+    cvTen?: string,
+    nvGioiTinh?: boolean,
+    nvDienThoai?: string,
+    nvEmail?: string,
+    nvNgayVao?: string,
     roles: IRole[]
 }
 
