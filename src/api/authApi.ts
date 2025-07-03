@@ -8,6 +8,7 @@ interface LoginRequest {
 interface ChangePasswordRequest {
     newPassword: string 
     confirmPassword: string
+    email?: string
 }
 
 export interface RegisterRequest {

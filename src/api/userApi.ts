@@ -3,12 +3,6 @@ import { IRole } from './roleApi';
 import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
 
-interface data {
-    name: string | null
-    email: string | null
-    dateJoinCompany: Date
-}
-
 interface DataUserRole {
     user_code: string,
     role_ids: number[]
@@ -20,7 +14,7 @@ interface GetUser {
     name?: string;
     sex?: string,
     positionId?: string,
-    departmentId?: string
+    departmentName?: string
 }
 
 interface ResetPasswordRequest {
@@ -44,10 +38,17 @@ export interface GetListUserData {
     bpTen?: string,
     cvTen?: string,
     nvGioiTinh?: boolean,
-    nvDienThoai?: string,
-    nvEmail?: string,
+    phone?: string,
+    email?: string,
+    dateOfBirth: Date,
     nvNgayVao?: string,
     roles: IRole[]
+}
+
+export interface UpdatePersonalInfo {
+    email: string,
+    phone: string,
+    dateOfBirth?: string
 }
 
 const userApi = {
@@ -60,8 +61,8 @@ const userApi = {
     getByCode(code: string | undefined) {
         return axiosClient.get(`/user/get-by-code/${code}`)
     },
-    update(id: number, data: data){
-        return axiosClient.put(`/user/update/${id}`, data)
+    update(userCode: string | undefined, data: UpdatePersonalInfo){
+        return axiosClient.put(`/user/update/${userCode}`, data)
     },
     delete(id: string) {
         return axiosClient.delete(`/user/delete/${id}`)
@@ -84,6 +85,20 @@ export function useResetPassword () {
     return useMutation({
         mutationFn: async (request: ResetPasswordRequest) => {
             await userApi.resetPassword(request)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useUpdatePersonalInfo() {
+    return useMutation({
+        mutationFn: async ({userCode, data} : {userCode: string | undefined, data: UpdatePersonalInfo}) => {
+            await userApi.update(userCode, data)
         },
         onSuccess: () => {
             ShowToast("Success");

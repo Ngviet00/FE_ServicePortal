@@ -4,12 +4,14 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css'
 
 interface DateTimePickerProps {
+    enableTime?:  boolean,
+    dateFormat?: string
     className?: string,
     initialDateTime?: string; // default ISO string
     onChange?: (selectedDates: Date[], dateStr: string, instance: flatpickr.Instance) => void;
 }
 
-const DateTimePicker: React.FC<DateTimePickerProps> = ({ className, initialDateTime, onChange }) => {
+const DateTimePicker: React.FC<DateTimePickerProps> = ({ enableTime = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const fpInstance = useRef<flatpickr.Instance | null>(null);
 
@@ -18,9 +20,9 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ className, initialDateT
     useEffect(() => {
         if (inputRef.current) {
             fpInstance.current = flatpickr(inputRef.current, {
-                enableTime: true,
+                enableTime: enableTime,
                 noCalendar: false, 
-                dateFormat: 'Y-m-d H:i',
+                dateFormat: dateFormat,
                 time_24hr: true,
                 locale: Vietnamese,
                 defaultDate: initialDateTime,

@@ -34,6 +34,7 @@
 	},
 
 	"header": {
+		"personal_info": "Thông tin cá nhân",
 		"change_password": "Đổi mật khẩu",
 		"log_out": "Đăng xuất"
 	},
@@ -58,7 +59,8 @@
 			"create_leave": "Xin nghỉ phép",
 			"create_leave_for_others" : "Xin nghỉ phép nhiều người",
 			"list_leave": "Danh sách nghỉ",
-			"wait_approval": "Chờ duyệt"
+			"wait_approval": "Chờ duyệt",
+			"history_approved": "Danh sách đã duyệt"
 		},
 		"time_keeping": {
 			"time_keeping": "Chấm công",
@@ -79,6 +81,13 @@
 	},
 	
 	"change_password_page": {
+		"required_password": "Yêu cầu mật khẩu",
+		"required_8_character": "Bắt buộc 8 ký tự",
+		"required_character_upper_case": "Một ký tự từ (A - Z)",
+		"required_character_lower_case": "Một ký tự từ (a - z)",
+		"required_number": "Một ký tự từ (0 - 9)",
+		"required_special_character": "Một ký tự !@#$%^&*",
+		"password_dont_match": "Mật khẩu không giống nhau",
 		"title": "Đổi mật khẩu",
 		"new_password": "Mật khẩu mới",
 		"confirm_password": "Xác nhận mật khẩu mới"
@@ -133,6 +142,7 @@
 		"sex": "Giới tính",
 		"phone": "SĐT",
 		"email": "Email",
+		"dob": "Ngày sinh",
 		"date_join_company": "Ngày vào CT",
 		"action": "Hành động"
 	},

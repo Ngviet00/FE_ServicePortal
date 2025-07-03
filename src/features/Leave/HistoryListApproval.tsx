@@ -87,7 +87,7 @@ export default function HistoryListApproval () {
                             ) : isError || leaveRequests.length == 0 ? (
                             <TableRow>
                                 <TableCell className="text-red-700 font-medium text-left dark:text-white" colSpan={11}>
-                                {error?.message ?? t('list_leave_request.no_result')}
+                                    {error?.message ?? t('list_leave_request.no_result')}
                                 </TableCell>
                             </TableRow>
                             ) : (

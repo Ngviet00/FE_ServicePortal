@@ -24,9 +24,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { useTranslation } from "react-i18next"
-import useHasRole from "@/hooks/HasRole"
+import useHasRole from "@/hooks/useHasRole"
 import { formatDate } from "@/lib/time"
-import { Link } from "react-router-dom"
 
 export default function ListLeaveRequestWaitApproval () {
     const { t } = useTranslation();
@@ -147,15 +146,6 @@ export default function ListLeaveRequestWaitApproval () {
 
                 {hasHRRole && (
                     <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
-                        <Link to="/leave/history-approve">
-                            <Button
-                                variant="outline"
-                                className="text-xs px-2 bg-blue-600 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
-                            >
-                                {t('leave_request.wait_approval.history_leave_request')}
-                            </Button>
-                        </Link>
-
                         <Button
                             variant="outline"
                             disabled={loadingRegisterAll}

@@ -26,6 +26,7 @@ import HRManagementTimekeeping from '@/features/TimeKeeping/HRManagementTimekeep
 
 import './App.css'
 import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOthers';
+import PersonalInfo from '@/pages/PersonalInfo';
 
 function App() {
 	const location = useLocation();
@@ -50,9 +51,9 @@ function App() {
 		
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
-		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>, allowedRoles: ['leave_request.create_leave_rquest_for_multiple_people'] },
+		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/> },
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
-		{ path: "/leave/history-approve", element: <HistoryListApproval/>, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/leave/history-approved", element: <HistoryListApproval/>, allowedRoles: ['HR', 'HR_Manager'] },
 
 		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>},
 		{ path: "/time-keeping", element: <Timekeeping/>},
@@ -67,6 +68,8 @@ function App() {
 		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: ['superadmin'] },
 
 		{ path: "/hr-management-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: ['HR', 'HR_Manager'] },
+
+		{ path: "/personal-info", element: <PersonalInfo />},
 	];
   
 	return (
@@ -98,7 +101,7 @@ function App() {
 									<Route 
 										key={path}
 										path={path} 
-										element={<PrivateRoute allowedRoles={allowedRoles} requireAttendanceManager={path == '/management-time-keeping'}>{element}</PrivateRoute>}
+										element={<PrivateRoute allowedRoles={allowedRoles}>{element}</PrivateRoute>}
 									/>
 								))
 							}

@@ -9,7 +9,6 @@ import { formatDate } from '@/lib/time';
 import { useAuthStore } from '@/store/authStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import userApi from '@/api/userApi';
-
 import "./css/Homepage.css"
 
 function formatData(data: string | null | undefined):string {
@@ -38,11 +37,22 @@ export default function HomePage() {
         queryKey: ['get-me'],
         queryFn: async () => {
             const res = await userApi.getMe();
-            const userName = res?.data?.data?.nvHoTen ?? "user";
-            const departmentId = res?.data?.data?.nvMaBP ?? 0;
+            const departmentId = res?.data?.data?.bpMa;
+            const orgUnitID = res?.data?.data?.orgUnitID;
+            const name = res?.data?.data?.nvHoTen;
+            const email = res?.data?.data?.email;
 
-            if (user?.userName != userName) {
-                updateUser({ userName: userName ?? "....", departmentId: departmentId})
+            if (departmentId != user?.departmentId || 
+                orgUnitID != user?.orgUnitID || 
+                name != user?.userName ||
+                email != user?.email
+            ) {
+                updateUser({
+                    email: email,
+                    userName: name,
+                    departmentId: departmentId,
+                    orgUnitID: orgUnitID
+                })
             }
             
             return res.data.data;
@@ -115,16 +125,16 @@ export default function HomePage() {
                         </div>
                         <div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "0" : formatData(UserData?.nvMaNV)}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "0" : formatData(UserData?.userCode)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='truncate max-w-[150px] text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.nvNgaySinh ? formatDate(formatData(UserData?.nvNgaySinh), "dd/MM/yyyy") : "---"}</label>
+                                <label className='truncate max-w-[150px] text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.dateOfBirth ? formatDate(formatData(UserData?.dateOfBirth), "dd/MM/yyyy") : "---"}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : formatData(UserData?.nvDienThoai)}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : formatData(UserData?.phone)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "superadmin" :  UserData?.cvTen && (UserData?.cvTen != "" || UserData?.cvTen != null) ? UserData?.cvTen : "Staff"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "SuperAdmin" :  UserData?.cvTen && (UserData?.cvTen != "" || UserData?.cvTen != null) ? UserData?.cvTen : "Staff"}</label>
                             </div>
                         </div>
                     </div>
@@ -148,8 +158,8 @@ export default function HomePage() {
                             <div className='mb-5 truncate max-w-[200px]'>
                                 <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "superadmin" : formatData(UserData?.nvHoTen)}</label>
                             </div>
-                            <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : formatData(UserData?.NVEmail)}</label>
+                            <div className='mb-5 truncate max-w-[220px]'>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "SuperAdmin@vsvn.com.vn" : formatData(UserData?.email)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
                                 <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.nvNgayVao ? formatDate(formatData(UserData?.nvNgayVao), "dd/MM/yyyy") : "---"}</label>

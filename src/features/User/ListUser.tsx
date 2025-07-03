@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getErrorMessage, ShowToast, useDebounce } from "@/lib"
+import { getErrorMessage, RoleEnum, ShowToast, useDebounce } from "@/lib"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { MultiSelect } from "react-multi-select-component";
@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import userApi, { GetListUserData, useResetPassword } from "@/api/userApi"
 import roleApi, { IRole } from "@/api/roleApi"
-import useHasRole from "@/hooks/HasRole"
+import useHasRole from "@/hooks/useHasRole"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
@@ -53,7 +53,7 @@ export default function ListUser () {
                 name: debouncedName,
                 sex: selectedSex,
                 positionId: selectedPosition,
-                departmentId: selectedDepartment
+                departmentName: selectedDepartment
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -61,9 +61,9 @@ export default function ListUser () {
     });
 
     const { data: departments = [] } = useQuery({
-        queryKey: ['get-all-department'],
+        queryKey: ['get-all-department-distinct-name'],
         queryFn: async () => {
-            const res = await departmentApi.getAll()
+            const res = await departmentApi.getAllWithDistinctName()
             return res.data.data
         },
     });
@@ -183,7 +183,7 @@ export default function ListUser () {
     }
 
     const selectedLabels = selectedRoles.map(role => role.label).join(', ');
-    const isSuperAdmin = useHasRole(['superadmin']);
+    const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN]);
 
     const handleResetPassword = async (item: GetListUserData) => {
         try {
@@ -221,8 +221,8 @@ export default function ListUser () {
                     >
                         <option value="">--Chọn--</option>
                         {
-                            departments.map((dept: {bpMa: number, bpTen: string}) => (
-                                <option key={dept.bpMa} value={dept.bpMa}>{dept.bpTen}</option>
+                            departments.map((item: string) => (
+                                <option key={item} value={item}>{item}</option>
                             ))
                         }
                     </select>
@@ -269,6 +269,7 @@ export default function ListUser () {
                                 <TableHead className="w-[150px] text-left">{t('list_user_page.sex')}</TableHead>
                                 <TableHead className="w-[150px] text-left">{t('list_user_page.phone')}</TableHead>
                                 <TableHead className="w-[120px] text-left">{t('list_user_page.email')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_user_page.dob')}</TableHead>
                                 <TableHead className="w-[150px] text-left">{t('list_user_page.date_join_company')}</TableHead>
                                 <TableHead className="w-[120px] text-left">{t('list_user_page.action')}</TableHead>
                             </TableRow>
@@ -286,12 +287,13 @@ export default function ListUser () {
                                         <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                         <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
+                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
                                         <TableCell className="w-[200px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                     </TableRow>
                                 ))
                             ) : isError || users.length == 0 ? (
                                 <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={9}>{error?.message ?? "No results"}</TableCell>
+                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={10}>{error?.message ?? "No results"}</TableCell>
                                 </TableRow>
                             ) : (
                                 users.map((item: GetListUserData) => (
@@ -301,8 +303,9 @@ export default function ListUser () {
                                             <TableCell className="text-left">{item?.bpTen}</TableCell>
                                             <TableCell className="text-left">{item?.cvTen ?? "--"}</TableCell>
                                             <TableCell className="text-left">{item?.nvGioiTinh == false ? "Male" : "Female"}</TableCell>
-                                            <TableCell className="text-left">{item?.nvDienThoai ? item.nvDienThoai : "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.nvEmail ? item?.nvEmail : "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.phone ? item.phone : "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.email ? item?.email : "--"}</TableCell>
+                                            <TableCell className="text-left">{item?.dateOfBirth ? formatDate(item?.dateOfBirth, "dd/MM/yyyy") : "--"}</TableCell>
                                             <TableCell className="text-left">{item?.nvNgayVao ? formatDate(item?.nvNgayVao, "dd/MM/yyyy") : "--"}</TableCell>
                                             <TableCell className="text-left">
                                                 {

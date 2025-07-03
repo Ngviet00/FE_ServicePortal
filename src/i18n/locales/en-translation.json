@@ -34,6 +34,7 @@
 	},
 
 	"header": {
+		"personal_info": "Personal Info",
 		"change_password": "Change Password",
 		"log_out": "Logout"
 	},
@@ -58,7 +59,8 @@
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
 			"list_leave": "List leave request",
-			"wait_approval": "Wait approval"
+			"wait_approval": "Wait approval",
+			"history_approved": "History Approved"
 		},
 		"time_keeping": {
 			"time_keeping": "Time keeping",
@@ -79,6 +81,13 @@
 	},
 
 	"change_password_page": {
+		"required_password": "Required Password",
+		"required_8_character": "Required 8 character",
+		"required_character_upper_case": "Required 1 character (A - Z)",
+		"required_character_lower_case": "Required 1 character (a - z)",
+		"required_number": "Required 1 character (0 - 9)",
+		"required_special_character": "Required 1 character !@#$%^&*",
+		"password_dont_match": "The password do not match",
 		"title": "Change Password",
 		"new_password": "New Password",
 		"confirm_password": "Confirm Password"
@@ -134,6 +143,7 @@
 		"sex": "Sex",
 		"phone": "Phone",
 		"email": "Email",
+		"dob": "Dob",
 		"date_join_company": "Date join company",
 		"action": "Action"
 	},

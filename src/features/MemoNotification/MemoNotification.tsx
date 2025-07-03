@@ -6,12 +6,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/time";
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import PaginationControl from "@/components/PaginationControl/PaginationControl";
-
-import "./style.css"
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
+import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
+import PaginationControl from "@/components/PaginationControl/PaginationControl";
+import "./style.css"
 
 export default function MemoNotification () {
     const { t } = useTranslation()

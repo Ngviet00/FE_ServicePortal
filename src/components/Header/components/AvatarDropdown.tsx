@@ -40,16 +40,18 @@ export default function AvatarDropdown() {
 				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
+				<DropdownMenuItem className="cursor-pointer" onClick={() => handleChangePage("personal-info")}>
+					{t('header.personal_info')}
+				</DropdownMenuItem>
+
 				<DropdownMenuItem className="cursor-pointer" onClick={() => handleChangePage("change-password")}>
 					{t('header.change_password')}
 				</DropdownMenuItem>
-
 				<DropdownMenuSeparator />
-
+				
 				<DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
 					{t('header.log_out')}
 				</DropdownMenuItem>
-
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

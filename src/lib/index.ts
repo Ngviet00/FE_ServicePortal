@@ -130,3 +130,16 @@ export function getErrorMessage(error: unknown): string {
 export const handleInputClickShowPicker = (e: React.FocusEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
     (e.target as HTMLInputElement).showPicker?.();
 };
+
+export enum RoleEnum {
+    SUPERADMIN = "SuperAdmin",
+    HR = "HR",
+    IT = "IT",
+    UNION = "Union",
+    USER = "User",
+}
+
+export const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};

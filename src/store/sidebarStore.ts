@@ -55,6 +55,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.leave_request.create_leave_for_others", route: "/leave/create-leave-for-others" },
 			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
 			{ label: "sidebar.leave_request.wait_approval", route: "/leave/wait-approval" },
+			{ label: "sidebar.leave_request.history_approved", route: "/leave/history-approved" },
 			{ label: "sidebar.time_keeping.time_keeping", route: "/time-keeping" },
 			{ label: "sidebar.time_keeping.mng_time_keeping", route: "/management-time-keeping" },
 		],

@@ -1,47 +1,23 @@
-export type PasswordStrength = 'Weak' | 'Medium' | 'Strong' | '';
+export const hasMinimumLength = (password: string): boolean => {
+    return password.length > 0 && password.length >= 8;
+};
 
-export function checkPasswordStrength(password: string): PasswordStrength {
-    let score = 0;
+//check have upper case
+export const hasAlphanumeric = (password: string): boolean => {
+    return password.length > 0 && /(?=.*[A-Z])/.test(password);
+};
 
-    if (!password) {
-        return '';
-    }
+//check have normal case
+export const hasAlphanumericLowerCase = (password: string): boolean => {
+    return password.length > 0 && /(?=.*[a-z])/.test(password);
+};
 
-    if (password.length >= 6) {
-        score += 1;
-    }
-
-    if (/[!@#$%^&*]/.test(password)) {
-        score += 2;
-    }
-
-    if (password.length >= 8) {
-        score += 1;
-    }
-
-    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) {
-        score += 1;
-    }
-
-    if (/\d/.test(password)) {
-        score += 1;
-    }
-
-    if (score < 2) {
-        return 'Weak';
-    } else if (score < 4) {
-        return 'Medium';
-    } else {
-        return 'Strong';
-    }
+//check special character
+export const hasSpecialCharacter = (password: string): boolean => {
+    return password.length > 0 && /[!@#$%^&*]/.test(password);
 }
 
-export function getStrengthColor (strength: PasswordStrength) {
-    switch (strength) {
-        case 'Weak': return 'red';
-        case 'Medium': return 'orange';
-        case 'Strong': return 'green';
-
-        default: return 'gray';
-    }
-}
+//check have number
+export const hasNumber = (password: string): boolean => {
+    return password.length > 0 && /\d/.test(password);
+};

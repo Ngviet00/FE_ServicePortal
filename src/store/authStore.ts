@@ -1,10 +1,5 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from 'zustand/middleware';
-interface IRole {
-    id: number,
-    name?: string,
-    code?: string
-}
 
 export interface User {
     id: string;
@@ -13,8 +8,11 @@ export interface User {
     departmentId?: number | undefined | null,
     IsActive?: number;
     isChangePassword?: number;
-    positionId?: number,
-    roles?: IRole[],
+    orgUnitID?: number,
+    dateOfBirth?: Date,
+    email?: string,
+    roles?: string[],
+    permissions?: string[] 
 }
 
 interface AuthState {

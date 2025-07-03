@@ -1,5 +1,4 @@
-import { useCheckIfCurrentUserIsAttendanceManager } from "@/hooks/checkIfCurrentUserIsAttendanceManager";
-import useHasRole from "@/hooks/HasRole";
+import useHasRole from "@/hooks/useHasRole";
 import { useAuthStore } from "@/store/authStore";
 import { JSX } from "react";
 import { Navigate } from "react-router-dom";
@@ -10,11 +9,10 @@ interface PrivateRouteProps {
 	children: JSX.Element;
 }
 
-const PrivateRoute = ({ allowedRoles, children, requireAttendanceManager }: PrivateRouteProps) => {
+const PrivateRoute = ({ allowedRoles, children }: PrivateRouteProps) => {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const hasRole = useHasRole(allowedRoles ?? []);
 	const isChangePassword = useAuthStore((state) => state.user?.isChangePassword)
-	const { isCurrentUserManagerAttendance, isLoading } = useCheckIfCurrentUserIsAttendanceManager();
 
 	if ( isAuthenticated && Number(isChangePassword) === 0 && location.pathname !== "/change-password") {
 		return <Navigate to="/change-password" replace />;
@@ -25,10 +23,6 @@ const PrivateRoute = ({ allowedRoles, children, requireAttendanceManager }: Priv
 	}
 
 	if (!hasRole && allowedRoles && allowedRoles.length > 0) {
-		return <Navigate to="/forbidden" replace />;
-	}
-
-	if (requireAttendanceManager && isLoading === false && !isCurrentUserManagerAttendance) {
 		return <Navigate to="/forbidden" replace />;
 	}
 

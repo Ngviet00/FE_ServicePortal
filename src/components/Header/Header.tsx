@@ -56,7 +56,9 @@ export default function Header() {
                 <SelectedLanguage/>
 
                 <div className='text-black mr-4 font-bold text-sm dark:text-white'>
-                    {user?.userCode == "0" ? "superadmin" : user?.userName ?? user?.userCode ?? "...." }
+                    {
+                        user?.userName == null || user?.userName == '' ? '....' : user?.userCode == '0' ? '0 - superadmin' : `${user?.userCode} - ${user?.userName}`
+                    }
                 </div>
 
                 <div className="flex items-center avatar-dropdown">

@@ -5,17 +5,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
-import { checkPasswordStrength, PasswordStrength } from "@/lib/password";
 import authApi from "@/api/authApi";
 import "./css/Login.css"
-import PasswordStrengthIndicator from "@/components/ComponentCustom/PasswordStrengthIndicator";
 
 export default function RegisterPage() {
     const { t } = useTranslation();
     const [userCode, setUserCode] = useState("")
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [strength, setStrength] = useState<PasswordStrength>('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -39,7 +36,6 @@ export default function RegisterPage() {
     const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newPassword = event.target.value;
         setPassword(newPassword);
-        setStrength(checkPasswordStrength(newPassword));
     };
 
     return (
@@ -101,15 +97,11 @@ export default function RegisterPage() {
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
-                        <span className="text-sm text-gray-500 italic mb-0">Mật khẩu có 6 ký tự bao gồm !@#$%^&*<span/></span>
-                        {
-                            password && ( <PasswordStrengthIndicator strength={strength}/> )
-                        }
                     </div>
 
                     <div>
                         <button
-                            disabled={ loading}
+                            disabled={loading}
                             type="submit"
                             className="bg-black hover:cursor-pointer flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >

@@ -5,10 +5,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { useNavigate } from "react-router-dom";
 import { getErrorMessage, ShowToast } from "@/lib";
 import { useTranslation } from "react-i18next";
-import authApi from "@/api/authApi";
-
-import "./css/Login.css"
 import { Eye, EyeOff } from "lucide-react";
+import authApi from "@/api/authApi";
+import "./css/Login.css"
 
 export default function LoginPage() {
     const { t } = useTranslation();
