@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/store/authStore";
 import { Spinner } from "@/components/ui/spinner";
-import { getErrorMessage, handleInputClickShowPicker, ShowToast, TIME_LEAVE } from "@/lib";
+import { getErrorMessage, ShowToast, TIME_LEAVE } from "@/lib";
 import { Checkbox } from "@/components/ui/checkbox";
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +27,7 @@ import leaveRequestApi, { LeaveRequestData } from "@/api/leaveRequestApi";
 import userConfigApi from "@/api/userConfigApi";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import userApi from "@/api/userApi";
+import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 
 const formSchema = z.object({
     user_code: z.string().nonempty({ message: "Required" }),
@@ -37,10 +38,6 @@ const formSchema = z.object({
     position: z.string().nonempty({ message: "Required" }),
     from_date: z.string().nonempty({ message: "Required" }),
     to_date: z.string().nonempty({ message: "Required" }),
-    from_hour: z.string().nonempty({ message: "Required" }),
-    to_hour: z.string().nonempty({ message: "Required" }),
-    from_minutes: z.string().nonempty({ message: "Required" }),
-    to_minutes: z.string().nonempty({ message: "Required" }),
     type_leave: z.string().nonempty({ message: "Required" }),
     time_leave: z.string().nonempty({ message: "Required" }),
     reason: z.string().nonempty({ message: "Required" }),
@@ -62,11 +59,11 @@ const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
     name: values.name,
     department: values.department,
     position: values.position,
-    fromDate: `${values.from_date} ${values.from_hour}:${values.from_minutes}`,
-    toDate: `${values.to_date} ${values.to_hour}:${values.to_minutes}`,
+    fromDate: values.from_date.replace(" ", "T") + ":00+07:00",
+    toDate: values.to_date.replace(" ", "T") + ":00+07:00",
     reason: values.reason,
-    typeLeave: parseInt(values.type_leave),
-    timeLeave: parseInt(values.time_leave),
+    typeLeaveId: parseInt(values.type_leave),
+    timeLeaveId: parseInt(values.time_leave),
     urlFrontend: window.location.origin,
 });
 
@@ -88,12 +85,10 @@ export default function LeaveRequestForm() {
             name: "",
             department: "",
             position: "",
-            from_date: new Date().toISOString().slice(0, 10),
-            from_hour: "08",
-            from_minutes: "00",
-            to_date: new Date().toISOString().slice(0, 10),
-            to_hour: "17",
-            to_minutes: "00",
+            from_date: `${new Date().toISOString().slice(0, 10)} 08:00`,
+            to_date: `${new Date().toISOString().slice(0, 10)} 17:00`,
+            time_leave: '1',
+            type_leave: '1'
         },
     });
 
@@ -171,20 +166,14 @@ export default function LeaveRequestForm() {
                 try {
                     const data = await leaveRequestApi.getById(id);
                     const results = data.data.data;
-
                     const from = new Date(results.fromDate);
                     const to = new Date(results.toDate);
-
                     form.setValue("user_code", user?.userCode || "")
                     form.setValue("name", results?.name)
                     form.setValue("department", results?.department)
                     form.setValue("position", results?.position ?? "Staff")
                     form.setValue("from_date", from.toISOString().slice(0, 10))
-                    form.setValue("from_hour", String(from.getHours()).padStart(2, "0"))
-                    form.setValue("from_minutes", String(from.getMinutes()).padStart(2, "0"))
                     form.setValue("to_date", to.toISOString().slice(0, 10))
-                    form.setValue("to_hour", String(to.getHours()).padStart(2, "0"))
-                    form.setValue("to_minutes", String(to.getMinutes()).padStart(2, "0"))
                     form.setValue("time_leave", results?.timeLeave?.toString())
                     form.setValue("type_leave", results?.typeLeave?.toString())
                     form.setValue("reason", results?.reason)
@@ -207,7 +196,7 @@ export default function LeaveRequestForm() {
             form.setValue('user_code', user?.userCode || "")
             form.setValue('name', user?.userName ?? "")
             form.setValue('department', deptName)
-            form.setValue('position', position ?? "Staff")
+            form.setValue('position', position == null || position == '' ? 'Staff' : position)
 
             return res.data.data;
         },
@@ -257,7 +246,7 @@ export default function LeaveRequestForm() {
                                                 <DotRequireComponent />
                                             </FormLabel>
                                             <FormControl>
-                                                <Input placeholder={t("leave_request.create.code")} {...field} />
+                                                <Input className="bg-gray-100" readOnly placeholder={t("leave_request.create.code")} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -273,7 +262,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.name')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.name')} {...field} />
+                                                <Input className="bg-gray-100" readOnly placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.name')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -305,7 +294,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.position')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input readOnly placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.position')} {...field} />
+                                                <Input placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.position')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -316,91 +305,63 @@ export default function LeaveRequestForm() {
 
                         <div className="second-row w-full flex flex-col gap-4 mb-5">
                             <div className="flex flex-wrap gap-4 w-full">
-                                <div className="w-full sm:w-[48%] lg:w-[18%]">
+                                <div>
                                     <FormField
                                         control={form.control}
                                         name="from_date"
-                                        render={({ field }) => (
-                                            <FormItem className="hover:cursor-pointer">
-                                                <FormLabel>{t('leave_request.create.from_date')}</FormLabel>
+                                        render={({ field: rhfField, fieldState }) => (
+                                            <FormItem className="flex flex-col w-[180px]">
+                                                <FormLabel className="mb-1">Ngày bắt đầu <DotRequireComponent/></FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        className="justify-center hover:cursor-pointer"
-                                                        onClick={handleInputClickShowPicker}
-                                                        onChange={field.onChange}
-                                                        value={field.value}
-                                                        type="date"
-                                                        id="to_date"
-                                                        name={field.name}
+                                                    <DateTimePicker
+                                                        enableTime={true}
+                                                        dateFormat="Y-m-d H:i"
+                                                        initialDateTime={rhfField.value as string || undefined}
+                                                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                        onChange={(_selectedDates, dateStr, _instance) => {
+                                                            rhfField.onChange(dateStr);
+                                                            console.log(dateStr, 8);
+                                                        }}
+                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] hover:cursor-pointer`}
                                                     />
                                                 </FormControl>
-                                                <FormMessage />
+                                                <FormMessage className="text-sm text-red-500 mt-1" />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-
-                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
+                                <div>
                                     <FormField
                                         control={form.control}
-                                        name="from_hour"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>{t('leave_request.create.from_hour')}</FormLabel>
+                                        name="to_date"
+                                        render={({ field: rhfField, fieldState }) => (
+                                            <FormItem className="flex flex-col w-[180px]">
+                                                <FormLabel className="mb-1">Ngày kết thúc <DotRequireComponent/></FormLabel>
                                                 <FormControl>
-                                                    <select
-                                                        value={field.value}
-                                                        onChange={field.onChange}
-                                                        name={field.name}
-                                                        id="from_hour" 
-                                                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
-                                                        >
-                                                            {Array.from({length: 24}, (_, i) => (
-                                                                <option key={i} value={i.toString().padStart(2, "0")}>
-                                                                    {i.toString().padStart(2, "0")}
-                                                                </option>
-                                                            ))}
-                                                    </select>
+                                                    <DateTimePicker
+                                                        enableTime={true}
+                                                        dateFormat="Y-m-d H:i"
+                                                        initialDateTime={rhfField.value as string || undefined}
+                                                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                        onChange={(_selectedDates, dateStr, _instance) => {
+                                                            rhfField.onChange(dateStr);
+                                                            console.log(dateStr, 8);
+                                                        }}
+                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] hover:cursor-pointer`}
+                                                    />
                                                 </FormControl>
-                                                <FormMessage />
+                                                <FormMessage className="text-sm text-red-500 mt-1" />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-
-                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
-                                    <FormField
-                                        control={form.control}
-                                        name="from_minutes"
-                                        render={({ field }) => (
-                                            <FormItem className="hover:cursor-pointer">
-                                                <FormLabel>{t('leave_request.create.from_minutes')}</FormLabel>
-                                                <FormControl>
-                                                    <select
-                                                        value={field.value}
-                                                        onChange={field.onChange}
-                                                        name={field.name}
-                                                        id="from_minutes" 
-                                                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]">
-                                                            <option key="00" value="00">00</option>
-                                                            <option key="30" value="30">30</option>
-                                                    </select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-4 w-full">
-                                <div className="w-full sm:w-[48%] lg:w-[15%]">
+                                <div>
                                     <FormField
                                         control={form.control}
                                         name="type_leave"
                                         render={({ field, fieldState }) => (
                                             <FormItem className="hover:cursor-pointer">
-                                                <FormLabel>{t('leave_request.create.type_leave.type_leave')}</FormLabel>
+                                                <FormLabel className="mb-1">{t('leave_request.create.type_leave.type_leave')} <DotRequireComponent/></FormLabel>
                                                 <FormControl>
                                                     <select
                                                         ref={field.ref}
@@ -408,7 +369,7 @@ export default function LeaveRequestForm() {
                                                         onChange={field.onChange}
                                                         name={field.name}
                                                         id="type_leave" 
-                                                        className={`dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"}`}>
+                                                        className={`w-[120px] hover:cursor-pointer dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-300"}`}>
                                                         <option value="">--Select--</option>
                                                         {
                                                             isPending ? (
@@ -430,20 +391,20 @@ export default function LeaveRequestForm() {
                                         )}
                                     />
                                 </div>
-                                <div className="w-full sm:w-[48%] lg:w-[15%]">
+                                <div>
                                     <FormField
                                         control={form.control}
                                         name="time_leave"
                                         render={({ field, fieldState }) => (
                                             <FormItem className="hover:cursor-pointer">
-                                                <FormLabel>{t('leave_request.create.time_leave.time_leave')}</FormLabel>
+                                                <FormLabel className="mb-1">{t('leave_request.create.time_leave.time_leave')}<DotRequireComponent/></FormLabel>
                                                 <FormControl>
                                                     <select
                                                         value={field.value}
                                                         onChange={field.onChange}
                                                         name={field.name}
-                                                        id="from_hour" 
-                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"} p-1 rounded-[5px]`}>
+                                                        id="time_leave" 
+                                                        className={`dark:bg-[#454545] hover:cursor-pointer shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] w-[120px]`}>
                                                         <option value="">--Select--</option>
                                                         {
                                                             TIME_LEAVE.map((item) => (
@@ -456,87 +417,6 @@ export default function LeaveRequestForm() {
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="third-row w-full flex flex-col gap-4">
-                            <div className="flex flex-wrap gap-4 w-full">
-                                <div className="w-full sm:w-[48%] lg:w-[18%]">
-                                    <FormField
-                                        control={form.control}
-                                        name="to_date"
-                                        render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.to_date')}</FormLabel>
-                                            <FormControl>
-                                            <Input
-                                                className="w-full justify-center"
-                                                onClick={handleInputClickShowPicker}
-                                                onChange={field.onChange}
-                                                value={field.value}
-                                                type="date"
-                                                id="from_date"
-                                                name={field.name}
-                                            />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
-                                    <FormField
-                                        control={form.control}
-                                        name="to_hour"
-                                        render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('leave_request.create.to_hour')}</FormLabel>
-                                            <FormControl>
-                                            <select
-                                                value={field.value}
-                                                onChange={field.onChange}
-                                                name={field.name}
-                                                id="to_hour"
-                                                className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
-                                            >
-                                                {Array.from({ length: 24 }, (_, i) => (
-                                                <option key={i} value={i.toString().padStart(2, "0")}>
-                                                    {i.toString().padStart(2, "0")}
-                                                </option>
-                                                ))}
-                                            </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <div className="w-[48%] sm:w-[23%] lg:w-[8%]">
-                                    <FormField
-                                        control={form.control}
-                                        name="to_minutes"
-                                        render={({ field }) => (
-                                        <FormItem className="hover:cursor-pointer">
-                                            <FormLabel>{t('leave_request.create.to_minutes')}</FormLabel>
-                                            <FormControl>
-                                            <select
-                                                value={field.value}
-                                                onChange={field.onChange}
-                                                name={field.name}
-                                                id="to_minutes"
-                                                className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-1 rounded-[5px]"
-                                            >
-                                                <option key="00" value="00">00</option>
-                                                <option key="30" value="30">30</option>
-                                            </select>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
                                         )}
                                     />
                                 </div>

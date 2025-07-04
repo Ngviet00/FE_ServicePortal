@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useAppStore } from "@/store/appStore";
+import { RoleEnum } from "@/lib";
 import leaveRequestApi from "@/api/leaveRequestApi";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
@@ -29,9 +30,9 @@ export default function Sidebar() {
 	const setNumberWait = useAppStore((s) => s.setNumberWait);
 
 	const { user } = useAuthStore()
-	const isSuperAdmin = useHasRole(["SuperAdmin"])
-	const hasHRRole = useHasRole(["HR", "HR_Manager"])
-	const isUnion = useHasRole(['union'])
+	const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN])
+	const hasHRRole = useHasRole([RoleEnum.HR])
+	const isUnion = useHasRole([RoleEnum.UNION])
 	const isMobile = useIsReponsive()
 
 	const { data: countWaitApprovalLeaveRequest } = useQuery({
@@ -113,8 +114,15 @@ export default function Sidebar() {
 							</div>
 							<ul className={`submenu ${submenusVisible[menu.key] ? "open" : ""}`}>
 								{menu.children?.map((child) => {
-									if (child.route === "/role" && !isSuperAdmin) return null;
-									if (child.route === "/approval-flow" && !isSuperAdmin) return null;
+									if (child.route === "/role" && !isSuperAdmin)
+										return null;
+
+									if (child.route === "/approval-flow" && !isSuperAdmin)
+										return null;
+
+									if (child.route === '/management-time-keeping' && !hasHRRole) {
+										return null;
+									}
 
 									const isActive = currentPath === child.route;
 									

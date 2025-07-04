@@ -3,7 +3,7 @@ import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
 
 interface GetAll {
-    createdByDepartmentId: number | null | undefined
+    RoleName: string | null | undefined
     Page: number
     PageSize: number
 }

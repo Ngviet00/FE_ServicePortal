@@ -7,7 +7,6 @@ import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import CreateTypeLeaveForm from "./CreateTypeLeaveForm"
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi"
 import { useTranslation } from "react-i18next"
-import { formatDate } from "@/lib/time"
 
 export default function ListTypeLeave () {
     const { t } = useTranslation();
@@ -71,8 +70,6 @@ export default function ListTypeLeave () {
                             <TableRow>
                                 <TableHead className="w-[20px] text-left">ID</TableHead>
                                 <TableHead className="w-[50px] text-left">{t('type_leave_page.name')}</TableHead>
-                                <TableHead className="w-[50px] text-left">{t('type_leave_page.modified_by')}</TableHead>
-                                <TableHead className="w-[50px] text-left">{t('type_leave_page.modified_at')}</TableHead>
                                 <TableHead className="w-[100px] text-right">{t('type_leave_page.action')}</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -81,8 +78,6 @@ export default function ListTypeLeave () {
                                     Array.from({ length: 3 }).map((_, index) => (
                                         <TableRow key={index}>
                                             <TableCell className="w-[20px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                             <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
                                             <TableCell className="w-[100px] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center"/></div></TableCell>
                                         </TableRow>
@@ -96,8 +91,6 @@ export default function ListTypeLeave () {
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium text-left">{item?.id}</TableCell>
                                             <TableCell className="font-medium text-left">{item?.name}</TableCell>
-                                            <TableCell className="font-medium text-left">{item?.modifiedBy}</TableCell>
-                                            <TableCell className="font-medium text-left">{formatDate(item?.modifiedAt)}</TableCell>
                                             <TableCell className="text-right">
                                                 <CreateTypeLeaveForm typeLeave={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-type-leave'] })}/>
                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>

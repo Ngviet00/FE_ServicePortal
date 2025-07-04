@@ -11,6 +11,7 @@ import { useAuthStore } from "@/store/authStore";
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import "./style.css"
+import { RoleEnum } from "@/lib";
 
 export default function MemoNotification () {
     const { t } = useTranslation()
@@ -33,7 +34,10 @@ export default function MemoNotification () {
     const { data: MemoNotify, isPending, isError, error } = useQuery({
         queryKey: ['get-all-memo-notify', page, pageSize],
         queryFn: async () => {
-            const res = await memoNotificationApi.getAll({createdByDepartmentId: user?.departmentId, Page: page, PageSize: pageSize})
+            const roles = user?.roles ?? [];
+            const matchedRole = roles.find((role: string) =>role?.includes(RoleEnum.HR) || role?.includes(RoleEnum.UNION));
+            
+            const res = await memoNotificationApi.getAll({RoleName: matchedRole, Page: page, PageSize: pageSize})
             setTotalPage(res.data.total_pages)
             return res.data.data;
         },

@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation  } from 'react-router-dom';
+import { RoleEnum } from '@/lib';
 import LeaveRequestForm from '@/features/Leave/LeaveRequestForm';
 import ListLeaveRequest from '@/features/Leave/ListLeaveRequest';
 import ListRole from '@/features/Role/ListRole';
@@ -23,10 +24,9 @@ import DetailMemoNotification from '@/pages/DetailMemoNotification';
 import HistoryListApproval from '@/features/Leave/HistoryListApproval';
 import AdminSetting from '@/pages/AdminSetting';
 import HRManagementTimekeeping from '@/features/TimeKeeping/HRManagementTimekeeping';
-
-import './App.css'
 import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOthers';
 import PersonalInfo from '@/pages/PersonalInfo';
+import './App.css'
 
 function App() {
 	const location = useLocation();
@@ -43,32 +43,29 @@ function App() {
 
 		{ path: "/forbidden", element: <Forbidden /> },
 		{ path: "/change-password", element: <ChangePasswordPage /> },
-		{ path: "/role", element: <ListRole />, allowedRoles: ['superadmin']},
-		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/role", element: <ListRole />, allowedRoles: [RoleEnum.SUPERADMIN]},
+		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: [RoleEnum.HR] },
 		
-		{ path: "/user", element: <ListUser />, allowedRoles: ['HR', 'HR_Manager'] },
-		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/user", element: <ListUser />, allowedRoles: [RoleEnum.HR] },
+		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: [RoleEnum.HR] },
 		
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
 		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/> },
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
-		{ path: "/leave/history-approved", element: <HistoryListApproval/>, allowedRoles: ['HR', 'HR_Manager'] },
+		{ path: "/leave/history-approved", element: <HistoryListApproval/>, allowedRoles: [RoleEnum.HR] },
 
 		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>},
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>},
 
-		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: ['HR', 'HR_Manager', 'union'] },
-		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: ['HR', 'HR_Manager', 'union'] },
-		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: ['HR', 'HR_Manager', 'union'] },
-		
+		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
+		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
+		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
+
 		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
-
-		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: ['superadmin'] },
-
-		{ path: "/hr-management-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: ['HR', 'HR_Manager'] },
-
+		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: [RoleEnum.SUPERADMIN] },
+		{ path: "/hr-management-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/personal-info", element: <PersonalInfo />},
 	];
   
@@ -101,7 +98,7 @@ function App() {
 									<Route 
 										key={path}
 										path={path} 
-										element={<PrivateRoute allowedRoles={allowedRoles}>{element}</PrivateRoute>}
+										element={<PrivateRoute allowedPermissions={[]} allowedRoles={allowedRoles}>{element}</PrivateRoute>}
 									/>
 								))
 							}

@@ -20,6 +20,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ enableTime = true, date
     useEffect(() => {
         if (inputRef.current) {
             fpInstance.current = flatpickr(inputRef.current, {
+                minuteIncrement: 1,
                 enableTime: enableTime,
                 noCalendar: false, 
                 dateFormat: dateFormat,
@@ -40,12 +41,12 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ enableTime = true, date
                 fpInstance.current.destroy();
             }
         };
-    }, [initialDateTime, onChange]);
+    }, [dateFormat, enableTime, initialDateTime, onChange]);
 
     return (
         <>
             <input
-                className={className}
+                className={`${className} pl-3`}
                 type="text"
                 id="dateTimePicker"
                 ref={inputRef}

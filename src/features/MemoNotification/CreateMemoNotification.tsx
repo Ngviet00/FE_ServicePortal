@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import memoNotificationApi, { useCreateMemoNotification, useUpdateMemoNotification } from "@/api/memoNotificationApi";
 import { useAuthStore } from "@/store/authStore";
 import { getVietnamTime } from "@/lib/time";
-import { getErrorMessage, ShowToast } from "@/lib";
+import { getErrorMessage, RoleEnum, ShowToast } from "@/lib";
 import { useTranslation } from "react-i18next";
 import { MultiSelect } from "react-multi-select-component";
 import { useQuery } from "@tanstack/react-query";
@@ -122,7 +122,10 @@ export default function CreateMemoNotification () {
                 formData.append("deleteFiles", item);
             })
         } else {
-            formData.append("createdByDepartmentId", String(user?.departmentId));
+            const roles = user?.roles ?? [];
+            const matchedRole = roles.find((role: string) =>role?.includes(RoleEnum.HR) || role?.includes(RoleEnum.UNION));
+
+            formData.append("roleNameCreated", matchedRole ?? 'HR');
             formData.append("createdBy", String(user?.userName));
             formData.append("createdAt", String(getVietnamTime('iso')));
             formData.append("userCodeCreated", String(user?.userCode));
