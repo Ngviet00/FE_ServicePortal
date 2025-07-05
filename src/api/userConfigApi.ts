@@ -7,8 +7,8 @@ interface GetUserConfig {
 
 export interface UserConfigData {
     userCode: string | undefined,
-    configKey: string,
-    configValue: string,
+    key: string,
+    value: string,
 };
 
 const userConfigApi = {

@@ -55,7 +55,7 @@ const formSchema = z.object({
 const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
     requesterUserCode: values.user_code ?? null,
     writeLeaveUserCode: values.user_code_register,
-    writeLeaveName: values.name_register,
+    userNameWriteLeaveRequest: values.name_register,
     name: values.name,
     department: values.department,
     position: values.position,
@@ -87,8 +87,8 @@ export default function LeaveRequestForm() {
             position: "",
             from_date: `${new Date().toISOString().slice(0, 10)} 08:00`,
             to_date: `${new Date().toISOString().slice(0, 10)} 17:00`,
-            time_leave: '1',
-            type_leave: '1'
+            time_leave: '',
+            type_leave: ''
         },
     });
 
@@ -129,7 +129,7 @@ export default function LeaveRequestForm() {
 
     useEffect(() => {
         if (receiveEmail) {
-            setCheckReceiveEmail(receiveEmail.configValue == "true")
+            setCheckReceiveEmail(receiveEmail.value == "true")
         } else {
             setCheckReceiveEmail(true);
         }
@@ -139,8 +139,8 @@ export default function LeaveRequestForm() {
         try {
             await userConfigApi.saveOrUpdate({
                 userCode: user?.userCode,
-                configKey: "RECEIVE_MAIL_LEAVE_REQUEST",
-                configValue: checked ? "true" : "false",
+                key: "RECEIVE_MAIL_LEAVE_REQUEST",
+                value: checked ? "true" : "false",
             });
             setCheckReceiveEmail(checked)
             ShowToast("Success")
@@ -166,16 +166,14 @@ export default function LeaveRequestForm() {
                 try {
                     const data = await leaveRequestApi.getById(id);
                     const results = data.data.data;
-                    const from = new Date(results.fromDate);
-                    const to = new Date(results.toDate);
                     form.setValue("user_code", user?.userCode || "")
                     form.setValue("name", results?.name)
                     form.setValue("department", results?.department)
                     form.setValue("position", results?.position ?? "Staff")
-                    form.setValue("from_date", from.toISOString().slice(0, 10))
-                    form.setValue("to_date", to.toISOString().slice(0, 10))
-                    form.setValue("time_leave", results?.timeLeave?.toString())
-                    form.setValue("type_leave", results?.typeLeave?.toString())
+                    form.setValue("from_date", results.from_date)
+                    form.setValue("to_date", results.to_date)
+                    form.setValue("time_leave", results?.timeLeave?.id?.toString())
+                    form.setValue("type_leave", results?.typeLeave?.id?.toString())
                     form.setValue("reason", results?.reason)
                 } catch (err) {
                     ShowToast(getErrorMessage(err), "error")
@@ -320,7 +318,7 @@ export default function LeaveRequestForm() {
                                                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                         onChange={(_selectedDates, dateStr, _instance) => {
                                                             rhfField.onChange(dateStr);
-                                                            console.log(dateStr, 8);
+                                                            console.log(dateStr);
                                                         }}
                                                         className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] hover:cursor-pointer`}
                                                     />

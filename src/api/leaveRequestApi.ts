@@ -6,27 +6,32 @@ export interface LeaveRequestData {
     id?: string | null,
     requesterUserCode: string | null,
     writeLeaveUserCode: string | null,
-    writeLeaveName: string | null,
+    userNameWriteLeaveRequest: string | null,
     name: string | null,
     department: string | null,
     position: string | null,
-    fromDate: Date | string | null,
-    toDate: Date | string | null,
+    fromDate: string | null,
+    toDate: string | null,
     timeLeaveId: number | null,
     typeLeaveId: number | null,
     reason: string| null
     image?: string | null,
     urlFrontend: string | null,
     createdAt?: string | null,
+    typeLeave?: {
+        name?: string
+    },
+    timeLeave?: {
+        description?: string
+    }
     approvalRequest?: {
         currentPositionId: number | null,
         status: string | null
     },
-    approvalAction?: {
-        approverUserCode: string | null,
-        approverName: string | null,
-        action: string | null,
-        comment: string | null,
+    historyApplicationForm?: {
+        userApproval?: string | null,
+        actionType?: string | null,
+        comment?: string | null
         createdAt: string | null
     }
 }
@@ -57,7 +62,7 @@ interface GetLeaveRequest {
     Page: number;
     PageSize: number;
     Year?: number
-    Status?: string
+    Status?: number
 }
 
 interface ApprovalData {
