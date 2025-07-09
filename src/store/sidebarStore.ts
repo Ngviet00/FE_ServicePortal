@@ -35,7 +35,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.list_user", route: "/user" },
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
 			{ label: "sidebar.union.create_notify", route: "/memo-notify" },
-			{ label: "Quản lý", route: "/hr-management-timekeeping" },
+			{ label: "Chấm công", route: "/hr-mng-timekeeping" },
+			{ label: "Nghỉ phép", route: "/hr-mng-leave-request" },
 		],
 	},
 	{

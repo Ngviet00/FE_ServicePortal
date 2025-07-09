@@ -82,13 +82,9 @@ export default function ListLeaveRequest () {
     });
 
     const handleDelete = async (id: string) => {
-        try {
-            const shouldGoBack = leaveRequests.length === 1;
-            await mutation.mutateAsync(id);
-            handleSuccessDelete(shouldGoBack);
-        } catch (error) {
-            ShowToast(getErrorMessage(error), "error");
-        }
+        const shouldGoBack = leaveRequests.length === 1;
+        await mutation.mutateAsync(id);
+        handleSuccessDelete(shouldGoBack);
     };
 
     return (
@@ -129,7 +125,7 @@ export default function ListLeaveRequest () {
 
                             <TabsTrigger
                             className="dark:text-black min-w-[120px] px-3 py-1 text-sm bg-red-200 text-red-600 hover:cursor-pointer"
-                            value="4"
+                            value="5"
                             >
                                 {t('list_leave_request.reject')}
                             </TabsTrigger>

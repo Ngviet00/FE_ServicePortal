@@ -51,6 +51,13 @@ export interface UpdatePersonalInfo {
     dateOfBirth?: string
 }
 
+interface getUserToSelectMngTKeeping {
+    keysearch?: string
+    DepartmentId?: number,
+    Page?: number,
+    PageSize?: number,
+}
+
 const userApi = {
     getAll(params: GetUser) {
         return axiosClient.get('/user/get-all', {params})
@@ -68,7 +75,7 @@ const userApi = {
         return axiosClient.delete(`/user/delete/${id}`)
     },
     orgChart(department_id: number) {
-        return axiosClient.get(`/user/org-chart?department_id=${department_id}`)
+        return axiosClient.get(`/user/org-chart?departmentId=${department_id}`)
     },
     updateUserRole(data: DataUserRole) {
         return axiosClient.post(`/user/update-user-role`, data)
@@ -78,6 +85,21 @@ const userApi = {
     },
     getMe() {
         return axiosClient.get(`/user/me`)
+    },
+    GetUserByParentOrgUnit(orgUnitId: number) {
+        return axiosClient.get(`/user/get-user-by-parent-org-unit-id?orgUnitId=${orgUnitId}`)
+    },
+    getUserToSelectMngTKeeping(params: getUserToSelectMngTKeeping) {
+        return axiosClient.get('/user/search-all-user-from-viclock', {params})
+    },
+    UpdateUserHavePermissionMngTimeKeeping(data: string[]) {
+        return axiosClient.post(`/user/update-user-have-permission-mng-timekeeping`, data)
+    },
+    UpdateUserMngTimeKeeping() {
+        return axiosClient.post(`/user/update-user-mng-timekeeping`)
+    },
+    GetUserHavePermissionMngTimeKeeping() {
+        return axiosClient.get(`/user/get-user-have-permission-mng-timekeeping`)
     }
 }
 
@@ -108,5 +130,7 @@ export function useUpdatePersonalInfo() {
         }
     })
 }
+
+
 
 export default userApi;

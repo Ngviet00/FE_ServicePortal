@@ -65,7 +65,7 @@ function App() {
 
 		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
 		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: [RoleEnum.SUPERADMIN] },
-		{ path: "/hr-management-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: [RoleEnum.HR] },
+		{ path: "/hr-mng-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/personal-info", element: <PersonalInfo />},
 	];
   

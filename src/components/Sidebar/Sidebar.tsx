@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { useAppStore } from "@/store/appStore";
 import { RoleEnum } from "@/lib";
 import leaveRequestApi from "@/api/leaveRequestApi";
 import useIsReponsive from "@/hooks/IsResponsive";
@@ -27,23 +26,23 @@ export default function Sidebar() {
 		setVisibleSubmenuByPath,
 	} = useSidebarStore();
 
-	const setNumberWait = useAppStore((s) => s.setNumberWait);
-
 	const { user } = useAuthStore()
 	const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN])
 	const hasHRRole = useHasRole([RoleEnum.HR])
 	const isUnion = useHasRole([RoleEnum.UNION])
 	const isMobile = useIsReponsive()
 
+	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
+
 	const { data: countWaitApprovalLeaveRequest } = useQuery({
 		queryKey: ["count-wait-approval-leave-request"],
 		queryFn: async () => {
 			const res = await leaveRequestApi.countWaitApprovalLeaveRequest({
-				positionId: user?.positionId,
+				OrgUnitId: user?.orgUnitID,
 			});
-			setNumberWait(res.data.data ?? 0);
 			return res.data.data;
 		},
+		enabled: isOrgUnitIdAvailable
 	});
 
 	useEffect(() => {

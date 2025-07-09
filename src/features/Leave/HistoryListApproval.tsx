@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/table"
 import leaveRequestApi, { HistoryLeaveRequestApproval } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
-import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, getEnumName } from "@/lib"
+import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, getEnumName, useDebounce } from "@/lib"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
+import DateTimePicker from "@/components/ComponentCustom/Flatpickr"
 
 export default function HistoryListApproval () {
     const { t } = useTranslation();
@@ -22,14 +23,20 @@ export default function HistoryListApproval () {
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const {user} = useAuthStore()
+    const [keysearch, setKeySearch] = useState("")
+    const [date, setDate] = useState(new Date().toString())
+
+    const debouncedkeySearch = useDebounce(keysearch, 300);
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-history-leave-request-approval', page, pageSize],
+        queryKey: ['get-history-leave-request-approval', page, pageSize, debouncedkeySearch, date],
         queryFn: async () => {
             const res = await leaveRequestApi.getHistoryLeaveRequestApproval({
                 Page: page,
                 PageSize: pageSize,
-                UserCode: user?.userCode
+                UserCode: user?.userCode,
+                Keysearch: debouncedkeySearch,
+                Date: date
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -51,6 +58,25 @@ export default function HistoryListApproval () {
                 <h3 className="font-bold text-xl sm:text-2xl m-0 pb-2 sm:pb-0">
                     {t('leave_request.wait_approval.history_leave_request')}
                 </h3>
+            </div>
+
+            <div className="flex mt-3 ql-align-center">
+                <div>
+                    <input value={keysearch} onChange={(e) => setKeySearch(e.target.value)} type="text" placeholder="Name, Usercode" className="text-sm pl-1 rounded-[4px] border h-[33px] mr-2" />
+                </div>
+                <div>
+                    <DateTimePicker
+                        enableTime={true}
+                        dateFormat="Y-m-d"
+                        initialDateTime={date}
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        onChange={(_selectedDates, dateStr, _instance) => {
+                            //rhfField.onChange(dateStr);
+                            setDate(dateStr)
+                        }}
+                        className={`dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer`}
+                    />
+                </div>
             </div>
 
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
@@ -99,11 +125,11 @@ export default function HistoryListApproval () {
                                         <TableCell className="text-left">{item.position}</TableCell>
                                         <TableCell className="text-left">{item.fromDate}</TableCell>
                                         <TableCell className="text-left">{item.toDate}</TableCell>
-                                        <TableCell className="text-left">{getEnumName(item.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
-                                        <TableCell className="text-left">{getEnumName(item.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                        <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
+                                        <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
                                         <TableCell className="text-left">{item.reason}</TableCell>
-                                        <TableCell className="text-left">{item.approverName?? "--"}</TableCell>
-                                        <TableCell className="text-left">{formatDate(item.approvalAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>    
+                                        <TableCell className="text-left">{item?.historyApplicationForm?.userApproval?? "--"}</TableCell>
+                                        <TableCell className="text-left">{formatDate(item.historyApplicationForm.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>    
                                     </TableRow>
                                 ))
                             )}

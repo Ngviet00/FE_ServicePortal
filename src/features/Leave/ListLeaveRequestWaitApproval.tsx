@@ -40,6 +40,8 @@ export default function ListLeaveRequestWaitApproval () {
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
     const registerAllLeaveMutation = useRegisterAllLeaveRequest();
+
+    const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
         queryKey: ['get-leave-request-wait-approval', page, pageSize],
@@ -47,11 +49,12 @@ export default function ListLeaveRequestWaitApproval () {
             const res = await leaveRequestApi.getLeaveRequestWaitApproval({
                 page: page,
                 pageSize: pageSize,
-                positionId: user?.positionId,
+                OrgUnitId: user?.orgUnitID,
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
         },
+        enabled: isOrgUnitIdAvailable
     });
 
     function handleApproval(shouldGoBack?: boolean) {
@@ -74,7 +77,6 @@ export default function ListLeaveRequestWaitApproval () {
     const mutation = useMutation({
         mutationFn: async ({ item, approval }: { item: LeaveRequestData; approval: boolean, note: string | null }) => {
             await leaveRequestApi.approvalLeaveRequest({
-                PositionId: user?.positionId || null,
                 NameUserApproval: user?.userName || null,
                 UserCodeApproval: user?.userCode || null,
                 LeaveRequestId: item?.id ?? "",
@@ -113,7 +115,7 @@ export default function ListLeaveRequestWaitApproval () {
         }
       }, [showConfirm]);
 
-    const hasHRRole = useHasRole(['HR', 'HR_Manager']);
+    const hasHRRole = useHasRole(['HR']);
 
     const registerAllLeave = async () => {
         if (leaveRequests.length > 0) {
@@ -205,13 +207,13 @@ export default function ListLeaveRequestWaitApproval () {
                                 <TableCell className="text-left">{item.position}</TableCell>
                                 <TableCell className="text-left">{item.fromDate}</TableCell>
                                 <TableCell className="text-left">{item.toDate}</TableCell>
-                                <TableCell className="text-left">{getEnumName(item.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</TableCell>
-                                <TableCell className="text-left">{getEnumName(item.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</TableCell>
+                                <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
+                                <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
                                 <TableCell className="text-left">{item.reason}</TableCell>
-                                <TableCell className="text-left text-red-800 font-bold">{item.approvalAction?.approverName ?? "--"}</TableCell>
+                                <TableCell className="text-left text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</TableCell>
                                 <TableCell className="text-left">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                 <TableCell className="text-left">
-                                    {hasHRRole && item.approvalRequest?.currentPositionId == -10 ? (
+                                    {hasHRRole  ? (
                                     <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
                                         {t('leave_request.wait_approval.register')}
                                     </Button>
@@ -287,8 +289,8 @@ export default function ListLeaveRequestWaitApproval () {
                                     <div>Position: <span className="pl-2 font-bold text-red-800">{selectedItem?.position}</span></div>
                                     <div>From Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.fromDate}</span></div>
                                     <div>To Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.toDate}</span></div>
-                                    <div>Type Leave: <span className="pl-2 font-bold">{getEnumName(selectedItem?.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</span></div>
-                                    <div>Time Leave: <span className="pl-2 font-bold">{getEnumName(selectedItem?.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</span></div>
+                                    <div>Type Leave: <span className="pl-2 font-bold">{selectedItem?.timeLeave?.description}</span></div>
+                                    <div>Time Leave: <span className="pl-2 font-bold">{selectedItem?.typeLeave?.name}</span></div>
                                     <div>Reason: <span className="pl-2 font-bold">{selectedItem?.reason}</span></div>
                                     <div>Created At: <span className="pl-2 font-bold">{formatDate(selectedItem?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
                                 </div>

@@ -170,8 +170,8 @@ export default function LeaveRequestForm() {
                     form.setValue("name", results?.name)
                     form.setValue("department", results?.department)
                     form.setValue("position", results?.position ?? "Staff")
-                    form.setValue("from_date", results.from_date)
-                    form.setValue("to_date", results.to_date)
+                    form.setValue("from_date", results.fromDate.split('T')[0] + ' ' + results.fromDate.split('T')[1].substring(0, 5))
+                    form.setValue("to_date", results.toDate.split('T')[0] + ' ' + results.toDate.split('T')[1].substring(0, 5))
                     form.setValue("time_leave", results?.timeLeave?.id?.toString())
                     form.setValue("type_leave", results?.typeLeave?.id?.toString())
                     form.setValue("reason", results?.reason)
@@ -318,7 +318,6 @@ export default function LeaveRequestForm() {
                                                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                         onChange={(_selectedDates, dateStr, _instance) => {
                                                             rhfField.onChange(dateStr);
-                                                            console.log(dateStr);
                                                         }}
                                                         className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] hover:cursor-pointer`}
                                                     />
@@ -343,7 +342,6 @@ export default function LeaveRequestForm() {
                                                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                                         onChange={(_selectedDates, dateStr, _instance) => {
                                                             rhfField.onChange(dateStr);
-                                                            console.log(dateStr, 8);
                                                         }}
                                                         className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] hover:cursor-pointer`}
                                                     />

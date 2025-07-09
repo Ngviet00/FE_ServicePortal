@@ -24,7 +24,7 @@ export interface LeaveRequestData {
     timeLeave?: {
         description?: string
     }
-    approvalRequest?: {
+    applicationForm?: {
         currentPositionId: number | null,
         status: string | null
     },
@@ -63,10 +63,11 @@ interface GetLeaveRequest {
     PageSize: number;
     Year?: number
     Status?: number
+    Keysearch?: string,
+    Date?: string
 }
 
 interface ApprovalData {
-    PositionId: number | null,
     NameUserApproval: string | null,
     UserCodeApproval: string | null,
     LeaveRequestId: string,
@@ -78,7 +79,7 @@ interface ApprovalData {
 interface GetWaitApproval {
     page?: number,
     pageSize?: number,
-    positionId?: number | undefined
+    OrgUnitId?: number | undefined
 }
 
 interface HrRegisterAllLeave {
