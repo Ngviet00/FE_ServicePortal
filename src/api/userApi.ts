@@ -58,6 +58,11 @@ interface getUserToSelectMngTKeeping {
     PageSize?: number,
 }
 
+export interface UpdateUserMngTimeKeeping {
+    userCode: string,
+    orgUnitId: number[]
+}
+
 const userApi = {
     getAll(params: GetUser) {
         return axiosClient.get('/user/get-all', {params})
@@ -95,8 +100,8 @@ const userApi = {
     UpdateUserHavePermissionMngTimeKeeping(data: string[]) {
         return axiosClient.post(`/user/update-user-have-permission-mng-timekeeping`, data)
     },
-    UpdateUserMngTimeKeeping() {
-        return axiosClient.post(`/user/update-user-mng-timekeeping`)
+    UpdateUserMngTimeKeeping(data: UpdateUserMngTimeKeeping) {
+        return axiosClient.post(`/user/update-user-mng-timekeeping`, data)
     },
     GetUserHavePermissionMngTimeKeeping() {
         return axiosClient.get(`/user/get-user-have-permission-mng-timekeeping`)
@@ -131,6 +136,32 @@ export function useUpdatePersonalInfo() {
     })
 }
 
+export function useUpdateUserPermissionMngTimeKeeping() {
+    return useMutation({
+        mutationFn: async (data: string[]) => {
+            await userApi.UpdateUserHavePermissionMngTimeKeeping(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
 
+export function useUpdateUserMngTimeKeeping() {
+    return useMutation({
+        mutationFn: async (data: UpdateUserMngTimeKeeping) => {
+            await userApi.UpdateUserMngTimeKeeping(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
 
 export default userApi;

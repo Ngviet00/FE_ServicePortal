@@ -1,15 +1,11 @@
 import axiosClient from './axiosClient';
 
-interface GetOrgUnitByDept {
-    departmentId: number
-}
-
 const orgUnitApi = {
-    getAllDeptInOrgUnit() {
-        return axiosClient.get('/org-unit/get-all-dept-in-org-unit')
+    GetAllDepartmentAndFirstOrgUnit() {
+        return axiosClient.get('/org-unit/get-all-dept-and-first-org-unit')
     },
-    GetOrgUnitByDept(params: GetOrgUnitByDept) {
-        return axiosClient.get('/org-unit/get-org-unit-by-dept', {params})
+    GetOrgUnitBeingMngTimeKeepingByUser(userCode: string) {
+        return axiosClient.get(`/org-unit/get-org-unit-being-mng-timekeeping-by-user?userCode=${userCode}`)
     },
 }
 

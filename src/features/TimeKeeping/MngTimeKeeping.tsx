@@ -7,7 +7,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next"
 import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeeping";
 import { Spinner } from "@/components/ui/spinner";
-import { Button } from "@/components/ui/button";
 import { ConfirmDialogToHR } from "./Components/ConfirmDialogToHR";
 import { UpdateTimeKeepingDialog } from "./Components/UpdateTimeKeepingDialog";
 import { getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
@@ -120,7 +119,7 @@ export default function MngTimekeeping () {
                         onSave={saveChangeUpdateTimeKeeping}
                     />
 
-                    <Button className="mr-1 hover:cursor-pointer">Export Excel</Button>
+                    {/* <Button className="mr-1 hover:cursor-pointer">Export Excel</Button> */}
                     <ConfirmDialogToHR 
                             title={t('mng_time_keeping.want_to_continue')}
                             description={t('mng_time_keeping.description')}
@@ -213,10 +212,35 @@ export default function MngTimekeeping () {
                             (
                                 dataAttendances?.map((item: UserTimeKeeping, idx: number) => (
                                     <TableRow key={idx} className="border-b dark:border-[#9b9b9b]">
-                                        <TableCell className="text-center border-r">{item.nvMaNV}</TableCell>
-                                        <TableCell className="text-center border-r">{item.nvHoTen}</TableCell>
-                                        <TableCell className="text-center border-r">{item.bpTen}</TableCell>
+                                        <TableCell className="text-center border-r">{item.NVMaNV}</TableCell>
+                                        <TableCell className="text-center border-r">{item.NVHoTen}</TableCell>
+                                        <TableCell className="text-center border-r">VS</TableCell>
                                         {
+                                            Array.from({ length: 30 }).map((_, index) => (
+                                                <TableCell
+                                                        // onClick={() => {
+                                                        //     setSelectedData({
+                                                        //         nvMaNV: item.nvMaNV,
+                                                        //         nvHoTen: item.nvHoTen,
+                                                        //         bpTen: item.bpTen,
+                                                        //         date: data.bcNgay,
+                                                        //         currentValue: result,
+                                                        //         currentBgColor: bgColor,
+                                                        //         rowIndex: idx,
+                                                        //         colIndex: index
+                                                        //     });
+                                                        //     setOpenUpdateTimeKeeping(true);
+                                                        // }}
+                                                        key={index} className={`p-0 w-[100px] text-center border-r hover:cursor-pointer`}
+                                                        >
+                                                        <div className="flex justify-center font-bold">
+                                                            {/* {result == 'CN' ? '' : result} */}
+                                                            X
+                                                        </div>
+                                                    </TableCell>
+                                            ))
+                                        }
+                                        {/* {
                                             item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
                                                 let result = data.result
                                                 let bgColor = ''
@@ -259,7 +283,7 @@ export default function MngTimekeeping () {
                                                     </TableCell>
                                                 );
                                             })
-                                        }
+                                        } */}
                                     </TableRow>
                                 )))
                             }

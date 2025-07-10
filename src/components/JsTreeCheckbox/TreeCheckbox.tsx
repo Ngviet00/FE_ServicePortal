@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Minus, Plus } from "lucide-react";
+import { Dot, Minus, Plus } from "lucide-react";
 
 type SmartCheckboxProps = {
 	checked?: boolean;
@@ -43,14 +43,16 @@ type Props = {
 	data: TreeNode[];
 	onChange?: (checkedNodes: TreeNode[]) => void;
 	loadChildren?: (node: TreeNode) => Promise<TreeNode[]>;
+	defaultCheckedIds?: string[];
 };
 
-export default function TreeCheckbox({ data, onChange, loadChildren }: Props) {
+export default function TreeCheckbox({ data, onChange, loadChildren, defaultCheckedIds }: Props) {
 	const [checkedSet, setCheckedSet] = useState<Set<string>>(new Set());
 	const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
 	const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
 	const [loadedSet, setLoadedSet] = useState<Set<string>>(new Set());
 	const [treeData, setTreeData] = useState<TreeNode[]>(data);
+	const [userAction, setUserAction] = useState(false);
 
 	useEffect(() => {
 		setTreeData(data);
@@ -58,7 +60,7 @@ export default function TreeCheckbox({ data, onChange, loadChildren }: Props) {
 		const collapseAll = (nodes: TreeNode[]) => {
 			for (const node of nodes) {
 				if (node.children) {
-				initExpanded[node.id] = false;
+				initExpanded[node.id] = true;
 				collapseAll(node.children);
 				}
 			}
@@ -66,6 +68,29 @@ export default function TreeCheckbox({ data, onChange, loadChildren }: Props) {
 		collapseAll(data);
 		setExpandedMap(initExpanded);
 	}, [data]);
+	
+	useEffect(() => {
+		if (!userAction || !onChange)
+			return;
+
+		const selectedNodes: TreeNode[] = [];
+		const collectChecked = (nodes: TreeNode[]) => {
+			for (const node of nodes) {
+			if (checkedSet.has(node.id) && node.type !== "user") {
+				selectedNodes.push(node);
+			}
+			if (node.children) collectChecked(node.children);
+			}
+		};
+		collectChecked(treeData);
+		onChange(selectedNodes);
+
+		setUserAction(false);
+	}, [checkedSet, treeData, onChange, userAction]);
+
+	useEffect(() => {
+		setCheckedSet(new Set(defaultCheckedIds || []));
+	}, [defaultCheckedIds]);
 
 	const getAllChildren = (node: TreeNode): string[] => {
 		let result: string[] = [];
@@ -132,6 +157,7 @@ export default function TreeCheckbox({ data, onChange, loadChildren }: Props) {
 
 		const updated = updateParentState(node.id, newSet);
 		setCheckedSet(updated);
+		setUserAction(true);
 	};
 
 	const isIndeterminate = (node: TreeNode): boolean => {
@@ -195,60 +221,53 @@ export default function TreeCheckbox({ data, onChange, loadChildren }: Props) {
 
 	const renderTree = (nodes: TreeNode[], level = 0): React.ReactNode => {
 		return nodes.map((node) => {
-		const isExpanded = expandedMap[node.id] ?? false;
-		const hasChildren = node.children && node.children.length > 0;
+			const isExpanded = expandedMap[node.id] ?? false;
+			const hasChildren = node.children && node.children.length > 0;
 
-		return (
-			<div key={node.id} className={`relative py-1 pl-${level === 0 ? 0 : 4}`}>
-				<div className="flex items-center space-x-2">
-					{((hasChildren || loadChildren) && node.type != "user") ? (
-					<button
-						type="button"
-						onClick={() => toggleExpand(node)}
-						className="w-4 text-xs text-muted-foreground hover:cursor-pointer"
-					>
-						{isExpanded ? <Minus size={14} className="text-black" /> : <Plus size={14} className="text-black" />}
-					</button>
-					) : (
-					<div className="w-4" />
+			return (
+				<div key={node.id} className={`relative py-1 pl-${level === 0 ? 0 : 4}`}>
+					<div className="flex items-center space-x-2">
+						{((hasChildren || loadChildren) && node.type != "user") ? (
+						<button
+							type="button"
+							onClick={() => toggleExpand(node)}
+							className="w-4 text-xs text-muted-foreground hover:cursor-pointer"
+						>
+							{isExpanded ? <Minus size={14} className="text-black" /> : <Plus size={14} className="text-black" />}
+						</button>
+						) : (
+						<div className="w-4" />
+						)}
+						<label className="flex items-center space-x-2 cursor-pointer select-none">
+							{
+								node.type != "user" ? (
+									<SmartCheckbox
+										checked={checkedSet.has(node.id)}
+										indeterminate={isIndeterminate(node)}
+										onChange={() => handleToggle(node)}
+									/>
+								) : (<>
+										<Dot/>
+										<span className="font-bold">
+											({node.id})
+										</span>
+									</>)
+							}
+							<span>{node.label}</span>
+						</label>
+					</div>
+
+					{hasChildren && isExpanded && (
+						<div className="ml-4">{renderTree(node.children!, level + 1)}</div>
 					)}
-					<label className="flex items-center space-x-2 cursor-pointer select-none">
-						<SmartCheckbox
-							checked={checkedSet.has(node.id)}
-							indeterminate={isIndeterminate(node)}
-							onChange={() => handleToggle(node)}
-						/>
-						<span>{node.label}</span>
-					</label>
+
+					{loadingMap[node.id] && (
+						<div className="ml-8 text-sm text-gray-500 italic">Đang tải...</div>
+					)}
 				</div>
-
-				{hasChildren && isExpanded && (
-					<div className="ml-4">{renderTree(node.children!, level + 1)}</div>
-				)}
-
-				{loadingMap[node.id] && (
-					<div className="ml-8 text-sm text-gray-500 italic">Đang tải...</div>
-				)}
-			</div>
-		);
+			);
 		});
 	};
-
-	useEffect(() => {
-		if (onChange) {
-			const selectedNodes: TreeNode[] = [];
-			const collectChecked = (nodes: TreeNode[]) => {
-				for (const node of nodes) {
-					if (checkedSet.has(node.id)) {
-						selectedNodes.push(node);
-					}
-					if (node.children) collectChecked(node.children);
-				}
-			};
-			collectChecked(treeData);
-			onChange(selectedNodes);
-		}
-	}, [checkedSet, treeData, onChange]);
 
 	return <div>{renderTree(treeData)}</div>;
 }

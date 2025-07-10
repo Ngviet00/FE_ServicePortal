@@ -32,6 +32,8 @@ export default function Sidebar() {
 	const isUnion = useHasRole([RoleEnum.UNION])
 	const isMobile = useIsReponsive()
 
+	// const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
+
 	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
 
 	const { data: countWaitApprovalLeaveRequest } = useQuery({
@@ -119,9 +121,9 @@ export default function Sidebar() {
 									if (child.route === "/approval-flow" && !isSuperAdmin)
 										return null;
 
-									if (child.route === '/management-time-keeping' && !hasHRRole) {
-										return null;
-									}
+									// if (child.route === '/management-time-keeping' && !hasHRRole) {
+									// 	return null;
+									// }
 
 									const isActive = currentPath === child.route;
 									
