@@ -1,3 +1,4 @@
+import useHasPermission from "@/hooks/useHasPermission";
 import useHasRole from "@/hooks/useHasRole";
 import { useAuthStore } from "@/store/authStore";
 import { JSX } from "react";
@@ -9,12 +10,11 @@ interface PrivateRouteProps {
 	children: JSX.Element;
 }
 
-const PrivateRoute = ({ allowedRoles, children }: PrivateRouteProps) => {
-	console.log();
+const PrivateRoute = ({ allowedRoles, allowedPermissions, children }: PrivateRouteProps) => {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const hasRole = useHasRole(allowedRoles ?? []);
 	const isChangePassword = useAuthStore((state) => state.user?.isChangePassword)
-	// const hasPermission = useHasPermission(allowedPermissions ?? [])
+	const hasPermission = useHasPermission(allowedPermissions ?? [])
 
 	if (isAuthenticated && Number(isChangePassword) === 0 && location.pathname !== "/change-password") {
 		return <Navigate to="/change-password" replace />;
@@ -28,9 +28,9 @@ const PrivateRoute = ({ allowedRoles, children }: PrivateRouteProps) => {
 		return <Navigate to="/forbidden" replace />;
 	}
 
-	// if (!hasPermission && allowedPermissions && allowedPermissions.length > 0) {
-	// 	return <Navigate to="/forbidden" replace />;
-	// }
+	if (!hasPermission && allowedPermissions && allowedPermissions.length > 0) {
+		return <Navigate to="/forbidden" replace />;
+	}
 
 	return <>{children}</>;
 };

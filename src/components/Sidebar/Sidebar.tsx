@@ -10,6 +10,7 @@ import leaveRequestApi from "@/api/leaveRequestApi";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
 import "./style.css"
+import useHasPermission from "@/hooks/useHasPermission";
 
 export default function Sidebar() {
 	const { t } = useTranslation();
@@ -32,7 +33,9 @@ export default function Sidebar() {
 	const isUnion = useHasRole([RoleEnum.UNION])
 	const isMobile = useIsReponsive()
 
-	// const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
+	const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
+	const havePermissionCreatemultipleLeaveRequest = useHasPermission(['leave_request.create_multiple_leave_request'])
+
 
 	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
 
@@ -115,15 +118,30 @@ export default function Sidebar() {
 							</div>
 							<ul className={`submenu ${submenusVisible[menu.key] ? "open" : ""}`}>
 								{menu.children?.map((child) => {
-									if (child.route === "/role" && !isSuperAdmin)
-										return null;
+									if (child.route === "/role" && !isSuperAdmin) {
+										return null
+									}
+									
+									if (child.route === "/approval-flow" && !isSuperAdmin) {
+										return null
+									}
 
-									if (child.route === "/approval-flow" && !isSuperAdmin)
+									if (
+										child.route === "/leave/create-leave-for-others"
+										&& !havePermissionCreatemultipleLeaveRequest
+									) {
 										return null;
+									}
 
-									// if (child.route === '/management-time-keeping' && !hasHRRole) {
-									// 	return null;
-									// }
+									if (child.route === '/management-time-keeping') {
+										if (!havePermissionMngTimeKeeping) {
+											return null;
+										}
+
+										if (!hasHRRole && !havePermissionMngTimeKeeping) {
+											return null
+										}
+									}
 
 									const isActive = currentPath === child.route;
 									
@@ -131,6 +149,7 @@ export default function Sidebar() {
 										<li key={child.route} className={`text-blue-900 ${isActive ? "bg-[#e3e3e3]" : ""}`}>
 											<Link
 												to={child.route}
+												onClick={() => setVisibleSubmenuByPath(child.route, child.parentKey ?? menu.key)}
 												className={`dark:hover:text-black sidebar-link hover:bg-[#e3e3e3] flex items-center ${
 													isActive ? "dark:text-black" : "dark:text-white"
 												}`}

@@ -6,7 +6,7 @@ export interface SidebarMenuItem {
 	label: string;
 	icon: React.ElementType;
 	route?: string;
-	children?: { label: string; route: string }[];
+	children?: { label: string; route: string, parentKey?: string }[];
 }
 
 export const SIDEBAR_MENUS: SidebarMenuItem[] = [
@@ -24,6 +24,9 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [
 			{ label: "sidebar.admin.admin_setting", route: "/admin-setting" },
 			{ label: "sidebar.admin.role", route: "/role" },
+			{ label: "Permission", route: "/permission" },
+			{ label: "Request Type", route: "/request-type" },
+			{ label: "Work Flow", route: "/work-flow" },
 		],
 	},
 	{
@@ -34,7 +37,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.type_leave", route: "/type-leave" },
 			{ label: "sidebar.hr.list_user", route: "/user" },
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
-			{ label: "sidebar.union.create_notify", route: "/memo-notify" },
+			{ label: "sidebar.union.create_notify", route: "/memo-notify", parentKey: "HR" },
 			{ label: "Chấm công", route: "/hr-mng-timekeeping" },
 			{ label: "Nghỉ phép", route: "/hr-mng-leave-request" },
 		],
@@ -44,7 +47,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		label: "sidebar.union.union",
 		icon: ShieldCheck,
 		children: [
-			{ label: "sidebar.union.create_notify", route: "/memo-notify" },
+			{ label: "sidebar.union.create_notify", route: "/memo-notify", parentKey: "Union" },
 		],
 	},
 	{
@@ -72,7 +75,7 @@ interface SidebarState {
 	closeSidebar: () => void;
 	toggleSubmenu: (menu: SidebarMenuKey) => void;
 	closeAllSubmenus: () => void;
-	setVisibleSubmenuByPath: (path: string) => void;
+	setVisibleSubmenuByPath: (path: string, parentKey?: string) => void;
 	closeMenuIfNotChild: (pathname: string) => void;
 }
 
@@ -111,10 +114,15 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
 
 	closeAllSubmenus: () => set({ submenusVisible: initialSubmenusVisible }),
 
-	setVisibleSubmenuByPath: (pathname: string) => {
-		const matchedMenu = SIDEBAR_MENUS.find((menu) =>
-			menu.children?.some((child) => pathname.startsWith(child.route))
-		);
+	setVisibleSubmenuByPath: (pathname: string, parentKey?: string) => {
+		const matchedMenu = parentKey
+			? SIDEBAR_MENUS.find((menu) => menu.key === parentKey)
+			: SIDEBAR_MENUS.find((menu) =>
+				menu.children?.some((child) => pathname === child.route)
+			) ?? SIDEBAR_MENUS.find((menu) =>
+				menu.children?.some((child) => pathname.startsWith(child.route))
+			);
+
 		if (matchedMenu) {
 			set({
 				submenusVisible: {

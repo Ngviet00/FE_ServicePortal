@@ -57,7 +57,7 @@
 		"leave_request": {
 			"title": "Nghỉ phép",
 			"create_leave": "Xin nghỉ phép",
-			"create_leave_for_others" : "Xin nghỉ phép nhiều người",
+			"create_leave_for_others" : "Xin nghỉ phép thay người khác",
 			"list_leave": "Danh sách nghỉ",
 			"wait_approval": "Chờ duyệt",
 			"history_approved": "Danh sách đã duyệt"

@@ -27,6 +27,7 @@ import HRManagementTimekeeping from '@/features/TimeKeeping/HRManagementTimekeep
 import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOthers';
 import PersonalInfo from '@/pages/PersonalInfo';
 import './App.css'
+import HRManagementLeaveRequest from '@/features/Leave/HRManagementLeaveRequest';
 
 function App() {
 	const location = useLocation();
@@ -51,13 +52,13 @@ function App() {
 		
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
-		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/> },
+		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>, allowedPermissions: ['leave_request.create_multiple_leave_request'] },
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
-		{ path: "/leave/history-approved", element: <HistoryListApproval/>, allowedRoles: [RoleEnum.HR] },
+		{ path: "/leave/history-approved", element: <HistoryListApproval/>},
 
 		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>},
 		{ path: "/time-keeping", element: <Timekeeping/>},
-		{ path: "/management-time-keeping", element: <MngTimekeeping/>},
+		{ path: "/management-time-keeping", element: <MngTimekeeping/>, allowedPermissions: ['time_keeping.mng_time_keeping']},
 
 		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
 		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
@@ -66,6 +67,7 @@ function App() {
 		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
 		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: [RoleEnum.SUPERADMIN] },
 		{ path: "/hr-mng-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: [RoleEnum.HR] },
+		{ path: "/hr-mng-leave-request", element: <HRManagementLeaveRequest />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/personal-info", element: <PersonalInfo />},
 	];
   
@@ -94,11 +96,18 @@ function App() {
 					<MainLayout>
 						<Routes>
 							{
-								privateRoutes.map(({path, element, allowedRoles }) => (
+								privateRoutes.map(({path, element, allowedRoles, allowedPermissions }) => (
 									<Route 
 										key={path}
 										path={path} 
-										element={<PrivateRoute allowedPermissions={[]} allowedRoles={allowedRoles}>{element}</PrivateRoute>}
+										element={
+											<PrivateRoute 
+												allowedPermissions={allowedPermissions} 
+												allowedRoles={allowedRoles}
+											>
+												{element}
+											</PrivateRoute>
+										}
 									/>
 								))
 							}

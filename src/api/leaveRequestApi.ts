@@ -120,7 +120,27 @@ const leaveRequestApi = {
     },
     createLeaveRequestForOther(data: CreateLeaveRequestForManyPeople) {
         return axiosClient.post('/leave-request/create-leave-for-others', data)
+    },
+    GetUserCodeHavePermissionCreateMultipleLeaveRequest() {
+        return axiosClient.get('/leave-request/get-usercode-have-permission-create-multiple-leave-request')
+    },
+    UpdateUserHavePermissionCreateMultipleLeaveRequest(data: string[]) {
+        return axiosClient.post('/leave-request/update-user-have-permission-create-multiple-leave-request', data)
     }
+}
+
+export function useUpdateUserHavePermissionCreateMultipleLeaveRequest() {
+    return useMutation({
+        mutationFn: async (data: string[]) => {
+            await leaveRequestApi.UpdateUserHavePermissionCreateMultipleLeaveRequest(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useRegisterAllLeaveRequest() {

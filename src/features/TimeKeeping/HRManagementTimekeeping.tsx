@@ -1,5 +1,6 @@
 import orgUnitApi from "@/api/orgUnitApi";
-import userApi, { useUpdateUserMngTimeKeeping, useUpdateUserPermissionMngTimeKeeping } from "@/api/userApi";
+import timekeepingApi, { useChangeUserMngTimekeeping, useUpdateUserMngTimeKeeping, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeeping";
+import userApi from "@/api/userApi";
 import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
 import TreeCheckbox, { TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { ShowToast } from "@/lib";
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
+import { MoveRight, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
 function HRManagementTimekeeping() {
@@ -34,7 +35,7 @@ function HRManagementTimekeeping() {
     useQuery({
         queryKey: ['get-user-have-permission-mng-time-keeping'],
         queryFn: async () => {
-            const res = await userApi.GetUserHavePermissionMngTimeKeeping();
+            const res = await timekeepingApi.GetUserHavePermissionMngTimeKeeping();
             const rs = res.data.data.map((u: { NVHoTen: string; NVMaNV: string; BPTen: string; }) => ({
                 label: `${u.NVHoTen} (${u.NVMaNV} - ${u.BPTen})`,
                 value: u.NVMaNV,
@@ -70,7 +71,6 @@ function HRManagementTimekeeping() {
             return
         }
         const userCode = currentSelectedUser.value;
-
         await updateUserMngTimeKeeping.mutateAsync(
             {
                 userCode: userCode, 
@@ -88,9 +88,48 @@ function HRManagementTimekeeping() {
         const result = await orgUnitApi.GetOrgUnitBeingMngTimeKeepingByUser(item?.value)
         setCurrentSelectedUser(item)
 
-        const ids = result.data.data.map(num => num.toString());
+        const ids = result.data.data.map((num: { toString: () => never; }) => num.toString());
         setCheckedIds(ids)
     }
+
+    //#region thay đổi người quản lý chấm công
+    const [selectOldUser, setSelectOldUser] = useState<OptionType[]>([]);
+    const [selectNewUser, setSelectNewUser] = useState<OptionType[]>([]);
+
+    const changeUserMngTimekeeping = useChangeUserMngTimekeeping()
+
+    const handleCancelChangeUser = () => {
+        setSelectOldUser([])
+        setSelectNewUser([])
+    }
+
+    const handleSaveChangeUser = async () => {
+        if (selectOldUser.length == 0) {
+            ShowToast("Chọn người cũ", "error")
+            return
+        }
+
+        if (selectNewUser.length == 0) {
+            ShowToast("Chọn người mới", "error")
+            return
+        }
+
+        if (selectOldUser?.value == selectNewUser?.value) {
+            ShowToast("Không thể chọn cùng 1 người", "error")
+            return
+        }
+        const payload = {
+            oldUserCode: selectOldUser.value,
+            newUserCode: selectNewUser.value,
+        }
+        await changeUserMngTimekeeping.mutateAsync(payload);
+        setCheckedIds([])
+        setSelectOldUser([])
+        setSelectNewUser([])
+        setCurrentSelectedUser([])
+    }
+
+    //#endregion
 
     return (
         <div className="p-1 pt-0 space-y-4">
@@ -98,8 +137,8 @@ function HRManagementTimekeeping() {
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">Chọn người quản lý chấm công</h3>
             </div>
 
-            <div className="p-4">
-                <Label className="mb-2">Chọn những người có quyền người quản lý chấm công</Label>
+            <div className="p-4 pl-0">
+                <Label className="mb-2 text-base">Chọn những người có quyền người quản lý chấm công</Label>
                 <div className="flex items-end">
                     <div className="w-auto mb-3 sm:mb-0"> 
                         <GenericAsyncMultiSelect
@@ -115,7 +154,43 @@ function HRManagementTimekeeping() {
                     </Button>
                 </div>
 
-                <Label className="mt-5 mb-3">Chọn người, vị trí chấm công</Label>
+                <div>
+                    <Label className="mb-2 mt-5 text-base">Thay đổi người quản lý chấm công</Label>
+                    <div className="flex items-end">
+                        <div>
+                            <GenericAsyncMultiSelect
+                                mode="single"
+                                value={selectOldUser}
+                                className="w-[400px] pl-1"
+                                options={selectedUserMngTKeeping}
+                                onChange={(v) => setSelectOldUser(v as OptionType[])}
+                                placeholder="Người cũ"
+                            />
+                        </div>
+                        <MoveRight className="mx-2" />
+                        <div>
+                            <GenericAsyncMultiSelect
+                                mode="single"
+                                value={selectNewUser}
+                                className="w-[400px] pl-1"
+                                options={selectedUserMngTKeeping}
+                                onChange={(v) => setSelectNewUser(v as OptionType[])}
+                                placeholder="Người mới"
+                            />
+                        </div>
+                       <Label className="ml-2 underline text-red-700 underline-offset-2 pr-2 hover:cursor-pointer"onClick={handleCancelChangeUser}>
+                            <X/>
+                        </Label>
+                        <Button 
+                            className="hover:cursor-pointer bg-red-800"
+                            onClick={handleSaveChangeUser}
+                        >
+                            Save
+                        </Button>   
+                    </div>
+                </div>
+
+                <Label className="mt-5 mb-3 text-base">Chọn người, vị trí chấm công</Label>
                 <div className="flex">
                     <div className="border" style={{flexBasis: '25%'}}>
                         <Label htmlFor="timekeeping" className="mb-1 block text-red-700 dark:text-gray-300 p-2 pl-1">Chọn người quản lý</Label>

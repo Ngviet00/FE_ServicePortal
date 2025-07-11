@@ -15,6 +15,8 @@ import { CreateLeaveRequestForManyPeople, LeaveRequestData, useCreateLeaveReques
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import { Spinner } from "@/components/ui/spinner";
+import { useEffect, useRef, useState } from "react";
+import FullscreenLoader from "@/components/FullscreenLoader";
 
 const leaveRequestSchema = z.object({
     user_code: z.string().nonempty({ message: "Bắt buộc." }),
@@ -114,8 +116,102 @@ export default function LeaveRequestFormForOthers() {
         { name: "position", label: "Chức vụ", placeholder: "Chức vụ" },
     ] as const;
 
+    // const [prevUserCodes, setPrevUserCodes] = useState<Record<number, string>>({});
+
+    // const [loadingUser, setLoadingUser] = useState(false);
+
+    const previousUserCodeRef = useRef<Record<number, string>>({});
+
+    // const previousUserCodeRef = useRef<Record<number, string>>({});
+    const [isSearching, setIsSearching] = useState(false)
+
+    // const handleFindUser = async (userCode: string, index: number) => {
+    //     if (!userCode?.trim()) return;
+
+    //     try {
+    //         setLoadingUser(true);
+    //         await new Promise(resolve => setTimeout(resolve, 800));
+
+    //          const values = form.getValues("leaveRequests");
+    //         if (!values[index]) return;
+    //         // Ví dụ gọi API
+    //         // const user = await userApi.findByCode(code);
+
+    //         const fakeUser = {
+    //             name: "Nguyễn Văn A",
+    //             department: "Phòng Kỹ thuật",
+    //             position: "Nhân viên",
+    //         };
+    //           form.setValue(`leaveRequests.${index}.name`, fakeUser.name);
+    //             form.setValue(`leaveRequests.${index}.department`, fakeUser.department);
+    //             form.setValue(`leaveRequests.${index}.position`, fakeUser.position);
+
+    //         // Set các trường liên quan
+    //         // form.setValue(`leaveRequests.${index}.name`, 'ew');
+    //         // form.setValue(`leaveRequests.${index}.department`, 'dd');
+    //         // form.setValue(`leaveRequests.${index}.position`, '88');
+
+    //         // Cập nhật prevUserCodes
+    //         // setPrevUserCodes(prev => ({ ...prev, [index]: code }));
+    //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    //     } catch (err) {
+    //         ShowToast("Không tìm thấy nhân viên", "error");
+    //     }  finally {
+    //         setLoadingUser(false);
+    //     }
+    // };
+    const handleFindUser = async (index: number) => {
+    const userCode = form.getValues(`leaveRequests.${index}.user_code`)?.trim();
+
+        if (!userCode) {
+            form.setValue(`leaveRequests.${index}.name`, "");
+            form.setValue(`leaveRequests.${index}.department`, "");
+            form.setValue(`leaveRequests.${index}.position`, "");
+            previousUserCodeRef.current[index] = ""; // clear ref
+            return;
+        }
+
+        if (userCode === previousUserCodeRef.current[index]) {
+            return;
+        }
+
+        try {
+            setIsSearching(true);
+            await new Promise(resolve => setTimeout(resolve, 800)); // giả lập API
+
+            const foundUser = {
+                name: "Nguyễn Văn A",
+                department: "Phòng Kỹ thuật",
+                position: "Kỹ sư",
+            };
+
+            form.setValue(`leaveRequests.${index}.name`, foundUser.name);
+            form.setValue(`leaveRequests.${index}.department`, foundUser.department);
+            form.setValue(`leaveRequests.${index}.position`, foundUser.position);
+
+            previousUserCodeRef.current[index] = userCode;
+        } catch (err) {
+            ShowToast("Không tìm thấy nhân viên", "error");
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+useEffect(() => {
+    const validIndexes = fields.map((_, idx) => idx);
+    const current = previousUserCodeRef.current;
+
+    Object.keys(current).forEach((key) => {
+        const index = parseInt(key, 10);
+        if (!validIndexes.includes(index)) {
+            delete current[index];
+        }
+    });
+}, [fields]);
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
+            {isSearching && <FullscreenLoader />}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-7">
                 <div className="flex flex-col gap-2">
                     <h3 className="font-bold text-xl md:text-2xl">
@@ -130,7 +226,14 @@ export default function LeaveRequestFormForOthers() {
 
             <div className="w-[100%] mt-5">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <form 
+                        onSubmit={form.handleSubmit(onSubmit)} 
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault();
+                            }
+                        }}
+                    >
                         {fields.map((field, index) => (
                             <div key={field.id} className="space-y-4">
                                 <h2 className="font-bold text-xl text-red-600">Xin nghỉ phép {`#` + (index + 1)}</h2>
@@ -144,11 +247,27 @@ export default function LeaveRequestFormForOthers() {
                                             <FormItem className="flex flex-col w-[180px]">
                                                 <FormLabel className="mb-1">{inputField.label}</FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                    placeholder={inputField.placeholder}
-                                                    className="w-auto"
-                                                    {...formField}
-                                                    />
+                                                    {
+                                                        inputField.name === "user_code" ? (
+                                                            <Input
+                                                                {...formField}
+                                                                onBlur={async () => {
+                                                                    formField.onBlur();
+                                                                    await handleFindUser(index);
+                                                                }}
+                                                                placeholder={inputField.placeholder}
+                                                                className="w-auto"
+                                                            />
+                                                        ) : (
+                                                            <Input
+                                                                {...formField}
+                                                                placeholder={inputField.placeholder}
+                                                                className="w-auto bg-gray-200 border border-gray-300"
+                                                                // readOnly
+                                                            />
+                                                        )
+                                                    }
+                                                    
                                                 </FormControl>
                                                 <FormMessage className="text-sm text-red-500 mt-1" />
                                             </FormItem>
@@ -290,8 +409,8 @@ export default function LeaveRequestFormForOthers() {
                             variant="outline"
                             onClick={() =>
                                 append({
-                                ...defaultSingleLeaveRequest,
-                                user_code_register: user?.userCode ?? "",
+                                    ...structuredClone(defaultSingleLeaveRequest),
+                                    user_code_register: user?.userCode ?? "",
                                 })
                             }
                         >

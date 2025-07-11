@@ -96,15 +96,6 @@ const userApi = {
     },
     getUserToSelectMngTKeeping(params: getUserToSelectMngTKeeping) {
         return axiosClient.get('/user/search-all-user-from-viclock', {params})
-    },
-    UpdateUserHavePermissionMngTimeKeeping(data: string[]) {
-        return axiosClient.post(`/user/update-user-have-permission-mng-timekeeping`, data)
-    },
-    UpdateUserMngTimeKeeping(data: UpdateUserMngTimeKeeping) {
-        return axiosClient.post(`/user/update-user-mng-timekeeping`, data)
-    },
-    GetUserHavePermissionMngTimeKeeping() {
-        return axiosClient.get(`/user/get-user-have-permission-mng-timekeeping`)
     }
 }
 
@@ -126,34 +117,6 @@ export function useUpdatePersonalInfo() {
     return useMutation({
         mutationFn: async ({userCode, data} : {userCode: string | undefined, data: UpdatePersonalInfo}) => {
             await userApi.update(userCode, data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useUpdateUserPermissionMngTimeKeeping() {
-    return useMutation({
-        mutationFn: async (data: string[]) => {
-            await userApi.UpdateUserHavePermissionMngTimeKeeping(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useUpdateUserMngTimeKeeping() {
-    return useMutation({
-        mutationFn: async (data: UpdateUserMngTimeKeeping) => {
-            await userApi.UpdateUserMngTimeKeeping(data)
         },
         onSuccess: () => {
             ShowToast("Success");
