@@ -1,5 +1,5 @@
 import orgUnitApi from "@/api/orgUnitApi";
-import timekeepingApi, { useChangeUserMngTimekeeping, useUpdateUserMngTimeKeeping, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeeping";
+import timekeepingApi, { useAttachUserManageOrgUnit, useChangeUserMngTimekeeping, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeepingApi";
 import userApi from "@/api/userApi";
 import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
 import TreeCheckbox, { TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
@@ -15,7 +15,7 @@ function HRManagementTimekeeping() {
     const [checkedIds, setCheckedIds] = useState<string[]>([]);
 
     const userUpdatePermissionTimeKeeping = useUpdateUserPermissionMngTimeKeeping();
-    const updateUserMngTimeKeeping = useUpdateUserMngTimeKeeping();
+    const attachUserMngOrgUnit = useAttachUserManageOrgUnit();
 
     const [selectedUserMngTKeeping, setSelectedUserMngTKeeping] = useState<OptionType[]>([]);
 
@@ -28,7 +28,6 @@ function HRManagementTimekeeping() {
     });
 
     const handleCheckedChange = useCallback((nodes: TreeNode[]) => {
-        if (!nodes || nodes.length === 0) return;
         setCheckedIds(nodes.map((n) => n.id));
     }, []);
 
@@ -71,10 +70,11 @@ function HRManagementTimekeeping() {
             return
         }
         const userCode = currentSelectedUser.value;
-        await updateUserMngTimeKeeping.mutateAsync(
+        console.log(userCode, checkedIds.map(Number));
+        await attachUserMngOrgUnit.mutateAsync(
             {
                 userCode: userCode, 
-                orgUnitId: checkedIds.map((id) => parseInt(id, 10))
+                orgUnitIds: checkedIds.map(Number)
             }
         );
     }
@@ -85,7 +85,7 @@ function HRManagementTimekeeping() {
     }
 
     const handleOnChangeCurrentSelectedUser = async (item) => {
-        const result = await orgUnitApi.GetOrgUnitBeingMngTimeKeepingByUser(item?.value)
+        const result = await timekeepingApi.GetOrgUnitIdAttachedByUserCode(item?.value)
         setCurrentSelectedUser(item)
 
         const ids = result.data.data.map((num: { toString: () => never; }) => num.toString());
@@ -235,8 +235,8 @@ function HRManagementTimekeeping() {
                         <Label className="mb-1 block text-red-700 dark:text-gray-300 p-2 pl-1">
                             Hành động
                         </Label>
-                        <Button disabled={updateUserMngTimeKeeping.isPending} onClick={handleSaveUserMngTimeKeeping} className="ml-1 bg-blue-700 hover:bg-blue-800 hover:cursor-pointer">
-                            {updateUserMngTimeKeeping.isPending ? <Spinner className="text-white"/> : "Save"}
+                        <Button disabled={attachUserMngOrgUnit.isPending} onClick={handleSaveUserMngTimeKeeping} className="ml-1 bg-blue-700 hover:bg-blue-800 hover:cursor-pointer">
+                            {attachUserMngOrgUnit.isPending ? <Spinner className="text-white"/> : "Save"}
                         </Button>
                     </div>
                 </div>

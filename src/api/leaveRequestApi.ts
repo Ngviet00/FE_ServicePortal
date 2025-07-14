@@ -4,17 +4,17 @@ import { getErrorMessage, ShowToast } from '@/lib';
 
 export interface LeaveRequestData {
     id?: string | null,
-    requesterUserCode: string | null,
-    writeLeaveUserCode: string | null,
-    userNameWriteLeaveRequest: string | null,
-    name: string | null,
-    department: string | null,
-    position: string | null,
-    fromDate: string | null,
-    toDate: string | null,
-    timeLeaveId: number | null,
-    typeLeaveId: number | null,
-    reason: string| null
+    requesterUserCode?: string | null,
+    writeLeaveUserCode?: string | null,
+    userNameWriteLeaveRequest?: string | null,
+    name?: string | null,
+    department?: string | null,
+    position?: string | null,
+    fromDate?: string | null,
+    toDate?: string | null,
+    timeLeaveId?: number | null,
+    typeLeaveId?: number | null,
+    reason?: string| null
     image?: string | null,
     urlFrontend: string | null,
     createdAt?: string | null,
@@ -126,7 +126,30 @@ const leaveRequestApi = {
     },
     UpdateUserHavePermissionCreateMultipleLeaveRequest(data: string[]) {
         return axiosClient.post('/leave-request/update-user-have-permission-create-multiple-leave-request', data)
+    },
+    SearchUserRegisterLeaveRequest(params: { userCodeRegister: string, usercode: string }) {
+        return axiosClient.get('/leave-request/search-user-register-leave-request', {params})
+    },
+    AttachUserManageOrgUnit(data: {userCode: string, orgUnitIds: number[]}) {
+        return axiosClient.post('/leave-request/attach-user-manager-org-unit', data)
+    },
+    GetOrgUnitIdAttachedByUserCode(userCode: string) {
+        return axiosClient.get(`/leave-request/get-org-unit-id-attach-by-usercode?userCode=${userCode}`)
     }
+}
+
+export function useAttachUserManageOrgUnit() {
+    return useMutation({
+        mutationFn: async (data: {userCode: string, orgUnitIds: number[]}) => {
+            await leaveRequestApi.AttachUserManageOrgUnit(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useUpdateUserHavePermissionCreateMultipleLeaveRequest() {

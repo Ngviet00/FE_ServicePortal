@@ -1,4 +1,4 @@
-import timekeepingApi, { WorkingDay } from "@/api/timeKeeping";
+import timekeepingApi, { WorkingDay } from "@/api/timeKeepingApi";
 import { DateInput } from "@/components/DateInput";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

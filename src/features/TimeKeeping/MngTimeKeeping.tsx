@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next"
-import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeeping";
+import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeepingApi";
 import { Spinner } from "@/components/ui/spinner";
 import { ConfirmDialogToHR } from "./Components/ConfirmDialogToHR";
 import { UpdateTimeKeepingDialog } from "./Components/UpdateTimeKeepingDialog";

@@ -19,7 +19,7 @@ const SmartCheckbox = ({ checked, indeterminate, onChange }: SmartCheckboxProps)
 
 	return (
 		<Checkbox
-			className="hover:cursor-pointer border-black"
+			className="hover:cursor-pointer border-black pointer-events-none"
 			checked={checked}
 			onCheckedChange={onChange}
 			ref={(el) => {
@@ -278,9 +278,10 @@ type PropsTreeCbLeaveRequest = {
 	onChange?: (id: string, isChecked: boolean) => void;
 	loadChildren?: (node: TreeNode) => Promise<TreeNode[]>;
 	defaultCheckedIds?: string[];
+	onClickOpenDetailPositionMngLeaveRequest?: (id: string, type: string) => void;
 };
 
-export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, defaultCheckedIds }: PropsTreeCbLeaveRequest) {
+export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, defaultCheckedIds, onClickOpenDetailPositionMngLeaveRequest }: PropsTreeCbLeaveRequest) {
 	const [checkedSet, setCheckedSet] = useState<Set<string>>(new Set());
 	const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
 	const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
@@ -356,6 +357,7 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 		return updated;
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handleToggle = (node: TreeNode) => {
 		const newSet = new Set(checkedSet);
 		const isChecked = newSet.has(node.id);
@@ -378,6 +380,7 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 		}
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const isIndeterminate = (node: TreeNode): boolean => {
 		if (!node.children || node.children.length === 0) return false;
 		const childIds = node.children.map((c) => c.id);
@@ -459,12 +462,13 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 						<label className={`flex items-center space-x-2 select-none ${node.type == 'user' ? 'cursor-pointer' : ''}`}>
 							{
 								node.type == "user" ? (
-									<SmartCheckbox
-										checked={checkedSet.has(node.id)}
-										indeterminate={isIndeterminate(node)}
-										onChange={() => handleToggle(node)}
-									/>
-									
+									<>
+										<SmartCheckbox
+											checked={checkedSet.has(node.id)}
+											indeterminate={isIndeterminate(node)}
+											onChange={() => handleToggle(node)}
+										/>
+									</>
 								) : (<></>)
 							}
 							<span>
@@ -474,6 +478,14 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 								{node.label}
 							</span>
 						</label>
+						{
+							node.type == "user" ? (
+								<>
+									<a className="text-blue-700 text-xs italic underline hover:cursor-pointer ml-2" onClick={() => onClickOpenDetailPositionMngLeaveRequest?.(node.id, node.label)}>
+										Chọn
+									</a>
+								</>) : ""
+						}
 					</div>
 
 					{hasChildren && isExpanded && (

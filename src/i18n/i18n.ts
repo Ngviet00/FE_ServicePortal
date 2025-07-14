@@ -10,7 +10,7 @@ i18n
 .use(initReactI18next)
 .init({
     fallbackLng: 'vi',
-    debug: true,
+    debug: false,
     resources: {
         en: { translation: en },
         vi: { translation: vi }

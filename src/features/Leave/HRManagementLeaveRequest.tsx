@@ -1,9 +1,11 @@
-import { TreeCheckboxLeaveRequest } from "@/components/JsTreeCheckbox/TreeCheckbox";
+import TreeCheckbox, { TreeCheckboxLeaveRequest, TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/spinner";
-import { useState } from "react";
-import leaveRequestApi, { useUpdateUserHavePermissionCreateMultipleLeaveRequest } from "@/api/leaveRequestApi";
+import { useCallback, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { ShowToast } from "@/lib";
+import leaveRequestApi, { useAttachUserManageOrgUnit, useUpdateUserHavePermissionCreateMultipleLeaveRequest } from "@/api/leaveRequestApi";
 import orgUnitApi from "@/api/orgUnitApi";
 import userApi from "@/api/userApi";
 
@@ -41,8 +43,39 @@ function HRManagementLeaveRequest() {
         }); 
     };
 
+    const [selectedOpenPositionUser, setSelectedOpenPositionUser] = useState<{ id: string; type: string } | null>(null);
+
+    const [idLocations, setIdLocations] = useState<string[]>([]);
+
+    const handleCheckedChangeLocations = useCallback((nodes: TreeNode[]) => {
+        setIdLocations(nodes.map((n) => n.id));
+    }, []);
+
     const handleSave = async () => {
         await updateUserHavePermissionMngLeaveRequest.mutateAsync(checkedIds)
+    }
+
+    const handleClickOpenDetailPositionMngLeaveRequest = async (id: string, type: string) => {
+        const fetchApi = await leaveRequestApi.GetOrgUnitIdAttachedByUserCode(id)
+        const result = fetchApi.data.data
+        setIdLocations(result.map(String))
+        setSelectedOpenPositionUser({ id: id, type: type });
+    }
+
+    const attachUserMngOrgUnit = useAttachUserManageOrgUnit();
+
+    const handleSaveUserMngLeaveRq = async () => {
+        if (selectedOpenPositionUser == null) {
+            ShowToast("Chưa chọn quản lý", "error")
+            return
+        }
+
+        const payLoad = {
+            userCode: selectedOpenPositionUser.id,
+            orgUnitIds: idLocations.map(Number)
+        }
+
+        await attachUserMngOrgUnit.mutateAsync(payLoad)
     }
 
     return (
@@ -51,28 +84,66 @@ function HRManagementLeaveRequest() {
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">Chọn người có quyền đăng ký nghỉ phép cho người khác</h3>
             </div>
 
-            <Button
-                disabled={updateUserHavePermissionMngLeaveRequest.isPending}
-                className="hover:cursor-pointer mt-4 bg-blue-500 hover:bg-blue-700 px-10"
-                onClick={handleSave}
-            >
-                {updateUserHavePermissionMngLeaveRequest.isPending ? <Spinner className="text-white"/> : "Save"}
-            </Button>
+            <div className="mt-5">
+                <span className="font-bold mr-2">
+                    Đang chọn: <span className="font-bold text-base text-red-700">{selectedOpenPositionUser?.id} {selectedOpenPositionUser?.type}</span>
+                </span>
+                <Button className="bg-orange-700 hover:cursor-pointer" onClick={() => setSelectedOpenPositionUser(null)}>Xóa</Button>
+            </div>
 
-            <div>
-                <TreeCheckboxLeaveRequest
-                    defaultCheckedIds={checkedIds}
-                    data={getAllDeptInOrgUnits}
-                    loadChildren={async (node) => {
-                        const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
-                        return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
-                            id: item.NVMaNV.toString(),
-                            label: item.NVHoTen,
-                            type: "user"
-                        }));
-                    }}
-                    onChange={handleCheckedChange}
-                />
+            <div className="flex">
+                <div className="border p-4 rounded">
+                    <div className="flex mb-3">
+                        <Label className="text-red-700 mt-3">Chọn người có quyền đăng ký nghỉ phép thay người khác</Label>
+                        <Button
+                            disabled={updateUserHavePermissionMngLeaveRequest.isPending}
+                            className="hover:cursor-pointer ml-5 bg-black px-10"
+                            onClick={handleSave}
+                        >
+                            {updateUserHavePermissionMngLeaveRequest.isPending ? <Spinner className="text-white"/> : "Save"}
+                        </Button>
+                    </div>
+                    <TreeCheckboxLeaveRequest
+                        onClickOpenDetailPositionMngLeaveRequest={handleClickOpenDetailPositionMngLeaveRequest}
+                        defaultCheckedIds={checkedIds}
+                        data={getAllDeptInOrgUnits}
+                        loadChildren={async (node) => {
+                            const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
+                            return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
+                                id: item.NVMaNV.toString(),
+                                label: item.NVHoTen,
+                                type: "user"
+                            }));
+                        }}
+                        onChange={handleCheckedChange}
+                    />
+                </div>
+
+                <div className="border border-l-0 p-4">
+                    <div className="flex mb-3">
+                        <Label className="text-red-700">Chọn vị trí đăng ký nghỉ</Label>
+                        <Button
+                            disabled={attachUserMngOrgUnit.isPending}
+                            className="hover:cursor-pointer ml-5 bg-black px-10"
+                            onClick={handleSaveUserMngLeaveRq}
+                        >
+                            {attachUserMngOrgUnit.isPending ? <Spinner className="text-white" size="small"/> : "Save"}
+                        </Button>
+                    </div>
+                    <div>
+                        {
+                            selectedOpenPositionUser == null ? (
+                                <span className="text-sm italic underline text-gray-500 text-center">Chọn người dùng click vào <span className="italic text-sm text-blue-600">Chọn</span> để hiển thị vị trí</span>
+                            ) : (
+                                <TreeCheckbox
+                                    defaultCheckedIds={idLocations}
+                                    data={getAllDeptInOrgUnits}
+                                    onChange={handleCheckedChangeLocations}
+                                />  
+                            )
+                        } 
+                    </div>
+                </div>
             </div>
         </div>
     );

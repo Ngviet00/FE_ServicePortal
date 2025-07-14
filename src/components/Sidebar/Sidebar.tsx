@@ -126,12 +126,12 @@ export default function Sidebar() {
 										return null
 									}
 
-									if (
-										child.route === "/leave/create-leave-for-others"
-										&& !havePermissionCreatemultipleLeaveRequest
-									) {
-										return null;
-									}
+									// if (
+									// 	child.route === "/leave/create-leave-for-others"
+									// 	&& !havePermissionCreatemultipleLeaveRequest
+									// ) {
+									// 	return null;
+									// }
 
 									if (child.route === '/management-time-keeping') {
 										if (!havePermissionMngTimeKeeping) {

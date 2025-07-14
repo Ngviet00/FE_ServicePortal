@@ -1,22 +1,19 @@
-"use client";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { getErrorMessage, ShowToast, TIME_LEAVE } from "@/lib";
-import { useQuery } from "@tanstack/react-query";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useAuthStore, User } from "@/store/authStore";
-import { CreateLeaveRequestForManyPeople, LeaveRequestData, useCreateLeaveRequestForManyPeople } from "@/api/leaveRequestApi";
-import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
-import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
-import { Spinner } from "@/components/ui/spinner";
-import { useEffect, useRef, useState } from "react";
+import leaveRequestApi, { LeaveRequestData, useCreateLeaveRequestForManyPeople } from "@/api/leaveRequestApi";
+import { Button } from "@/components/ui/button";
+import { useRef, useState } from "react";
 import FullscreenLoader from "@/components/FullscreenLoader";
+import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
+import { useQuery } from "@tanstack/react-query";
+import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
+import { Spinner } from "@/components/ui/spinner";
+import { SubmitHandler } from "react-hook-form";
 
 const leaveRequestSchema = z.object({
     user_code: z.string().nonempty({ message: "Bắt buộc." }),
@@ -31,6 +28,7 @@ const leaveRequestSchema = z.object({
     reason: z.string().nonempty({ message: "Bắt buộc." }),
 });
 
+ 
 const leaveSchema = z.object({
     leaveRequests: z.array(leaveRequestSchema)
 });
@@ -51,25 +49,11 @@ const defaultSingleLeaveRequest: SingleLeaveRequest = {
     reason: "",
 };
 
-const formatSingleLeaveRequest = (values: SingleLeaveRequest, user: User | null): LeaveRequestData => ({
-    requesterUserCode: values.user_code ?? null,
-    writeLeaveUserCode: user?.userCode ?? "",
-    writeLeaveName: user?.userName ?? "",
-    name: values.name,
-    department: values.department,
-    position: values.position,
-    fromDate: values.from_date,
-    toDate: values.to_date,
-    reason: values.reason,
-    typeLeave: parseInt(values.type_leave),
-    timeLeave: parseInt(values.time_leave),
-    urlFrontend: window.location.origin,
-});
-
 export default function LeaveRequestFormForOthers() {
     const { t } = useTranslation();
-    const { user } = useAuthStore();
+    const user = useAuthStore((state) => state.user)
     const navigate = useNavigate();
+    const [isSearchingUser, setIsSearchingUser] = useState(false)
     const saveLeaveRequestForManyPeople = useCreateLeaveRequestForManyPeople(); 
 
     const form = useForm<LeaveForm>({
@@ -79,29 +63,50 @@ export default function LeaveRequestFormForOthers() {
         },
     });
 
+    const { control, handleSubmit, setValue, getValues } = form;
+
     const { fields, append, remove } = useFieldArray({
-        control: form.control,
+        control,
         name: "leaveRequests",
     });
 
-    const onSubmit = async (data: LeaveForm) => {
-        const formatData: LeaveRequestData[] = data.leaveRequests.map(item => 
-            formatSingleLeaveRequest(item, user)
-        )
+    const onSubmit: SubmitHandler<LeaveForm> = async (data) => {
+        const currentUser: User | null = user
 
-        const payload: CreateLeaveRequestForManyPeople = {
-            Leaves: formatData
+        const formatSingleLeaveRequest = (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            values: any,
+            user: User | null
+        ): LeaveRequestData => ({
+            requesterUserCode: values.user_code ?? null,
+            writeLeaveUserCode: user?.userCode ?? "",
+            userNameWriteLeaveRequest: user?.userName ?? "",
+            name: values.name,
+            department: values.department,
+            position: values.position,
+            fromDate: values.from_date.replace(" ", "T") + ":00+07:00",
+            toDate: values.to_date.replace(" ", "T") + ":00+07:00",
+            reason: values.reason,
+            typeLeaveId: parseInt(values.type_leave),
+            timeLeaveId: parseInt(values.time_leave),
+            urlFrontend: window.location.origin,
+        });
+
+        const payload = {
+            Leaves: data.leaveRequests.map((leaveRequest) =>
+                formatSingleLeaveRequest(leaveRequest, currentUser)
+            ),
         };
 
         try {
             await saveLeaveRequestForManyPeople.mutateAsync(payload);
             navigate("/leave");
         } catch (err) {
-            ShowToast(getErrorMessage(err), "error")
+            console.log(err);
         }
     };
 
-    const { data: typeLeaves = [], isPending, isError, error } = useQuery<ITypeLeave[], Error>({
+    const { data: typeLeaves = [], isPending, isError } = useQuery<ITypeLeave[], Error>({
         queryKey: ['get-all-type-leave'],
         queryFn: async () => {
             const res = await typeLeaveApi.getAll({});
@@ -109,319 +114,253 @@ export default function LeaveRequestFormForOthers() {
         },
     });
 
-    const inputFieldsConfig = [
-        { name: "user_code", label: "Mã nhân viên", placeholder: "Mã nhân viên" },
-        { name: "name", label: "Họ Tên", placeholder: "Họ Tên" },
-        { name: "department", label: "Bộ phận/Phòng ban", placeholder: "Bộ phận/Phòng ban" },
-        { name: "position", label: "Chức vụ", placeholder: "Chức vụ" },
-    ] as const;
+    const lastUserCodesRef = useRef<Record<number, string>>({});
 
-    // const [prevUserCodes, setPrevUserCodes] = useState<Record<number, string>>({});
+    const handleFindUser = async (userCode: string, index: number) => {
+        const lastCode = lastUserCodesRef.current[index];
 
-    // const [loadingUser, setLoadingUser] = useState(false);
+        if (userCode === lastCode) return;
 
-    const previousUserCodeRef = useRef<Record<number, string>>({});
+        lastUserCodesRef.current[index] = userCode;
 
-    // const previousUserCodeRef = useRef<Record<number, string>>({});
-    const [isSearching, setIsSearching] = useState(false)
-
-    // const handleFindUser = async (userCode: string, index: number) => {
-    //     if (!userCode?.trim()) return;
-
-    //     try {
-    //         setLoadingUser(true);
-    //         await new Promise(resolve => setTimeout(resolve, 800));
-
-    //          const values = form.getValues("leaveRequests");
-    //         if (!values[index]) return;
-    //         // Ví dụ gọi API
-    //         // const user = await userApi.findByCode(code);
-
-    //         const fakeUser = {
-    //             name: "Nguyễn Văn A",
-    //             department: "Phòng Kỹ thuật",
-    //             position: "Nhân viên",
-    //         };
-    //           form.setValue(`leaveRequests.${index}.name`, fakeUser.name);
-    //             form.setValue(`leaveRequests.${index}.department`, fakeUser.department);
-    //             form.setValue(`leaveRequests.${index}.position`, fakeUser.position);
-
-    //         // Set các trường liên quan
-    //         // form.setValue(`leaveRequests.${index}.name`, 'ew');
-    //         // form.setValue(`leaveRequests.${index}.department`, 'dd');
-    //         // form.setValue(`leaveRequests.${index}.position`, '88');
-
-    //         // Cập nhật prevUserCodes
-    //         // setPrevUserCodes(prev => ({ ...prev, [index]: code }));
-    //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    //     } catch (err) {
-    //         ShowToast("Không tìm thấy nhân viên", "error");
-    //     }  finally {
-    //         setLoadingUser(false);
-    //     }
-    // };
-    const handleFindUser = async (index: number) => {
-    const userCode = form.getValues(`leaveRequests.${index}.user_code`)?.trim();
-
-        if (!userCode) {
-            form.setValue(`leaveRequests.${index}.name`, "");
-            form.setValue(`leaveRequests.${index}.department`, "");
-            form.setValue(`leaveRequests.${index}.position`, "");
-            previousUserCodeRef.current[index] = ""; // clear ref
+        if (!userCode.trim()) {
+            setValue(`leaveRequests.${index}.name`, "")
+            setValue(`leaveRequests.${index}.department`, "")
+            setValue(`leaveRequests.${index}.position`, "")
+            setValue(`leaveRequests.${index}.type_leave`, "")
+            setValue(`leaveRequests.${index}.time_leave`, "")
+            setValue(`leaveRequests.${index}.reason`, "")
             return;
         }
-
-        if (userCode === previousUserCodeRef.current[index]) {
-            return;
-        }
-
         try {
-            setIsSearching(true);
-            await new Promise(resolve => setTimeout(resolve, 800)); // giả lập API
-
-            const foundUser = {
-                name: "Nguyễn Văn A",
-                department: "Phòng Kỹ thuật",
-                position: "Kỹ sư",
-            };
-
-            form.setValue(`leaveRequests.${index}.name`, foundUser.name);
-            form.setValue(`leaveRequests.${index}.department`, foundUser.department);
-            form.setValue(`leaveRequests.${index}.position`, foundUser.position);
-
-            previousUserCodeRef.current[index] = userCode;
-        } catch (err) {
-            ShowToast("Không tìm thấy nhân viên", "error");
-        } finally {
-            setIsSearching(false);
+            setIsSearchingUser(true)
+            await new Promise(resolve => setTimeout(resolve, 200));
+            const fetchData = await leaveRequestApi.SearchUserRegisterLeaveRequest({
+                userCodeRegister: user?.userCode ?? "",
+                usercode: userCode
+            });
+            const result = fetchData?.data?.data
+            setValue(`leaveRequests.${index}.name`, result?.nvHoTen, { shouldValidate: true });
+            setValue(`leaveRequests.${index}.department`, result?.bpTen, { shouldValidate: true });
+            setValue(`leaveRequests.${index}.position`, result?.cvTen, { shouldValidate: true });
+        } 
+        catch (err) {
+            ShowToast(getErrorMessage(err), "error");
+            setValue(`leaveRequests.${index}.name`, "")
+            setValue(`leaveRequests.${index}.department`, "")
+            setValue(`leaveRequests.${index}.position`, "")
+            setValue(`leaveRequests.${index}.type_leave`, "")
+            setValue(`leaveRequests.${index}.time_leave`, "")
+            setValue(`leaveRequests.${index}.reason`, "")
+        }
+        finally {
+            setIsSearchingUser(false)
         }
     };
 
-useEffect(() => {
-    const validIndexes = fields.map((_, idx) => idx);
-    const current = previousUserCodeRef.current;
-
-    Object.keys(current).forEach((key) => {
-        const index = parseInt(key, 10);
-        if (!validIndexes.includes(index)) {
-            delete current[index];
-        }
-    });
-}, [fields]);
-
     return (
         <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
-            {isSearching && <FullscreenLoader />}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-7">
+            {isSearchingUser && <FullscreenLoader />}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-2">
                 <div className="flex flex-col gap-2">
                     <h3 className="font-bold text-xl md:text-2xl">
                         Xin nghỉ phép thay người khác
                     </h3>
                 </div>
-
                 <Button onClick={() => navigate("/leave")} className="w-full md:w-auto hover:cursor-pointer">
                     {t("leave_request.create.link_to_list")}
                 </Button>
             </div>
 
-            <div className="w-[100%] mt-5">
-                <Form {...form}>
-                    <form 
-                        onSubmit={form.handleSubmit(onSubmit)} 
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault();
-                            }
-                        }}
-                    >
-                        {fields.map((field, index) => (
-                            <div key={field.id} className="space-y-4">
-                                <h2 className="font-bold text-xl text-red-600">Xin nghỉ phép {`#` + (index + 1)}</h2>
-                                <div className="flex flex-wrap gap-4">
-                                    {inputFieldsConfig.map((inputField) => (
-                                        <FormField
-                                        key={inputField.name}
-                                        control={form.control}
-                                        name={`leaveRequests.${index}.${inputField.name}`}
-                                        render={({ field: formField }) => (
-                                            <FormItem className="flex flex-col w-[180px]">
-                                                <FormLabel className="mb-1">{inputField.label}</FormLabel>
-                                                <FormControl>
-                                                    {
-                                                        inputField.name === "user_code" ? (
-                                                            <Input
-                                                                {...formField}
-                                                                onBlur={async () => {
-                                                                    formField.onBlur();
-                                                                    await handleFindUser(index);
-                                                                }}
-                                                                placeholder={inputField.placeholder}
-                                                                className="w-auto"
-                                                            />
-                                                        ) : (
-                                                            <Input
-                                                                {...formField}
-                                                                placeholder={inputField.placeholder}
-                                                                className="w-auto bg-gray-200 border border-gray-300"
-                                                                // readOnly
-                                                            />
-                                                        )
-                                                    }
-                                                    
-                                                </FormControl>
-                                                <FormMessage className="text-sm text-red-500 mt-1" />
-                                            </FormItem>
-                                        )}
-                                        />
-                                    ))}
+            <div className="w-[100%]">
+                <form 
+                    onSubmit={handleSubmit(onSubmit)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                        }
+                    }}>
+                    {
+                        fields.map((field, index) => {
+                            const errors = form.formState.errors.leaveRequests?.[index];
 
-                                    <FormField
-                                        control={form.control}
-                                        name={`leaveRequests.${index}.type_leave`}
-                                        render={({ field, fieldState }) => (
-                                            <FormItem className="flex flex-col w-[180px]">
-                                                <FormLabel className="mb-1">Loại phép</FormLabel>
-                                                <FormControl>
-                                                    <select
-                                                        {...field}
-                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"} p-1 rounded-[5px] hover:cursor-pointer`}
-                                                    >
-                                                        <option value="">--Select--</option>
-                                                        {isPending ? (
-                                                        <option value="">Loading...</option>
-                                                        ) : isError || typeLeaves.length === 0 ? (
-                                                        <option value="" className="text-red-500">
-                                                            {isError ? error.message : "No results"}
-                                                        </option>
-                                                        ) : (
-                                                            typeLeaves.map((item: ITypeLeave) => (
-                                                                <option key={item.id} value={item.id}>
+                            return (
+                                <div key={field.id} className="space-y-4">
+                                    <h2 className="font-bold text-xl text-red-600">Đơn nghỉ phép {`#` + (index + 1)}</h2>
+                                    <div className="flex flex-wrap gap-4">
+                                        <div>
+                                            <label htmlFor={`usercode-${index}`} className="block mb-1">Mã nhân viên</label>
+                                            <input
+                                                id={`usercode-${index}`}
+                                                {...control.register(`leaveRequests.${index}.user_code`)}
+                                                placeholder="Mã nhân viên"
+                                                className={`w-full p-2 border rounded text-sm ${errors?.user_code ? "border-red-500 bg-red-50" : ""}`}
+                                                onBlur={() => handleFindUser(getValues(`leaveRequests.${index}.user_code`), index)}
+                                            />
+                                            {errors?.user_code && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.user_code.message}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block mb-1">Họ Tên</label>
+                                            <input
+                                                {...control.register(`leaveRequests.${index}.name`)}
+                                                placeholder="Họ Tên"
+                                                className={`w-full p-2 text-sm border rounded ${errors?.name ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
+                                                readOnly
+                                            />
+                                            {errors?.name && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block mb-1">Bộ phận/Phòng ban</label>
+                                            <input
+                                                {...control.register(`leaveRequests.${index}.department`)}
+                                                placeholder="Bộ phận/Phòng ban"
+                                                className={`w-full p-2 text-sm border rounded ${errors?.department ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
+                                                readOnly
+                                            />
+                                            {errors?.department && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.department.message}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block mb-1">Chức vụ</label>
+                                            <input
+                                                {...control.register(`leaveRequests.${index}.position`)}
+                                                placeholder="Chức vụ"
+                                                className={`w-full p-2 text-sm border rounded ${errors?.position ? "border-red-500 bg-red-50" : ""}`}
+                                            />
+                                            {errors?.position && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.position.message}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label htmlFor={`type-leave-${index}`} className="block mb-1">Loại phép</label>
+                                            <select 
+                                                id={`type-leave-${index}`} {...control.register(`leaveRequests.${index}.type_leave`)} 
+                                                className={`w-full p-2 text-sm border hover:cursor-pointer rounded ${errors?.type_leave ? "border-red-500 bg-red-50" : ""}`}
+                                            >
+                                                <option value="">--Chọn--</option>
+                                                {
+                                                    isPending ? (
+                                                        <option>Loading...</option>
+                                                    ) : isError || typeLeaves.length === 0 ? (
+                                                        <option className="text-red-500">Không có dữ liệu</option>
+                                                    ) : (
+                                                        typeLeaves.map((item) => (
+                                                            <option key={item.id} value={item.id}>
                                                                 {t(item.name)}
-                                                                </option>
-                                                            ))
-                                                        )}
-                                                    </select>
-                                                </FormControl>
-                                                <FormMessage className="text-sm text-red-500 mt-1" />
-                                            </FormItem>
-                                        )}
-                                    />
+                                                            </option>
+                                                        ))
+                                                    )
+                                                }
+                                            </select>
+                                            {errors?.type_leave && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.type_leave.message}</p>
+                                            )}
+                                        </div>
 
-                                    <FormField
-                                        control={form.control}
-                                        name={`leaveRequests.${index}.time_leave`}
-                                        render={({ field, fieldState }) => (
-                                            <FormItem className="flex flex-col w-[180px]">
-                                                <FormLabel className="mb-1">Thời gian nghỉ</FormLabel>
-                                                <FormControl>
-                                                    <select
-                                                        {...field}
-                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"} p-1 rounded-[5px] hover:cursor-pointer`}
-                                                    >
-                                                        <option value="">--Chọn--</option>
-                                                        {TIME_LEAVE.map((item) => (
+                                        <div>
+                                            <label className="block mb-1">Thời gian nghỉ</label>
+                                            <select 
+                                                {...control.register(`leaveRequests.${index}.time_leave`)} 
+                                                className={`w-full p-2 text-sm border hover:cursor-pointer rounded ${errors?.time_leave ? "border-red-500 bg-red-50" : ""}`}
+                                            >
+                                                <option value="">--Chọn--</option>
+                                                {
+                                                    TIME_LEAVE.map((item) => (
                                                         <option key={item.value} value={item.value}>
                                                             {t(item.label)}
                                                         </option>
-                                                        ))}
-                                                    </select>
-                                                </FormControl>
-                                                <FormMessage className="text-sm text-red-500 mt-1" />
-                                            </FormItem>
-                                        )}
-                                    />
+                                                    ))
+                                                }
+                                            </select>
+                                            {errors?.time_leave && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.time_leave.message}</p>
+                                            )}
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="block mb-1">Nghỉ từ ngày</label>
+                                            <DateTimePicker
+                                                enableTime={true}
+                                                dateFormat="Y-m-d H:i"
+                                                initialDateTime={getValues(`leaveRequests.${index}.from_date`)}
+                                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                onChange={(_selectedDates, dateStr, _instance) => {
+                                                    setValue(`leaveRequests.${index}.from_date`, dateStr);
+                                                }}
+                                                className={`dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2`}
+                                            />
+                                        </div>
 
-                                    <FormField
-                                        control={form.control}
-                                        name={`leaveRequests.${index}.from_date`}
-                                        render={({ field: rhfField, fieldState }) => (
-                                            <FormItem className="flex flex-col w-[180px]">
-                                                <FormLabel className="mb-1">Nghỉ từ ngày</FormLabel>
-                                                <FormControl>
-                                                    <DateTimePicker
-                                                        initialDateTime={rhfField.value as string || undefined}
-                                                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                        onChange={(_selectedDates, dateStr, _instance) => {
-                                                            rhfField.onChange(dateStr);
-                                                            console.log(dateStr, 8);
-                                                        }}
-                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"} p-1 rounded-[5px] hover:cursor-pointer`}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage className="text-sm text-red-500 mt-1" />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name={`leaveRequests.${index}.to_date`}
-                                        render={({ field: rhfField, fieldState }) => (
-                                            <FormItem className="flex flex-col w-[180px]">
-                                                <FormLabel className="mb-1">Nghỉ đến ngày</FormLabel>
-                                                <FormControl>
-                                                    <DateTimePicker
-                                                        initialDateTime={rhfField.value as string || undefined}
-                                                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                                        onChange={(_selectedDates, dateStr, _instance) => {
-                                                            rhfField.onChange(dateStr);
-                                                        }}
-                                                        className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-[#ebebeb]"} p-1 rounded-[5px] hover:cursor-pointer`}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage className="text-sm text-red-500 mt-1" />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <FormField
-                                    control={form.control}
-                                    name={`leaveRequests.${index}.reason`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="mb-1">Lý do</FormLabel>
-                                            <FormControl>
-                                                <Textarea
-                                                placeholder="Nhập lý do"
-                                                className="w-full"
-                                                {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage className="text-sm text-red-500 mt-1" />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {fields.length > 1 && (
-                                    <div className="flex justify-end">
-                                        <Button type="button" className="hover:cursor-pointer" variant="destructive" onClick={() => remove(index)}>
-                                        Xoá
-                                        </Button>
+                                        <div>
+                                            <label className="block mb-1">Nghỉ đến ngày</label>
+                                            <DateTimePicker
+                                                enableTime={true}
+                                                dateFormat="Y-m-d H:i"
+                                                initialDateTime={getValues(`leaveRequests.${index}.to_date`)}
+                                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                onChange={(_selectedDates, dateStr, _instance) => {
+                                                    setValue(`leaveRequests.${index}.to_date`, dateStr);
+                                                }}
+                                                className={`dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2`}
+                                            />
+                                        </div>
                                     </div>
-                                )}
-                            </div>
-                        ))}
+                                    <div>
+                                        <label className="block mb-1">Lý do</label>
+                                        <textarea
+                                            {...control.register(`leaveRequests.${index}.reason`)}
+                                            placeholder="Nhập lý do"
+                                            className={`w-full p-2 border rounded ${errors?.reason ? "border-red-500 bg-red-50" : ""}`}
+                                        />
+                                        {errors?.reason && (
+                                            <p className="text-sm text-red-500 mt-1">{errors.reason.message}</p>
+                                        )}
+                                    </div>
 
-                        <Button
+                                    {fields.length > 1 && (
+                                        <div className="flex justify-end">
+                                            <button
+                                                type="button"
+                                                className="bg-red-500 text-white px-3 py-1 rounded hover:cursor-pointer hover:bg-red-700"
+                                                onClick={() => remove(index)}
+                                            >
+                                                Xoá
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })
+                    }
+                    <div className="mb-4 flex space-x-2 mt-2">
+                        <button
                             type="button"
-                            className="hover:cursor-pointer mr-3"
-                            variant="outline"
+                            className="bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400"
                             onClick={() =>
-                                append({
-                                    ...structuredClone(defaultSingleLeaveRequest),
-                                    user_code_register: user?.userCode ?? "",
-                                })
+                                append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", })
                             }
                         >
                             Thêm mới
-                        </Button>
+                        </button>
 
-                        <Button disabled={saveLeaveRequestForManyPeople.isPending} type="submit" className="mt-4 hover:cursor-pointer">
-                            {saveLeaveRequestForManyPeople.isPending ? <Spinner className="text-white"/> : 'Xác nhận'}
-                        </Button>
-                    </form>
-                </Form>
+                        <button
+                            type="submit"
+                            className="bg-black text-white px-4 py-2 rounded hover:cursor-pointer hover:opacity-70"
+                            disabled={saveLeaveRequestForManyPeople.isPending}
+                        >
+                            {saveLeaveRequestForManyPeople.isPending ? <Spinner size="small" className="text-white" /> : "Xác nhận"}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
