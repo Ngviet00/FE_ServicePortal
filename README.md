@@ -1,3 +1,9 @@
+# FrontEnd
+
++ Reactjs 19, Vite, Typescript, Shadcn, Tailwindcss
++ React hook form, yup
++ Zustand, react query
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

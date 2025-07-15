@@ -148,15 +148,66 @@ export default function ListLeaveRequest () {
                                     <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
                                     <TableHead className="w-[200px] text-center">{t('list_leave_request.reason')}</TableHead>
                                     <TableHead className="w-[150px] text-left">{t('list_leave_request.write_leave_name')}</TableHead>
-                                    <TableHead className="w-[120px] text-center">
-                                        {filterStatus === 4 ? t('list_leave_request.reject_by') : filterStatus == 1 ? t('list_leave_request.have_approved_by') : t('list_leave_request.approve_by')}
-                                    </TableHead>
-                                    <TableHead className="w-[120px] text-left">
-                                        {filterStatus === 4 ? t('list_leave_request.reject_at') : t('list_leave_request.created_at')}
-                                    </TableHead>
-                                    <TableHead className="w-[120px] text-left">
-                                        {filterStatus === 4 ? t('list_leave_request.note') : t('list_leave_request.status')}
-                                    </TableHead>
+                                    {
+                                        filterStatus == 1 ? (
+                                            <>
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.created_at')}
+                                                </TableHead>
+
+                                                <TableHead className="w-[120px] text-left">
+                                                    {t('list_leave_request.status')}
+                                                </TableHead>
+                                            </>
+                                        )
+                                        : filterStatus == 2 ? (
+                                            <>
+                                              <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.approve_by')}
+                                                </TableHead>
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.approved_at')}
+                                                </TableHead>
+
+                                                <TableHead className="w-[120px] text-left">
+                                                    {t('list_leave_request.status')}
+                                                </TableHead>
+                                            </>
+                                        )
+                                        : filterStatus == 3 ? (
+                                            <>
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.approve_by')}
+                                                </TableHead>
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.approved_at')}
+                                                </TableHead>
+
+                                                <TableHead className="w-[120px] text-left">
+                                                    {t('list_leave_request.status')}
+                                                </TableHead>
+                                            </>
+                                        )
+                                        : (
+                                            <>
+                                              <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.approve_by')}
+                                                </TableHead>
+
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.approved_at')}
+                                                </TableHead>
+
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.note')}
+                                                </TableHead>
+
+                                                <TableHead className="w-[120px] text-left">
+                                                    {t('list_leave_request.status')}
+                                                </TableHead>
+                                            </>
+                                        )
+                                    }
                                 </TableRow>
                             </TableHeader>
                         <TableBody>
@@ -175,7 +226,7 @@ export default function ListLeaveRequest () {
                                 ) : isError || leaveRequests.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={13} className="text-red-700 font-medium dark:text-white">
-                                        {error?.message ?? t('list_leave_request.no_result')}
+                                            {error?.message ?? t('list_leave_request.no_result')}
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -186,42 +237,78 @@ export default function ListLeaveRequest () {
                                                 <TableCell className="text-left">{item.name}</TableCell>
                                                 <TableCell className="text-left">{item.department}</TableCell>
                                                 <TableCell className="text-left">{item.position}</TableCell>
-                                                <TableCell className="text-left">{item.fromDate}</TableCell>
-                                                <TableCell className="text-left">{item.toDate}</TableCell>
+                                                <TableCell className="text-left">{ formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
+                                                <TableCell className="text-left">{ formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
                                                 <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
                                                 <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
                                                 <TableCell className="text-center">{item.reason}</TableCell>
                                                 <TableCell className="text-center">{item.userNameWriteLeaveRequest}</TableCell>
-                                                <TableCell className="text-center text-red-800 font-bold">{item?.historyApplicationForm?.userApproval ?? "--"}</TableCell>
-                                                <TableCell className="text-left">
-                                                    {item?.historyApplicationForm?.createdAt
-                                                    ? formatDate(item?.historyApplicationForm?.createdAt, "yyyy/MM/dd HH:mm:ss")
-                                                    : formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
-                                                </TableCell>
-                                                <TableCell className="text-left">
-                                                    {filterStatus === 4 ? (
-                                                        <span
-                                                            className={`${
-                                                            item.historyApplicationForm?.comment ? "text-red-500" : "text-black"
-                                                            } font-bold block w-[150px] overflow-hidden text-ellipsis whitespace-nowrap`}
-                                                            title={item.historyApplicationForm?.comment ?? ""}
-                                                        >
-                                                            {item.historyApplicationForm?.comment || "--"}
-                                                        </span>
-                                                    ) : filterStatus === 1 ? (
+                                                {
+                                                    filterStatus == 1 ? (
                                                         <>
-                                                            <Link
-                                                            to={`/leave/edit/${item.id}`}
-                                                            className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm"
-                                                            >
-                                                            Edit
-                                                            </Link>
-                                                            <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
+                                                            <TableCell className="text-left">
+                                                                { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left">
+                                                                <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                    Edit
+                                                                </Link>
+                                                                <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
+                                                                <StatusLeaveRequest status="PENDING" />
+                                                            </TableCell>
                                                         </>
-                                                    ) : (
-                                                        <StatusLeaveRequest status={item.approvalRequest?.status == "IN_PROCESS" && item.approvalRequest.currentPositionId == -10 ? 'WAIT_HR' : item.historyApplicationForm?.userApproval ?? "PENDING"} />
-                                                    )}
-                                                </TableCell>
+                                                    )
+                                                    : filterStatus == 2 ? (
+                                                        <>
+                                                             <TableCell className="text-left text-red-700 font-bold">
+                                                                { item?.historyApplicationForm?.userApproval }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left">
+                                                                { formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left">
+                                                                <StatusLeaveRequest status="IN_PROCESS" />
+                                                            </TableCell>
+                                                        </>
+                                                    )
+                                                    : filterStatus == 3 ? (
+                                                        <>
+                                                            <TableCell className="text-left text-red-700 font-bold">
+                                                                { item?.historyApplicationForm?.userApproval }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left">
+                                                                { formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left">
+                                                                <StatusLeaveRequest status="COMPLETED" />
+                                                            </TableCell>
+                                                        </>
+                                                    )
+                                                    : (
+                                                        <>
+                                                            <TableCell className="text-left font-bold text-red-700">
+                                                                { item?.historyApplicationForm?.userApproval }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left">
+                                                                { formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left font-bold text-red-700">
+                                                                { item?.historyApplicationForm?.comment }
+                                                            </TableCell>
+
+                                                            <TableCell className="text-left">
+                                                                <StatusLeaveRequest status="REJECT" />
+                                                            </TableCell>
+                                                        </>
+                                                    )
+                                                }
                                             </TableRow>
                                         )
                                     })
@@ -253,24 +340,42 @@ export default function ListLeaveRequest () {
                                         <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {item?.timeLeave?.description}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
-                                        <div className="mb-1"><strong>{filterStatus === 4 ? t('list_leave_request.reject_by') : t('list_leave_request.approve_by')}:</strong> {item.historyApplicationForm?.userApproval ?? "--"}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.created_at')}:</strong> {
-                                            item.historyApplicationForm?.createdAt
-                                            ? formatDate(item.historyApplicationForm.createdAt, "yyyy/MM/dd HH:mm:ss")
-                                            : formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")
-                                        }</div>
-                                        <div className="mt-2">
-                                            {filterStatus === 4 ? (
-                                                <div className="text-red-500 font-bold">Lý do: {item?.historyApplicationForm?.comment || "--"}</div>
-                                            ) : filterStatus === 1 ? (
-                                                <div className="flex gap-2">
-                                                    <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-2 py-1 rounded text-sm">Edit</Link>
-                                                    <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
-                                                </div>
-                                            ) : (
-                                                <StatusLeaveRequest status={item?.historyApplicationForm?.actionType ?? 1} />
-                                            )}
-                                        </div>
+                                        {
+                                            filterStatus == 1 ? (
+                                                <>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="PENDING" /></div>
+                                                    <div className="mb-1">
+                                                            <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                 Edit
+                                                            </Link>
+                                                            <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
+                                                    </div>
+                                                </>
+                                            )
+                                            : filterStatus == 2 ? (
+                                                <>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="IN_PROCESS" /></div>
+                                                    </>
+                                            )
+                                            : filterStatus == 3 ? (
+                                                <>
+                                                     <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="COMPLETED" /></div>
+                                                </>
+                                            )
+                                            : (
+                                                <>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')} </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.note')}: </strong>{ item?.historyApplicationForm?.comment }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="REJECT" /></div>
+                                                </>
+                                            )
+                                        }
                                     </div>
                                 ))
                             )}

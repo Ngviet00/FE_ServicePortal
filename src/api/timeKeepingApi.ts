@@ -12,6 +12,8 @@ interface GetManagementTimeKeepingRequest {
     UserCode: string,
     Year: number,
     Month: number,
+    page?: number,
+    pageSize?: number,
     StatusColors?: Record<string, string | null>,
     StatusDefine?: Record<string, string | null>,
 }

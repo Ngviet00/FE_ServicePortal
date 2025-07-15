@@ -54,7 +54,7 @@ export default function ListLeaveRequestWaitApproval () {
             setTotalPage(res.data.total_pages)
             return res.data.data;
         },
-        enabled: isOrgUnitIdAvailable
+        // enabled: isOrgUnitIdAvailable
     });
 
     function handleApproval(shouldGoBack?: boolean) {

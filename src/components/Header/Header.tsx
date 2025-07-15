@@ -11,7 +11,8 @@ import "./style.css"
 export default function Header() {
     const { user } = useAuthStore();
     const [darkMode, setDarkMode] = useState(false);
-    const numberWait = useAppStore((state) => state.numberWait);
+    const numberWait = useAppStore((state) => state.numberLeaveWaitApproval);
+    console.log(numberWait);
     const handleToggleSidebar = useSidebarStore((s) => s.toggleSidebar);
 
     useEffect(() => {

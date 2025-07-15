@@ -26,6 +26,13 @@ const leaveRequestSchema = z.object({
     type_leave: z.string().nonempty({ message: "Bắt buộc." }),
     time_leave: z.string().nonempty({ message: "Bắt buộc." }),
     reason: z.string().nonempty({ message: "Bắt buộc." }),
+}).refine((data) => {
+    const fromDate = new Date(data.from_date);
+    const toDate = new Date(data.to_date);
+    return toDate >= fromDate;
+}, {
+    message: "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.",
+    path: ["to_date"],
 });
 
  
@@ -130,6 +137,8 @@ export default function LeaveRequestFormForOthers() {
             setValue(`leaveRequests.${index}.type_leave`, "")
             setValue(`leaveRequests.${index}.time_leave`, "")
             setValue(`leaveRequests.${index}.reason`, "")
+            setValue(`leaveRequests.${index}.from_date`, `${new Date().toISOString().slice(0, 10)} 08:00`, { shouldValidate: true })
+            setValue(`leaveRequests.${index}.to_date`, `${new Date().toISOString().slice(0, 10)} 17:00`, { shouldValidate: true })
             return;
         }
         try {
@@ -152,6 +161,8 @@ export default function LeaveRequestFormForOthers() {
             setValue(`leaveRequests.${index}.type_leave`, "")
             setValue(`leaveRequests.${index}.time_leave`, "")
             setValue(`leaveRequests.${index}.reason`, "")
+            setValue(`leaveRequests.${index}.from_date`, `${new Date().toISOString().slice(0, 10)} 08:00`, { shouldValidate: true })
+            setValue(`leaveRequests.${index}.to_date`, `${new Date().toISOString().slice(0, 10)} 17:00`, { shouldValidate: true })
         }
         finally {
             setIsSearchingUser(false)
@@ -298,6 +309,9 @@ export default function LeaveRequestFormForOthers() {
                                                 }}
                                                 className={`dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2`}
                                             />
+                                            {errors?.from_date && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.from_date.message}</p>
+                                            )}
                                         </div>
 
                                         <div>
@@ -312,6 +326,9 @@ export default function LeaveRequestFormForOthers() {
                                                 }}
                                                 className={`dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2`}
                                             />
+                                            {errors?.to_date && (
+                                                <p className="text-sm text-red-500 mt-1">{errors.to_date.message}</p>
+                                            )}
                                         </div>
                                     </div>
                                     <div>

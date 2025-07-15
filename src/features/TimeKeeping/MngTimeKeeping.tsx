@@ -12,6 +12,7 @@ import { UpdateTimeKeepingDialog } from "./Components/UpdateTimeKeepingDialog";
 import { getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
 import { AttendanceStatus, TimeKeeping, UpdateTimeKeeping, UserTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
+import PaginationControl from "@/components/PaginationControl/PaginationControl";
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
@@ -26,6 +27,9 @@ export default function MngTimekeeping () {
     const [openUpdateTimeKeeping, setOpenUpdateTimeKeeping] = useState(false);
     const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
     const [dataAttendances, setDataAttendances] = useState<UserTimeKeeping[]>([])
+    const [totalPage, setTotalPage] = useState(0)
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(20)
 
     const daysInMonth = getDaysInMonth(year, month)
     const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
@@ -38,14 +42,17 @@ export default function MngTimekeeping () {
     });
     
     const { isPending, isError, error } = useQuery({
-        queryKey: ['management-timekeeping', year, month],
+        queryKey: ['management-timekeeping', year, month, page, pageSize],
         queryFn: async () => {
             const res = await timekeepingApi.getMngTimeKeeping({
                 UserCode: user?.userCode ?? "",
                 Year: year,
-                Month: month
+                Month: month,
+                page: page,
+                pageSize: pageSize
             })
             setDataAttendances(res.data.data)
+            setTotalPage(res.data.total_pages)
             return res.data.data
         },
         enabled: !!year && !!month && !!user?.userCode
@@ -81,6 +88,15 @@ export default function MngTimekeeping () {
 
         setDataAttendances(updated);
         setOpenUpdateTimeKeeping(false);
+    }
+
+    function setCurrentPage(page: number): void {
+        setPage(page)
+    }
+
+    function handlePageSizeChange(size: number): void {
+        setPage(1)
+        setPageSize(size)
     }
 
     return (
@@ -212,53 +228,30 @@ export default function MngTimekeeping () {
                             (
                                 dataAttendances?.map((item: UserTimeKeeping, idx: number) => (
                                     <TableRow key={idx} className="border-b dark:border-[#9b9b9b]">
-                                        <TableCell className="text-center border-r">{item.NVMaNV}</TableCell>
-                                        <TableCell className="text-center border-r">{item.NVHoTen}</TableCell>
-                                        <TableCell className="text-center border-r">VS</TableCell>
+                                        <TableCell className="text-center border-r">{item.nvMaNV}</TableCell>
+                                        <TableCell className="text-center border-r">{item.nvHoTen}</TableCell>
+                                        <TableCell className="text-center border-r">{item.bpTen}</TableCell>
                                         {
-                                            Array.from({ length: 30 }).map((_, index) => (
-                                                <TableCell
-                                                        // onClick={() => {
-                                                        //     setSelectedData({
-                                                        //         nvMaNV: item.nvMaNV,
-                                                        //         nvHoTen: item.nvHoTen,
-                                                        //         bpTen: item.bpTen,
-                                                        //         date: data.bcNgay,
-                                                        //         currentValue: result,
-                                                        //         currentBgColor: bgColor,
-                                                        //         rowIndex: idx,
-                                                        //         colIndex: index
-                                                        //     });
-                                                        //     setOpenUpdateTimeKeeping(true);
-                                                        // }}
-                                                        key={index} className={`p-0 w-[100px] text-center border-r hover:cursor-pointer`}
-                                                        >
-                                                        <div className="flex justify-center font-bold">
-                                                            {/* {result == 'CN' ? '' : result} */}
-                                                            X
-                                                        </div>
-                                                    </TableCell>
-                                            ))
-                                        }
-                                        {/* {
                                             item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
-                                                let result = data.result
+                                                const result = data.result
+                                                const thu = data.thu
                                                 let bgColor = ''
+                                                let textColor = 'black';
 
-                                                if (result == 'CN-X' || result == 'CN' || !isNaN(parseFloat(result ?? ''))) {
+                                                if (result == 'CN-X' || !isNaN(parseFloat(result ?? ''))) {
                                                     bgColor = '#FFFFFF'
                                                 } 
                                                 else {
                                                     bgColor = statusColors[result ?? ''] ?? ''
                                                 }
 
-                                                if (result == '?' && new Date(data.bcNgay) < new Date()) {
-                                                    bgColor = '#FF7B7D'
+                                                if (thu == 'CN' && result == null) {
+                                                    bgColor = statusColors[thu ?? ''] ?? ''
+                                                    textColor = 'white'
                                                 }
 
-                                                if ((data.bcGhiChu != '' || data.bcGhiChu != null) && !isNaN(parseFloat(result ?? ''))) {
-                                                    bgColor = statusColors[data.bcGhiChu] ?? ''
-                                                    result = `${result}${data.bcGhiChu}`
+                                                if (result == '?' && new Date(data.bcNgay) < new Date()) {
+                                                    bgColor = '#FF7B7D'
                                                 }
 
                                                 return (
@@ -276,14 +269,14 @@ export default function MngTimekeeping () {
                                                             });
                                                             setOpenUpdateTimeKeeping(true);
                                                         }}
-                                                        style={{backgroundColor: bgColor ?? ''}} key={index} className={`p-0 w-[100px] text-center border-r hover:cursor-pointer`}>
-                                                        <div className="flex justify-center font-bold">
-                                                            {result == 'CN' ? '' : result}
+                                                        style={{backgroundColor: bgColor ?? '', color: textColor}} key={index} className={`p-0 w-[100px] text-center border-r hover:cursor-pointer`}>
+                                                        <div className="flex justify-center">
+                                                            {result == null && thu == 'CN' ? 'CN' : result}
                                                         </div>
                                                     </TableCell>
                                                 );
                                             })
-                                        } */}
+                                        }
                                     </TableRow>
                                 )))
                             }
@@ -291,6 +284,15 @@ export default function MngTimekeeping () {
                     </Table>
                 </div>
             </div>
+            {
+                dataAttendances.length > 0 ? (<PaginationControl
+                    currentPage={page}
+                    totalPages={totalPage}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={handlePageSizeChange}
+                />) : (null)
+            }
         </div>
     )
 }
