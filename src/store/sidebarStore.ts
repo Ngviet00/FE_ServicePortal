@@ -38,8 +38,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.list_user", route: "/user" },
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
 			{ label: "sidebar.union.create_notify", route: "/memo-notify", parentKey: "HR" },
-			{ label: "Chấm công", route: "/hr-mng-timekeeping" },
-			{ label: "Nghỉ phép", route: "/hr-mng-leave-request" },
+			{ label: "sidebar.hr.mng_time_keeping", route: "/hr-mng-timekeeping" },
+			{ label: "sidebar.hr.mng_leave_request", route: "/hr-mng-leave-request" },
 		],
 	},
 	{

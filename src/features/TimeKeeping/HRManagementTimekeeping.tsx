@@ -10,8 +10,10 @@ import { ShowToast } from "@/lib";
 import { useQuery } from "@tanstack/react-query";
 import { MoveRight, X } from "lucide-react";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function HRManagementTimekeeping() {
+    const { t } = useTranslation('mngTimeKeeping');
     const [checkedIds, setCheckedIds] = useState<string[]>([]);
 
     const userUpdatePermissionTimeKeeping = useUpdateUserPermissionMngTimeKeeping();
@@ -69,7 +71,7 @@ function HRManagementTimekeeping() {
             ShowToast("Chưa chọn người quản lý", "error")
             return
         }
-        const userCode = currentSelectedUser.value;
+        const userCode = currentSelectedUser?.value;
         console.log(userCode, checkedIds.map(Number));
         await attachUserMngOrgUnit.mutateAsync(
             {
@@ -134,11 +136,11 @@ function HRManagementTimekeeping() {
     return (
         <div className="p-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">Chọn người quản lý chấm công</h3>
+                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('title')}</h3>
             </div>
 
             <div className="p-4 pl-0">
-                <Label className="mb-2 text-base">Chọn những người có quyền người quản lý chấm công</Label>
+                <Label className="mb-2 text-base">{t('choose_user_mng')}</Label>
                 <div className="flex items-end">
                     <div className="w-auto mb-3 sm:mb-0"> 
                         <GenericAsyncMultiSelect
@@ -150,12 +152,12 @@ function HRManagementTimekeeping() {
                         />
                     </div>
                     <Button disabled={userUpdatePermissionTimeKeeping.isPending} className="ml-5 hover:cursor-pointer" onClick={handleSaveUserHavePermissionMngTimeKeeping}>
-                        {userUpdatePermissionTimeKeeping.isPending ? <Spinner className="text-white"/> : "Save"}
+                        {userUpdatePermissionTimeKeeping.isPending ? <Spinner className="text-white"/> : t('save')}
                     </Button>
                 </div>
 
                 <div>
-                    <Label className="mb-2 mt-5 text-base">Thay đổi người quản lý chấm công</Label>
+                    <Label className="mb-2 mt-5 text-base">{t('change_user_mng')}</Label>
                     <div className="flex items-end">
                         <div>
                             <GenericAsyncMultiSelect
@@ -164,7 +166,7 @@ function HRManagementTimekeeping() {
                                 className="w-[400px] pl-1"
                                 options={selectedUserMngTKeeping}
                                 onChange={(v) => setSelectOldUser(v as OptionType[])}
-                                placeholder="Người cũ"
+                                placeholder={t('old_user')}
                             />
                         </div>
                         <MoveRight className="mx-2" />
@@ -175,7 +177,7 @@ function HRManagementTimekeeping() {
                                 className="w-[400px] pl-1"
                                 options={selectedUserMngTKeeping}
                                 onChange={(v) => setSelectNewUser(v as OptionType[])}
-                                placeholder="Người mới"
+                                placeholder={t('new_user')}
                             />
                         </div>
                        <Label className="ml-2 underline text-red-700 underline-offset-2 pr-2 hover:cursor-pointer"onClick={handleCancelChangeUser}>
@@ -185,15 +187,15 @@ function HRManagementTimekeeping() {
                             className="hover:cursor-pointer bg-red-800"
                             onClick={handleSaveChangeUser}
                         >
-                            Save
+                            {t('save')}
                         </Button>   
                     </div>
                 </div>
 
-                <Label className="mt-5 mb-3 text-base">Chọn người, vị trí chấm công</Label>
+                <Label className="mt-5 mb-3 text-base">{t('choose_user_and_location')}</Label>
                 <div className="flex">
                     <div className="border" style={{flexBasis: '25%'}}>
-                        <Label htmlFor="timekeeping" className="mb-1 block text-red-700 dark:text-gray-300 p-2 pl-1">Chọn người quản lý</Label>
+                        <Label htmlFor="timekeeping" className="mb-1 block text-red-700 dark:text-gray-300 p-2 pl-1">{t('choose_user')}</Label>
                         <div className="flex">
                             <GenericAsyncMultiSelect
                                 mode="single"
@@ -201,7 +203,7 @@ function HRManagementTimekeeping() {
                                 className="w-[300px] pl-1"
                                 options={selectedUserMngTKeeping}
                                 onChange={(v) => handleOnChangeCurrentSelectedUser(v as OptionType[])}
-                                placeholder="Chọn"
+                                placeholder={t('choose')}
                             />
                             {
                                 currentSelectedUser.length == 0 ? (
@@ -213,7 +215,7 @@ function HRManagementTimekeeping() {
                     </div>
                     <div className="border" style={{flexBasis: '35%'}}>
                         <Label className="mb-1 block text-red-700 dark:text-gray-300 p-2 pl-1">
-                            Chọn vị trí quản lý chấm công
+                            {t('choose_location')}
                         </Label>
                         <div className="pl-2">
                             <TreeCheckbox
@@ -233,10 +235,10 @@ function HRManagementTimekeeping() {
                     </div>
                     <div className="border" style={{flexBasis: '10%'}}>
                         <Label className="mb-1 block text-red-700 dark:text-gray-300 p-2 pl-1">
-                            Hành động
+                            {t('action')}
                         </Label>
                         <Button disabled={attachUserMngOrgUnit.isPending} onClick={handleSaveUserMngTimeKeeping} className="ml-1 bg-blue-700 hover:bg-blue-800 hover:cursor-pointer">
-                            {attachUserMngOrgUnit.isPending ? <Spinner className="text-white"/> : "Save"}
+                            {attachUserMngOrgUnit.isPending ? <Spinner className="text-white"/> : t('save')}
                         </Button>
                     </div>
                 </div>

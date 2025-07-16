@@ -1,0 +1,19 @@
+{
+    "title": "Xin nghỉ phép thay người khác",
+    "sub_title": "Đơn nghỉ phép",
+    "list_leave": "Danh sách nghỉ",
+    "usercode": "Mã nhân viên",
+    "name": "Họ tên",
+    "department": "Bộ phận/Phòng ban",
+    "position": "Chức vụ",
+    "type_leave": "Loại phép",
+    "time_leave": "Thời gian nghỉ",
+    "from_date": "Nghỉ từ ngày",
+    "to_date": "Nghỉ đến ngày",
+    "reason": "Lý do",
+    "add": "Thêm mới",
+    "confirm": "Xác nhận",
+    "choose": "--Chọn--",
+    "no_date": "Không có dữ liệu",
+    "delete": "Xóa"
+}

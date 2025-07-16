@@ -37,7 +37,7 @@ export default function MemoNotification () {
             const roles = user?.roles ?? [];
             const matchedRole = roles.find((role: string) =>role?.includes(RoleEnum.HR) || role?.includes(RoleEnum.UNION));
             
-            const res = await memoNotificationApi.getAll({RoleName: matchedRole, Page: page, PageSize: pageSize})
+            const res = await memoNotificationApi.getAll({RoleName: matchedRole, Page: page, PageSize: pageSize, currentUserCode: user?.userCode})
             setTotalPage(res.data.total_pages)
             return res.data.data;
         },

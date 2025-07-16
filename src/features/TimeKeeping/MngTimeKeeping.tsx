@@ -81,6 +81,7 @@ export default function MngTimekeeping () {
                 ? {
                     ...item,
                     result: selectedData.currentValue,
+                    
                 }
                 : item
             ),
@@ -234,7 +235,6 @@ export default function MngTimekeeping () {
                                         {
                                             item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
                                                 const result = data.result
-                                                const thu = data.thu
                                                 let bgColor = ''
                                                 let textColor = 'black';
 
@@ -245,8 +245,7 @@ export default function MngTimekeeping () {
                                                     bgColor = statusColors[result ?? ''] ?? ''
                                                 }
 
-                                                if (thu == 'CN' && result == null) {
-                                                    bgColor = statusColors[thu ?? ''] ?? ''
+                                                if (result == 'CN') {
                                                     textColor = 'white'
                                                 }
 
@@ -271,7 +270,7 @@ export default function MngTimekeeping () {
                                                         }}
                                                         style={{backgroundColor: bgColor ?? '', color: textColor}} key={index} className={`p-0 w-[100px] text-center border-r hover:cursor-pointer`}>
                                                         <div className="flex justify-center">
-                                                            {result == null && thu == 'CN' ? 'CN' : result}
+                                                            {result == 'CN' ? 'CN' : result}
                                                         </div>
                                                     </TableCell>
                                                 );

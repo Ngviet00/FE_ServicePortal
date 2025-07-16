@@ -48,7 +48,9 @@
 		"hr": {
 			"type_leave": "Loại phép",
 			"list_user": "Danh sách người dùng",
-			"org": "Sơ đồ tổ chức"
+			"org": "Sơ đồ tổ chức",
+			"mng_time_keeping": "QL Chấm công",
+			"mng_leave_request": "QL Nghỉ phép"
 		},
 		"union": {
 			"union": "Công đoàn",

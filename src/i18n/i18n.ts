@@ -5,15 +5,41 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './locales/en-translation.json';
 import vi from './locales/vi-translation.json';
 
+import enCreateLeaveOther from './locales/en/createLeaveOther.json';
+import viCreateLeaveOther from './locales/vi/createLeaveOther.json';
+
+import enMngTimekeeping from './locales/en/mngTimeKeeping.json';
+import viMngTimekeeping from './locales/vi/mngTimeKeeping.json';
+
+import enMngLeaveRequest from './locales/en/mngLeaveRequest.json';
+import viMngLeaveRequest from './locales/vi/mngLeaveRequest.json';
+
+import enCommon from './locales/en/common.json';
+import viCommon from './locales/vi/common.json';
+
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
 .init({
     fallbackLng: 'vi',
     debug: false,
+    defaultNS: 'translation',
+    ns: ['translation', 'createLeaveOther', 'mngTimeKeeping', 'mngLeaveRequest', 'common'],
     resources: {
-        en: { translation: en },
-        vi: { translation: vi }
+		en: {
+			translation: en,
+			common: enCommon,
+			createLeaveOther: enCreateLeaveOther,
+      		mngTimeKeeping: enMngTimekeeping,
+			mngLeaveRequest: enMngLeaveRequest,
+		},
+		vi: {
+			translation: vi,
+			common: viCommon,
+			createLeaveOther: viCreateLeaveOther,
+      		mngTimeKeeping: viMngTimekeeping,
+			mngLeaveRequest: viMngLeaveRequest,
+		},
     },
     interpolation: {
         escapeValue: false

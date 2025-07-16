@@ -482,7 +482,7 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 							node.type == "user" ? (
 								<>
 									<a className="text-blue-700 text-xs italic underline hover:cursor-pointer ml-2" onClick={() => onClickOpenDetailPositionMngLeaveRequest?.(node.id, node.label)}>
-										Chọn
+										Click
 									</a>
 								</>) : ""
 						}

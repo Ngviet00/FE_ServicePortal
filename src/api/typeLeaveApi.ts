@@ -14,6 +14,7 @@ interface Data {
 export interface ITypeLeave {
     id: number;
     name: string;
+    nameV: string,
     modifiedBy: string,
     modifiedAt: string,
 };

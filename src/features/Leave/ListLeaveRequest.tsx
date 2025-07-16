@@ -261,12 +261,14 @@ export default function ListLeaveRequest () {
                                                     )
                                                     : filterStatus == 2 ? (
                                                         <>
-                                                             <TableCell className="text-left text-red-700 font-bold">
-                                                                { item?.historyApplicationForm?.userApproval }
+                                                             <TableCell className="text-center text-red-700 font-bold">
+                                                                { item?.historyApplicationForm?.userApproval ?? "--" }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left">
-                                                                { formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            <TableCell className="text-center">
+                                                                {
+                                                                    item?.historyApplicationForm?.createdAt ? formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
+                                                                }
                                                             </TableCell>
 
                                                             <TableCell className="text-left">
@@ -276,12 +278,14 @@ export default function ListLeaveRequest () {
                                                     )
                                                     : filterStatus == 3 ? (
                                                         <>
-                                                            <TableCell className="text-left text-red-700 font-bold">
-                                                                { item?.historyApplicationForm?.userApproval }
+                                                            <TableCell className="text-center text-red-700 font-bold">
+                                                                { item?.historyApplicationForm?.userApproval ?? "--" }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left">
-                                                                { formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            <TableCell className="text-center">
+                                                                {
+                                                                    item?.historyApplicationForm?.createdAt ? formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
+                                                                }
                                                             </TableCell>
 
                                                             <TableCell className="text-left">
@@ -355,8 +359,12 @@ export default function ListLeaveRequest () {
                                             )
                                             : filterStatus == 2 ? (
                                                 <>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval ?? "--" }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>
+                                                        {
+                                                            item?.historyApplicationForm?.createdAt ? formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
+                                                        }
+                                                    </div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="IN_PROCESS" /></div>
                                                     </>
                                             )

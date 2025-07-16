@@ -57,7 +57,9 @@ const defaultSingleLeaveRequest: SingleLeaveRequest = {
 };
 
 export default function LeaveRequestFormForOthers() {
-    const { t } = useTranslation();
+    const { t } = useTranslation('createLeaveOther');
+    const { t: tCommon  } = useTranslation('common');
+    const lang = useTranslation().i18n.language.split('-')[0];
     const user = useAuthStore((state) => state.user)
     const navigate = useNavigate();
     const [isSearchingUser, setIsSearchingUser] = useState(false)
@@ -175,11 +177,11 @@ export default function LeaveRequestFormForOthers() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-2">
                 <div className="flex flex-col gap-2">
                     <h3 className="font-bold text-xl md:text-2xl">
-                        Xin nghỉ phép thay người khác
+                        { t('title') }
                     </h3>
                 </div>
                 <Button onClick={() => navigate("/leave")} className="w-full md:w-auto hover:cursor-pointer">
-                    {t("leave_request.create.link_to_list")}
+                    { t('list_leave') }
                 </Button>
             </div>
 
@@ -197,14 +199,14 @@ export default function LeaveRequestFormForOthers() {
 
                             return (
                                 <div key={field.id} className="space-y-4">
-                                    <h2 className="font-bold text-xl text-red-600">Đơn nghỉ phép {`#` + (index + 1)}</h2>
+                                    <h2 className="font-bold text-xl text-red-600 dark:text-white">{ t('sub_title') } {`#` + (index + 1)}</h2>
                                     <div className="flex flex-wrap gap-4">
                                         <div>
-                                            <label htmlFor={`usercode-${index}`} className="block mb-1">Mã nhân viên</label>
+                                            <label htmlFor={`usercode-${index}`} className="block mb-1">{ t('usercode') }</label>
                                             <input
                                                 id={`usercode-${index}`}
                                                 {...control.register(`leaveRequests.${index}.user_code`)}
-                                                placeholder="Mã nhân viên"
+                                                placeholder={ t('usercode') }
                                                 className={`w-full p-2 border rounded text-sm ${errors?.user_code ? "border-red-500 bg-red-50" : ""}`}
                                                 onBlur={() => handleFindUser(getValues(`leaveRequests.${index}.user_code`), index)}
                                             />
@@ -214,11 +216,11 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
 
                                         <div>
-                                            <label className="block mb-1">Họ Tên</label>
+                                            <label className="block mb-1">{ t('name') }</label>
                                             <input
                                                 {...control.register(`leaveRequests.${index}.name`)}
-                                                placeholder="Họ Tên"
-                                                className={`w-full p-2 text-sm border rounded ${errors?.name ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
+                                                placeholder={ t('name') }
+                                                className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.name ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
                                                 readOnly
                                             />
                                             {errors?.name && (
@@ -227,11 +229,11 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
 
                                         <div>
-                                            <label className="block mb-1">Bộ phận/Phòng ban</label>
+                                            <label className="block mb-1">{ t('department') }</label>
                                             <input
                                                 {...control.register(`leaveRequests.${index}.department`)}
-                                                placeholder="Bộ phận/Phòng ban"
-                                                className={`w-full p-2 text-sm border rounded ${errors?.department ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
+                                                placeholder={ t('department') }
+                                                className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.department ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
                                                 readOnly
                                             />
                                             {errors?.department && (
@@ -240,10 +242,10 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
 
                                         <div>
-                                            <label className="block mb-1">Chức vụ</label>
+                                            <label className="block mb-1">{ t('position') }</label>
                                             <input
                                                 {...control.register(`leaveRequests.${index}.position`)}
-                                                placeholder="Chức vụ"
+                                                placeholder={ t('position') }
                                                 className={`w-full p-2 text-sm border rounded ${errors?.position ? "border-red-500 bg-red-50" : ""}`}
                                             />
                                             {errors?.position && (
@@ -252,21 +254,23 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
 
                                         <div>
-                                            <label htmlFor={`type-leave-${index}`} className="block mb-1">Loại phép</label>
+                                            <label htmlFor={`type-leave-${index}`} className="block mb-1">{ t('type_leave') }</label>
                                             <select 
                                                 id={`type-leave-${index}`} {...control.register(`leaveRequests.${index}.type_leave`)} 
                                                 className={`w-full p-2 text-sm border hover:cursor-pointer rounded ${errors?.type_leave ? "border-red-500 bg-red-50" : ""}`}
                                             >
-                                                <option value="">--Chọn--</option>
+                                                <option value="">{t('choose')}</option>
                                                 {
                                                     isPending ? (
                                                         <option>Loading...</option>
                                                     ) : isError || typeLeaves.length === 0 ? (
-                                                        <option className="text-red-500">Không có dữ liệu</option>
+                                                        <option className="text-red-500">{t('no_data')}</option>
                                                     ) : (
                                                         typeLeaves.map((item) => (
                                                             <option key={item.id} value={item.id}>
-                                                                {t(item.name)}
+                                                                {
+                                                                    lang == 'vi' ? t(item.nameV) : t(item.name)
+                                                                }
                                                             </option>
                                                         ))
                                                     )
@@ -278,16 +282,16 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
 
                                         <div>
-                                            <label className="block mb-1">Thời gian nghỉ</label>
+                                            <label className="block mb-1">{ t('time_leave') }</label>
                                             <select 
                                                 {...control.register(`leaveRequests.${index}.time_leave`)} 
                                                 className={`w-full p-2 text-sm border hover:cursor-pointer rounded ${errors?.time_leave ? "border-red-500 bg-red-50" : ""}`}
                                             >
-                                                <option value="">--Chọn--</option>
+                                                <option value="">{t('choose')}</option>
                                                 {
                                                     TIME_LEAVE.map((item) => (
                                                         <option key={item.value} value={item.value}>
-                                                            {t(item.label)}
+                                                            {tCommon(item.label)}
                                                         </option>
                                                     ))
                                                 }
@@ -298,7 +302,7 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
                                         
                                         <div>
-                                            <label className="block mb-1">Nghỉ từ ngày</label>
+                                            <label className="block mb-1">{ t('from_date') }</label>
                                             <DateTimePicker
                                                 enableTime={true}
                                                 dateFormat="Y-m-d H:i"
@@ -315,7 +319,7 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
 
                                         <div>
-                                            <label className="block mb-1">Nghỉ đến ngày</label>
+                                            <label className="block mb-1">{ t('to_date') }</label>
                                             <DateTimePicker
                                                 enableTime={true}
                                                 dateFormat="Y-m-d H:i"
@@ -332,10 +336,10 @@ export default function LeaveRequestFormForOthers() {
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block mb-1">Lý do</label>
+                                        <label className="block mb-1">{ t('reason') }</label>
                                         <textarea
                                             {...control.register(`leaveRequests.${index}.reason`)}
-                                            placeholder="Nhập lý do"
+                                            placeholder={ t('reason') }
                                             className={`w-full p-2 border rounded ${errors?.reason ? "border-red-500 bg-red-50" : ""}`}
                                         />
                                         {errors?.reason && (
@@ -350,7 +354,7 @@ export default function LeaveRequestFormForOthers() {
                                                 className="bg-red-500 text-white px-3 py-1 rounded hover:cursor-pointer hover:bg-red-700"
                                                 onClick={() => remove(index)}
                                             >
-                                                Xoá
+                                               { t('delete') }
                                             </button>
                                         </div>
                                     )}
@@ -361,12 +365,12 @@ export default function LeaveRequestFormForOthers() {
                     <div className="mb-4 flex space-x-2 mt-2">
                         <button
                             type="button"
-                            className="bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400"
+                            className="dark:bg-black bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400"
                             onClick={() =>
                                 append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", })
                             }
                         >
-                            Thêm mới
+                            { t('add') }
                         </button>
 
                         <button
@@ -374,7 +378,7 @@ export default function LeaveRequestFormForOthers() {
                             className="bg-black text-white px-4 py-2 rounded hover:cursor-pointer hover:opacity-70"
                             disabled={saveLeaveRequestForManyPeople.isPending}
                         >
-                            {saveLeaveRequestForManyPeople.isPending ? <Spinner size="small" className="text-white" /> : "Xác nhận"}
+                            {saveLeaveRequestForManyPeople.isPending ? <Spinner size="small" className="text-white" /> : t('confirm')}
                         </button>
                     </div>
                 </form>

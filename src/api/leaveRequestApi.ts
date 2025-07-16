@@ -26,7 +26,8 @@ export interface LeaveRequestData {
     }
     applicationForm?: {
         currentPositionId: number | null,
-        status: string | null
+        status: string | null,
+        createdAt: string | null
     },
     historyApplicationForm?: {
         userApproval?: string | null,

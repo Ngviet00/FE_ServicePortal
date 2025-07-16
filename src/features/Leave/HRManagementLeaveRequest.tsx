@@ -8,8 +8,10 @@ import { ShowToast } from "@/lib";
 import leaveRequestApi, { useAttachUserManageOrgUnit, useUpdateUserHavePermissionCreateMultipleLeaveRequest } from "@/api/leaveRequestApi";
 import orgUnitApi from "@/api/orgUnitApi";
 import userApi from "@/api/userApi";
+import { useTranslation } from "react-i18next";
 
 function HRManagementLeaveRequest() {
+    const { t } = useTranslation('mngLeaveRequest');
     const [checkedIds, setCheckedIds] = useState<string[]>([]);
     const updateUserHavePermissionMngLeaveRequest = useUpdateUserHavePermissionCreateMultipleLeaveRequest();
 
@@ -81,26 +83,26 @@ function HRManagementLeaveRequest() {
     return (
         <div className="p-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">Chọn người có quyền đăng ký nghỉ phép cho người khác</h3>
+                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('title')}</h3>
             </div>
 
             <div className="mt-5">
                 <span className="font-bold mr-2">
-                    Đang chọn: <span className="font-bold text-base text-red-700">{selectedOpenPositionUser?.id} {selectedOpenPositionUser?.type}</span>
+                    {t('choosing')}: <span className="font-bold text-base text-red-700">{selectedOpenPositionUser?.id} {selectedOpenPositionUser?.type}</span>
                 </span>
-                <Button className="bg-orange-700 hover:cursor-pointer" onClick={() => setSelectedOpenPositionUser(null)}>Xóa</Button>
+                <Button className="bg-orange-700 hover:cursor-pointer" onClick={() => setSelectedOpenPositionUser(null)}>{t('delete')}</Button>
             </div>
 
             <div className="flex">
                 <div className="border p-4 rounded">
                     <div className="flex mb-3">
-                        <Label className="text-red-700 mt-3">Chọn người có quyền đăng ký nghỉ phép thay người khác</Label>
+                        <Label className="text-red-700 mt-3">{t('title')}</Label>
                         <Button
                             disabled={updateUserHavePermissionMngLeaveRequest.isPending}
                             className="hover:cursor-pointer ml-5 bg-black px-10"
                             onClick={handleSave}
                         >
-                            {updateUserHavePermissionMngLeaveRequest.isPending ? <Spinner className="text-white"/> : "Save"}
+                            {updateUserHavePermissionMngLeaveRequest.isPending ? <Spinner className="text-white"/> : t('save')}
                         </Button>
                     </div>
                     <TreeCheckboxLeaveRequest
@@ -121,7 +123,7 @@ function HRManagementLeaveRequest() {
 
                 <div className="border border-l-0 p-4">
                     <div className="flex mb-3">
-                        <Label className="text-red-700">Chọn vị trí đăng ký nghỉ</Label>
+                        <Label className="text-red-700">{t('choose_location_register')}</Label>
                         <Button
                             disabled={attachUserMngOrgUnit.isPending}
                             className="hover:cursor-pointer ml-5 bg-black px-10"
@@ -133,7 +135,7 @@ function HRManagementLeaveRequest() {
                     <div>
                         {
                             selectedOpenPositionUser == null ? (
-                                <span className="text-sm italic underline text-gray-500 text-center">Chọn người dùng click vào <span className="italic text-sm text-blue-600">Chọn</span> để hiển thị vị trí</span>
+                                <span className="text-sm italic underline text-gray-500 text-center">{t('choose_click')}</span>
                             ) : (
                                 <TreeCheckbox
                                     defaultCheckedIds={idLocations}

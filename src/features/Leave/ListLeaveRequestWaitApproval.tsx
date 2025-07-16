@@ -41,7 +41,7 @@ export default function ListLeaveRequestWaitApproval () {
     const queryClient = useQueryClient();
     const registerAllLeaveMutation = useRegisterAllLeaveRequest();
 
-    const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
+    // const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
         queryKey: ['get-leave-request-wait-approval', page, pageSize],
@@ -205,8 +205,8 @@ export default function ListLeaveRequestWaitApproval () {
                                 <TableCell className="text-left">{item.name}</TableCell>
                                 <TableCell className="text-left">{item.department}</TableCell>
                                 <TableCell className="text-left">{item.position}</TableCell>
-                                <TableCell className="text-left">{item.fromDate}</TableCell>
-                                <TableCell className="text-left">{item.toDate}</TableCell>
+                                <TableCell className="text-left">{formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                <TableCell className="text-left">{formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                 <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
                                 <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
                                 <TableCell className="text-left">{item.reason}</TableCell>
@@ -249,15 +249,15 @@ export default function ListLeaveRequestWaitApproval () {
                             <div><strong>{t('list_leave_request.name')}:</strong> {item.name}</div>
                             <div><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
                             <div><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
-                            <div><strong>{t('list_leave_request.from')}:</strong> {item.fromDate}</div>
-                            <div><strong>{t('list_leave_request.to')}:</strong> {item.toDate}</div>
-                            <div><strong>{t('list_leave_request.type_leave')}:</strong> {getEnumName(item.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</div>
-                            <div><strong>{t('list_leave_request.time_leave')}:</strong> {getEnumName(item.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</div>
+                            <div><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                            <div><strong>{t('list_leave_request.to')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                            <div><strong>{t('list_leave_request.type_leave')}:</strong> {item?.typeLeave?.name}</div>
+                            <div><strong>{t('list_leave_request.time_leave')}:</strong> {item?.timeLeave?.description}</div>
                             <div><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
-                            <div><strong>{t('list_leave_request.approve_by')}:</strong> <span className="text-red-800 font-bold">{item.approvalAction?.approverName ?? "--"}</span></div>
+                            <div><strong>{t('list_leave_request.approve_by')}:</strong> <span className="text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</span></div>
                             <div><strong>{t('list_leave_request.created_at')}:</strong> {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                             <div className="pt-2">
-                                {hasHRRole && item.approvalRequest?.currentPositionId == -10 ? (
+                                {hasHRRole ? (
                                     <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs bg-black text-white">
                                         {t('leave_request.wait_approval.register')}
                                     </Button>

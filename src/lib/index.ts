@@ -79,15 +79,15 @@ export enum ENUM_TIME_LEAVE {
 
 export const TIME_LEAVE = [
     {
-        label: "leave_request.create.time_leave.all_day",
+        label: "all_day",
         value: "1"
     },
     {
-        label: "leave_request.create.time_leave.morning",
+        label: "morning",
         value: "2"
     },
     {
-        label: "leave_request.create.time_leave.afternoon",
+        label: "afternoon",
         value: "3"
     }
 ]

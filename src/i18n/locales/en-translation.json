@@ -48,7 +48,9 @@
 		"hr": {
 			"type_leave": "Type leave",
 			"list_user": "List user",
-			"org": "Organizational chart"
+			"org": "Organizational chart",
+			"mng_time_keeping": "Mng Timekeeping",
+			"mng_leave_request": "Mng Leave Request"
 		},
 		"union": {
 			"union": "Union",

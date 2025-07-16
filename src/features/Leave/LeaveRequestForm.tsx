@@ -69,6 +69,8 @@ const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
 
 export default function LeaveRequestForm() {
     const { t } = useTranslation();
+    const { t: tCommon  } = useTranslation('common');
+    const lang = useTranslation().i18n.language.split('-')[0];
     const [loading, setLoading] = useState(false);
     const { user } = useAuthStore();
     const [checkReceiveEmail, setCheckReceiveEmail] = useState(false);
@@ -309,7 +311,7 @@ export default function LeaveRequestForm() {
                                         name="from_date"
                                         render={({ field: rhfField, fieldState }) => (
                                             <FormItem className="flex flex-col w-[180px]">
-                                                <FormLabel className="mb-1">Ngày bắt đầu <DotRequireComponent/></FormLabel>
+                                                <FormLabel className="mb-1">{t('leave_request.create.from_date')} <DotRequireComponent/></FormLabel>
                                                 <FormControl>
                                                     <DateTimePicker
                                                         enableTime={true}
@@ -333,7 +335,7 @@ export default function LeaveRequestForm() {
                                         name="to_date"
                                         render={({ field: rhfField, fieldState }) => (
                                             <FormItem className="flex flex-col w-[180px]">
-                                                <FormLabel className="mb-1">Ngày kết thúc <DotRequireComponent/></FormLabel>
+                                                <FormLabel className="mb-1">{t('leave_request.create.to_date')} <DotRequireComponent/></FormLabel>
                                                 <FormControl>
                                                     <DateTimePicker
                                                         enableTime={true}
@@ -365,7 +367,7 @@ export default function LeaveRequestForm() {
                                                         onChange={field.onChange}
                                                         name={field.name}
                                                         id="type_leave" 
-                                                        className={`w-[120px] hover:cursor-pointer dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-300"}`}>
+                                                        className={`w-[180px] hover:cursor-pointer dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-300"}`}>
                                                         <option value="">--Select--</option>
                                                         {
                                                             isPending ? (
@@ -375,7 +377,9 @@ export default function LeaveRequestForm() {
                                                             ) : (
                                                                 typeLeaves.map((item: ITypeLeave) => (
                                                                     <option key={item.id} value={item.id}>
-                                                                        {t(item.name)}
+                                                                        {
+                                                                            lang == 'vi' ? t(item.nameV) : t(item.name)
+                                                                        }
                                                                     </option>
                                                                 ))
                                                             )
@@ -405,7 +409,7 @@ export default function LeaveRequestForm() {
                                                         {
                                                             TIME_LEAVE.map((item) => (
                                                                 <option key={item.value} value={item.value}>
-                                                                    {t(item.label)}
+                                                                    {tCommon(item.label)}
                                                                 </option>
                                                             ))
                                                         }

@@ -1,0 +1,19 @@
+{
+    "title": "Create leave request for other",
+    "sub_title": "Leave request",
+    "list_leave": "List leave",
+    "usercode": "Usercode",
+    "name": "Fullname",
+    "department": "Department",
+    "position": "Position",
+    "type_leave": "Type leave",
+    "time_leave": "Time leave",
+    "from_date": "From date",
+    "to_date": "To date",
+    "reason": "Reason",
+    "add": "Add",
+    "confirm": "Save",
+    "choose": "Choose",
+    "no_date": "No data",
+    "delete": "Delete"
+}
