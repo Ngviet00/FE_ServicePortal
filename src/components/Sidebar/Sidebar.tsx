@@ -43,6 +43,7 @@ export default function Sidebar() {
 		queryKey: ["count-wait-approval-leave-request"],
 		queryFn: async () => {
 			const res = await leaveRequestApi.countWaitApprovalLeaveRequest({
+				UserCode: user?.userCode,
 				OrgUnitId: user?.orgUnitID,
 			});
 			return res.data.data;

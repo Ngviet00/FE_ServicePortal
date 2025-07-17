@@ -20,6 +20,7 @@ import QuillEditorCDN from "@/components/QuillEditorCDN";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import departmentApi from "@/api/departmentApi";
 import FileListPreview from "@/components/ComponentCustom/FileListPreviewMemoNotify";
+import systemConfigApi from "@/api/systemConfigApi";
 
 // Remove all HTML tags to check empty
 const isQuillContentEmpty = (html: string) => {
@@ -71,7 +72,15 @@ export default function CreateMemoNotification () {
     const updateMemoNotify = useUpdateMemoNotification();
     const navigate = useNavigate()
 
-    const MAX_FILE_SIZE_MB = 5;
+    const { data: dataMaxUploadFileMemo } = useQuery({
+        queryKey: ['get-max-file-size-memo-upload'],
+        queryFn: async () => {
+            const res = await systemConfigApi.GetByConfigKey('MaxUploadMemoNotifyFileSizeMB')
+            const result = res.data.data;
+
+            return result?.configValue ? parseInt(result.configValue) : 5;
+        },
+    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -187,9 +196,9 @@ export default function CreateMemoNotification () {
         const files = e.target.files;
         if (files && files.length > 0) {
             const newFiles = Array.from(files);
-            const oversizedFiles = newFiles.filter(file => file.size > MAX_FILE_SIZE_MB * 1024 * 1024);
+            const oversizedFiles = newFiles.filter(file => file.size > (dataMaxUploadFileMemo ?? 5) * 1024 * 1024);
             if (oversizedFiles.length > 0) {
-                alert("File phải nhỏ hơn 5MB.")
+                alert(`File phải nhỏ hơn ${dataMaxUploadFileMemo ?? 5}MB.`)
                 return;
             }
             const newLocalFiles = [...localFiles, ...newFiles];
@@ -274,7 +283,7 @@ export default function CreateMemoNotification () {
                             render={() => (
                                 <FormItem className="flex flex-col mt-4 space-y-2 gap-0 mb-4">
                                     <FormLabel className="font-bold">
-                                        {t("memo_notification.list.attachments")} <span className="text-xs text-red-500 italic">(giới hạn {MAX_FILE_SIZE_MB}MB)</span>
+                                        {t("memo_notification.list.attachments")} <span className="text-xs text-red-500 italic">(giới hạn {dataMaxUploadFileMemo}MB)</span>
                                     </FormLabel>
                                     <FormControl>
                                         <input

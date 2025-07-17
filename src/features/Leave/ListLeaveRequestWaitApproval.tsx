@@ -50,6 +50,7 @@ export default function ListLeaveRequestWaitApproval () {
                 page: page,
                 pageSize: pageSize,
                 OrgUnitId: user?.orgUnitID,
+                UserCode: user?.userCode
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;

@@ -80,6 +80,7 @@ interface ApprovalData {
 interface GetWaitApproval {
     page?: number,
     pageSize?: number,
+    UserCode?: string, 
     OrgUnitId?: number | undefined
 }
 

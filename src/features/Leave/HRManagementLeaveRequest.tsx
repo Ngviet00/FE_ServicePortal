@@ -143,9 +143,12 @@ function HRManagementLeaveRequest() {
                                     onChange={handleCheckedChangeLocations}
                                 />  
                             )
-                        } 
+                        }
                     </div>
                 </div>
+            </div>
+            <div>
+                abc
             </div>
         </div>
     );

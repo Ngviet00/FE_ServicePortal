@@ -162,7 +162,10 @@ export default function ListLeaveRequest () {
                                         )
                                         : filterStatus == 2 ? (
                                             <>
-                                              <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.created_at')}
+                                                </TableHead>
+                                                <TableHead className="w-[120px] text-center">
                                                     {t('list_leave_request.approve_by')}
                                                 </TableHead>
                                                 <TableHead className="w-[120px] text-center">
@@ -177,6 +180,9 @@ export default function ListLeaveRequest () {
                                         : filterStatus == 3 ? (
                                             <>
                                                 <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.created_at')}
+                                                </TableHead>
+                                                <TableHead className="w-[120px] text-center">
                                                     {t('list_leave_request.approve_by')}
                                                 </TableHead>
                                                 <TableHead className="w-[120px] text-center">
@@ -190,7 +196,11 @@ export default function ListLeaveRequest () {
                                         )
                                         : (
                                             <>
-                                              <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center">
+                                                    {t('list_leave_request.created_at')}
+                                                </TableHead>
+
+                                                <TableHead className="w-[120px] text-center">
                                                     {t('list_leave_request.approve_by')}
                                                 </TableHead>
 
@@ -242,7 +252,7 @@ export default function ListLeaveRequest () {
                                                 <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
                                                 <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
                                                 <TableCell className="text-center">{item.reason}</TableCell>
-                                                <TableCell className="text-center">{item.userNameWriteLeaveRequest}</TableCell>
+                                                <TableCell className="text-center font-bold text-red-700">{item.userNameWriteLeaveRequest}</TableCell>
                                                 {
                                                     filterStatus == 1 ? (
                                                         <>
@@ -261,6 +271,10 @@ export default function ListLeaveRequest () {
                                                     )
                                                     : filterStatus == 2 ? (
                                                         <>
+                                                            <TableCell className="text-left">
+                                                                { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            </TableCell>
+
                                                              <TableCell className="text-center text-red-700 font-bold">
                                                                 { item?.historyApplicationForm?.userApproval ?? "--" }
                                                             </TableCell>
@@ -278,6 +292,10 @@ export default function ListLeaveRequest () {
                                                     )
                                                     : filterStatus == 3 ? (
                                                         <>
+                                                            <TableCell className="text-left">
+                                                                { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            </TableCell>
+
                                                             <TableCell className="text-center text-red-700 font-bold">
                                                                 { item?.historyApplicationForm?.userApproval ?? "--" }
                                                             </TableCell>
@@ -295,6 +313,10 @@ export default function ListLeaveRequest () {
                                                     )
                                                     : (
                                                         <>
+                                                            <TableCell className="text-left">
+                                                                { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            </TableCell>
+
                                                             <TableCell className="text-left font-bold text-red-700">
                                                                 { item?.historyApplicationForm?.userApproval }
                                                             </TableCell>
@@ -359,6 +381,7 @@ export default function ListLeaveRequest () {
                                             )
                                             : filterStatus == 2 ? (
                                                 <>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval ?? "--" }</div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>
                                                         {
@@ -370,13 +393,15 @@ export default function ListLeaveRequest () {
                                             )
                                             : filterStatus == 3 ? (
                                                 <>
-                                                     <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="COMPLETED" /></div>
                                                 </>
                                             )
                                             : (
                                                 <>
+                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.approved_at')} </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
                                                     <div className="mb-1"><strong>{t('list_leave_request.note')}: </strong>{ item?.historyApplicationForm?.comment }</div>
