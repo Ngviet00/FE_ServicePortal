@@ -15,5 +15,6 @@
     "confirm": "Save",
     "choose": "Choose",
     "no_date": "No data",
-    "delete": "Delete"
+    "delete": "Delete",
+    "not_allow": "You dont have permission register, contact to HR"
 }

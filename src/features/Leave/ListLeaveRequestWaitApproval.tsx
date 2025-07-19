@@ -12,7 +12,7 @@ import {
 import leaveRequestApi, { LeaveRequestData, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, getEnumName, getErrorMessage, ShowToast } from "@/lib"
+import { getErrorMessage, ShowToast } from "@/lib"
 import {
     Dialog,
     DialogContent,
@@ -251,7 +251,7 @@ export default function ListLeaveRequestWaitApproval () {
                             <div><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
                             <div><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
                             <div><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                            <div><strong>{t('list_leave_request.to')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                            <div><strong>{t('list_leave_request.to')}:</strong> {formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                             <div><strong>{t('list_leave_request.type_leave')}:</strong> {item?.typeLeave?.name}</div>
                             <div><strong>{t('list_leave_request.time_leave')}:</strong> {item?.timeLeave?.description}</div>
                             <div><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>

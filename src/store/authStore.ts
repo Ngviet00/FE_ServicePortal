@@ -11,6 +11,7 @@ export interface User {
     orgUnitID?: number,
     dateOfBirth?: Date,
     email?: string,
+    nvGioiTinh?: boolean,
     roles?: string[],
     permissions?: string[] 
 }

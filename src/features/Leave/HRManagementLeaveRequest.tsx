@@ -1,6 +1,6 @@
 import TreeCheckbox, { TreeCheckboxLeaveRequest, TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
@@ -9,11 +9,14 @@ import leaveRequestApi, { useAttachUserManageOrgUnit, useUpdateUserHavePermissio
 import orgUnitApi from "@/api/orgUnitApi";
 import userApi from "@/api/userApi";
 import { useTranslation } from "react-i18next";
+import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
+import delegatedTempApi, { useAddNewDelegatedTemp, useDeleteDelegatedTemp } from "@/api/delegatedTempApi";
 
 function HRManagementLeaveRequest() {
     const { t } = useTranslation('mngLeaveRequest');
     const [checkedIds, setCheckedIds] = useState<string[]>([]);
     const updateUserHavePermissionMngLeaveRequest = useUpdateUserHavePermissionCreateMultipleLeaveRequest();
+    const queryClient = useQueryClient();
 
     const { data: getAllDeptInOrgUnits = [] } = useQuery({
         queryKey: ['get-all-dept-in-org-unit'],
@@ -78,6 +81,66 @@ function HRManagementLeaveRequest() {
         }
 
         await attachUserMngOrgUnit.mutateAsync(payLoad)
+    }
+
+    const [mainUser, setMainUser] = useState<OptionType[]>([]);
+
+    const [delegatedUser, setDelegatedUser] = useState<OptionType[]>([]);
+
+    const searchUserOptionChooseManageAttendance = async (input: string): Promise<OptionType[]> => {
+        const res = await userApi.getUserToSelectMngTKeeping({
+            keysearch: input,
+            Page: 1,
+            PageSize: 20,
+        });
+
+        return res.data.data.map((u: { NVHoTen: string; NVMaNV: string; BPTen: string }) => ({
+            label: `${u.NVHoTen} (${u.NVMaNV} - ${u.BPTen})`,
+            value: u.NVMaNV,
+        }));
+    };
+
+    const { data: getAllDelegatedTempLeaveRq = [] } = useQuery({
+        queryKey: ['get-all-delegated-temp-leave-rq'],
+        queryFn: async () => {
+            const res = await delegatedTempApi.GetAll()
+            return res.data.data;
+        },
+    });
+
+    const addDelegatedTemp = useAddNewDelegatedTemp();
+    const handleClickSaveDelegatedUser = async() => {
+        if (mainUser.length == 0 || delegatedUser.length == 0) {
+            ShowToast("Chưa chọn người phụ trách", "error")
+            return
+        }
+
+        const mainUserCode = mainUser[0].value;
+        const delegatedUserCode = delegatedUser[0].value
+
+        await addDelegatedTemp.mutateAsync({
+            mainUserCode: mainUserCode,
+            tempUserCode: delegatedUserCode
+        })
+        
+        setMainUser([])
+        setDelegatedUser([])
+
+        queryClient.invalidateQueries({
+            queryKey: ['get-all-delegated-temp-leave-rq'],
+        });
+    }
+
+    const deleteDelegatedTemp = useDeleteDelegatedTemp();
+    const handleRemoveDelegatedTemp = async (mainOrgUnitId: number, tempUserCode: string) => {
+        await deleteDelegatedTemp.mutateAsync({
+            mainOrgUnitId: mainOrgUnitId,
+            tempUserCode: tempUserCode
+        });
+
+        queryClient.invalidateQueries({
+            queryKey: ['get-all-delegated-temp-leave-rq'],
+        });
     }
 
     return (
@@ -148,7 +211,62 @@ function HRManagementLeaveRequest() {
                 </div>
             </div>
             <div>
-                abc
+                <span className="text-3xl mb-2 block">Gán quyền</span>
+                <div className="flex items-end">
+                    <div>
+                        <Label className="mb-2">Người duyệt chính</Label>
+                        <GenericAsyncMultiSelect
+                            value={mainUser}
+                            className="min-w-[500px]"
+                            fetchOptions={searchUserOptionChooseManageAttendance}
+                            onChange={(v) => setMainUser(v as OptionType[])}
+                            placeholder="Tìm kiếm mã, tên..."
+                        />
+                    </div>
+
+                    <div className="ml-3">
+                        <Label className="mb-2">Người duyệt tạm thời</Label>
+                        <GenericAsyncMultiSelect
+                            value={delegatedUser}
+                            className="min-w-[500px]"
+                            fetchOptions={searchUserOptionChooseManageAttendance}
+                            onChange={(v) => setDelegatedUser(v as OptionType[])}
+                            placeholder="Tìm kiếm mã, tên..."
+                        />
+                    </div>
+                    <div>
+                        <Button className="mt-2 hover:cursor-pointer ml-3" onClick={handleClickSaveDelegatedUser}>Save</Button>
+                    </div>
+                </div>
+                <div className="list-delegated-temp pb-[15em]">
+                    <h3 className="font-bold mt-3 mb-1">Danh sách đã gán quyền</h3>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                            <tr>
+                                <th style={{ border: '1px solid #ddd', padding: '8px' }}>Người chính</th>
+                                <th style={{ border: '1px solid #ddd', padding: '8px' }}>Người phụ</th>
+                                <th style={{ border: '1px solid #ddd', padding: '8px' }}>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {getAllDelegatedTempLeaveRq.map((item: {orgUnitName: string, mainUser: string, tempUser: string, tempUserCode: string, mainOrgUnitId: number}, index: number) => (
+                                <tr key={index}>
+                                    <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.orgUnitName} ___ {item.mainUser}</td>
+                                    <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.tempUser} ___ {item.tempUserCode}</td>
+                                    <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+                                        <button
+                                        onClick={() => handleRemoveDelegatedTemp(item.mainOrgUnitId, item.tempUserCode)}
+                                        style={{ padding: '4px 8px', backgroundColor: '#f44336', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                        >
+                                        Xóa
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

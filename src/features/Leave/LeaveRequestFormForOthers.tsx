@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
 import { Spinner } from "@/components/ui/spinner";
 import { SubmitHandler } from "react-hook-form";
+import useHasPermission from "@/hooks/useHasPermission";
 
 const leaveRequestSchema = z.object({
     user_code: z.string().nonempty({ message: "Bắt buộc." }),
@@ -64,6 +65,8 @@ export default function LeaveRequestFormForOthers() {
     const navigate = useNavigate();
     const [isSearchingUser, setIsSearchingUser] = useState(false)
     const saveLeaveRequestForManyPeople = useCreateLeaveRequestForManyPeople(); 
+
+    const hasPermission = useHasPermission(['leave_request.create_multiple_leave_request'])
 
     const form = useForm<LeaveForm>({
         resolver: zodResolver(leaveSchema),
@@ -177,7 +180,14 @@ export default function LeaveRequestFormForOthers() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-2">
                 <div className="flex flex-col gap-2">
                     <h3 className="font-bold text-xl md:text-2xl">
-                        { t('title') }
+                        { t('title') } 
+                        {
+                            !hasPermission ? (
+                                <span className="ml-3 text-red-600 font-bold">
+                                    ({t('not_allow')})
+                                </span>    
+                            ) : (<></>)
+                        }
                     </h3>
                 </div>
                 <Button onClick={() => navigate("/leave")} className="w-full md:w-auto hover:cursor-pointer">
@@ -204,6 +214,7 @@ export default function LeaveRequestFormForOthers() {
                                         <div>
                                             <label htmlFor={`usercode-${index}`} className="block mb-1">{ t('usercode') }</label>
                                             <input
+                                                readOnly={!hasPermission}
                                                 id={`usercode-${index}`}
                                                 {...control.register(`leaveRequests.${index}.user_code`)}
                                                 placeholder={ t('usercode') }
@@ -375,8 +386,8 @@ export default function LeaveRequestFormForOthers() {
 
                         <button
                             type="submit"
-                            className="bg-black text-white px-4 py-2 rounded hover:cursor-pointer hover:opacity-70"
-                            disabled={saveLeaveRequestForManyPeople.isPending}
+                            className={`bg-black text-white px-4 py-2 rounded ${!hasPermission ? 'hover:cursor-not-allowed' : 'hover:cursor-pointer'} hover:opacity-70`}
+                            disabled={saveLeaveRequestForManyPeople.isPending || !hasPermission}
                         >
                             {saveLeaveRequestForManyPeople.isPending ? <Spinner size="small" className="text-white" /> : t('confirm')}
                         </button>

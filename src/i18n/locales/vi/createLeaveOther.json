@@ -11,9 +11,10 @@
     "from_date": "Nghỉ từ ngày",
     "to_date": "Nghỉ đến ngày",
     "reason": "Lý do",
-    "add": "Thêm mới",
-    "confirm": "Xác nhận",
+    "add": "+",
+    "confirm": "Gửi",
     "choose": "--Chọn--",
     "no_date": "Không có dữ liệu",
-    "delete": "Xóa"
+    "delete": "Xóa",
+    "not_allow": "Bạn chưa có quyền đăng ký, liên hệ với HR"
 }

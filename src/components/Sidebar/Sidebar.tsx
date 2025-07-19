@@ -34,8 +34,6 @@ export default function Sidebar() {
 	const isMobile = useIsReponsive()
 
 	const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
-	const havePermissionCreatemultipleLeaveRequest = useHasPermission(['leave_request.create_multiple_leave_request'])
-
 
 	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
 

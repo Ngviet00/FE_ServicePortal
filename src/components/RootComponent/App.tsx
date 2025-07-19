@@ -52,7 +52,7 @@ function App() {
 		
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
-		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>, allowedPermissions: ['leave_request.create_multiple_leave_request'] },
+		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>},
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
 		{ path: "/leave/history-approved", element: <HistoryListApproval/>},
 

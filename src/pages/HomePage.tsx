@@ -41,17 +41,20 @@ export default function HomePage() {
             const orgUnitID = res?.data?.data?.orgUnitID;
             const name = res?.data?.data?.nvHoTen;
             const email = res?.data?.data?.email;
+            const nvGioiTinh = res?.data?.data?.nvGioiTinh;
 
             if (departmentId != user?.departmentId || 
                 orgUnitID != user?.orgUnitID || 
                 name != user?.userName ||
-                email != user?.email
+                email != user?.email || 
+                nvGioiTinh != user?.nvGioiTinh
             ) {
                 updateUser({
                     email: email,
                     userName: name,
                     departmentId: departmentId,
-                    orgUnitID: orgUnitID
+                    orgUnitID: orgUnitID,
+                    nvGioiTinh: nvGioiTinh
                 })
             }
             
@@ -103,7 +106,7 @@ export default function HomePage() {
                     <div className='bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                         <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                         <div>
-                            <Label className='text-base font-bold dark:text-white'>{t('home_page.sex.male')}</Label>
+                            <Label className='text-base font-bold dark:text-white'>{user?.nvGioiTinh ? t('home_page.sex.female') : t('home_page.sex.male')}</Label>
                         </div>
                     </div>
                 </div>
