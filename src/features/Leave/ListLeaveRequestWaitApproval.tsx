@@ -175,6 +175,7 @@ export default function ListLeaveRequestWaitApproval () {
                             <TableHead className="w-[120px] text-left">{t('list_leave_request.type_leave')}</TableHead>
                             <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
                             <TableHead className="w-[200px] text-left">{t('list_leave_request.reason')}</TableHead>
+                            <TableHead className="w-[150px] text-left">{t('list_leave_request.write_leave_name')}</TableHead>
                             <TableHead className="w-[80px] text-left">{t('list_leave_request.approve_by')}</TableHead>
                             <TableHead className="w-[50px] text-left">{t('list_leave_request.created_at')}</TableHead>
                             <TableHead className="w-[50px] text-left">{t('list_leave_request.approval')}</TableHead>
@@ -211,6 +212,7 @@ export default function ListLeaveRequestWaitApproval () {
                                 <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
                                 <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
                                 <TableCell className="text-left">{item.reason}</TableCell>
+                                <TableCell className="text-left text-red-800 font-bold">{item.userNameWriteLeaveRequest}</TableCell>
                                 <TableCell className="text-left text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</TableCell>
                                 <TableCell className="text-left">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                 <TableCell className="text-left">
@@ -255,6 +257,7 @@ export default function ListLeaveRequestWaitApproval () {
                             <div><strong>{t('list_leave_request.type_leave')}:</strong> {item?.typeLeave?.name}</div>
                             <div><strong>{t('list_leave_request.time_leave')}:</strong> {item?.timeLeave?.description}</div>
                             <div><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
+                            <div><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
                             <div><strong>{t('list_leave_request.approve_by')}:</strong> <span className="text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</span></div>
                             <div><strong>{t('list_leave_request.created_at')}:</strong> {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                             <div className="pt-2">
@@ -288,8 +291,8 @@ export default function ListLeaveRequestWaitApproval () {
                                     <div>Name: <span className="pl-2 font-bold text-red-800">{selectedItem?.name}</span></div>
                                     <div>Department: <span className="pl-2 font-bold text-red-800">{selectedItem?.department}</span></div>
                                     <div>Position: <span className="pl-2 font-bold text-red-800">{selectedItem?.position}</span></div>
-                                    <div>From Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.fromDate}</span></div>
-                                    <div>To Date: <span className="pl-2 font-bold text-red-800">{selectedItem?.toDate}</span></div>
+                                    <div>From Date: <span className="pl-2 font-bold text-red-800">{formatDate(selectedItem?.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
+                                    <div>To Date: <span className="pl-2 font-bold text-red-800">{formatDate(selectedItem?.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</span></div>
                                     <div>Type Leave: <span className="pl-2 font-bold">{selectedItem?.timeLeave?.description}</span></div>
                                     <div>Time Leave: <span className="pl-2 font-bold">{selectedItem?.typeLeave?.name}</span></div>
                                     <div>Reason: <span className="pl-2 font-bold">{selectedItem?.reason}</span></div>
