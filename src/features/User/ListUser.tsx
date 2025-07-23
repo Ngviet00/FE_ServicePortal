@@ -5,24 +5,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getErrorMessage, RoleEnum, ShowToast, useDebounce } from "@/lib"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { MultiSelect } from "react-multi-select-component";
 import { Spinner } from "@/components/ui/spinner"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import React, { useEffect, useState } from "react"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import userApi, { GetListUserData, useResetPassword } from "@/api/userApi"
-import roleApi, { IRole } from "@/api/roleApi"
 import useHasRole from "@/hooks/useHasRole"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
 import departmentApi from "@/api/departmentApi"
 import positionApi from "@/api/positionApi"
-
-type Option = {
-    value: string;
-    label: string;
-};
+import { Link } from "react-router-dom"
 
 export default function ListUser () {
     const { t } = useTranslation();
@@ -31,9 +25,6 @@ export default function ListUser () {
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [selectedItem, setSelectedItem] = useState<GetListUserData | null>(null)
-    const [selectTypeModal, setSelectTypeModal] = useState("")
-    const [options, setOptions] = useState<Option[]>([])
-    const [selectedRoles, setSelectedRoles] = useState<Option[]>([])
     const [passwordReset, setNewPasswordReset] = useState("")
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedPosition, setSelectedPosition] = useState('');
@@ -122,67 +113,11 @@ export default function ListUser () {
             ShowToast(getErrorMessage(error), "error");
         }
     };
-
-    const { data: roles = [] } = useQuery({
-        queryKey: ['list-roles'],
-        queryFn: async () => {
-            const res = await roleApi.getAll({page: 1, page_size: 200});
-            return res.data.data;
-        }
-    });
-
-    useEffect(() => {
-        if (roles && roles.length > 0) {
-            const formattedOptions = roles.map((role: IRole) => ({
-                value: role.id.toString(),
-                label: role.name,
-            }));
-            setOptions(formattedOptions);
-        }
-    }, [roles]);
     
-    const handleRoleChange = (selected: Option[]) => {
-        setSelectedRoles(selected);
-    };
-    
-    const handleShowModal = (item: GetListUserData, type: string) => {
-        if (type == "role") {
-            const formattedRoles = item.roles.map((role: IRole) => ({
-                value: role.id.toString(),
-                label: role.name,
-            }));
-            setSelectedRoles(formattedRoles);
-            
-        } else {
-            console.log(1);
-        }
-        setSelectTypeModal(type)
+    const handleShowModal = (item: GetListUserData) => {
         setSelectedItem(item);
     }
 
-    const updateUserRoleMutation = useMutation({ mutationFn: userApi.updateUserRole });
-
-    const handleConfirm = (userCode: string) => {
-        const roleIds = selectedRoles.map((role) => Number(role.value));
-        
-        const payload = {             
-            user_code: userCode,
-            role_ids: roleIds
-        }
-
-        updateUserRoleMutation.mutate(payload, {
-            onSuccess: () => {
-                ShowToast("Thành công!")
-                setSelectedItem(null)
-                queryClient.invalidateQueries({ queryKey: ['get-all-user'] });
-            },
-            onError: (err) => {
-                ShowToast(getErrorMessage(err), "error")
-            },
-        })
-    }
-
-    const selectedLabels = selectedRoles.map(role => role.label).join(', ');
     const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN]);
 
     const handleResetPassword = async (item: GetListUserData) => {
@@ -200,7 +135,7 @@ export default function ListUser () {
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('list_user_page.title')}</h3>
             </div>
-            <div className="flex flex-col md:flex-row items-center justify-start md:justify-between gap-4 p-4 dark:bg-gray-800 rounded-lg">
+            <div className="flex flex-col md:flex-row items-center justify-start md:justify-between gap-4 p-4 pl-0 dark:bg-gray-800 rounded-lg">
                 <div className="w-full md:w-1/4">
                     <Label htmlFor="search" className="mb-1">Search</Label>
                     <Input
@@ -310,16 +245,12 @@ export default function ListUser () {
                                             <TableCell className="text-left">
                                                 {
                                                     isSuperAdmin ? (<>
-                                                        <Button 
-                                                            variant="outline" 
-                                                            onClick={() => handleShowModal(item, "role")}
-                                                            className="text-xs p-[5px] h-[20x] rounded-[5px] bg-blue-900 text-white hover:cursor-pointer hover:bg-dark hover:text-white"
-                                                        >
-                                                            Set role
-                                                        </Button>
+                                                        <Link to={`/user/role-and-permission/${item?.userCode}`} className="bg-blue-900 px-2 py-1.5 rounded text-white text-xs font-bold">
+                                                            Role
+                                                        </Link>
                                                         <Button
                                                             variant="outline" 
-                                                            onClick={() => handleShowModal(item, "reset")}
+                                                            onClick={() => handleShowModal(item)}
                                                             className="ml-2 text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
                                                         >
                                                             Reset PW
@@ -347,51 +278,21 @@ export default function ListUser () {
                             }}>
                             <DialogContent className="sm:max-w-[50%] h-[250px] flex flex-col top-[20%]">
                                 <DialogHeader>
-                                    <DialogTitle>{selectTypeModal == "role" ? "Role" : "Reset Password"}</DialogTitle>
+                                    <DialogTitle>Reset Password</DialogTitle>
                                     <DialogDescription></DialogDescription>
                                 </DialogHeader>
-                                    {
-                                        selectTypeModal == "role" ?
-                                        (
-                                            <>
-                                                <MultiSelect
-                                                    className="dark:text-black"
-                                                    options={options}
-                                                    value={selectedRoles}
-                                                    onChange={handleRoleChange}
-                                                    labelledBy="Select"
-                                                    hasSelectAll={false}
-                                                    overrideStrings={{
-                                                        selectSomeItems: "Chọn vai trò...",
-                                                        search: "Tìm kiếm...",
-                                                        clearSearch: "Xoá tìm kiếm",
-                                                        noOptions: "Không có vai trò nào",
-                                                        allItemsAreSelected: selectedLabels || "Chọn vai trò..."
-                                                    }}
-                                                />
-                                                <div className="flex justify-end">
-                                                    <Button type="submit" disabled={updateUserRoleMutation.isPending} onClick={() => handleConfirm(selectedItem.userCode)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
-                                                        {
-                                                            updateUserRoleMutation.isPending ? <Spinner className="text-white"/> : "Confirm"
-                                                        }
-                                                    </Button>
-                                                </div>
-                                            </>
-                                        ) : (<>
-                                            <div className="flex flex-col items-end gap-2 mb-3">
-                                                <Input 
-                                                    placeholder="Nhập mật khẩu"
-                                                    value={passwordReset} 
-                                                    onChange={(e) => {setNewPasswordReset(e.target.value)}} className="mb-3"
-                                                />
-                                                <Button type="submit" disabled={resetPassword.isPending} onClick={() => handleResetPassword(selectedItem)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
-                                                    {
-                                                        resetPassword.isPending ? <Spinner className="text-white"/> : "Confirm"
-                                                    }
-                                                </Button>
-                                            </div>
-                                        </>)
-                                    }
+                                    <div className="flex flex-col items-end gap-2 mb-3">
+                                        <Input 
+                                            placeholder="Nhập mật khẩu"
+                                            value={passwordReset} 
+                                            onChange={(e) => {setNewPasswordReset(e.target.value)}} className="mb-3"
+                                        />
+                                        <Button type="submit" disabled={resetPassword.isPending} onClick={() => handleResetPassword(selectedItem)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
+                                            {
+                                                resetPassword.isPending ? <Spinner className="text-white"/> : "Confirm"
+                                            }
+                                        </Button>
+                                    </div>
                                 </DialogContent>
                         </Dialog>
                     )}

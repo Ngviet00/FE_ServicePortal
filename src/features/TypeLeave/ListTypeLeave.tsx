@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 
 export default function ListTypeLeave () {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0];
     const [page, setPage] = useState(1)
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
@@ -90,7 +91,7 @@ export default function ListTypeLeave () {
                                     typeLeaves.map((item: ITypeLeave) => (
                                         <TableRow key={item.id}>
                                             <TableCell className="font-medium text-left">{item?.id}</TableCell>
-                                            <TableCell className="font-medium text-left">{item?.name}</TableCell>
+                                            <TableCell className="font-medium text-left">{lang == 'vi' ? item?.nameV : item?.name}</TableCell>
                                             <TableCell className="text-right">
                                                 <CreateTypeLeaveForm typeLeave={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-type-leave'] })}/>
                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>

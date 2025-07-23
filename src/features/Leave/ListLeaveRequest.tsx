@@ -23,6 +23,7 @@ import { formatDate } from "@/lib/time"
 
 export default function ListLeaveRequest () {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0];
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
@@ -249,8 +250,8 @@ export default function ListLeaveRequest () {
                                                 <TableCell className="text-left">{item.position}</TableCell>
                                                 <TableCell className="text-left">{ formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
                                                 <TableCell className="text-left">{ formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
-                                                <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
+                                                <TableCell className="text-left">{lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</TableCell>
+                                                <TableCell className="text-left">{lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</TableCell>
                                                 <TableCell className="text-center">{item.reason}</TableCell>
                                                 <TableCell className="text-center font-bold text-red-700">{item.userNameWriteLeaveRequest}</TableCell>
                                                 {
@@ -360,10 +361,10 @@ export default function ListLeaveRequest () {
                                         <div className="mb-1 font-bold">{item.name} ({item.requesterUserCode})</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {item.fromDate}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{item.toDate}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {item?.typeLeave?.name}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {item?.timeLeave?.description}</div>
+                                        <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                        <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                        <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</div>
+                                        <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
                                         <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
                                         {

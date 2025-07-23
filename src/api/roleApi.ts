@@ -2,7 +2,7 @@ import axiosClient from './axiosClient';
 
 interface GetAllParams {
     page: number;
-    page_size: number;
+    pageSize: number;
     name?: string;
 }
 

@@ -1,26 +1,23 @@
-import memoNotificationApi, { IMemoNotify, useDeleteMemoNotification } from "@/api/memoNotificationApi";
+import memoNotificationApi, { IMemoNotify } from "@/api/memoNotificationApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table } from "@/components/ui/table"
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/time";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { RoleEnum } from "@/lib";
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import "./style.css"
 
-export default function MemoNotification () {
+export default function WaitApprovalNotification () {
     const { t } = useTranslation()
     const { user } = useAuthStore()
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(5)
     const [totalPage, setTotalPage] = useState(0)
-    const queryClient = useQueryClient();
-    const deleteMemoNotify = useDeleteMemoNotification();
 
     function setCurrentPage(page: number): void {
         setPage(page)
@@ -44,24 +41,10 @@ export default function MemoNotification () {
         enabled: user?.departmentId != null || user?.departmentId != undefined
     });
 
-    function handleSuccessDelete(shouldGoBack?: boolean) {
-        if (shouldGoBack && page > 1) {
-            setPage(prev => prev - 1);
-        } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-memo-notify'] });
-        }
-    }
-
-    const handleDelete = async (id: string | undefined) => {
-        const shouldGoBack = MemoNotify.length === 1;
-        await deleteMemoNotify.mutateAsync(id);
-        handleSuccessDelete(shouldGoBack);
-    };
-
     return (
         <div className="p-1 pl-1 pt-0 space-y-4 list-memo-notify">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{t('memo_notification.list.title_page')}</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('memo_notification.list.wait_approval')}</h3>
                 <Button asChild className="w-full sm:w-auto">
                     <Link to="/memo-notify/create">{t('memo_notification.list.btn_create_memo_notify')}</Link>
                 </Button>
@@ -114,12 +97,11 @@ export default function MemoNotification () {
                                     <td data-label="Người tạo" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">{item?.createdBy}</td>
                                     <td data-label="Hành động" id="td-action" className="text-black dark:text-white px-4 py-4">
                                         <Link
-                                            to={`/memo-notify/edit/${item.id}`}
+                                            to={`/memo-notify/detail-wait-approval/${item.id}`}
                                             className="bg-black text-white px-2 py-1 rounded-[3px] leading-none text-sm"
                                         >
-                                            Edit
+                                            {t('memo_notification.list.view')}
                                         </Link>
-                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)} />
                                     </td>
                                 </tr>
                             ))

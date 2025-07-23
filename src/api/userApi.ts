@@ -8,6 +8,11 @@ interface DataUserRole {
     role_ids: number[]
 }
 
+interface DataUserPermission {
+    user_code: string,
+    permission_ids: number[]
+}
+
 interface GetUser {
     page?: number;
     page_size?: number;
@@ -85,6 +90,9 @@ const userApi = {
     updateUserRole(data: DataUserRole) {
         return axiosClient.post(`/user/update-user-role`, data)
     },
+    updateUserPermission(data: DataUserPermission) {
+        return axiosClient.post(`/user/update-user-permission`, data)
+    },
     resetPassword (data: ResetPasswordRequest) {
         return axiosClient.post(`/user/reset-password`, data)
     },
@@ -96,7 +104,38 @@ const userApi = {
     },
     getUserToSelectMngTKeeping(params: getUserToSelectMngTKeeping) {
         return axiosClient.get('/user/search-all-user-from-viclock', {params})
+    },
+    getRoleAndPermissionOfUser(userCode: string) {
+        return axiosClient.get(`/user/get-role-permission-user?userCode=${userCode}`)
     }
+}
+
+export function useUpdateUserRole () {
+    return useMutation({
+        mutationFn: async (request: DataUserRole) => {
+            await userApi.updateUserRole(request)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useUpdateUserPermission () {
+    return useMutation({
+        mutationFn: async (request: DataUserPermission) => {
+            await userApi.updateUserPermission(request)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useResetPassword () {

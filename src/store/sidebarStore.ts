@@ -1,4 +1,4 @@
-import { House, LockKeyhole, Ticket, ShieldCheck, Users } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -37,17 +37,19 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.type_leave", route: "/type-leave" },
 			{ label: "sidebar.hr.list_user", route: "/user" },
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
-			{ label: "sidebar.union.create_notify", route: "/memo-notify", parentKey: "HR" },
 			{ label: "sidebar.hr.mng_time_keeping", route: "/hr-mng-timekeeping" },
 			{ label: "sidebar.hr.mng_leave_request", route: "/hr-mng-leave-request" },
 		],
 	},
 	{
-		key: "Union",
-		label: "sidebar.union.union",
-		icon: ShieldCheck,
+		key: "MemoNotification",
+		label: "sidebar.notification.title",
+		icon: Bell,
 		children: [
-			{ label: "sidebar.union.create_notify", route: "/memo-notify", parentKey: "Union" },
+			{ label: "sidebar.notification.create", route: "/memo-notify/create" },
+			{ label: "sidebar.notification.list", route: "/memo-notify" },
+			{ label: "sidebar.notification.wait_approval", route: "/memo-notify/wait-approval"},
+			{ label: "sidebar.notification.history_approval", route: "/memo-notify/history-approval"},
 		],
 	},
 	{

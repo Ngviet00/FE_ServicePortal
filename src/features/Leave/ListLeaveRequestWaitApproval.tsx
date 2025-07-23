@@ -29,6 +29,7 @@ import { formatDate } from "@/lib/time"
 
 export default function ListLeaveRequestWaitApproval () {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0];
     const [loading, setLoading] = useState(false)
     const [loadingRegisterAll, setLoadingRegisterAll] = useState(false)
     const [totalPage, setTotalPage] = useState(0)
@@ -208,9 +209,9 @@ export default function ListLeaveRequestWaitApproval () {
                                 <TableCell className="text-left">{item.department}</TableCell>
                                 <TableCell className="text-left">{item.position}</TableCell>
                                 <TableCell className="text-left">{formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                <TableCell className="text-left">{formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
-                                <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
+                                <TableCell className="text-left">{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                <TableCell className="text-left">{lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</TableCell>
+                                <TableCell className="text-left">{lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</TableCell>
                                 <TableCell className="text-left">{item.reason}</TableCell>
                                 <TableCell className="text-left text-red-800 font-bold">{item.userNameWriteLeaveRequest}</TableCell>
                                 <TableCell className="text-left text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</TableCell>
@@ -254,8 +255,8 @@ export default function ListLeaveRequestWaitApproval () {
                             <div><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
                             <div><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                             <div><strong>{t('list_leave_request.to')}:</strong> {formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                            <div><strong>{t('list_leave_request.type_leave')}:</strong> {item?.typeLeave?.name}</div>
-                            <div><strong>{t('list_leave_request.time_leave')}:</strong> {item?.timeLeave?.description}</div>
+                            <div><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</div>
+                            <div><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</div>
                             <div><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
                             <div><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
                             <div><strong>{t('list_leave_request.approve_by')}:</strong> <span className="text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</span></div>

@@ -16,7 +16,7 @@ export default function ListRole () {
     const [name, setName] = useState("")
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(20)
+    const [pageSize, setPageSize] = useState(10)
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
     
@@ -25,7 +25,7 @@ export default function ListRole () {
         queryFn: async () => {
             const res = await roleApi.getAll({
                 page: page,
-                page_size: pageSize,
+                pageSize: pageSize,
                 name: debouncedName
             });
             setTotalPage(res.data.total_pages)

@@ -21,6 +21,7 @@ import DotRequireComponent from "@/components/DotRequireComponent";
 import departmentApi from "@/api/departmentApi";
 import FileListPreview from "@/components/ComponentCustom/FileListPreviewMemoNotify";
 import systemConfigApi from "@/api/systemConfigApi";
+import useHasPermission from "@/hooks/useHasPermission";
 
 // Remove all HTML tags to check empty
 const isQuillContentEmpty = (html: string) => {
@@ -63,6 +64,7 @@ export default function CreateMemoNotification () {
     const { t } = useTranslation();
     const { user } = useAuthStore()
     const { id } = useParams<{ id: string }>();
+    const hasPermissionCreateNotification = useHasPermission(['memo_notification.create'])
 
     const [localFiles, setLocalFiles] = useState<File[]>([]);
     const [uploadedFiles, setUploadedFiles] = useState<{ id: string, fileName: string; contentType: string }[]>([]);
@@ -109,6 +111,11 @@ export default function CreateMemoNotification () {
     });
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        if (!hasPermissionCreateNotification) {
+            ShowToast("Bạn không có quyền tạo thông báo, liên hệ Team IT", "error")
+            return
+        }
+        
         const formData = new FormData();
 
         formData.append("title", values.title);

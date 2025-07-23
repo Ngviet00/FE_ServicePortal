@@ -1,26 +1,23 @@
-import memoNotificationApi, { IMemoNotify, useDeleteMemoNotification } from "@/api/memoNotificationApi";
+import memoNotificationApi, { IMemoNotify } from "@/api/memoNotificationApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table } from "@/components/ui/table"
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/time";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { RoleEnum } from "@/lib";
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import "./style.css"
 
-export default function MemoNotification () {
+export default function HistoryApprovalNotification () {
     const { t } = useTranslation()
     const { user } = useAuthStore()
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(5)
     const [totalPage, setTotalPage] = useState(0)
-    const queryClient = useQueryClient();
-    const deleteMemoNotify = useDeleteMemoNotification();
 
     function setCurrentPage(page: number): void {
         setPage(page)
@@ -44,24 +41,10 @@ export default function MemoNotification () {
         enabled: user?.departmentId != null || user?.departmentId != undefined
     });
 
-    function handleSuccessDelete(shouldGoBack?: boolean) {
-        if (shouldGoBack && page > 1) {
-            setPage(prev => prev - 1);
-        } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-memo-notify'] });
-        }
-    }
-
-    const handleDelete = async (id: string | undefined) => {
-        const shouldGoBack = MemoNotify.length === 1;
-        await deleteMemoNotify.mutateAsync(id);
-        handleSuccessDelete(shouldGoBack);
-    };
-
     return (
         <div className="p-1 pl-1 pt-0 space-y-4 list-memo-notify">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{t('memo_notification.list.title_page')}</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('memo_notification.list.history_approval')}</h3>
                 <Button asChild className="w-full sm:w-auto">
                     <Link to="/memo-notify/create">{t('memo_notification.list.btn_create_memo_notify')}</Link>
                 </Button>
@@ -72,13 +55,15 @@ export default function MemoNotification () {
                     <thead className="text-sm text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th className="pl-4 py-3 min-w-[180px] dark:text-white">{t('memo_notification.list.title')}</th>
-                            <th className="px-4 py-3 min-w-[450px]">{t('memo_notification.list.content')}</th>
-                            <th className="px-4 py-3 min-w-[200px]">{t('memo_notification.list.department_apply')}</th>
+                            <th className="px-4 py-3 min-w-[380px]">{t('memo_notification.list.content')}</th>
+                            <th className="px-4 py-3 min-w-[160px]">{t('memo_notification.list.department_apply')}</th>
                             <th className="px-4 py-3 min-w-[180px]">{t('memo_notification.list.display')}</th>
-                            <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.status')}</th>
+                            <th className="px-4 py-3 min-w-[70px]">{t('memo_notification.list.status')}</th>
                             <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.created_at')}</th>
                             <th className="px-4 py-3 min-w-[120px]">{t('memo_notification.list.created_by')}</th>
-                            <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.action')}</th>
+                            <th className="px-4 py-3 min-w-[120px]">{t('memo_notification.list.approved_by')}</th>
+                            <th className="px-4 py-3 min-w-[140px]">{t('memo_notification.list.approved_at')}</th>
+                            <th className="px-4 py-3 min-w-[140px]">{t('memo_notification.list.approval_status')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,7 +76,9 @@ export default function MemoNotification () {
                                 <td data-label="Trạng thái" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label="Thời gian tạo" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label="Người tạo" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
-                                <td data-label="Hành động" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label="Người duyệt" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label="Thời gian duyệt" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label="Trạng thái duyệt" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                             </tr>
                         ) : isError || MemoNotify.length === 0 ? (
                             <tr>
@@ -112,14 +99,14 @@ export default function MemoNotification () {
                                     </td>
                                     <td data-label="Thời gian tạo" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">{formatDate(item?.createdAt?.toString() ?? "", "yyyy/MM/dd HH:mm:ss")}</td>
                                     <td data-label="Người tạo" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">{item?.createdBy}</td>
-                                    <td data-label="Hành động" id="td-action" className="text-black dark:text-white px-4 py-4">
-                                        <Link
-                                            to={`/memo-notify/edit/${item.id}`}
-                                            className="bg-black text-white px-2 py-1 rounded-[3px] leading-none text-sm"
-                                        >
-                                            Edit
-                                        </Link>
-                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)} />
+                                    <td data-label="Người duyệt" id="td-action" className="text-black dark:text-white px-4 py-4">
+                                        Nguyen Van A
+                                    </td>
+                                    <td data-label="Thời gian duyệt" id="td-action" className="text-black dark:text-white px-4 py-4">
+                                        2025-10-69
+                                    </td>
+                                    <td data-label="Trạng thái duyệt" id="td-action" className="text-black dark:text-white px-4 py-4">
+                                        <span className="bg-green-500 p-1 text-white rounded">Complete</span>
                                     </td>
                                 </tr>
                             ))

@@ -20,9 +20,11 @@ export interface LeaveRequestData {
     createdAt?: string | null,
     typeLeave?: {
         name?: string
+        nameV?: string
     },
     timeLeave?: {
-        description?: string
+        description?: string,
+        english?: string
     }
     applicationForm?: {
         currentPositionId: number | null,
@@ -49,12 +51,29 @@ export interface HistoryLeaveRequestApproval {
     position: string | null,
     fromDate: string | null,
     toDate: string | null,
-    timeLeave: number | null,
-    typeLeave: number | null,
     reason: string| null
     image?: string | null,
     approverName?: string | null,
     approvalAt?: string | null,
+    typeLeave?: {
+        name?: string,
+        nameV?: string,
+    },
+    timeLeave?: {
+        description?: string,
+        english?: string,
+    }
+    applicationForm?: {
+        currentPositionId: number | null,
+        status: string | null,
+        createdAt: string | null
+    },
+    historyApplicationForm?: {
+        userApproval?: string | null,
+        actionType?: string | null,
+        comment?: string | null
+        createdAt: string | null
+    }
 }
 
 interface GetLeaveRequest {

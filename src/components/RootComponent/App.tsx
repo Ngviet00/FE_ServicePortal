@@ -28,6 +28,10 @@ import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOther
 import PersonalInfo from '@/pages/PersonalInfo';
 import './App.css'
 import HRManagementLeaveRequest from '@/features/Leave/HRManagementLeaveRequest';
+import RoleAndPermissionUser from '@/features/User/RoleAndPermissionUser';
+import HistoryApprovalNotification from '@/features/MemoNotification/HistoryApprovalNotification';
+import WaitApprovalNotification from '@/features/MemoNotification/WaitApprovalNotification';
+import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/DetailMemoNotification';
 
 function App() {
 	const location = useLocation();
@@ -48,6 +52,7 @@ function App() {
 		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: [RoleEnum.HR] },
 		
 		{ path: "/user", element: <ListUser />, allowedRoles: [RoleEnum.HR] },
+		{ path: "/user/role-and-permission/:usercode", element: <RoleAndPermissionUser />, allowedRoles: [RoleEnum.SUPERADMIN] },
 		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: [RoleEnum.HR] },
 		
 		{ path: "/leave", element: <ListLeaveRequest/> },
@@ -60,9 +65,12 @@ function App() {
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>, allowedPermissions: ['time_keeping.mng_time_keeping']},
 
-		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
-		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
-		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION] },
+		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/memo-notify/wait-approval", element: <WaitApprovalNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/memo-notify/history-approval", element: <HistoryApprovalNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/memo-notify/detail-wait-approval/:id", element: <DetailMemoNotificationWaitApproval/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
 
 		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
 		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: [RoleEnum.SUPERADMIN] },

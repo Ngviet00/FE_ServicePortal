@@ -52,9 +52,12 @@
 			"mng_time_keeping": "QL Chấm công",
 			"mng_leave_request": "QL Nghỉ phép"
 		},
-		"union": {
-			"union": "Công đoàn",
-			"create_notify": "Thông báo"
+		"notification": {
+			"title": "Thông báo",
+			"create": "Tạo thông báo",
+			"list": "Danh sách thông báo",
+			"wait_approval": "Chờ duyệt",
+			"history_approval": "Đã duyệt"
 		},
 		"leave_request": {
 			"title": "Nghỉ phép",
@@ -254,6 +257,11 @@
 	},
 	"memo_notification": {
 		"list": {
+			"approved_by": "Người duyệt",
+			"approved_at": "Thời gian duyệt",
+			"approval_status": "Trạng thái hiện tại",
+			"wait_approval": "Chờ duyệt",
+			"history_approval": "Đã duyệt",
 			"title_page": "Danh sách thông báo",
 			"btn_create_memo_notify": "Tạo thông báo",
 			"title": "Tiêu đề",
@@ -265,7 +273,8 @@
 			"created_by": "Người tạo",
 			"action": "Hành động",
 			"btn_save": "Lưu",
-			"attachments": "Đính kèm file"
+			"attachments": "Đính kèm file",
+			"view": "Xem"
 		}
 	}
 }

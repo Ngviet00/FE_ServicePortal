@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table"
 import leaveRequestApi, { HistoryLeaveRequestApproval } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
-import { ENUM_TIME_LEAVE, ENUM_TYPE_LEAVE, getEnumName, useDebounce } from "@/lib"
+import { useDebounce } from "@/lib"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
@@ -19,12 +19,13 @@ import DateTimePicker from "@/components/ComponentCustom/Flatpickr"
 
 export default function HistoryListApproval () {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0];
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const {user} = useAuthStore()
     const [keysearch, setKeySearch] = useState("")
-    const [date, setDate] = useState(new Date().toString())
+    const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
 
     const debouncedkeySearch = useDebounce(keysearch, 300);
     
@@ -123,13 +124,13 @@ export default function HistoryListApproval () {
                                         <TableCell className="text-left">{item.name}</TableCell>
                                         <TableCell className="text-left">{item.department}</TableCell>
                                         <TableCell className="text-left">{item.position}</TableCell>
-                                        <TableCell className="text-left">{item.fromDate}</TableCell>
-                                        <TableCell className="text-left">{item.toDate}</TableCell>
-                                        <TableCell className="text-left">{item?.typeLeave?.name}</TableCell>
-                                        <TableCell className="text-left">{item?.timeLeave?.description}</TableCell>
+                                        <TableCell className="text-left">{formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                        <TableCell className="text-left">{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                        <TableCell className="text-left">{lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</TableCell>
+                                        <TableCell className="text-left">{lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</TableCell>
                                         <TableCell className="text-left">{item.reason}</TableCell>
-                                        <TableCell className="text-left">{item?.historyApplicationForm?.userApproval?? "--"}</TableCell>
-                                        <TableCell className="text-left">{formatDate(item.historyApplicationForm.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>    
+                                        <TableCell className="text-left font-bold text-red-700">{item?.historyApplicationForm?.userApproval?? "--"}</TableCell>
+                                        <TableCell className="text-left">{formatDate(item?.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>    
                                     </TableRow>
                                 ))
                             )}
@@ -140,11 +141,11 @@ export default function HistoryListApproval () {
                 <div className="sm:hidden space-y-4">
                     {isPending
                     ? Array.from({ length: 3 }).map((_, index) => (
-                        <div key={index} className="p-4 border rounded shadow-sm">
-                            <Skeleton className="h-4 w-[80%] bg-gray-300 mb-2" />
-                            <Skeleton className="h-4 w-[60%] bg-gray-300 mb-2" />
-                            <Skeleton className="h-4 w-[90%] bg-gray-300 mb-2" />
-                        </div>
+                            <div key={index} className="p-4 border rounded shadow-sm">
+                                <Skeleton className="h-4 w-[80%] bg-gray-300 mb-2" />
+                                <Skeleton className="h-4 w-[60%] bg-gray-300 mb-2" />
+                                <Skeleton className="h-4 w-[90%] bg-gray-300 mb-2" />
+                            </div>
                         ))
                     : isError || leaveRequests.length === 0
                     ? (
@@ -156,10 +157,10 @@ export default function HistoryListApproval () {
                             <div><strong>{t('list_leave_request.name')}:</strong> {item.name}</div>
                             <div><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
                             <div><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
-                            <div><strong>{t('list_leave_request.from')}:</strong> {item.fromDate}</div>
-                            <div><strong>{t('list_leave_request.to')}:</strong> {item.toDate}</div>
-                            <div><strong>{t('list_leave_request.type_leave')}:</strong> {getEnumName(item.typeLeave?.toString() ?? "", ENUM_TYPE_LEAVE)}</div>
-                            <div><strong>{t('list_leave_request.time_leave')}:</strong> {getEnumName(item.timeLeave?.toString() ?? "", ENUM_TIME_LEAVE)}</div>
+                            <div><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                            <div><strong>{t('list_leave_request.to')}:</strong> {formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                            <div><strong>{t('list_leave_request.type_leave')}:</strong>{lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</div>
+                            <div><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</div>
                             <div><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
                             <div><strong>{t('list_leave_request.approve_by')}:</strong> <span>{item.approverName ?? "--"}</span></div>
                             <div><strong>{t('list_leave_request.approved_at')}:</strong> {formatDate(item.approvalAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
