@@ -11,24 +11,23 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ allowedRoles, allowedPermissions, children }: PrivateRouteProps) => {
-	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+	const { user } = useAuthStore();
 	const hasRole = useHasRole(allowedRoles ?? []);
-	const isChangePassword = useAuthStore((state) => state.user?.isChangePassword)
 	const hasPermission = useHasPermission(allowedPermissions ?? [])
 
-	if (isAuthenticated && Number(isChangePassword) === 0 && location.pathname !== "/change-password") {
-		return <Navigate to="/change-password" replace />;
-	}
-
-	if (!isAuthenticated) {
+	if (!user) {
 		return <Navigate to="/login" replace />;
 	}
 
-	if (!hasRole && allowedRoles && allowedRoles.length > 0) {
-		return <Navigate to="/forbidden" replace />;
-	}
+	if (user && user?.isChangePassword == 0 && location.pathname !== "/change-password") {
+        return <Navigate to="/change-password" replace />;
+    }
 
-	if (!hasPermission && allowedPermissions && allowedPermissions.length > 0) {
+	if (!allowedRoles?.length && !allowedPermissions?.length) {
+        return <>{children}</>;
+    }
+
+	if (!hasRole && !hasPermission) {
 		return <Navigate to="/forbidden" replace />;
 	}
 

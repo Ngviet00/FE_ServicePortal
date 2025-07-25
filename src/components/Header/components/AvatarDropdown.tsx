@@ -18,6 +18,7 @@ export default function AvatarDropdown() {
 				refreshToken: refreshToken
 			});
 			logout();
+			navigate("/login")
 		} catch (err) {
 			ShowToast(getErrorMessage(err), "error")
 		}

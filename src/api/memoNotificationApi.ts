@@ -4,9 +4,30 @@ import axiosClient from './axiosClient';
 
 interface GetAll {
     currentUserCode?: string,
-    RoleName: string | null | undefined
     Page: number
     PageSize: number
+}
+
+interface GetMemoNotifyWaitApproval {
+    OrgUnitId?: number,
+    Page: number
+    PageSize: number
+}
+
+interface GetHistoryMemoNotifyWaitApproval {
+    currentUserCode?: string,
+    Page: number
+    PageSize: number
+}
+
+interface ApprovalMemoNotify {
+    UserCodeApproval?: string,
+    UserNameApproval?: string,
+    OrgUnitId?: number,
+    MemoNotificationId?: string,
+    Status?: boolean,
+    Note?: string,
+    urlFrontend?: string
 }
 
 export interface IMemoNotify {
@@ -25,12 +46,24 @@ export interface IMemoNotify {
     updatedAt?: Date,
     applyAllDepartment: boolean,
     attachments: File[],
-    departmentNames?: string
+    departmentNames?: string,
+    requestStatusId?: number,
+    comment?: string,
+    userApproval?: string,
+    historyApplicationFormCreatedAt?: Date | string | undefined,
 };
 
 const memoNotificationApi = {
     getAll(params: GetAll) {
         return axiosClient.get('/memo-notification/get-all', {params})
+    },
+
+    getWaitApproval(params: GetMemoNotifyWaitApproval) {
+        return axiosClient.get('/memo-notification/get-all-wait-approval', {params})
+    },
+
+    getHistoryApproval(params: GetHistoryMemoNotifyWaitApproval) {
+        return axiosClient.get('/memo-notification/get-all-history-approval', {params})
     },
 
     getAllInHomePage(params: {DepartmentId: number | null |undefined }) {
@@ -39,6 +72,10 @@ const memoNotificationApi = {
 
     getById(id: string) {
         return axiosClient.get(`/memo-notification/${id}`)
+    },
+
+    approval(data: ApprovalMemoNotify) {
+        return axiosClient.post(`/memo-notification/approval`, data)
     },
 
     create(formData: FormData) {
@@ -66,6 +103,20 @@ const memoNotificationApi = {
             responseType: 'blob',
         })
     }
+}
+
+export function useApprovalMemoNotify() {
+    return useMutation({
+        mutationFn: async (data: ApprovalMemoNotify) => {
+            await memoNotificationApi.approval(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useCreateMemoNotification() {

@@ -11,7 +11,7 @@ export default function DetailMemoNotification() {
     const { id } = useParams<{ id: string }>();
 
     const { data: memo } = useQuery({
-        queryKey: ['get-detail-memk-notify'],
+        queryKey: ['get-detail-memo-notify'],
         queryFn: async () => {
             const res = await memoNotificationApi.getById(id!);
             setUploadedFiles(res?.data?.data?.files || []);
@@ -50,6 +50,13 @@ export default function DetailMemoNotification() {
                     Created At:{" "}
                     <span className="font-bold text-black dark:text-white">
                         {formatDate(memo.createdAt, "yyyy/MM/dd HH:mm:ss")}
+                    </span>
+                </span>
+                <span className='dark:text-white'>•</span>
+                <span className='dark:text-white'>
+                    Department apply: {" "}
+                    <span className="font-bold text-black dark:text-white">
+                        { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo.departmentNames }
                     </span>
                 </span>
             </div>

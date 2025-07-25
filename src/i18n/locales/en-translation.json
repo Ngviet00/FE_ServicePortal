@@ -275,7 +275,8 @@
 			"action": "Action",
 			"btn_save": "Save",
 			"attachments": "Attach file",
-			"view": "View"
+			"view": "View",
+			"note": "Note"
 		}
 	}
 }

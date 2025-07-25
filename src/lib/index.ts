@@ -143,3 +143,12 @@ export const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 };
+
+export enum STATUS_ENUM {
+    PENDING = 1,
+    IN_PROCESS = 2,
+    COMPLETED = 3,
+    REJECT = 4,
+    ACCIDENT = 5,
+    FINAL_APPROVAL = 6,
+}

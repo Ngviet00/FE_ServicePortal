@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/time";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
-import { RoleEnum } from "@/lib";
+import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import "./style.css"
@@ -34,14 +34,11 @@ export default function MemoNotification () {
     const { data: MemoNotify, isPending, isError, error } = useQuery({
         queryKey: ['get-all-memo-notify', page, pageSize],
         queryFn: async () => {
-            const roles = user?.roles ?? [];
-            const matchedRole = roles.find((role: string) =>role?.includes(RoleEnum.HR) || role?.includes(RoleEnum.UNION));
             
-            const res = await memoNotificationApi.getAll({RoleName: matchedRole, Page: page, PageSize: pageSize, currentUserCode: user?.userCode})
+            const res = await memoNotificationApi.getAll({Page: page, PageSize: pageSize, currentUserCode: user?.userCode})
             setTotalPage(res.data.total_pages)
             return res.data.data;
-        },
-        enabled: user?.departmentId != null || user?.departmentId != undefined
+        }
     });
 
     function handleSuccessDelete(shouldGoBack?: boolean) {
@@ -71,14 +68,18 @@ export default function MemoNotification () {
                 <Table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-auto">
                     <thead className="text-sm text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th className="pl-4 py-3 min-w-[180px] dark:text-white">{t('memo_notification.list.title')}</th>
-                            <th className="px-4 py-3 min-w-[450px]">{t('memo_notification.list.content')}</th>
-                            <th className="px-4 py-3 min-w-[200px]">{t('memo_notification.list.department_apply')}</th>
-                            <th className="px-4 py-3 min-w-[180px]">{t('memo_notification.list.display')}</th>
-                            <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.status')}</th>
+                            <th className="pl-4 py-3 min-w-[220px] dark:text-white">{t('memo_notification.list.title')}</th>
+                            <th className="px-4 py-3 min-w-[320px]">{t('memo_notification.list.content')}</th>
+                            <th className="px-4 py-3 min-w-[150px]">{t('memo_notification.list.department_apply')}</th>
+                            <th className="px-4 py-3 min-w-[60px]">{t('memo_notification.list.display')}</th>
+                            <th className="px-4 py-3 min-w-[60px]">{t('memo_notification.list.status')}</th>
                             <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.created_at')}</th>
                             <th className="px-4 py-3 min-w-[120px]">{t('memo_notification.list.created_by')}</th>
-                            <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.action')}</th>
+                            <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.approval_status')}</th>
+                            <th className="px-4 py-3 min-w-[150px]">{t('memo_notification.list.note')}</th>
+                            <th className="px-4 py-3 min-w-[150px]">{t('memo_notification.list.approved_by')}</th>
+                            <th className="px-4 py-3 min-w-[150px]">{t('memo_notification.list.approved_at')}</th>
+                            <th className="px-4 py-3 min-w-[140px]">{t('memo_notification.list.action')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,11 +92,15 @@ export default function MemoNotification () {
                                 <td data-label="Trạng thái" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label="Thời gian tạo" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label="Người tạo" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label="Trạng thái phê duyệt" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label="Ghi chú" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label="Người duyệt" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label="Thời gian duyệt" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label="Hành động" className="px-4 py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                             </tr>
                         ) : isError || MemoNotify.length === 0 ? (
                             <tr>
-                                <td className={`${isError ? "text-red-700" : "text-black"} h-[35px] font-medium text-center`} colSpan={8}>
+                                <td className={`${isError ? "text-red-700" : "text-black"} h-[35px] font-medium text-center`} colSpan={12}>
                                     {error?.message ?? "No results"}
                                 </td>
                             </tr>
@@ -112,14 +117,26 @@ export default function MemoNotification () {
                                     </td>
                                     <td data-label="Thời gian tạo" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">{formatDate(item?.createdAt?.toString() ?? "", "yyyy/MM/dd HH:mm:ss")}</td>
                                     <td data-label="Người tạo" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">{item?.createdBy}</td>
+                                    <td data-label="Trạng thái phê duyệt" className="text-black text-center border-b border-[#b1b1b169] dark:text-white px-4 py-4">
+                                        <StatusLeaveRequest status={item?.requestStatusId == 6 ? "In Process" : item?.requestStatusId}/>
+                                    </td>
+                                    <td data-label="Ghi chú" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">
+                                        {item?.comment && item?.comment != '' ? item?.comment : "--"}
+                                    </td>
+                                    <td data-label="Người duyệt" className="border-b border-[#b1b1b169] dark:text-white px-4 py-4 font-bold text-red-700">
+                                        {item?.userApproval ?? "--"}
+                                    </td>
+                                     <td data-label="Thời gian duyệt" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">
+                                        {item?.historyApplicationFormCreatedAt ? formatDate(item?.historyApplicationFormCreatedAt, "yyyy/MM/dd HH:mm:ss") : "--"}
+                                    </td>
                                     <td data-label="Hành động" id="td-action" className="text-black dark:text-white px-4 py-4">
                                         <Link
                                             to={`/memo-notify/edit/${item.id}`}
-                                            className="bg-black text-white px-2 py-1 rounded-[3px] leading-none text-sm"
+                                            className="bg-black text-white px-2 py-0.5 rounded-[3px] leading-none text-sm"
                                         >
                                             Edit
                                         </Link>
-                                        <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)} />
+                                        <ButtonDeleteComponent className="" id={item.id} onDelete={() => handleDelete(item.id)} />
                                     </td>
                                 </tr>
                             ))

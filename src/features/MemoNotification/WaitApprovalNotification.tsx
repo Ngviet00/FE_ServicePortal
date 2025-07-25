@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/time";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
-import { RoleEnum } from "@/lib";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import "./style.css"
 
@@ -29,16 +28,12 @@ export default function WaitApprovalNotification () {
     }
 
     const { data: MemoNotify, isPending, isError, error } = useQuery({
-        queryKey: ['get-all-memo-notify', page, pageSize],
+        queryKey: ['get-all-wait-approval', page, pageSize],
         queryFn: async () => {
-            const roles = user?.roles ?? [];
-            const matchedRole = roles.find((role: string) =>role?.includes(RoleEnum.HR) || role?.includes(RoleEnum.UNION));
-            
-            const res = await memoNotificationApi.getAll({RoleName: matchedRole, Page: page, PageSize: pageSize, currentUserCode: user?.userCode})
+            const res = await memoNotificationApi.getWaitApproval({Page: page, PageSize: pageSize, OrgUnitId: user?.orgUnitID})
             setTotalPage(res.data.total_pages)
             return res.data.data;
-        },
-        enabled: user?.departmentId != null || user?.departmentId != undefined
+        }
     });
 
     return (
@@ -55,13 +50,15 @@ export default function WaitApprovalNotification () {
                     <thead className="text-sm text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th className="pl-4 py-3 min-w-[180px] dark:text-white">{t('memo_notification.list.title')}</th>
-                            <th className="px-4 py-3 min-w-[450px]">{t('memo_notification.list.content')}</th>
-                            <th className="px-4 py-3 min-w-[200px]">{t('memo_notification.list.department_apply')}</th>
-                            <th className="px-4 py-3 min-w-[180px]">{t('memo_notification.list.display')}</th>
+                            <th className="px-4 py-3 min-w-[370px]">{t('memo_notification.list.content')}</th>
+                            <th className="px-4 py-3 min-w-[160px]">{t('memo_notification.list.department_apply')}</th>
+                            <th className="px-4 py-3 min-w-[70px]">{t('memo_notification.list.display')}</th>
                             <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.status')}</th>
                             <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.created_at')}</th>
                             <th className="px-4 py-3 min-w-[120px]">{t('memo_notification.list.created_by')}</th>
-                            <th className="px-4 py-3 min-w-[100px]">{t('memo_notification.list.action')}</th>
+                            <th className="px-4 py-3 min-w-[150px]">{t('memo_notification.list.approved_by')}</th>
+                            <th className="px-4 py-3 min-w-[150px]">{t('memo_notification.list.approved_at')}</th>
+                            <th className="px-4 py-3 min-w-[120px]">{t('memo_notification.list.action')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,7 +75,7 @@ export default function WaitApprovalNotification () {
                             </tr>
                         ) : isError || MemoNotify.length === 0 ? (
                             <tr>
-                                <td className={`${isError ? "text-red-700" : "text-black"} h-[35px] font-medium text-center`} colSpan={8}>
+                                <td className={`${isError ? "text-red-700" : "text-black"} h-[35px] font-medium text-center`} colSpan={9}>
                                     {error?.message ?? "No results"}
                                 </td>
                             </tr>
@@ -95,6 +92,12 @@ export default function WaitApprovalNotification () {
                                     </td>
                                     <td data-label="Thời gian tạo" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">{formatDate(item?.createdAt?.toString() ?? "", "yyyy/MM/dd HH:mm:ss")}</td>
                                     <td data-label="Người tạo" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">{item?.createdBy}</td>
+                                     <td data-label="Người duyệt" className="border-b border-[#b1b1b169] dark:text-white px-4 py-4 font-bold text-red-700">
+                                        {item?.userApproval ?? "--"}
+                                    </td>
+                                     <td data-label="Thời gian duyệt" className="text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">
+                                        {item?.historyApplicationFormCreatedAt ? formatDate(item?.historyApplicationFormCreatedAt, "yyyy/MM/dd HH:mm:ss") : "--"}
+                                    </td>
                                     <td data-label="Hành động" id="td-action" className="text-black dark:text-white px-4 py-4">
                                         <Link
                                             to={`/memo-notify/detail-wait-approval/${item.id}`}

@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { RoleEnum } from "@/lib";
-import leaveRequestApi from "@/api/leaveRequestApi";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
 import "./style.css"
 import useHasPermission from "@/hooks/useHasPermission";
+import userApi from "@/api/userApi";
 
 export default function Sidebar() {
 	const { t } = useTranslation();
@@ -38,12 +38,12 @@ export default function Sidebar() {
 	const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
 	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
 
-	const { data: countWaitApprovalLeaveRequest } = useQuery({
-		queryKey: ["count-wait-approval-leave-request"],
+	const { data: countWaitApprovalSidebar } = useQuery({
+		queryKey: ["count-wait-approval-sidebar"],
 		queryFn: async () => {
-			const res = await leaveRequestApi.countWaitApprovalLeaveRequest({
+			const res = await userApi.countWaitApprovalSidebar({
 				UserCode: user?.userCode,
-				OrgUnitId: user?.orgUnitID,
+				OrgUnitId: user?.orgUnitID ?? -9999,
 			});
 			return res.data.data;
 		},
@@ -109,8 +109,13 @@ export default function Sidebar() {
 								<span className="pl-5 flex-1">
 									{t(menu.label)}
 									{
-										countWaitApprovalLeaveRequest > 0 && menu.key == "leave_request"
-											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalLeaveRequest})</span>
+										countWaitApprovalSidebar?.countWaitLeaveRequest > 0 && menu.key == "leave_request"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countWaitLeaveRequest})</span>
+											: <></>
+									}
+									{
+										countWaitApprovalSidebar?.countWaitNotification > 0 && menu.key == "MemoNotification"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countWaitNotification})</span>
 											: <></>
 									}
 								</span>
@@ -162,9 +167,14 @@ export default function Sidebar() {
 												<Dot />
 												<span>
 													{t(child.label)}
-													{countWaitApprovalLeaveRequest > 0 && child.route == "/leave/wait-approval" && (
+													{countWaitApprovalSidebar?.countWaitLeaveRequest > 0 && child.route == "/leave/wait-approval" && (
 														<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
-															({countWaitApprovalLeaveRequest})
+															({countWaitApprovalSidebar?.countWaitLeaveRequest})
+														</span>
+													)}
+													{countWaitApprovalSidebar?.countWaitNotification > 0 && child.route == "/memo-notify/wait-approval" && (
+														<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+															({countWaitApprovalSidebar?.countWaitNotification})
 														</span>
 													)}
 												</span>

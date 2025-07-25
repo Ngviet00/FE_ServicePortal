@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import userApi from '@/api/userApi';
 import "./css/Homepage.css"
+import { getErrorMessage, ShowToast } from '@/lib';
 
 function formatData(data: string | null | undefined):string {
     if (data === "" || data === null || data === undefined) {
@@ -31,34 +32,32 @@ export default function HomePage() {
             });
             return res.data.data;
         },
+        enabled: user?.departmentId != undefined
     });
 
     const { data: UserData, isPending } = useQuery({
         queryKey: ['get-me'],
         queryFn: async () => {
-            const res = await userApi.getMe();
-            const departmentId = res?.data?.data?.bpMa;
-            const orgUnitID = res?.data?.data?.orgUnitID;
-            const name = res?.data?.data?.nvHoTen;
-            const email = res?.data?.data?.email;
-            const nvGioiTinh = res?.data?.data?.nvGioiTinh;
-
-            if (departmentId != user?.departmentId || 
-                orgUnitID != user?.orgUnitID || 
-                name != user?.userName ||
-                email != user?.email || 
-                nvGioiTinh != user?.nvGioiTinh
-            ) {
+            try {
+                const res = await userApi.getMe();
+                const result = res.data.data
                 updateUser({
-                    email: email,
-                    userName: name,
-                    departmentId: departmentId,
-                    orgUnitID: orgUnitID,
-                    nvGioiTinh: nvGioiTinh
+                    email: result?.email,
+                    userName: result?.nvHoTen,
+                    departmentId: result?.bpMa,
+                    orgUnitID: result?.orgUnitID,
+                    nvGioiTinh: result?.nvGioiTinh,
+                    dateOfBirth: result?.dateOfBirth,
+                    IsActive: result?.isActive,
+                    roles: result?.roles,
+                    permissions: result?.permissions
                 })
+
+                return res.data.data;
+            } catch (error) {
+                ShowToast(getErrorMessage(error), "error")
+                return null;
             }
-            
-            return res.data.data;
         },
     });
 

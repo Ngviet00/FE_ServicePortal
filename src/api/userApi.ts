@@ -63,6 +63,11 @@ interface getUserToSelectMngTKeeping {
     PageSize?: number,
 }
 
+interface CountWaitApprovalSidebar {
+    UserCode?: string,
+    OrgUnitId?: number
+}
+
 export interface UpdateUserMngTimeKeeping {
     userCode: string,
     orgUnitId: number[]
@@ -107,6 +112,9 @@ const userApi = {
     },
     getRoleAndPermissionOfUser(userCode: string) {
         return axiosClient.get(`/user/get-role-permission-user?userCode=${userCode}`)
+    },
+    countWaitApprovalSidebar(params: CountWaitApprovalSidebar) {
+        return axiosClient.get('/user/count-wait-approval-in-sidebar', {params})
     }
 }
 

@@ -31,7 +31,7 @@ import HRManagementLeaveRequest from '@/features/Leave/HRManagementLeaveRequest'
 import RoleAndPermissionUser from '@/features/User/RoleAndPermissionUser';
 import HistoryApprovalNotification from '@/features/MemoNotification/HistoryApprovalNotification';
 import WaitApprovalNotification from '@/features/MemoNotification/WaitApprovalNotification';
-import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/DetailMemoNotification';
+import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/DetailWaitApprovalMemoNotification';
 
 function App() {
 	const location = useLocation();

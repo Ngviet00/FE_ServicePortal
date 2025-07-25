@@ -12,10 +12,10 @@ import { Switch } from "@/components/ui/switch";
 import memoNotificationApi, { useCreateMemoNotification, useUpdateMemoNotification } from "@/api/memoNotificationApi";
 import { useAuthStore } from "@/store/authStore";
 import { getVietnamTime } from "@/lib/time";
-import { getErrorMessage, RoleEnum, ShowToast } from "@/lib";
+import { getErrorMessage, ShowToast } from "@/lib";
 import { useTranslation } from "react-i18next";
 import { MultiSelect } from "react-multi-select-component";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import QuillEditorCDN from "@/components/QuillEditorCDN";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import departmentApi from "@/api/departmentApi";
@@ -64,6 +64,7 @@ export default function CreateMemoNotification () {
     const { t } = useTranslation();
     const { user } = useAuthStore()
     const { id } = useParams<{ id: string }>();
+    const queryClient = useQueryClient();
     const hasPermissionCreateNotification = useHasPermission(['memo_notification.create'])
 
     const [localFiles, setLocalFiles] = useState<File[]>([]);
@@ -118,6 +119,9 @@ export default function CreateMemoNotification () {
         
         const formData = new FormData();
 
+        formData.append("orgUnitId", String(user?.orgUnitID ?? ''));
+        formData.append("urlFrontend", window.location.origin);
+
         formData.append("title", values.title);
         formData.append("content", values.content);
         formData.append("status", String(values.status));
@@ -138,10 +142,6 @@ export default function CreateMemoNotification () {
                 formData.append("deleteFiles", item);
             })
         } else {
-            const roles = user?.roles ?? [];
-            const matchedRole = roles.find((role: string) =>role?.includes(RoleEnum.HR) || role?.includes(RoleEnum.UNION));
-
-            formData.append("roleNameCreated", matchedRole ?? 'HR');
             formData.append("createdBy", String(user?.userName));
             formData.append("createdAt", String(getVietnamTime('iso')));
             formData.append("userCodeCreated", String(user?.userCode));
@@ -160,6 +160,7 @@ export default function CreateMemoNotification () {
                 await createMemoNotify.mutateAsync(formData)
             }
             navigate("/memo-notify")
+            queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
         } catch (err) {
             console.log(getErrorMessage(err));
         }
@@ -177,8 +178,6 @@ export default function CreateMemoNotification () {
                     const selectedDepartments = result.applyAllDepartment
                         ? options.map((opt: {value: string}) => opt.value)
                         : result.departmentIdApply;
-
-                    console.log(result,22)
 
                     form.reset({
                         title: result.title,
