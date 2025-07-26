@@ -4,5 +4,12 @@
     "choosing": "Choosing",
     "save": "Save",
     "choose_location_register": "Choose location",
-    "choose_click": "Choose user then click choose location"
+    "choose_click": "Choose user then click choose location",
+    "hr_mng_leave_request": "HR management leave request",
+    "assign_permission": "Assign permission",
+    "main_user": "Main user",
+    "temp_user": "Temp user",
+    "list_assign_permission": "List user assignment",
+    "action": "Action",
+    "search": "Search usercode, name.."
 }

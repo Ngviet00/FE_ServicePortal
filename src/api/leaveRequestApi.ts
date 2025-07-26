@@ -156,7 +156,27 @@ const leaveRequestApi = {
     },
     GetOrgUnitIdAttachedByUserCode(userCode: string) {
         return axiosClient.get(`/leave-request/get-org-unit-id-attach-by-usercode?userCode=${userCode}`)
+    },
+    GetHrWithManagementLeavePermission() {
+        return axiosClient.get(`/leave-request/get-user-have-permission-hr-mng-leave-request`)
+    },
+    UpdateHrWithManagementLeavePermission(data: string[]) {
+        return axiosClient.post(`/leave-request/update-user-have-permission-hr-mng-leave-request`, data)
     }
+}
+
+export function useUpdateHrWithManagementLeavePermission() {
+    return useMutation({
+        mutationFn: async (data: string[]) => {
+            await leaveRequestApi.UpdateHrWithManagementLeavePermission(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useAttachUserManageOrgUnit() {

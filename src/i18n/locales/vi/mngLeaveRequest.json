@@ -4,5 +4,12 @@
     "choosing": "Đang chọn",
     "save": "Lưu",
     "choose_location_register": "Chọn vị trí đăng ký nghỉ",
-    "choose_click": "Chọn người dùng click vào Chọn để hiển thị vị trí"
+    "choose_click": "Chọn người dùng click vào Chọn để hiển thị vị trí",
+    "hr_mng_leave_request": "HR quản lý nghỉ phép",
+    "assign_permission": "Gán quyền",
+    "main_user": "Người chính",
+    "temp_user": "Người phụ",
+    "list_assign_permission": "Danh sách gán quyền",
+    "action": "Hành động",
+    "search": "Tìm kiếm mã, tên..."
 }

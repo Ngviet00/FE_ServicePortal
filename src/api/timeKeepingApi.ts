@@ -57,7 +57,7 @@ const timekeepingApi = {
     },
 
     UpdateUserHavePermissionMngTimeKeeping(data: string[]) {
-            return axiosClient.post(`/time-keeping/update-user-have-permission-mng-timekeeping`, data)
+        return axiosClient.post(`/time-keeping/update-user-have-permission-mng-timekeeping`, data)
     },
     GetUserHavePermissionMngTimeKeeping() {
         return axiosClient.get(`/time-keeping/get-user-have-permission-mng-timekeeping`)

@@ -91,9 +91,7 @@ export default function ListLeaveRequestWaitApproval () {
         onSuccess: () => {
             ShowToast("Success");
             setShowConfirm(false)
-            queryClient.invalidateQueries({
-                queryKey: ['count-wait-approval-leave-request'],
-            });
+            queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
         }
     });
 
@@ -131,9 +129,7 @@ export default function ListLeaveRequestWaitApproval () {
                 })
                 handleApproval(shouldGoBack);
                 
-                queryClient.invalidateQueries({
-                    queryKey: ['count-wait-approval-leave-request'],
-                });
+                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
             }
             finally {   
                 setLoadingRegisterAll(false)
@@ -157,6 +153,14 @@ export default function ListLeaveRequestWaitApproval () {
                             className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
                         >
                             {t('leave_request.wait_approval.register_all')}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            disabled={loadingRegisterAll}
+                            onClick={registerAllLeave}
+                            className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                        >
+                            Export Excel
                         </Button>
                     </div>
                 )}

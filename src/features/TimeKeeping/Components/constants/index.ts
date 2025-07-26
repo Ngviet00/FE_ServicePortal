@@ -49,7 +49,7 @@ export const statusDefine: Record<AttendanceStatus, string> = {
     PL: 'Nghỉ Vợ Sinh',
     ACC: 'Nghỉ TNLĐ',
     ML: 'Nghỉ Cưới',
-    MAT: 'Nghỉ Đẻ (Vợ/Chồng)',
+    MAT: 'Nghỉ Đẻ',
     TV: 'Nghỉ Việc',
     WO: 'Working Outside'
 };
