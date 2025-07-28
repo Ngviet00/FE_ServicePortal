@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import leaveRequestApi, { LeaveRequestData, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi"
+import leaveRequestApi, { LeaveRequestData, useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import { getErrorMessage, ShowToast } from "@/lib"
@@ -24,8 +24,10 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { useTranslation } from "react-i18next"
-import useHasRole from "@/hooks/useHasRole"
 import { formatDate } from "@/lib/time"
+import { Checkbox } from "@/components/ui/checkbox"
+import useHasPermission from "@/hooks/useHasPermission"
+import { Spinner } from "@/components/ui/spinner"
 
 export default function ListLeaveRequestWaitApproval () {
     const { t } = useTranslation();
@@ -34,14 +36,13 @@ export default function ListLeaveRequestWaitApproval () {
     const [loadingRegisterAll, setLoadingRegisterAll] = useState(false)
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
+    const [pageSize, setPageSize] = useState(50)
     const [note, setNote] = useState("");
     const [selectedItem, setSelectedItem] = useState<LeaveRequestData | null>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
     const registerAllLeaveMutation = useRegisterAllLeaveRequest();
-
     // const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
@@ -113,29 +114,72 @@ export default function ListLeaveRequestWaitApproval () {
         if (!showConfirm) {
           setNote("");
         }
-      }, [showConfirm]);
+    }, [showConfirm]);
+    
+    //#region role HR and have permission mng leave req
+    const hasPermissionHrMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
 
-    const hasHRRole = useHasRole(['HR']);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const currentPageIds = leaveRequests.map((item: LeaveRequestData) => item.id);
+
+    const handleRowCheckboxChange = (id: string, checked: string | boolean) => {
+        if (checked) {
+            setSelectedIds(prev => [...prev, id]);
+        } else {
+            setSelectedIds(prev => prev.filter(item => item !== id));
+        }
+    };
+
+    const handleSelectAllCurrentPage = (checked: string | boolean) => {
+        if (leaveRequests.length > 0) {
+            if (checked) {
+                const newSelected = Array.from(new Set([...selectedIds, ...currentPageIds]));
+                setSelectedIds(newSelected);
+            } else {
+                const newSelected = selectedIds.filter(id => !currentPageIds.includes(id));
+                setSelectedIds(newSelected);
+            }
+        } else {
+            setSelectedIds([]);
+        }
+    };
+
+    const hrExportExcelLeaveRequest = useHrExportExcelLeaveRequest();
+    const handleExport = async () => {
+        if (leaveRequests.length > 0) {
+            if (selectedIds.length <= 0) {
+                ShowToast("Chọn đơn nghỉ phép muốn xuất excel", "error")
+                return
+            }
+            await hrExportExcelLeaveRequest.mutateAsync(selectedIds)
+        }
+    };
 
     const registerAllLeave = async () => {
         if (leaveRequests.length > 0) {
+            if (selectedIds.length <= 0) {
+                ShowToast("Chọn đơn nghỉ cần đăng ký", "error")
+                return
+            }
             setLoadingRegisterAll(true)
             try
             {
                 const shouldGoBack = leaveRequests.length === 1;
                 await registerAllLeaveMutation.mutateAsync({
                     UserCode: user?.userCode,
-                    UserName: user?.userName ?? ""
+                    UserName: user?.userName ?? "",
+                    leaveRequestIds: selectedIds
                 })
                 handleApproval(shouldGoBack);
-                
                 queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+                setSelectedIds([])
             }
             finally {   
                 setLoadingRegisterAll(false)
             }
         }
     }
+    //#endregion
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -144,15 +188,15 @@ export default function ListLeaveRequestWaitApproval () {
                     {t('list_leave_request.title_wait_approval')}
                 </h3>
 
-                {hasHRRole && (
+                {hasPermissionHrMngLeaveRq && (
                     <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
                         <Button
                             variant="outline"
-                            disabled={loadingRegisterAll}
-                            onClick={registerAllLeave}
-                            className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                            disabled={hrExportExcelLeaveRequest.isPending}
+                            onClick={handleExport}
+                            className="text-xs px-2 bg-blue-700 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
                         >
-                            {t('leave_request.wait_approval.register_all')}
+                            {hrExportExcelLeaveRequest.isPending ? <Spinner className="text-white" size="small"/> : t('leave_request.wait_approval.export_excel')}
                         </Button>
                         <Button
                             variant="outline"
@@ -160,7 +204,7 @@ export default function ListLeaveRequestWaitApproval () {
                             onClick={registerAllLeave}
                             className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
                         >
-                            Export Excel
+                            {t('leave_request.wait_approval.register_all')}
                         </Button>
                     </div>
                 )}
@@ -171,26 +215,37 @@ export default function ListLeaveRequestWaitApproval () {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                            <TableHead className="w-[120px] text-left">{t('list_leave_request.usercode')}</TableHead>
-                            <TableHead className="w-[180px] text-left">{t('list_leave_request.name')}</TableHead>
-                            <TableHead className="w-[130px] text-left">{t('list_leave_request.department')}</TableHead>
-                            <TableHead className="w-[100px] text-left">{t('list_leave_request.position')}</TableHead>
-                            <TableHead className="w-[150px] text-left">{t('list_leave_request.from')}</TableHead>
-                            <TableHead className="w-[150px] text-left">{t('list_leave_request.to')}</TableHead>
-                            <TableHead className="w-[120px] text-left">{t('list_leave_request.type_leave')}</TableHead>
-                            <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
-                            <TableHead className="w-[200px] text-left">{t('list_leave_request.reason')}</TableHead>
-                            <TableHead className="w-[150px] text-left">{t('list_leave_request.write_leave_name')}</TableHead>
-                            <TableHead className="w-[80px] text-left">{t('list_leave_request.approve_by')}</TableHead>
-                            <TableHead className="w-[50px] text-left">{t('list_leave_request.created_at')}</TableHead>
-                            <TableHead className="w-[50px] text-left">{t('list_leave_request.approval')}</TableHead>
+                                {
+                                    hasPermissionHrMngLeaveRq ? (
+                                        <TableHead className="w-[50px] text-left">
+                                            <Checkbox 
+                                                checked={selectedIds.length > 0 && currentPageIds.every((id: string) => selectedIds.includes(id))}
+                                                onCheckedChange={(checked) => handleSelectAllCurrentPage(checked)}
+                                                className="hover:cursor-pointer"
+                                            />
+                                        </TableHead>
+                                    ) : (<></>)
+                                }
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.usercode')}</TableHead>
+                                <TableHead className="w-[180px] text-left">{t('list_leave_request.name')}</TableHead>
+                                <TableHead className="w-[130px] text-left">{t('list_leave_request.department')}</TableHead>
+                                <TableHead className="w-[100px] text-left">{t('list_leave_request.position')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.from')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.to')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.type_leave')}</TableHead>
+                                <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
+                                <TableHead className="w-[200px] text-left">{t('list_leave_request.reason')}</TableHead>
+                                <TableHead className="w-[150px] text-left">{t('list_leave_request.write_leave_name')}</TableHead>
+                                <TableHead className="w-[80px] text-left">{t('list_leave_request.approve_by')}</TableHead>
+                                <TableHead className="w-[50px] text-left">{t('list_leave_request.created_at')}</TableHead>
+                                <TableHead className="w-[50px] text-left">{t('list_leave_request.approval')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
                                 <TableRow key={index}>
-                                {[...Array(12)].map((_, i) => (
+                                {[...Array(hasPermissionHrMngLeaveRq ? 13 : 12)].map((_, i) => (
                                     <TableCell key={i} className="text-left">
                                     <div className="flex justify-center">
                                         <Skeleton className="h-4 w-[100px] bg-gray-300" />
@@ -201,36 +256,47 @@ export default function ListLeaveRequestWaitApproval () {
                             ))
                             ) : isError || leaveRequests.length == 0 ? (
                             <TableRow>
-                                <TableCell className="text-red-700 font-medium text-left dark:text-white" colSpan={12}>
-                                {error?.message ?? t('list_leave_request.no_result')}
+                                <TableCell className="text-red-700 font-medium text-left dark:text-white" colSpan={hasPermissionHrMngLeaveRq ? 13 : 12}>
+                                    {error?.message ?? t('list_leave_request.no_result')}
                                 </TableCell>
                             </TableRow>
                             ) : (
                             leaveRequests.map((item: LeaveRequestData) => (
                                 <TableRow key={item.id}>
-                                <TableCell className="text-left">{item.requesterUserCode}</TableCell>
-                                <TableCell className="text-left">{item.name}</TableCell>
-                                <TableCell className="text-left">{item.department}</TableCell>
-                                <TableCell className="text-left">{item.position}</TableCell>
-                                <TableCell className="text-left">{formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                <TableCell className="text-left">{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                <TableCell className="text-left">{lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</TableCell>
-                                <TableCell className="text-left">{lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</TableCell>
-                                <TableCell className="text-left">{item.reason}</TableCell>
-                                <TableCell className="text-left text-red-800 font-bold">{item.userNameWriteLeaveRequest}</TableCell>
-                                <TableCell className="text-left text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</TableCell>
-                                <TableCell className="text-left">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                <TableCell className="text-left">
-                                    {hasHRRole  ? (
-                                    <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
-                                        {t('leave_request.wait_approval.register')}
-                                    </Button>
-                                    ) : (
-                                    <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-black hover:text-white">
-                                        Approval
-                                    </Button>
-                                    )}
-                                </TableCell>
+                                    {
+                                        hasPermissionHrMngLeaveRq ? (
+                                            <TableCell className="text-left">
+                                                <Checkbox
+                                                    checked={selectedIds.includes(item.id ?? "")}
+                                                    onCheckedChange={(checked) => handleRowCheckboxChange(item.id ?? "", checked)}
+                                                    className="hover:cursor-pointer"
+                                                />
+                                            </TableCell>
+                                        ) : (<></>)
+                                    }
+                                    <TableCell className="text-left">{item.requesterUserCode}</TableCell>
+                                    <TableCell className="text-left">{item.name}</TableCell>
+                                    <TableCell className="text-left">{item.department}</TableCell>
+                                    <TableCell className="text-left">{item.position}</TableCell>
+                                    <TableCell className="text-left">{formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                    <TableCell className="text-left">{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                    <TableCell className="text-left">{lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</TableCell>
+                                    <TableCell className="text-left">{lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</TableCell>
+                                    <TableCell className="text-left">{item.reason}</TableCell>
+                                    <TableCell className="text-left text-red-800 font-bold">{item.userNameWriteLeaveRequest}</TableCell>
+                                    <TableCell className="text-left text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</TableCell>
+                                    <TableCell className="text-left">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                    <TableCell className="text-left">
+                                        {hasPermissionHrMngLeaveRq ? (
+                                        <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white">
+                                            {t('leave_request.wait_approval.register')}
+                                        </Button>
+                                        ) : (
+                                        <Button variant="outline" onClick={() => setSelectedItem(item)} className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-black hover:text-white">
+                                            Approval
+                                        </Button>
+                                        )}
+                                    </TableCell>
                                 </TableRow>
                             ))
                             )}
@@ -266,7 +332,7 @@ export default function ListLeaveRequestWaitApproval () {
                             <div><strong>{t('list_leave_request.approve_by')}:</strong> <span className="text-red-800 font-bold">{item.historyApplicationForm?.userApproval ?? "--"}</span></div>
                             <div><strong>{t('list_leave_request.created_at')}:</strong> {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                             <div className="pt-2">
-                                {hasHRRole ? (
+                                {hasPermissionHrMngLeaveRq ? (
                                     <Button variant="outline" disabled={loading} onClick={() => handleConfirm(item, true, note)} className="text-xs bg-black text-white">
                                         {t('leave_request.wait_approval.register')}
                                     </Button>

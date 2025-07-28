@@ -65,7 +65,7 @@
 			"create_leave_for_others" : "Xin nghỉ phép thay người khác",
 			"list_leave": "Danh sách nghỉ",
 			"wait_approval": "Chờ duyệt",
-			"history_approved": "Danh sách đã duyệt"
+			"history_approved": "Lịch sử duyệt"
 		},
 		"time_keeping": {
 			"time_keeping": "Chấm công",
@@ -132,6 +132,7 @@
 			"reason": "Lý do"
 		},
 		"wait_approval": {
+			"export_excel": "Xuất Excel",
 			"register": "Đăng ký",
 			"register_all": "Đăng ký tất cả",
 			"history_leave_request": "Danh sách đã duyệt"

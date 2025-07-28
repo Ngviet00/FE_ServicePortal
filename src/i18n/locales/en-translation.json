@@ -132,6 +132,7 @@
 			"reason": "Reason"
 		},
 		"wait_approval": {
+			"export_excel": "Export Excel",
 			"register": "Register",
 			"register_all": "Register all",
 			"history_leave_request": "History approval"

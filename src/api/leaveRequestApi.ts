@@ -105,7 +105,8 @@ interface GetWaitApproval {
 
 interface HrRegisterAllLeave {
     UserCode: string | undefined,
-    UserName: string | undefined
+    UserName: string | undefined,
+    leaveRequestIds?: string[]
 }
 
 const leaveRequestApi = {
@@ -162,7 +163,40 @@ const leaveRequestApi = {
     },
     UpdateHrWithManagementLeavePermission(data: string[]) {
         return axiosClient.post(`/leave-request/update-user-have-permission-hr-mng-leave-request`, data)
+    },
+    HrExportExcelLeaveRequest(data: string[]) {
+        return axiosClient.post('/leave-request/hr-export-excel-leave-request', data, {
+            responseType: 'blob'
+        })
     }
+}
+
+export function useHrExportExcelLeaveRequest() {
+    return useMutation({
+        mutationFn: async (data: string[]) => {
+            const response = await leaveRequestApi.HrExportExcelLeaveRequest(data)
+
+            const d = new Date();
+            const f = (n: number, l: number) => n.toString().padStart(l, '0');
+            const name = `LeaveRequests_${d.getFullYear()}_${f(d.getMonth()+1,2)}_${f(d.getDate(),2)}_${f(d.getHours(),2)}_${f(d.getMinutes(),2)}_${f(d.getSeconds(),2)}.xlsx`;
+
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', name);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useUpdateHrWithManagementLeavePermission() {

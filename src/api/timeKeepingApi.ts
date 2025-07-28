@@ -16,6 +16,7 @@ interface GetManagementTimeKeepingRequest {
     pageSize?: number,
     StatusColors?: Record<string, string | null>,
     StatusDefine?: Record<string, string | null>,
+    keySearch?: string
 }
 
 export interface WorkingDay {

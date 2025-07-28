@@ -266,7 +266,7 @@ export default function ListLeaveRequest () {
                                                                     Edit
                                                                 </Link>
                                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
-                                                                <StatusLeaveRequest status="PENDING" />
+                                                                <StatusLeaveRequest status="Pending" />
                                                             </TableCell>
                                                         </>
                                                     )
@@ -287,7 +287,7 @@ export default function ListLeaveRequest () {
                                                             </TableCell>
 
                                                             <TableCell className="text-left">
-                                                                <StatusLeaveRequest status="IN_PROCESS" />
+                                                                <StatusLeaveRequest status="In Process" />
                                                             </TableCell>
                                                         </>
                                                     )
@@ -308,7 +308,7 @@ export default function ListLeaveRequest () {
                                                             </TableCell>
 
                                                             <TableCell className="text-left">
-                                                                <StatusLeaveRequest status="COMPLETED" />
+                                                                <StatusLeaveRequest status="Completed" />
                                                             </TableCell>
                                                         </>
                                                     )
@@ -331,7 +331,7 @@ export default function ListLeaveRequest () {
                                                             </TableCell>
 
                                                             <TableCell className="text-left">
-                                                                <StatusLeaveRequest status="REJECT" />
+                                                                <StatusLeaveRequest status="Reject" />
                                                             </TableCell>
                                                         </>
                                                     )
