@@ -15,7 +15,10 @@ export interface UpdateTimeKeeping {
     currentValue?: string,
     currentBgColor?: string,
     rowIndex?: number,
-    colIndex?: number
+    colIndex?: number,
+    thu: string,
+    vao: string,
+    ra: string,
 }
 
 export interface TimeKeeping {
@@ -28,4 +31,6 @@ export interface TimeKeeping {
     bctgLamToi: string,
     bcGhiChu: string,
     result: string | undefined
+    vao: string,
+    ra: string
 }

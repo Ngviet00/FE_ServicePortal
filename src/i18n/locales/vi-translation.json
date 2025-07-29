@@ -50,7 +50,8 @@
 			"list_user": "Danh sách người dùng",
 			"org": "Sơ đồ tổ chức",
 			"mng_time_keeping": "QL Chấm công",
-			"mng_leave_request": "QL Nghỉ phép"
+			"mng_leave_request": "QL Nghỉ phép",
+			"change_org_unit_id_user": "Thay đổi vị trí"
 		},
 		"notification": {
 			"title": "Thông báo",

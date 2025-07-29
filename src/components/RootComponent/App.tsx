@@ -32,6 +32,7 @@ import RoleAndPermissionUser from '@/features/User/RoleAndPermissionUser';
 import HistoryApprovalNotification from '@/features/MemoNotification/HistoryApprovalNotification';
 import WaitApprovalNotification from '@/features/MemoNotification/WaitApprovalNotification';
 import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/DetailWaitApprovalMemoNotification';
+import ChangeOrgUnit from '@/features/OrgUnit/ChangeOrgUnit';
 
 function App() {
 	const location = useLocation();
@@ -76,7 +77,9 @@ function App() {
 		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: [RoleEnum.SUPERADMIN] },
 		{ path: "/hr-mng-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/hr-mng-leave-request", element: <HRManagementLeaveRequest />, allowedRoles: [RoleEnum.HR] },
+		{ path: "/change-org-unit", element: <ChangeOrgUnit />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/personal-info", element: <PersonalInfo />},
+		
 	];
   
 	return (

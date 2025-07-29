@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dot, Minus, Plus } from "lucide-react";
 
-type SmartCheckboxProps = {
+export type SmartCheckboxProps = {
 	checked?: boolean;
 	indeterminate?: boolean;
 	onChange?: () => void;
 };
 
-const SmartCheckbox = ({ checked, indeterminate, onChange }: SmartCheckboxProps) => {
+export const SmartCheckbox = ({ checked, indeterminate, onChange }: SmartCheckboxProps) => {
   	const innerRef = useRef<HTMLInputElement | null>(null);
 
 	useEffect(() => {
@@ -273,7 +273,7 @@ export default function TreeCheckbox({ data, onChange, loadChildren, defaultChec
 }
 
 
-type PropsTreeCbLeaveRequest = {
+export type PropsTreeCbLeaveRequest = {
 	data: TreeNode[];
 	onChange?: (id: string, isChecked: boolean) => void;
 	loadChildren?: (node: TreeNode) => Promise<TreeNode[]>;

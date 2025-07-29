@@ -30,7 +30,7 @@ export function getVietnamTime(
     }
 }
 
-export const formatDate = (dateStr: Date | string | undefined, type: "dd/MM/yyyy" | "yyyy/MM/dd HH:mm:ss" | "yyyy/MM/dd HH:mm" = "dd/MM/yyyy") => {
+export const formatDate = (dateStr: Date | string | undefined, type: "dd/MM/yyyy" | "yyyy/MM/dd HH:mm:ss" | "yyyy-MM-dd HH:mm:ss" | "yyyy/MM/dd HH:mm" = "dd/MM/yyyy") => {
     const d = new Date(dateStr ?? "");
     if (isNaN(d.getTime())) return "";
 
@@ -42,13 +42,15 @@ export const formatDate = (dateStr: Date | string | undefined, type: "dd/MM/yyyy
     const ss = d.getSeconds().toString().padStart(2, "0");
 
     switch (type) {
+        case "yyyy-MM-dd HH:mm:ss":
+            return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
         case "yyyy/MM/dd HH:mm":
-        return `${yyyy}/${MM}/${dd} ${HH}:${mm}`;
+            return `${yyyy}/${MM}/${dd} ${HH}:${mm}`;
         case "yyyy/MM/dd HH:mm:ss":
-        return `${yyyy}/${MM}/${dd} ${HH}:${mm}:${ss}`;
+            return `${yyyy}/${MM}/${dd} ${HH}:${mm}:${ss}`;
         case "dd/MM/yyyy":
         default:
-        return `${dd}/${MM}/${yyyy}`;
+            return `${dd}/${MM}/${yyyy}`;
     }
 };
 

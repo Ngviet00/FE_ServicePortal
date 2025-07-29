@@ -39,6 +39,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.org", route: "/user/org-chart" },
 			{ label: "sidebar.hr.mng_time_keeping", route: "/hr-mng-timekeeping" },
 			{ label: "sidebar.hr.mng_leave_request", route: "/hr-mng-leave-request" },
+			{ label: "sidebar.hr.change_org_unit_id_user", route: "/change-org-unit" },
 		],
 	},
 	{

@@ -14,6 +14,9 @@ import viMngTimekeeping from './locales/vi/mngTimeKeeping.json';
 import enMngLeaveRequest from './locales/en/mngLeaveRequest.json';
 import viMngLeaveRequest from './locales/vi/mngLeaveRequest.json';
 
+import enChangeOrgUnit from './locales/en/changeOrgUnit.json';
+import viChangeOrgUnit from './locales/vi/changeOrgUnit.json';
+
 import enCommon from './locales/en/common.json';
 import viCommon from './locales/vi/common.json';
 
@@ -24,7 +27,7 @@ i18n
     fallbackLng: 'vi',
     debug: false,
     defaultNS: 'translation',
-    ns: ['translation', 'createLeaveOther', 'mngTimeKeeping', 'mngLeaveRequest', 'common'],
+    ns: ['translation', 'createLeaveOther', 'mngTimeKeeping', 'mngLeaveRequest', 'common', 'changeOrgUnit'],
     resources: {
 		en: {
 			translation: en,
@@ -32,6 +35,7 @@ i18n
 			createLeaveOther: enCreateLeaveOther,
       		mngTimeKeeping: enMngTimekeeping,
 			mngLeaveRequest: enMngLeaveRequest,
+			changeOrgUnit: enChangeOrgUnit
 		},
 		vi: {
 			translation: vi,
@@ -39,6 +43,7 @@ i18n
 			createLeaveOther: viCreateLeaveOther,
       		mngTimeKeeping: viMngTimekeeping,
 			mngLeaveRequest: viMngLeaveRequest,
+			changeOrgUnit: viChangeOrgUnit
 		},
     },
     interpolation: {
