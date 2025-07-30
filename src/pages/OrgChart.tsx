@@ -8,11 +8,14 @@ type Person = {
 	userName: string,
 	usercode: string;
 	orgUnitId: number;
+	orgUnitName: string | null | undefined
+	name: string | null | undefined,
 };
 
 type OrgChartNode = {
 	orgUnitId: number;
 	orgUnitName: string;
+	people: Person[];
 	children: OrgChartNode[];
 };
 
@@ -45,6 +48,8 @@ function groupUsersByOrgUnit(rawNodes: any[]): OrgChartNode[] {
 			userName: `${raw.nvHoTen}`,
 			usercode: `${raw.nvMaNV}`,
 			orgUnitId: orgId,
+			orgUnitName: `${raw.orgUnitName}`,
+			name:  `${raw.name}`,
 		});
 
 		if (raw.children && raw.children.length > 0) {
@@ -64,6 +69,8 @@ function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 			userName: rawRoot.nvHoTen,
 			usercode: rawRoot.nvMaNV,
 			orgUnitId: rawRoot.orgUnitId,
+			orgUnitName: rawRoot.orgUnitName,
+			name: rawRoot.name,
 		}],
 		children: [],
 	};
@@ -77,8 +84,9 @@ const NodeContent: React.FC<{ people: Person[]; orgUnitId: number }> = ({ people
 	<div style={nodeStyle}>
 		{people.map((p) => (
 			<div key={p.usercode} className="dark:text-black">
-				<strong className="dark:text-black">{p.usercode}</strong>
-				 	<br/> {p.userName}
+				<strong className="dark:text-red-700 text-blue-600 font-bold">{p.name}</strong> <br />
+				<strong className="dark:text-black">{p.usercode == 'null' ? 'Empty' : p.usercode}</strong>
+				 	<br/> {p.userName == '' ? 'Empty' : p.userName}
 			</div>
 		))}
 	</div>
