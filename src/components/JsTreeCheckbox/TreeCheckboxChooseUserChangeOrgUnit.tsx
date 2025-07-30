@@ -2,11 +2,10 @@ import { Minus, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PropsTreeCbLeaveRequest, SmartCheckbox, TreeNode } from "./TreeCheckbox";
 
-export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildren, defaultCheckedIds, onClickOpenDetailPositionMngLeaveRequest }: PropsTreeCbLeaveRequest) {
+export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildren }: PropsTreeCbLeaveRequest) {
 	const [checkedSet, setCheckedSet] = useState<Set<string>>(new Set());
 	const [expandedMap, setExpandedMap] = useState<Record<string, boolean>>({});
 	const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
-	const [loadedSet, setLoadedSet] = useState<Set<string>>(new Set());
 	const [treeData, setTreeData] = useState<TreeNode[]>(data);
 
 	useEffect(() => {
@@ -15,18 +14,14 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 		const collapseAll = (nodes: TreeNode[]) => {
 			for (const node of nodes) {
 				if (node.children) {
-				initExpanded[node.id] = true;
-				collapseAll(node.children);
+					initExpanded[node.id] = true;
+					collapseAll(node.children);
 				}
 			}
 		};
 		collapseAll(data);
 		setExpandedMap(initExpanded);
 	}, [data]);
-
-	useEffect(() => {
-		setCheckedSet(new Set(defaultCheckedIds || []));
-	}, [defaultCheckedIds]);
 
 	const getAllChildren = (node: TreeNode): string[] => {
 		let result: string[] = [];
@@ -78,7 +73,6 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 		return updated;
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handleToggle = (node: TreeNode) => {
 		const newSet = new Set(checkedSet);
 		const isChecked = newSet.has(node.id);
@@ -101,14 +95,6 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 		}
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const isIndeterminate = (node: TreeNode): boolean => {
-		if (!node.children || node.children.length === 0) return false;
-		const childIds = node.children.map((c) => c.id);
-		const checkedCount = childIds.filter((id) => checkedSet.has(id)).length;
-		return checkedCount > 0 && checkedCount < childIds.length;
-	};
-
 	const toggleExpand = async (node: TreeNode) => {
 		const wasExpanded = expandedMap[node.id] ?? false;
 
@@ -117,7 +103,7 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 			[node.id]: !wasExpanded,
 		}));
 
-		if (!wasExpanded && loadChildren && !loadedSet.has(node.id)) {
+		if (!wasExpanded && loadChildren) {
 			setLoadingMap((prev) => ({ ...prev, [node.id]: true }));
 			try {
 				const children = await loadChildren(node);
@@ -153,8 +139,6 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 					const updated = updateParentState(node.id, newSet);
 					setCheckedSet(updated);
 				}
-
-				setLoadedSet((prev) => new Set(prev).add(node.id));
 			} finally {
 				setLoadingMap((prev) => ({ ...prev, [node.id]: false }));
 			}
@@ -162,12 +146,12 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 	};
 
 	const renderTree = (nodes: TreeNode[], level = 0): React.ReactNode => {
-		return nodes.map((node) => {
+		return nodes.map((node, idx) => {
 			const isExpanded = expandedMap[node.id] ?? false;
 			const hasChildren = node.children && node.children.length > 0;
 
 			return (
-				<div key={node.id} className={`relative py-1 pl-${level === 0 ? 0 : 4}`}>
+				<div key={idx} className={`relative py-1 pl-${level === 0 ? 0 : 4}`}>
 					<div className="flex items-center space-x-2">
 						{((hasChildren || loadChildren) && node.type != "user") ? (
 						<button
@@ -186,7 +170,6 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 									<>
 										<SmartCheckbox
 											checked={checkedSet.has(node.id)}
-											indeterminate={isIndeterminate(node)}
 											onChange={() => handleToggle(node)}
 										/>
 									</>
@@ -207,6 +190,10 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 
 					{loadingMap[node.id] && (
 						<div className="ml-8 text-sm text-gray-500 italic">Đang tải...</div>
+					)}
+
+					{isExpanded && !loadingMap[node.id] && !hasChildren && (
+						<div className="ml-8 text-sm text-red-500 italic">Không có kết quả</div>
 					)}
 				</div>
 			);

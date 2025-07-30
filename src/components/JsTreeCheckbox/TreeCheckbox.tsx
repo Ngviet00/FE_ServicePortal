@@ -35,7 +35,7 @@ export const SmartCheckbox = ({ checked, indeterminate, onChange }: SmartCheckbo
 export type TreeNode = {
 	id: string;
 	label: string;
-	type?: "department" | "jobtitle" | "user"; 
+	type?: "department" | "jobtitle" | "user" | "org_unit_user"; 
 	children?: TreeNode[];
 };
 
@@ -264,6 +264,10 @@ export default function TreeCheckbox({ data, onChange, loadChildren, defaultChec
 					{loadingMap[node.id] && (
 						<div className="ml-8 text-sm text-gray-500 italic">Đang tải...</div>
 					)}
+
+					{isExpanded && !loadingMap[node.id] && !hasChildren && (
+						<div className="ml-8 text-sm text-red-500 italic">Không có kết quả</div>
+					)}
 				</div>
 			);
 		});
@@ -357,7 +361,6 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 		return updated;
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handleToggle = (node: TreeNode) => {
 		const newSet = new Set(checkedSet);
 		const isChecked = newSet.has(node.id);
@@ -380,7 +383,6 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 		}
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const isIndeterminate = (node: TreeNode): boolean => {
 		if (!node.children || node.children.length === 0) return false;
 		const childIds = node.children.map((c) => c.id);
@@ -494,6 +496,10 @@ export function TreeCheckboxLeaveRequest({ data, onChange, loadChildren, default
 
 					{loadingMap[node.id] && (
 						<div className="ml-8 text-sm text-gray-500 italic">Đang tải...</div>
+					)}
+
+					{isExpanded && !loadingMap[node.id] && !hasChildren && (
+						<div className="ml-8 text-sm text-red-500 italic">Không có kết quả</div>
 					)}
 				</div>
 			);

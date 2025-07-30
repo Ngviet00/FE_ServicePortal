@@ -13,7 +13,6 @@ type Person = {
 type OrgChartNode = {
 	orgUnitId: number;
 	orgUnitName: string;
-	people: Person[];
 	children: OrgChartNode[];
 };
 

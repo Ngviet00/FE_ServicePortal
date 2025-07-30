@@ -1,144 +1,73 @@
-import TreeCheckbox, { TreeCheckboxLeaveRequest, TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
 import { Button } from "@/components/ui/button";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Spinner } from "@/components/ui/spinner";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { Label } from "@/components/ui/label";
 import { ShowToast } from "@/lib";
-import leaveRequestApi, { useAttachUserManageOrgUnit, useUpdateHrWithManagementLeavePermission, useUpdateUserHavePermissionCreateMultipleLeaveRequest } from "@/api/leaveRequestApi";
-import orgUnitApi from "@/api/orgUnitApi";
-import userApi from "@/api/userApi";
 import { useTranslation } from "react-i18next";
-import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
-import delegatedTempApi, { useAddNewDelegatedTemp, useDeleteDelegatedTemp } from "@/api/delegatedTempApi";
 import { TreeCheckboxChooseUserChangeOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckboxChooseUserChangeOrgUnit";
 import { TreeCheckBoxChooseNewOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckBoxChooseNewOrgUnit";
+import orgUnitApi, { useSaveChangeOrgUnitUser } from "@/api/orgUnitApi";
+import userApi from "@/api/userApi";
 
 function ChangeOrgUnit() {
     const { t } = useTranslation('changeOrgUnit');
-    const [checkedIds, setCheckedIds] = useState<string[]>([]);
-    const updateUserHavePermissionMngLeaveRequest = useUpdateUserHavePermissionCreateMultipleLeaveRequest();
-    const queryClient = useQueryClient();
 
-    const { data: getAllDeptInOrgUnits = [] } = useQuery({
-        queryKey: ['get-all-dept-in-org-unit'],
+    const { data: getAllDeptOfOrgUnit = [] } = useQuery({
+        queryKey: ['get-all-dept-og-org-unit'],
         queryFn: async () => {
-            const res = await orgUnitApi.GetAllDepartmentAndFirstOrgUnit()
+            const res = await orgUnitApi.GetAllDeptOfOrgUnit()
             return res.data.data;
         },
     });
 
-    useQuery({
-        queryKey: ['get-user-have-permission-mng-create-multiple-leave-request'],
-        queryFn: async () => {
-            const res = await leaveRequestApi.GetUserCodeHavePermissionCreateMultipleLeaveRequest();
-            const rs = res.data.data
-            setCheckedIds(rs)
-            return rs
-        },
-    });
+    const [newOrgUnit, setNewOrgUnit] = useState("")
+    const handleCheckedChangeNewOrgUnitUser = useCallback((id: string, checked: boolean) => {
+        if (!checked) {
+            setNewOrgUnit("")
+            return
+        }
+        setNewOrgUnit(id)
+    }, [])
 
-    const handleCheckedChange = (id: string, isChecked: boolean) => {
-        setCheckedIds((prev) => {
-            const set = new Set(prev);
-            if (isChecked) {
-                set.add(id);
+    const [selectedUser, setSelectedUser] = useState<string[]>([])
+
+    const handleCheckedChooseUserToChangeOrgUnit = useCallback((id: string, checked: boolean) => {
+        setSelectedUser((prevSelectedUser) => {
+            const newSelectedUser = new Set(prevSelectedUser);
+            if (checked) {
+                newSelectedUser.add(id);
             } else {
-                set.delete(id);
+                newSelectedUser.delete(id);
             }
-            return Array.from(set);
-        }); 
-    };
+            return Array.from(newSelectedUser).sort();
+        });
+    }, [])
 
-    const [selectedOpenPositionUser, setSelectedOpenPositionUser] = useState<{ id: string; type: string } | null>(null);
+    const [keyChooseNewOrgUnit, setKeyChooseNewOrgUnit] = useState(0);
+    const [keyChooseUserChangeOrgUnit, setKeyChooseUserChangeOrgUnit] = useState(0);
 
-    const [idLocations, setIdLocations] = useState<string[]>([]);
+    const saveChangeOrgUnitUser =  useSaveChangeOrgUnitUser()
 
-    const handleCheckedChangeLocations = useCallback((nodes: TreeNode[]) => {
-        setIdLocations(nodes.map((n) => n.id));
-    }, []);
-
-    const handleSave = async () => {
-        await updateUserHavePermissionMngLeaveRequest.mutateAsync(checkedIds)
-    }
-
-    const handleClickOpenDetailPositionMngLeaveRequest = async (id: string, type: string) => {
-        const fetchApi = await leaveRequestApi.GetOrgUnitIdAttachedByUserCode(id)
-        const result = fetchApi.data.data
-        setIdLocations(result.map(String))
-        setSelectedOpenPositionUser({ id: id, type: type });
-    }
-
-    const attachUserMngOrgUnit = useAttachUserManageOrgUnit();
-
-    const handleSaveUserMngLeaveRq = async () => {
-        if (selectedOpenPositionUser == null) {
-            ShowToast("Chưa chọn quản lý", "error")
+    const handleSaveChangeOrgUnitUser = async () => {
+        if (newOrgUnit == "") {
+            ShowToast("Chưa chọn vị trí cần chuyển", "error")
             return
         }
-
-        const payLoad = {
-            userCode: selectedOpenPositionUser.id,
-            orgUnitIds: idLocations.map(Number)
-        }
-
-        await attachUserMngOrgUnit.mutateAsync(payLoad)
-    }
-
-    const addDelegatedTemp = useAddNewDelegatedTemp();
-    const handleClickSaveDelegatedUser = async() => {
-        if (mainUser.length == 0 || delegatedUser.length == 0) {
-            ShowToast("Chưa chọn người phụ trách", "error")
-            return
-        }
-
-        const mainUserCode = mainUser[0].value;
-        const delegatedUserCode = delegatedUser[0].value
-
-        await addDelegatedTemp.mutateAsync({
-            mainUserCode: mainUserCode,
-            tempUserCode: delegatedUserCode
-        })
         
-        setMainUser([])
-        setDelegatedUser([])
+        if (selectedUser.length == 0) {
+            ShowToast("Chưa chọn người cần chuyển vị trí", "error")
+            return
+        }
 
-        queryClient.invalidateQueries({
-            queryKey: ['get-all-delegated-temp-leave-rq'],
-        });
-    }
+        await saveChangeOrgUnitUser.mutateAsync({
+            UserCodes: selectedUser,
+            OrgUnitId: Number(newOrgUnit)
+        })
 
-    const deleteDelegatedTemp = useDeleteDelegatedTemp();
-    const handleRemoveDelegatedTemp = async (mainOrgUnitId: number, tempUserCode: string) => {
-        await deleteDelegatedTemp.mutateAsync({
-            mainOrgUnitId: mainOrgUnitId,
-            tempUserCode: tempUserCode
-        });
+        setNewOrgUnit("")
+        setSelectedUser([])
 
-        queryClient.invalidateQueries({
-            queryKey: ['get-all-delegated-temp-leave-rq'],
-        });
-    }
-
-    const [hrMngLeaveRequest, setHrMngLeaveRequest] = useState<OptionType[]>([]);
-
-    useQuery({
-        queryKey: ['get-user-have-permission-hr-mng-leave-request'],
-        queryFn: async () => {
-            const res = await leaveRequestApi.GetHrWithManagementLeavePermission();
-            const rs = res.data.data.map((u: { nvHoTen: string; nvMaNV: string; bpTen: string; }) => ({
-                label: `${u.nvHoTen} (${u.nvMaNV} - ${u.bpTen})`,
-                value: u.nvMaNV,
-            }));
-            setHrMngLeaveRequest(rs)
-            return rs
-        },
-    });
-
-    const updateHrMngLeaveRq = useUpdateHrWithManagementLeavePermission();
-    const handleSaveHrMngLeaveRequest = async () => {
-        const valueArray = hrMngLeaveRequest.map((item: { value: string; }) => item.value);
-        await updateHrMngLeaveRq.mutateAsync(valueArray)
+        setKeyChooseNewOrgUnit(prevKey => prevKey + 1);
+        setKeyChooseUserChangeOrgUnit(prevKey => prevKey + 1);
     }
 
     return (
@@ -150,49 +79,51 @@ function ChangeOrgUnit() {
             <div className="flex mt-5">
                 <div className="border p-4 rounded w-[30%]">
                     <TreeCheckboxChooseUserChangeOrgUnit
-                        onClickOpenDetailPositionMngLeaveRequest={handleClickOpenDetailPositionMngLeaveRequest}
-                        data={getAllDeptInOrgUnits}
+                        key={keyChooseUserChangeOrgUnit}
+                        data={getAllDeptOfOrgUnit}
                         loadChildren={async (node) => {
-                            const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
-                            return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
-                                id: item.NVMaNV.toString(),
-                                label: item.NVHoTen,
-                                type: "user"
-                            }));
-                        }}
-                        onChange={handleCheckedChange}
-                    />
-                </div>
-
-                <div className="border border-l-0 p-4 w-[30%]">
-                    <div className="flex mb-3">
-                        <Label className="text-red-700">{t('choose_location_register')}</Label>
-                        <Button
-                            disabled={attachUserMngOrgUnit.isPending}
-                            className="hover:cursor-pointer ml-5 bg-black px-10"
-                            onClick={handleSaveUserMngLeaveRq}
-                        >
-                            {attachUserMngOrgUnit.isPending ? <Spinner className="text-white" size="small"/> : t('save')}
-                        </Button>
-                    </div>
-                    <div>
-                        <TreeCheckBoxChooseNewOrgUnit
-                            onClickOpenDetailPositionMngLeaveRequest={handleClickOpenDetailPositionMngLeaveRequest}
-                            data={getAllDeptInOrgUnits}
-                            loadChildren={async (node) => {
+                            if (node.type == 'jobtitle') {
                                 const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
                                 return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
                                     id: item.NVMaNV.toString(),
                                     label: item.NVHoTen,
                                     type: "user"
                                 }));
+                            } else {
+                                const children = await orgUnitApi.GetOrgUnitTeamAndUserNotSetOrgUnitWithDept(Number(node.id))
+                                return children?.data?.data?.map((item: { id: { toString: () => never; }; label: never; type: string; }) => ({
+                                    id: item.id.toString(),
+                                    label: item.label,
+                                    type: item.type
+                                }));
+                            }
+                        }}
+                        onChange={handleCheckedChooseUserToChangeOrgUnit}
+                    />
+                </div>
+
+                <div className="border border-l-0 p-4 w-[30%]">
+                    <div>
+                        <TreeCheckBoxChooseNewOrgUnit
+                            key={keyChooseNewOrgUnit}
+                            data={getAllDeptOfOrgUnit}
+                            loadChildren={async (node) => {
+                                const children = await orgUnitApi.GetOrgUnitUserWithDept(parseInt(node.id))
+                                const result = children?.data?.data?.map((item: { id: { toString: () => never; }; name: never; }) => ({
+                                    id: item.id.toString(),
+                                    label: item.name,
+                                    type: "org_unit_user"
+                                }));
+                                return result
                             }}
-                            onChange={handleCheckedChange}
+                            onChange={handleCheckedChangeNewOrgUnitUser}
                         />
                     </div>
                 </div>
                 <div>
-                    <Button className="ml-1">Save</Button>
+                    <Button className="ml-1 hover:cursor-pointer" onClick={handleSaveChangeOrgUnitUser}>
+                        Save
+                    </Button>
                 </div>
             </div>
         </div>
