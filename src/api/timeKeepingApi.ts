@@ -17,7 +17,8 @@ interface GetManagementTimeKeepingRequest {
     StatusColors?: Record<string, string | null>,
     StatusDefine?: Record<string, string | null>,
     keySearch?: string,
-    team?: number | null
+    team?: number | null,
+    deptId?: number | null
 }
 
 export interface WorkingDay {
@@ -76,6 +77,9 @@ const timekeepingApi = {
     },
     GetIdOrgUnitByUserCodeAndUnitId(userCode: string) {
         return axiosClient.get(`/time-keeping/get-id-org-unit-by-usercode-and-unit-id?userCode=${userCode}`)
+    },
+    getDeptUserMngTimeKeeping(userCode: string) {
+        return axiosClient.get(`/time-keeping/get-dept-user-mng-timekeeping?userCode=${userCode}`)
     }
 }
 

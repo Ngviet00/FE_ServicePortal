@@ -20,7 +20,7 @@ export const statusLabels: Record<AttendanceStatus, string> = {
 
 export const statusColors: Record<AttendanceStatus | string, string | null> = {
     X: '#FFFFFF',
-    CN: '#000000',
+    CN: '#858585',
     SH: '#00FF0F',
     NPL: '#00C355',
     ABS: '#FF0000',

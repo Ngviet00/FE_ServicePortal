@@ -82,9 +82,13 @@ function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 
 const NodeContent: React.FC<{ people: Person[]; orgUnitId: number }> = ({ people }) => (
 	<div style={nodeStyle}>
-		{people.map((p) => (
+		{people.map((p, idx) => (
 			<div key={p.usercode} className="dark:text-black">
-				<strong className="dark:text-red-700 text-blue-600 font-bold">{p.name}</strong> <br />
+				{
+					idx == 0 ? (
+						<><strong className="dark:text-red-700 text-blue-600 font-bold">{p.orgUnitName}</strong> <br /></>
+					) : (<></>)
+				}
 				<strong className="dark:text-black">{p.usercode == 'null' ? 'Empty' : p.usercode}</strong>
 				 	<br/> {p.userName == '' ? 'Empty' : p.userName}
 			</div>

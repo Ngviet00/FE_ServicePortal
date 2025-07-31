@@ -10,6 +10,23 @@ const axiosClient = axios.create({
 	},
 });
 
+let isRefreshing = false;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let failedQueue: { resolve: (value?: any) => void; reject: (reason?: any) => void; config: any }[] = [];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.config.headers['Authorization'] = `Bearer ${token}`;
+            prom.resolve(axiosClient(prom.config));
+        }
+    });
+    failedQueue = [];
+};
+
 axiosClient.interceptors.request.use(
 	(config) => {
 		const accessToken = useAuthStore.getState().accessToken;
@@ -35,28 +52,41 @@ axiosClient.interceptors.response.use(
 		) {
 			originalRequest._retry = true;
 
-			try {
-				const { refreshToken, setAccessToken, logout } = useAuthStore.getState();
+			if (!isRefreshing) {
+				isRefreshing = true;
 
-				if (!refreshToken) {
-					logout();
+				try {
+					const { refreshToken, setAccessToken, logout } = useAuthStore.getState();
+
+					if (!refreshToken) {
+						logout();
+						window.location.href = '/login';
+						return Promise.reject(err);
+					}
+
+					const refreshRes = await axiosClient.post('/auth/refresh-token', {
+						refreshToken,
+					});
+
+					const newAccessToken = refreshRes.data.data;
+					setAccessToken(newAccessToken);
+
+					processQueue(null, newAccessToken);
+
+					originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+					return axiosClient(originalRequest);
+				} catch (refreshError) {
+					processQueue(refreshError);
+					useAuthStore.getState().logout();
 					window.location.href = '/login';
-					return Promise.reject(err);
+					return Promise.reject(refreshError);
+				} finally {
+					isRefreshing = false;
 				}
-
-				const refreshRes = await axiosClient.post('/auth/refresh-token', {
-					refreshToken,
-				});
-
-				const newAccessToken = refreshRes.data.data;
-				setAccessToken(newAccessToken);
-				originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-
-				return axiosClient(originalRequest);
-			} catch (refreshError) {
-				useAuthStore.getState().logout();
-				window.location.href = '/login';
-				return Promise.reject(refreshError);
+			} else {
+				return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject, config: originalRequest });
+                });
 			}
 		}
 		return Promise.reject(err);

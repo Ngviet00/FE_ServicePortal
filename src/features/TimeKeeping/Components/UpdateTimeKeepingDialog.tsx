@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { AttendanceStatus, UpdateTimeKeeping } from "./types";
 import { statusDefine, statusLabels } from "./constants";
 import { formatDate } from "@/lib/time";
+import { ChangeEvent, useEffect, useState } from "react";
+import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 
 export const UpdateTimeKeepingDialog = ({
     open,
@@ -27,10 +29,47 @@ export const UpdateTimeKeepingDialog = ({
     setSelectedData: React.Dispatch<React.SetStateAction<UpdateTimeKeeping | null>>
     onSave: () => void
 }) => {
+    useEffect(() => {
+        if (open) {
+            setSelectedOption('type_leave')
+        }
+    }, [open])
+    const [selectedOption, setSelectedOption] = useState('type_leave');
+
+    const handleOnChangeValue = (e: ChangeEvent<HTMLSelectElement>) => {
+        setSelectedData((prev) => ({
+            ...prev!,
+            currentValue: e.target.value,
+        }))
+    }
+
+    const handleChangeOption = (type: string) => {
+        setSelectedOption(type)
+    }
+
+    // const handleDateTimeChange = (field: 'vao' | 'ra', dateStr: string) => {
+    //     setSelectedData(prev => ({
+    //         ...prev!,
+    //         [field]: dateStr // Cập nhật giờ vào/ra
+    //     }));
+    // };
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
+
             <form onSubmit={(e) => { e.preventDefault(); onSave(); }}>
-                <DialogContent className="block sm:max-w-[700px] min-h-[500px]">
+                            <DateTimePicker
+                // disabled={true}
+                enableTime={true}
+                dateFormat="Y-m-d H:i"
+                initialDateTime={selectedData?.date}
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                onChange={(_selectedDates, dateStr, _instance) => {
+                    //rhfField.onChange(dateStr);
+                }}
+                className={`dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] hover:cursor-pointer`}
+            />
+                <DialogContent className="block sm:max-w-[900px] min-h-[700px]">
                     <DialogHeader><DialogTitle/><DialogDescription /></DialogHeader>
                     <h2 className="text-2xl h-[40px]">{selectedData?.date} __ {selectedData?.nvMaNV} __ {selectedData?.nvHoTen}</h2>
                     <div className="grid gap-4">
@@ -52,41 +91,107 @@ export const UpdateTimeKeepingDialog = ({
                                     }
                                 </span>
                             </div>
+                            
+                            <Label className="text-[17px] text-blue-600">Chọn loại nghỉ phép</Label>
+                            <div className="flex mt-0">
+                                <div className="mr-5">
+                                    <input
+                                        id='type_leave'
+                                        type="radio" 
+                                        className="mr-1" 
+                                        value={selectedOption}
+                                        checked={selectedOption == 'type_leave'}
+                                        onChange={() => handleChangeOption('type_leave')}
+                                    />
+                                    <label htmlFor="type_leave" className="hover:cursor-pointer">Loại phép</label>
+                                </div>
+                                <div>
+                                    <input
+                                        id='go_late_early'
+                                        onChange={() => handleChangeOption('go_late_early')}
+                                        value={selectedOption}
+                                        checked={selectedOption == 'go_late_early'}
+                                        type="radio"
+                                        className="mr-1"
+                                    />
+                                    <label htmlFor="go_late_early" className="hover:cursor-pointer">Đi trễ, về sớm</label>
+                                </div>
+                            </div>
 
-                            <Label htmlFor="data-time-keeping">Chọn:</Label>
-                            <select
-                                id="data-time-keeping"
-                                value={selectedData?.currentValue}
-                                onChange={(e) =>
-                                setSelectedData((prev) => ({
-                                    ...prev!,
-                                    currentValue: e.target.value,
-                                }))
-                                }
-                                className="border border-gray-300 p-1 hover:cursor-pointer"
-                            >
-                                <option value="">--Chọn--</option>
-                                {
-                                    Object.entries(statusLabels).map(([key]) => {
-                                    const define = statusDefine[key as AttendanceStatus];
-                                    const label = statusLabels[key as AttendanceStatus];
-                                        return (
-                                            <option key={key} value={key}>
-                                            {define} - {label}
-                                            </option>
-                                        );
-                                    })
-                                }
-                            </select>
+                            {
+                                selectedOption == 'type_leave' ? 
+                                (
+                                    <>
+                                        <Label htmlFor="data-time-keeping">Chọn:</Label>
+                                        <select
+                                            id="data-time-keeping"
+                                            value={selectedData?.currentValue == 'X' || selectedData?.currentValue == 'CN_X' ? 'X' : selectedData?.currentValue}
+                                            onChange={(e) => handleOnChangeValue(e)
+
+                                            }
+                                            className="border border-gray-300 p-1 hover:cursor-pointer"
+                                        >
+                                            <option value="">--Chọn--</option>
+                                            {
+                                                Object.entries(statusLabels).map(([key]) => {
+                                                    const define = statusDefine[key as AttendanceStatus];
+                                                    const label = statusLabels[key as AttendanceStatus];
+                                                    return (
+                                                        <option key={key} value={key}>
+                                                            {define} - {label}
+                                                        </option>
+                                                    );
+                                                })
+                                            }
+                                        </select>
+                                    </>
+                                ) 
+                                :
+                                (
+                                    <>
+                                        <div className="flex mt-2">
+                                            <div className="mr-5">
+                                                <Label className="mb-1">Từ ngày</Label>
+                                                <DateTimePicker
+                                                    // disabled={true}
+                                                    enableTime={true}
+                                                    dateFormat="Y-m-d H:i"
+                                                    initialDateTime={selectedData?.date}
+                                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                    onChange={(_selectedDates, dateStr, _instance) => {
+                                                        //rhfField.onChange(dateStr);
+                                                    }}
+                                                    className={`dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] hover:cursor-pointer`}
+                                                />
+                                            </div>
+
+                                            <div className="">
+                                                <Label className="mb-1">Đến ngày</Label>
+                                                <DateTimePicker
+                                                    enableTime={true}
+                                                    dateFormat="Y-m-d H:i"
+                                                    initialDateTime={selectedData?.date}
+                                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                                    onChange={(_selectedDates, dateStr, _instance) => {
+                                                        //rhfField.onChange(dateStr);
+                                                    }}
+                                                    className={`dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] hover:cursor-pointer`}
+
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                )
+                            }
 
                             <Label htmlFor="other-value" className="mt-3">Giá trị khác:</Label>
                             <Input
                                 id="other-value"
                                 onChange={(e) =>
-                                setSelectedData((prev) => ({
-                                    ...prev!,
-                                    currentValue: e.target.value,
-                                }))
+                                    setSelectedData((prev) => ({
+                                        ...prev!,
+                                        currentValue: e.target.value,
+                                    }))
                                 }
                                 value={selectedData?.currentValue === '?' ? '?' : ''}
                             />

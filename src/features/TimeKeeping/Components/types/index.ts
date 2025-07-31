@@ -32,5 +32,6 @@ export interface TimeKeeping {
     bcGhiChu: string,
     result: string | undefined
     vao: string,
-    ra: string
+    ra: string,
+    currentBgColor?: string
 }

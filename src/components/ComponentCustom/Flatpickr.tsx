@@ -4,6 +4,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css'
 
 interface DateTimePickerProps {
+    disabled?: boolean,
     enableTime?:  boolean,
     dateFormat?: string
     className?: string,
@@ -11,7 +12,7 @@ interface DateTimePickerProps {
     onChange?: (selectedDates: Date[], dateStr: string, instance: flatpickr.Instance) => void;
 }
 
-const DateTimePicker: React.FC<DateTimePickerProps> = ({ enableTime = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange }) => {
+const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enableTime = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const fpInstance = useRef<flatpickr.Instance | null>(null);
 
@@ -32,6 +33,13 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ enableTime = true, date
                     if (onChange) {
                         onChange(selectedDates, dateStr, instance);
                     }
+                },
+                onReady: () => {
+                    // Tăng z-index khi ready
+                    const calendar = document.querySelector('.flatpickr-calendar') as HTMLElement;
+                    if (calendar) {
+                        calendar.style.zIndex = '9999';
+                    }
                 }
             });
         }
@@ -46,7 +54,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ enableTime = true, date
     return (
         <>
             <input
-                className={`${className} pl-3`}
+                disabled={disabled}
+                className={`${className} pl-3 ${disabled ? 'hover:cursor-not-allowed' : ''} z-50`}
                 type="text"
                 id="dateTimePicker"
                 ref={inputRef}

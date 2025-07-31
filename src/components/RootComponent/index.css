@@ -226,6 +226,10 @@ input[type="password"]::-webkit-password-toggle-button {
   }
 }
 
+.flatpickr-calendar {
+  z-index: 9999 !important
+}
+
 @media (max-width: 768px) {
     .table-responsive table,
     .table-responsive thead,
