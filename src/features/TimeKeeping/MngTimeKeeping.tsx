@@ -5,18 +5,16 @@ import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next"
-import timekeepingApi, { useConfirmTimeKeeping } from "@/api/timeKeepingApi";
+import timekeepingApi, { useConfirmTimeKeeping, useEditTimeAttendanceHistory } from "@/api/timeKeepingApi";
 import { ConfirmDialogToHR } from "./Components/ConfirmDialogToHR";
-import { UpdateTimeKeepingDialog } from "./Components/UpdateTimeKeepingDialog";
 import { getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
 import { AttendanceStatus, TimeKeeping, UpdateTimeKeeping, UserTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
-import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { useDebounce } from "@/lib";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import Modal from "@/components/Modal";
-import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
+import PaginationControl from "@/components/PaginationControl/PaginationControl";
+import ModalUpdateTimeKeeping from "./Components/ModalUpdateTimeKeeping";
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
@@ -25,17 +23,16 @@ export default function MngTimekeeping () {
     const today = getToday()
     const defaultMonth = getDefaultMonth(today)
     const defaultYear = getDefaultYear(today)
-    const [month, setMonth] = useState(defaultMonth)
+    const [month, setMonth] = useState(5)
     const [year, setYear] = useState(defaultYear)
     const [team] = useState<string>("")
-    const [deptId, setDeptId] = useState<string>("")
+    const [deptId, setDeptId] = useState<string>("118")
     const confirmTimeKeeping = useConfirmTimeKeeping();
-    const [openUpdateTimeKeeping, setOpenUpdateTimeKeeping] = useState(false);
     const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
     const [dataAttendances, setDataAttendances] = useState<UserTimeKeeping[]>([])
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(20)
+    const [pageSize, setPageSize] = useState(50)
     const [keySearch, setKeySearch] = useState("")
     const debouncedKeySearch = useDebounce(keySearch, 300);
     const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
@@ -50,7 +47,7 @@ export default function MngTimekeeping () {
         };
     });
     
-    const { isPending, isError, error } = useQuery({
+    const { isLoading, isError, error } = useQuery({
         queryKey: ['management-timekeeping', year, month, page, pageSize, debouncedKeySearch, deptId],
         queryFn: async () => {
             const res = await timekeepingApi.getMngTimeKeeping({
@@ -80,21 +77,24 @@ export default function MngTimekeeping () {
         });
     }
 
-    const saveChangeUpdateTimeKeeping = () => {
-        if (selectedData?.rowIndex === undefined || selectedData?.colIndex === undefined)
-            return;
-
-        const updated = [...dataAttendances];
-
-        const currentItem = updated[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex];
-        const isSunday = currentItem.thu === "CN";
-        const isWork = selectedData.currentValue === "X";
-        const newResult = isSunday && isWork ? "CN_X" : selectedData.currentValue;
-
-        if (currentItem.result === newResult) {
-            setOpenUpdateTimeKeeping(false);
+    const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
+    const saveChangeUpdateTimeKeeping = async (
+        result: string
+    ) => {
+        if (selectedData?.rowIndex === undefined || selectedData?.colIndex === undefined) {
             return;
         }
+
+        const updated = [...dataAttendances];
+        // const currentItem = updated[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex];
+        // const oldValue = currentItem.result
+        
+        // if (oldValue == result) {
+        //     alert(1)
+        //     setOpenModalUpdateTimeKeeping(false);
+        //     return
+        // }
+        alert(result)
 
         updated[selectedData.rowIndex] = {
             ...updated[selectedData.rowIndex],
@@ -102,15 +102,24 @@ export default function MngTimekeeping () {
                 idx === selectedData.colIndex
                     ? {
                         ...item,
-                        result: newResult,
+                        result: 'viet',
                         currentBgColor: '#4679FF',
                     }
                     : item
             ),
         };
 
+        // await editTimeAttendanceHistory.mutateAsync({
+        //     Datetime: selectedData.date,
+        //     OldValue: '',
+        //     CurrentValue: result,
+        //     UserCode: selectedData.nvMaNV,
+        //     UserCodeUpdate: user?.userCode,
+        //     UpdatedBy: user?.userName ?? ''
+        // });
+
         setDataAttendances(updated);
-        setOpenUpdateTimeKeeping(false);
+        setOpenModalUpdateTimeKeeping(false);
     }
 
     const { data: getDeptUserMngTimeKeeping = [] } = useQuery({
@@ -121,14 +130,6 @@ export default function MngTimekeeping () {
         },
     });
 
-    // const { data: getIdOrgUnitByUserCodeAndUnitId = [] } = useQuery({
-    //     queryKey: ['get-id-org-unit-by-usercode-and-unit-id'],
-    //     queryFn: async () => {
-    //         const res = await timekeepingApi.GetIdOrgUnitByUserCodeAndUnitId(user?.userCode ?? "")
-    //         return res.data.data;
-    //     },
-    // });
-
     function setCurrentPage(page: number): void {
         setPage(page)
     }
@@ -136,11 +137,6 @@ export default function MngTimekeeping () {
     function handlePageSizeChange(size: number): void {
         setPage(1)
         setPageSize(size)
-    }
-
-    const [selectedOption, setSelectedOption] = useState('type_leave');
-    const handleChangeOption = (type: string) => {
-        setSelectedOption(type)
     }
 
     return (
@@ -179,21 +175,6 @@ export default function MngTimekeeping () {
                             placeholder="Mã nhân viên"
                         />
                     </div>
-                    {/* <div>
-                        <Label className="mb-1">Nhóm</Label>
-                        <select className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer" value={team} 
-                            onChange={(e) => {
-                                setPage(1)
-                                setTeam(e.target.value)
-                            }}>
-                            <option value="" className="text-sm">--Tất cả--</option>
-                            {
-                                getIdOrgUnitByUserCodeAndUnitId.map((item: {id: number, name: string}, idx: number) => (
-                                    <option key={idx} className="text-sm" value={item.id}>{item.name}</option>
-                                ))
-                            }
-                        </select>
-                    </div> */}
                     <div>
                         <Label className="mb-1">Bộ phận</Label>
                         <select className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer" value={deptId} 
@@ -214,14 +195,6 @@ export default function MngTimekeeping () {
                     <span>{month} - {year}</span>
                 </div>
                 <div>
-                    <UpdateTimeKeepingDialog
-                        open={openUpdateTimeKeeping}
-                        onOpenChange={setOpenUpdateTimeKeeping}
-                        selectedData={selectedData}
-                        setSelectedData={setSelectedData}
-                        onSave={saveChangeUpdateTimeKeeping}
-                    />
-
                     <Button className="mr-1">
                         <Link to="/">Lịch sử chỉnh sửa (0)</Link>
                     </Button>
@@ -286,7 +259,7 @@ export default function MngTimekeeping () {
                         </TableHeader>
                         <TableBody>
                             {
-                            isPending ? (
+                            isLoading ? (
                                 Array.from({ length: 5 }).map((_, index) => (
                                     <TableRow key={index}>
                                         <TableCell className="w-[0px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
@@ -312,7 +285,10 @@ export default function MngTimekeeping () {
                                         <TableCell className="text-left border-r">{item.bpTen}</TableCell>
                                         {
                                             item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
-                                                const result = data.result
+                                                const isCustomValueTimeAttendance = data.customValueTimeAttendance != null && data.customValueTimeAttendance != ''
+                                                const isSendToHR = data?.isSentToHR
+
+                                                const result = isCustomValueTimeAttendance ? data?.customValueTimeAttendance : data.result
                                                 let bgColor = ''
                                                 let textColor = 'black';
                                                 
@@ -327,28 +303,27 @@ export default function MngTimekeeping () {
                                                     textColor = result == 'CN' ? 'white' : 'black'
                                                 }
                                                 else {
-                                                    bgColor = '#E1CD00'
+                                                    bgColor = isCustomValueTimeAttendance && isSendToHR ? '#4679FF' : '#E1CD00'
                                                 }
 
                                                 return (
                                                     <TableCell
-                                                        onClick={() => setOpenModalUpdateTimeKeeping(true)}
-                                                        // onClick={() => {
-                                                        //     setSelectedData({
-                                                        //         nvMaNV: item.nvMaNV,
-                                                        //         nvHoTen: item.nvHoTen,
-                                                        //         bpTen: item.bpTen,
-                                                        //         date: data.bcNgay,
-                                                        //         currentValue: result,
-                                                        //         currentBgColor: bgColor,
-                                                        //         rowIndex: idx,
-                                                        //         colIndex: index,
-                                                        //         thu: data.thu,
-                                                        //         vao: data.vao,
-                                                        //         ra: data.ra
-                                                        //     });
-                                                        //     setOpenUpdateTimeKeeping(true);
-                                                        // }}
+                                                        onClick={() => {
+                                                            setSelectedData({
+                                                                nvMaNV: item.nvMaNV,
+                                                                nvHoTen: item.nvHoTen,
+                                                                bpTen: item.bpTen,
+                                                                date: data.bcNgay,
+                                                                currentValue: result,
+                                                                currentBgColor: bgColor,
+                                                                rowIndex: idx,
+                                                                colIndex: index,
+                                                                thu: data.thu,
+                                                                vao: data.vao,
+                                                                ra: data.ra
+                                                            });
+                                                            setOpenModalUpdateTimeKeeping(true)
+                                                        }}
                                                         style={{backgroundColor: data?.currentBgColor ?? bgColor ?? '', color: textColor}} 
                                                         key={index} className={`p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer`}>
                                                         <div className="text-xs">
@@ -365,72 +340,13 @@ export default function MngTimekeeping () {
                     </Table>
                 </div>
             </div>
-            <button
-        className="px-4 py-2 bg-blue-600 text-white rounded"
-        onClick={() => setOpenModalUpdateTimeKeeping(true)}
-      >
-        Open Modal
-      </button>
 
-            <Modal isOpen={isOpenModalUpdateTimeKeeping} onClose={() => setOpenModalUpdateTimeKeeping(false)} className="min-w-[900px] min-h-[700px]">
-                <h2 className="text-xl font-semibold mb-2">Cập nhật chấm công</h2>
-
-                <p className="font-bold text-base">Đang chọn: <span className="text-xl text-red-700">2025-05-31 ___ Nguyễn Văn A ___ 22757</span></p>
-
-                <div>
-                    <span>Giờ vào:</span> <span>2025-55-55 </span> <br />
-                    <span>Giờ ra:</span> <span>2025-55-55 </span> <br />
-                </div>
-
-                <Label className="text-[17px] text-blue-600">Chọn loại nghỉ phép</Label>
-                <div className="flex mt-0">
-                    <div className="mr-5">
-                        <input
-                            id='type_leave'
-                            type="radio" 
-                            className="mr-1" 
-                            value={selectedOption}
-                            checked={selectedOption == 'type_leave'}
-                            onChange={() => handleChangeOption('type_leave')}
-                        />
-                        <label htmlFor="type_leave" className="hover:cursor-pointer">Loại phép</label>
-                    </div>
-                    <div>
-                        <input
-                            id='go_late_early'
-                            onChange={() => handleChangeOption('go_late_early')}
-                            value={selectedOption}
-                            checked={selectedOption == 'go_late_early'}
-                            type="radio"
-                            className="mr-1"
-                        />
-                        <label htmlFor="go_late_early" className="hover:cursor-pointer">Đi trễ, về sớm</label>
-                    </div>
-                </div>
-
-                <div>
-                            <DateTimePicker
-                        // disabled={true}
-                        enableTime={true}
-                        dateFormat="Y-m-d H:i"
-                        initialDateTime={selectedData?.date}
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        onChange={(_selectedDates, dateStr, _instance) => {
-                            //rhfField.onChange(dateStr);
-                        }}
-                        className={`dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] hover:cursor-pointer`}
-                    />
-                </div>
-                <div>
-
-                </div>
-                <button
-                className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-                onClick={() => setOpenModalUpdateTimeKeeping(false)}
-                >
-                Close
-                </button>
-            </Modal>
+            <ModalUpdateTimeKeeping
+                isOpen={isOpenModalUpdateTimeKeeping}
+                onClose={() => setOpenModalUpdateTimeKeeping(false)}
+                selectedData={selectedData}
+                onSave={saveChangeUpdateTimeKeeping}
+            />
             {
                 dataAttendances.length > 0 ? (<PaginationControl
                     currentPage={page}

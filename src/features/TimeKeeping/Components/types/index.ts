@@ -33,5 +33,7 @@ export interface TimeKeeping {
     result: string | undefined
     vao: string,
     ra: string,
-    currentBgColor?: string
+    currentBgColor?: string,
+    customValueTimeAttendance?: string,
+    isSentToHR?: boolean
 }

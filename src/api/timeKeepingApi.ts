@@ -41,6 +41,15 @@ export interface WorkingDay {
     BCGhiChu: string | null | undefined,
 }
 
+interface EditTimeAttendanceHistory {
+    Datetime?: Date | string,
+    UserCode?: string,
+    OldValue?: string,
+    CurrentValue?: string,
+    UserCodeUpdate?: string,
+    UpdatedBy?: string,
+}
+
 export interface UpdateUserMngTimeKeeping {
     userCode: string,
     orgUnitId: number[]
@@ -80,8 +89,26 @@ const timekeepingApi = {
     },
     getDeptUserMngTimeKeeping(userCode: string) {
         return axiosClient.get(`/time-keeping/get-dept-user-mng-timekeeping?userCode=${userCode}`)
+    },
+    EditTimeAttendanceHistory(data: EditTimeAttendanceHistory) {
+        return axiosClient.post(`/time-keeping/edit-time-keeping`, data)
     }
 }
+
+export function useEditTimeAttendanceHistory() {
+    return useMutation({
+        mutationFn: async (data: EditTimeAttendanceHistory) => {
+            await timekeepingApi.EditTimeAttendanceHistory(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
 
 export function useAttachUserManageOrgUnit() {
     return useMutation({
