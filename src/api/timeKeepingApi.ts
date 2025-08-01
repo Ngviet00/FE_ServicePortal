@@ -92,6 +92,9 @@ const timekeepingApi = {
     },
     EditTimeAttendanceHistory(data: EditTimeAttendanceHistory) {
         return axiosClient.post(`/time-keeping/edit-time-keeping`, data)
+    },
+    CountHistoryEditTimeKeepingNotSendHR(userCode: string) {
+        return axiosClient.get(`/time-keeping/count-history-edit-timekeeping-not-send-hr?userCode=${userCode}`)
     }
 }
 

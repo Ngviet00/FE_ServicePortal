@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuthStore } from "@/store/authStore";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next"
 import timekeepingApi, { useConfirmTimeKeeping, useEditTimeAttendanceHistory } from "@/api/timeKeepingApi";
@@ -11,10 +11,10 @@ import { getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Com
 import { AttendanceStatus, TimeKeeping, UpdateTimeKeeping, UserTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
 import { useDebounce } from "@/lib";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import ModalUpdateTimeKeeping from "./Components/ModalUpdateTimeKeeping";
+import ModalHistoryEditTimeKeeping from "./Components/ModalListHistoryEditTimeKeeping";
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
@@ -23,7 +23,7 @@ export default function MngTimekeeping () {
     const today = getToday()
     const defaultMonth = getDefaultMonth(today)
     const defaultYear = getDefaultYear(today)
-    const [month, setMonth] = useState(5)
+    const [month, setMonth] = useState(defaultMonth)
     const [year, setYear] = useState(defaultYear)
     const [team] = useState<string>("")
     const [deptId, setDeptId] = useState<string>("118")
@@ -36,6 +36,8 @@ export default function MngTimekeeping () {
     const [keySearch, setKeySearch] = useState("")
     const debouncedKeySearch = useDebounce(keySearch, 300);
     const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
+    const [isOpenModalListHistoryEditTimeKeeping, setOpenModalListHistoryEditTimeKeeping] = useState(false);
+    const queryClient = useQueryClient();
 
     const daysInMonth = getDaysInMonth(year, month)
     const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
@@ -47,6 +49,14 @@ export default function MngTimekeeping () {
         };
     });
     
+    const { data: countHistoryEditTimeKeepingNotSendHR } = useQuery({
+        queryKey: ['count-history-edit-timekeeping-not-send-hr'],
+        queryFn: async () => {
+            const res = await timekeepingApi.CountHistoryEditTimeKeepingNotSendHR(user?.userCode ?? '')
+            return res.data.data
+        }
+    });
+
     const { isLoading, isError, error } = useQuery({
         queryKey: ['management-timekeeping', year, month, page, pageSize, debouncedKeySearch, deptId],
         queryFn: async () => {
@@ -78,47 +88,29 @@ export default function MngTimekeeping () {
     }
 
     const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
-    const saveChangeUpdateTimeKeeping = async (
-        result: string
-    ) => {
+    const saveChangeUpdateTimeKeeping = async (finalResult: string) => {
         if (selectedData?.rowIndex === undefined || selectedData?.colIndex === undefined) {
             return;
         }
-
-        const updated = [...dataAttendances];
-        // const currentItem = updated[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex];
-        // const oldValue = currentItem.result
         
-        // if (oldValue == result) {
-        //     alert(1)
-        //     setOpenModalUpdateTimeKeeping(false);
-        //     return
-        // }
-        alert(result)
+        const oldValue = dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex].result;
 
-        updated[selectedData.rowIndex] = {
-            ...updated[selectedData.rowIndex],
-            dataTimeKeeping: updated[selectedData.rowIndex].dataTimeKeeping.map((item, idx) =>
-                idx === selectedData.colIndex
-                    ? {
-                        ...item,
-                        result: 'viet',
-                        currentBgColor: '#4679FF',
-                    }
-                    : item
-            ),
-        };
+        if (oldValue === finalResult) {
+            setOpenModalUpdateTimeKeeping(false);
+            return;
+        }
 
-        // await editTimeAttendanceHistory.mutateAsync({
-        //     Datetime: selectedData.date,
-        //     OldValue: '',
-        //     CurrentValue: result,
-        //     UserCode: selectedData.nvMaNV,
-        //     UserCodeUpdate: user?.userCode,
-        //     UpdatedBy: user?.userName ?? ''
-        // });
+        await editTimeAttendanceHistory.mutateAsync({
+            Datetime: selectedData.date,
+            OldValue: oldValue,
+            CurrentValue: finalResult,
+            UserCode: selectedData.nvMaNV,
+            UserCodeUpdate: user?.userCode,
+            UpdatedBy: user?.userName ?? ''
+        });
 
-        setDataAttendances(updated);
+        queryClient.invalidateQueries({ queryKey: ['management-timekeeping'] });
+        queryClient.invalidateQueries({ queryKey: ['count-history-edit-timekeeping-not-send-hr'] });
         setOpenModalUpdateTimeKeeping(false);
     }
 
@@ -195,8 +187,8 @@ export default function MngTimekeeping () {
                     <span>{month} - {year}</span>
                 </div>
                 <div>
-                    <Button className="mr-1">
-                        <Link to="/">Lịch sử chỉnh sửa (0)</Link>
+                    <Button className="mr-1 bg-red-700 hover:bg-red-800 hover:cursor-pointer" onClick={() => setOpenModalListHistoryEditTimeKeeping(true)}>
+                        Lịch sử chỉnh sửa ({countHistoryEditTimeKeepingNotSendHR ?? 0})
                     </Button>
                     
                     <ConfirmDialogToHR 
@@ -286,13 +278,16 @@ export default function MngTimekeeping () {
                                         {
                                             item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
                                                 const isCustomValueTimeAttendance = data.customValueTimeAttendance != null && data.customValueTimeAttendance != ''
-                                                const isSendToHR = data?.isSentToHR
+                                                // const isSendToHR = data?.isSentToHR
 
                                                 const result = isCustomValueTimeAttendance ? data?.customValueTimeAttendance : data.result
                                                 let bgColor = ''
                                                 let textColor = 'black';
                                                 
-                                                if (result == '?' && new Date(data.bcNgay) < new Date()) {
+                                                if (isCustomValueTimeAttendance == true) {
+                                                    bgColor = '#4679FF'
+                                                }
+                                                else if (result == '?' && new Date(data.bcNgay) < new Date()) {
                                                     bgColor = '#FF7B7D'
                                                 }
                                                 else if (result == 'CN_X' || !isNaN(parseFloat(result ?? ''))) {
@@ -303,7 +298,7 @@ export default function MngTimekeeping () {
                                                     textColor = result == 'CN' ? 'white' : 'black'
                                                 }
                                                 else {
-                                                    bgColor = isCustomValueTimeAttendance && isSendToHR ? '#4679FF' : '#E1CD00'
+                                                    bgColor = '#E1CD00'
                                                 }
 
                                                 return (
@@ -340,6 +335,11 @@ export default function MngTimekeeping () {
                     </Table>
                 </div>
             </div>
+
+            <ModalHistoryEditTimeKeeping
+                isOpen={isOpenModalListHistoryEditTimeKeeping}
+                onClose={() => setOpenModalListHistoryEditTimeKeeping(false)}
+            />
 
             <ModalUpdateTimeKeeping
                 isOpen={isOpenModalUpdateTimeKeeping}

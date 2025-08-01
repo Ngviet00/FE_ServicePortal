@@ -135,8 +135,8 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
     }, [typeLeave, selectedData]);
 
     const handleSaveClick = () => {
-    onSave(currentFormValue);
-};
+        onSave(currentFormValue);
+    };
 
     // const handleSaveClick = useCallback(() => {
     //     onSave(currentFormValue); 
@@ -147,7 +147,7 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
             <h2 className="text-2xl font-semibold mb-2">
                 {selectedData?.date ? formatDate(selectedData.date, "yyyy-MM-dd") : ""} __ {selectedData?.nvMaNV} __ {selectedData?.nvHoTen}
             </h2>
-            <div className="font-bold mt-2">
+            <div className="font-bold mt-2 text-[18px]">
                 <span>Giờ vào:</span>{" "}
                 <span className="text-red-700">
                     {selectedData?.vao ? formatDate(selectedData.vao, "yyyy-MM-dd HH:mm:ss") : "--"}
