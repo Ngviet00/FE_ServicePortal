@@ -41,13 +41,31 @@ export interface WorkingDay {
     BCGhiChu: string | null | undefined,
 }
 
-interface EditTimeAttendanceHistory {
+export interface EditTimeAttendanceHistory {
     Datetime?: Date | string,
     UserCode?: string,
     OldValue?: string,
     CurrentValue?: string,
     UserCodeUpdate?: string,
     UpdatedBy?: string,
+}
+interface GetListHistoryTimeAttendanceRequest {
+    UserCodeUpdated?: string,
+    page?: number,
+    PageSize?: number
+}
+
+export interface ListHistoryTimeAttendance {
+    id?: number
+    datetime?: Date | string,
+    userCode?: string,
+    oldValue?: string,
+    currentValue?: string,
+    userCodeUpdate?: string,
+    updatedBy?: string,
+    updatedAt?: Date | string,
+    nvHoTen?: string,
+    isSentToHR?: boolean
 }
 
 export interface UpdateUserMngTimeKeeping {
@@ -95,7 +113,27 @@ const timekeepingApi = {
     },
     CountHistoryEditTimeKeepingNotSendHR(userCode: string) {
         return axiosClient.get(`/time-keeping/count-history-edit-timekeeping-not-send-hr?userCode=${userCode}`)
+    },
+    GetListHistoryEditTimeKeeping(params: GetListHistoryTimeAttendanceRequest) {
+        return axiosClient.get(`/time-keeping/get-list-history-edit-timekeeping`, {params})
+    },
+    DeleteHistoryEditTimeKeeping(id: number) {
+        return axiosClient.delete(`/time-keeping/delete-history-edit-timekeeping/${id}`)
     }
+}
+
+export function useDeleteHistoryEditTimeKeeping() {
+    return useMutation({
+        mutationFn: async (id: number) => {
+            await timekeepingApi.DeleteHistoryEditTimeKeeping(id)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useEditTimeAttendanceHistory() {

@@ -26,13 +26,13 @@ export default function MngTimekeeping () {
     const [month, setMonth] = useState(defaultMonth)
     const [year, setYear] = useState(defaultYear)
     const [team] = useState<string>("")
-    const [deptId, setDeptId] = useState<string>("118")
+    const [deptId, setDeptId] = useState<string>("")
     const confirmTimeKeeping = useConfirmTimeKeeping();
     const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
     const [dataAttendances, setDataAttendances] = useState<UserTimeKeeping[]>([])
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(50)
+    const [pageSize, setPageSize] = useState(20)
     const [keySearch, setKeySearch] = useState("")
     const debouncedKeySearch = useDebounce(keySearch, 300);
     const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
@@ -278,13 +278,13 @@ export default function MngTimekeeping () {
                                         {
                                             item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
                                                 const isCustomValueTimeAttendance = data.customValueTimeAttendance != null && data.customValueTimeAttendance != ''
-                                                // const isSendToHR = data?.isSentToHR
+                                                const isSendToHR = data?.isSentToHR
 
                                                 const result = isCustomValueTimeAttendance ? data?.customValueTimeAttendance : data.result
                                                 let bgColor = ''
                                                 let textColor = 'black';
                                                 
-                                                if (isCustomValueTimeAttendance == true) {
+                                                if (isCustomValueTimeAttendance == true && isSendToHR == false) {
                                                     bgColor = '#4679FF'
                                                 }
                                                 else if (result == '?' && new Date(data.bcNgay) < new Date()) {

@@ -138,10 +138,6 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
         onSave(currentFormValue);
     };
 
-    // const handleSaveClick = useCallback(() => {
-    //     onSave(currentFormValue); 
-    // }, [onSave, currentFormValue]);
-
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="min-w-[700px] min-h-[500px]">
             <h2 className="text-2xl font-semibold mb-2">
