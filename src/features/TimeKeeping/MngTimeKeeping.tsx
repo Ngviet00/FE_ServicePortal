@@ -82,8 +82,7 @@ export default function MngTimekeeping () {
             UserCode: user?.userCode ?? "",
             Year: year,
             Month: month,
-            StatusColors: statusColors,
-            StatusDefine: statusDefine
+            UserName: user?.userName ?? ""
         });
     }
 

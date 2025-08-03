@@ -10,12 +10,11 @@ interface GetPersonalTimeKeepingRequest {
 
 interface GetManagementTimeKeepingRequest {
     UserCode: string,
+    UserName?: string,
     Year: number,
     Month: number,
     page?: number,
     pageSize?: number,
-    StatusColors?: Record<string, string | null>,
-    StatusDefine?: Record<string, string | null>,
     keySearch?: string,
     team?: number | null,
     deptId?: number | null
