@@ -1,4 +1,4 @@
-import { House, LockKeyhole, Ticket, Users, Bell } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell, Computer } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -67,6 +67,19 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.time_keeping.mng_time_keeping", route: "/management-time-keeping" },
 		],
 	},
+	{
+		key: "IT",
+		label: "sidebar.IT.title",
+		icon: Computer,
+		children: [
+			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
+			{ label: "sidebar.IT.create", route: "/form-it/create" },
+			{ label: "sidebar.IT.list", route: "/leave" },
+			{ label: "sidebar.IT.wait_approval", route: "/leave/wait-approval" },
+			{ label: "sidebar.IT.history_approval", route: "/leave/history-approved" },
+			{ label: "sidebar.IT.setting", route: "/time-keeping" },
+		],
+	}
 ];
 
 type SidebarMenuKey = typeof SIDEBAR_MENUS[number]["key"];

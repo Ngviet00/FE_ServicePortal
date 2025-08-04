@@ -33,6 +33,7 @@ import HistoryApprovalNotification from '@/features/MemoNotification/HistoryAppr
 import WaitApprovalNotification from '@/features/MemoNotification/WaitApprovalNotification';
 import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/DetailWaitApprovalMemoNotification';
 import ChangeOrgUnit from '@/features/OrgUnit/ChangeOrgUnit';
+import StatisticalFormIT from '@/features/FormIT/StatisticalFormIT';
 
 function App() {
 	const location = useLocation();
@@ -79,7 +80,15 @@ function App() {
 		{ path: "/hr-mng-leave-request", element: <HRManagementLeaveRequest />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/change-org-unit", element: <ChangeOrgUnit />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/personal-info", element: <PersonalInfo />},
-		
+
+		{ path: "/form-it/statistical", element: <StatisticalFormIT />},
+		{ path: "/form-it/create", element: <StatisticalFormIT />},
+		{ path: "/form-it/edit/:id", element: <StatisticalFormIT />},
+		{ path: "/form-it/view/:id", element: <StatisticalFormIT />},
+		{ path: "/form-it/list", element: <StatisticalFormIT />},
+		{ path: "/form-it/wait-approval", element: <StatisticalFormIT />},
+		{ path: "/form-it/history-approval", element: <StatisticalFormIT />},
+		{ path: "/form-it/setting-form-it", element: <StatisticalFormIT />},
 	];
   
 	return (

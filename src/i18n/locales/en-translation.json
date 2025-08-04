@@ -71,6 +71,15 @@
 		"time_keeping": {
 			"time_keeping": "Time keeping",
 			"mng_time_keeping": "Manage time keeping"
+		},
+		"IT": {
+			"title": "IT",
+			"statistical": "Statistical",
+			"create": "Create",
+			"list": "List",
+			"wait_approval": "Wait approval",
+			"history_approval": "History approval",
+			"setting": "Setting"
 		}
 	},
 

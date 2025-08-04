@@ -71,6 +71,15 @@
 		"time_keeping": {
 			"time_keeping": "Chấm công",
 			"mng_time_keeping": "Quản lý chấm công"
+		},
+		"IT": {
+			"title": "IT",
+			"statistical": "Thống kê",
+			"create": "Tạo đơn mới",
+			"list": "Danh sách đơn đã tạo",
+			"wait_approval": "Chờ duyệt",
+			"history_approval": "Các đơn đã duyệt",
+			"setting": "Cài đặt"
 		}
 	},
 
