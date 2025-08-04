@@ -91,14 +91,26 @@ export default function MngTimekeeping () {
         if (selectedData?.rowIndex === undefined || selectedData?.colIndex === undefined) {
             return;
         }
+
+        const old = dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex];
+
+        let oldValue = ''
+
+        if (old.customValueTimeAttendance != null && old.customValueTimeAttendance != '') {
+            oldValue = old.customValueTimeAttendance
+        }
+        else {
+            oldValue = old.result ?? ''
+        }
         
-        const oldValue = dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex].result;
+        // const oldValue = dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex].result;
+        // console.log(dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex], 6666666666);
 
         if (oldValue === finalResult) {
             setOpenModalUpdateTimeKeeping(false);
             return;
         }
-
+        // console.log(oldValue, finalResult, 33);
         await editTimeAttendanceHistory.mutateAsync({
             Datetime: selectedData.date,
             OldValue: oldValue,
