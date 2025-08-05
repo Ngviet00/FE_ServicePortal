@@ -1,5 +1,13 @@
 {
     "all_day": "Cả Ngày",
     "morning": "Buổi Sáng",
-    "afternoon": "Buổi chiều"   
+    "afternoon": "Buổi chiều",
+    "usercode": "Mã nhân viên",
+    "name": "Họ tên",
+    "email": "Email",
+    "department": "Phòng ban",
+    "save": "Lưu",
+    "reason": "Lý do",
+    "note": "Ghi chú",
+    "cancel": "Hủy"
 }

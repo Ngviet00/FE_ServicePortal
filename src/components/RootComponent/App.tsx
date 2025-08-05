@@ -34,6 +34,7 @@ import WaitApprovalNotification from '@/features/MemoNotification/WaitApprovalNo
 import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/DetailWaitApprovalMemoNotification';
 import ChangeOrgUnit from '@/features/OrgUnit/ChangeOrgUnit';
 import StatisticalFormIT from '@/features/FormIT/StatisticalFormIT';
+import CreateFormIT from '@/features/FormIT/CreateFormIT';
 
 function App() {
 	const location = useLocation();
@@ -82,7 +83,7 @@ function App() {
 		{ path: "/personal-info", element: <PersonalInfo />},
 
 		{ path: "/form-it/statistical", element: <StatisticalFormIT />},
-		{ path: "/form-it/create", element: <StatisticalFormIT />},
+		{ path: "/form-it/create", element: <CreateFormIT />},
 		{ path: "/form-it/edit/:id", element: <StatisticalFormIT />},
 		{ path: "/form-it/view/:id", element: <StatisticalFormIT />},
 		{ path: "/form-it/list", element: <StatisticalFormIT />},

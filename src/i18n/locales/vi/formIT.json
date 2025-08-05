@@ -1,0 +1,40 @@
+{
+    "statistical": {
+        "title": "Thống kê",
+        "time": "Thời gian",
+        "total": "Tổng yêu cầu",
+        "inprocess": "Đang xử lý",
+        "completed": "Đã hoàn thành",
+        "pending": "Đang chờ duyệt",
+        "total_request": "Tổng số lượng theo yêu cầu",
+        "total_by_type": "Tổng yêu cầu theo loại",
+        "total_by_dept": "Tổng yêu cầu theo phòng ban",
+        "recent_request": "Yêu cầu gần đây",
+        "content": "Tiêu đề",
+        "user_sent": "Người gửi",
+        "dept": "Phòng ban",
+        "time_sent": "Thời gian gửi",
+        "status": "Trạng thái",
+        "priority": "Ưu tiên"
+    },
+    "create": {
+        "title": "Tạo đơn IT",
+        "text_info_user_request": "Thông tin người yêu cầu",
+        "text_info_request": "Thông tin yêu cầu",
+        "date_request": "Ngày yêu cầu",
+        "date_required_completed": "Ngày mong muốn hoàn thành",
+        "category": "Danh mục IT",
+        "other_category": "Vui lòng chọn danh mục khác",
+        "ex_other_category": "Ví dụ: Lỗi phần mềm kế toán",
+        "priority": "Mức độ ưu tiên",
+        "low": "Thấp",
+        "medium": "Trung bình",
+        "high": "Cao"
+    },
+    "list": {
+
+    },
+    "setting": {
+        
+    }
+}

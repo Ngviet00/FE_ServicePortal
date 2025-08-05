@@ -55,31 +55,29 @@
 		},
 		"notification": {
 			"title": "Notification",
-			"create": "Create notification",
-			"list": "List notification",
-			"wait_approval": "Wait approval",
-			"history_approval": "History approval"
+			"create": "Create new notification",
+			"list": "Created notifications"
 		},
 		"leave_request": {
-			"title": "Leave request",
+			"title": "Leave, timekeeping",
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
 			"list_leave": "List leave request",
-			"wait_approval": "Wait approval",
-			"history_approved": "History Approved"
-		},
-		"time_keeping": {
-			"time_keeping": "Time keeping",
-			"mng_time_keeping": "Manage time keeping"
+			"time_keeping": "Timekeeping",
+			"mng_time_keeping": "Manage timekeeping"
 		},
 		"IT": {
 			"title": "IT",
 			"statistical": "Statistical",
-			"create": "Create",
+			"create": "Create new request",
 			"list": "List",
-			"wait_approval": "Wait approval",
-			"history_approval": "History approval",
 			"setting": "Setting"
+		},
+		"approval": {
+			"title": "Approved",
+			"pending_approval": "Pending approval",
+			"assigned": "Assigned",
+			"history_approval": "Approved/Processed"
 		}
 	},
 

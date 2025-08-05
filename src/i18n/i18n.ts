@@ -20,6 +20,9 @@ import viChangeOrgUnit from './locales/vi/changeOrgUnit.json';
 import enCommon from './locales/en/common.json';
 import viCommon from './locales/vi/common.json';
 
+import enFormIT from './locales/en/formIT.json'
+import viFormIT from './locales/vi/formIT.json'
+
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
@@ -27,9 +30,18 @@ i18n
     fallbackLng: 'vi',
     debug: false,
     defaultNS: 'translation',
-    ns: ['translation', 'createLeaveOther', 'mngTimeKeeping', 'mngLeaveRequest', 'common', 'changeOrgUnit'],
+    ns: [
+		'translation', 
+		'createLeaveOther',
+		'mngTimeKeeping',
+		'mngLeaveRequest', 
+		'common', 
+		'changeOrgUnit', 
+		'formIT'
+	],
     resources: {
 		en: {
+			formIT: enFormIT,
 			translation: en,
 			common: enCommon,
 			createLeaveOther: enCreateLeaveOther,
@@ -38,6 +50,7 @@ i18n
 			changeOrgUnit: enChangeOrgUnit
 		},
 		vi: {
+			formIT: viFormIT,
 			translation: vi,
 			common: viCommon,
 			createLeaveOther: viCreateLeaveOther,
