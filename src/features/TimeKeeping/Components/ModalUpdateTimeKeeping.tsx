@@ -96,27 +96,23 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
         const newValue = e.target.value;
         setTypeLeave(newValue);
         let updatedResult = newValue;
-        if (selectedData?.thu === "CN" && newValue === "X") {
-            updatedResult = "CN_X";
-        } else if (timeOff === "2" && newValue !== "X" && newValue !== "CN_X" && newValue !== "") {
+        if (timeOff === "2" && newValue !== "X" && newValue !== "CN_X" && newValue !== "") {
             updatedResult = "0.5" + newValue;
         }
         setCurrentFormValue(updatedResult);
 
-    }, [selectedData, timeOff]);
+    }, [timeOff]);
 
     const handleTimeOffChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
         const newTimeOff = e.target.value;
         setTimeOff(newTimeOff);
 
         let updatedResult = typeLeave;
-        if (selectedData?.thu === "CN" && typeLeave === "X") {
-            updatedResult = "CN_X";
-        } else if (newTimeOff === "2" && typeLeave !== "X" && typeLeave !== "CN_X" && typeLeave !== "") {
+        if (newTimeOff === "2" && typeLeave !== "X" && typeLeave !== "CN_X" && typeLeave !== "") {
             updatedResult = "0.5" + typeLeave;
         }
         setCurrentFormValue(updatedResult);
-    }, [typeLeave, selectedData]);
+    }, [typeLeave]);
 
     const handleSaveClick = () => {
         onSave(currentFormValue, selectedData?.UserCode ?? '', selectedData?.CurrentDate ?? '');
@@ -150,17 +146,17 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="min-w-[700px] min-h-[500px]">
             <h2 className="text-2xl font-semibold mb-2">
-                {selectedData?.current_date} __ {selectedData?.usercode} __ {selectedData?.name}
+                {selectedData?.CurrentDate} __ {selectedData?.UserCode} __ {selectedData?.Name}
             </h2>
             <div className="font-bold mt-2 text-[18px]">
                 <span>Giờ vào:</span>{" "}
                 <span className="text-red-700">
-                    {selectedData?.den == '' ? '--' :  selectedData?.den}
+                    {selectedData?.Den == '' ? '--' :  selectedData?.Den}
                 </span>{" "}
                 <br />
                 <span className="mt-2 inline-block">Giờ ra:</span>{" "}
                 <span className="text-red-700">
-                    {selectedData?.ve == '' ? '--' : selectedData?.ve}
+                    {selectedData?.Ve == '' ? '--' : selectedData?.Ve}
                 </span>{" "}
                 <br />
             </div>

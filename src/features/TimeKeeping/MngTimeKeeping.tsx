@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 import timekeepingApi, { useConfirmTimeKeeping, useEditTimeAttendanceHistory } from "@/api/timeKeepingApi";
 import { ConfirmDialogToHR } from "./Components/ConfirmDialogToHR";
 import { calculateRoundedTime, getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
-import { AttendanceStatus, UpdateTimeKeeping, UserTimeKeeping } from "./Components/types";
+import { AttendanceStatus, UpdateTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
 import { useDebounce } from "@/lib";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export default function MngTimekeeping () {
     const [deptId, setDeptId] = useState<string>("")
     const confirmTimeKeeping = useConfirmTimeKeeping();
     const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
-    const [dataAttendances, setDataAttendances] = useState<UserTimeKeeping[]>([])
+    const [dataAttendances, setDataAttendances] = useState<UpdateTimeKeeping[]>([])
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(50)
@@ -94,7 +94,6 @@ export default function MngTimekeeping () {
             setOpenModalUpdateTimeKeeping(false);
             return;
         }
-
         await editTimeAttendanceHistory.mutateAsync({
             Datetime: currentDate,
             OldValue: selectedData?.Result,
@@ -270,7 +269,7 @@ export default function MngTimekeeping () {
                                 </TableRow>
                             ) :
                             (
-                                dataAttendances?.map((item: UserTimeKeeping, idx: number) => (
+                                dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
                                     <TableRow key={idx} className="border-b dark:border-[#9b9b9b]">
                                         <TableCell className="text-left border-r">{item.UserCode}</TableCell>
                                         <TableCell className="text-left border-r">{item.Name}</TableCell>
