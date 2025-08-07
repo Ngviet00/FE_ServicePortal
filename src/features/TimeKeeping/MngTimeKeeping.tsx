@@ -39,6 +39,7 @@ export default function MngTimekeeping () {
     const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
     const [isOpenModalListHistoryEditTimeKeeping, setOpenModalListHistoryEditTimeKeeping] = useState(false);
     const queryClient = useQueryClient();
+    const [countHistoryEditTimeKeepingNotSendHR, setCountHistoryEditTimeKeepingNotSendHR] = useState(0)
 
     const daysInMonth = getDaysInMonth(year, month)
     const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
@@ -50,10 +51,11 @@ export default function MngTimekeeping () {
         };
     });
     
-    const { data: countHistoryEditTimeKeepingNotSendHR } = useQuery({
+    useQuery({
         queryKey: ['count-history-edit-timekeeping-not-send-hr'],
         queryFn: async () => {
             const res = await timekeepingApi.CountHistoryEditTimeKeepingNotSendHR(user?.userCode ?? '')
+            setCountHistoryEditTimeKeepingNotSendHR(res.data.data)
             return res.data.data
         }
     });
@@ -85,7 +87,7 @@ export default function MngTimekeeping () {
             Month: month,
             UserName: user?.userName ?? ""
         });
-        queryClient.invalidateQueries({ queryKey: ['count-history-edit-timekeeping-not-send-hr'] });
+        setCountHistoryEditTimeKeepingNotSendHR(0)
     }
 
     const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
