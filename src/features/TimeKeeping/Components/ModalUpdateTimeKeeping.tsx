@@ -3,10 +3,8 @@ import Modal from "@/components/Modal";
 import { Label } from "@/components/ui/label";
 import { AttendanceStatus, UpdateTimeKeeping } from "./types";
 import { statusDefine, statusLabels } from "./constants";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { formatDate } from "@/lib/time";
 
 interface ModalUpdateTimeKeepingProps {
     isOpen: boolean;
@@ -14,6 +12,8 @@ interface ModalUpdateTimeKeepingProps {
     selectedData: UpdateTimeKeeping | null;
     onSave: (
         currentFormValue: string,
+        currentUserCode: string,
+        currentDate: string
     ) => void;
 }
 
@@ -32,10 +32,11 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
 
     useEffect(() => {
         if (isOpen && selectedData) {
-            let initialValue = selectedData?.currentValue ?? '';
+            let initialValue = selectedData?.Result ?? '';
             if (initialValue == 'CN_X') {
                 initialValue = 'X'
             }
+
             setCurrentFormValue(initialValue);
 
             const match = initialValue.match(/^(\d*\.?\d*)([A-Za-z]*)$/);
@@ -95,63 +96,67 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
         const newValue = e.target.value;
         setTypeLeave(newValue);
         let updatedResult = newValue;
-        if (selectedData?.thu === "CN" && newValue === "X") {
-            updatedResult = "CN_X";
-        } else if (timeOff === "2" && newValue !== "X" && newValue !== "CN_X" && newValue !== "") {
+        if (timeOff === "2" && newValue !== "X" && newValue !== "CN_X" && newValue !== "") {
             updatedResult = "0.5" + newValue;
         }
         setCurrentFormValue(updatedResult);
 
-    }, [selectedData, timeOff]);
-
-    const handleChangeTimeLateAndEarly = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        if (val === '') {
-            setValueLateOrEarly('');
-            setCurrentFormValue('');
-            return;
-        }
-        const regex = /^(?:0(?:\.\d*)?|1(?:\.0*)?)$/; 
-        if (regex.test(val)) {
-            const numericVal = parseFloat(val);
-            if (numericVal >= 0 && numericVal <= 1) {
-                setValueLateOrEarly(val);
-                setCurrentFormValue(val);
-            }
-        }
-    }, []);
+    }, [timeOff]);
 
     const handleTimeOffChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
         const newTimeOff = e.target.value;
         setTimeOff(newTimeOff);
 
         let updatedResult = typeLeave;
-        if (selectedData?.thu === "CN" && typeLeave === "X") {
-            updatedResult = "CN_X";
-        } else if (newTimeOff === "2" && typeLeave !== "X" && typeLeave !== "CN_X" && typeLeave !== "") {
+        if (newTimeOff === "2" && typeLeave !== "X" && typeLeave !== "CN_X" && typeLeave !== "") {
             updatedResult = "0.5" + typeLeave;
         }
         setCurrentFormValue(updatedResult);
-    }, [typeLeave, selectedData]);
+    }, [typeLeave]);
 
     const handleSaveClick = () => {
-        onSave(currentFormValue);
+        onSave(currentFormValue, selectedData?.UserCode ?? '', selectedData?.CurrentDate ?? '');
     };
+
+    const handleChangeTimeLateAndEarly = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+        const newValue = e.target.value;
+        setValueLateOrEarly(newValue);
+        setCurrentFormValue(newValue);
+    }, []);
+
+    const arrayTimeLateEarly = [
+        { value: '0.0625', label: '30 Phút' },
+        { value: '0.125', label: '60 Phút' },
+        { value: '0.1875', label: '90 Phút' },
+        { value: '0.25', label: '120 Phút' },
+        { value: '0.3125', label: '150 Phút' },
+        { value: '0.375', label: '180 Phút' },
+        { value: '0.4375', label: '210 Phút' },
+        { value: '0.5', label: '240 Phút' },
+        { value: '0.5625', label: '270 Phút' },
+        { value: '0.625', label: '300 Phút' },
+        { value: '0.6875', label: '330 Phút' },
+        { value: '0.75', label: '360 Phút' },
+        { value: '0.8125', label: '390 Phút' },
+        { value: '0.875', label: '420 Phút' },
+        { value: '0.9375', label: '450 Phút' },
+        { value: '1', label: '480 Phút' },
+    ]
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} className="min-w-[700px] min-h-[500px]">
             <h2 className="text-2xl font-semibold mb-2">
-                {selectedData?.date ? formatDate(selectedData.date, "yyyy-MM-dd") : ""} __ {selectedData?.nvMaNV} __ {selectedData?.nvHoTen}
+                {selectedData?.CurrentDate} __ {selectedData?.UserCode} __ {selectedData?.Name}
             </h2>
             <div className="font-bold mt-2 text-[18px]">
                 <span>Giờ vào:</span>{" "}
                 <span className="text-red-700">
-                    {selectedData?.vao ? formatDate(selectedData.vao, "yyyy-MM-dd HH:mm:ss") : "--"}
+                    {selectedData?.Den == '' ? '--' :  selectedData?.Den}
                 </span>{" "}
                 <br />
                 <span className="mt-2 inline-block">Giờ ra:</span>{" "}
                 <span className="text-red-700">
-                    {selectedData?.ra ? formatDate(selectedData.ra, "yyyy-MM-dd HH:mm:ss") : "--"}
+                    {selectedData?.Ve == '' ? '--' : selectedData?.Ve}
                 </span>{" "}
                 <br />
             </div>
@@ -233,16 +238,18 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
                 <>
                     <div className="mt-4">
                         <Label className="mb-1">
-                            Số giờ đi muộn (Ex: 0.0625, 0,125) <DotRequireComponent />
+                            Số giờ đi muộn, về sớm<DotRequireComponent />
                         </Label>
-                        <Input
-                            value={valueLateOrEarly}
-                            onChange={handleChangeTimeLateAndEarly}
-                            type="text"
-                            placeholder="Số giờ đi muộn"
-                            className="w-[40%]"
-                            required
-                        />
+                        <select name="" id="" value={valueLateOrEarly} onChange={handleChangeTimeLateAndEarly} className="border border-gray-300 p-1 hover:cursor-pointer w-[30%]">
+                            <option value="">-Chọn-</option>
+                            {
+                                arrayTimeLateEarly.map((item, idx: number) => (
+                                    <option key={idx} value={item.value}>
+                                        {item.label}
+                                    </option>
+                                ))
+                            }
+                        </select>
                     </div>
                 </>
             )}
