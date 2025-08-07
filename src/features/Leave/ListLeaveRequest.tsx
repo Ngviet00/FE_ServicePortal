@@ -414,7 +414,7 @@ export default function ListLeaveRequest () {
                                 ))
                             )}
                         </div>
-                    </div>
+                </div>
             </div>
             {
                 leaveRequests.length > 0 ? (<PaginationControl

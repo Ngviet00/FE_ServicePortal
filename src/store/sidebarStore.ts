@@ -70,8 +70,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [
 			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
 			{ label: "sidebar.IT.create", route: "/form-it/create" },
-			{ label: "sidebar.IT.list", route: "/leave" },
-			{ label: "sidebar.IT.setting", route: "/time-keeping" },
+			{ label: "sidebar.IT.list", route: "/form-it" },
+			{ label: "sidebar.IT.setting", route: "/form-it/setting" },
 		],
 	},
 	{
@@ -80,8 +80,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		icon: ClipboardCheck,
 		children: [
 			{ label: "sidebar.approval.pending_approval", route: "/approval/pending-approval" },
-			{ label: "sidebar.approval.assigned", route: "/approval/assigned" },
-			{ label: "sidebar.approval.history_approval", route: "/approval/history-approval" },
+			{ label: "sidebar.approval.assigned", route: "/approval/assigned-tasks" },
+			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
 		],
 	}
 ];

@@ -3,22 +3,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@/components/ComponentCustom/Flatpickr';
+import { Button } from '@/components/ui/button';
 
 const ITRequestFormSchema = z.object({
     requester: z.object({
-        employeeId: z.string().min(1, 'Mã nhân viên là bắt buộc.'),
-        name: z.string().min(1, 'Họ tên là bắt buộc.'),
+        employeeId: z.string().min(1, 'Bắt buộc.'),
+        name: z.string().min(1, 'Bắt buộc.'),
         email: z.string().email('Email không hợp lệ.').min(1, 'Email là bắt buộc.'),
-        department: z.string().min(1, 'Phòng ban là bắt buộc.'),
+        department: z.string().min(1, 'Bắt buộc.'),
     }),
     itRequest: z.object({
-        dateRequired: z.string().min(1, 'Ngày yêu cầu là bắt buộc.'),
-        dateCompleted: z.string().min(1, 'Ngày mong muốn hoàn thành là bắt buộc.'),
+        dateRequired: z.string().min(1, 'Bắt buộc.'),
+        dateCompleted: z.string().min(1, 'Bắt buộc.'),
         itCategory: z.enum(['server', 'network', 'account', 'other'], {
-            required_error: 'Danh mục IT là bắt buộc.',
+            required_error: 'Bắt buộc.',
         }),
         itCategoryOther: z.string().optional(),
-        reason: z.string().min(1, 'Lý do là bắt buộc.'),
+        reason: z.string().min(1, 'Bắt buộc.'),
         priority: z.enum(['low', 'medium', 'high']).default('medium'),
     }),
     }).superRefine((data, ctx) => {
@@ -49,20 +50,20 @@ const App = () => {
     } = useForm<ITRequestState>({
         resolver: zodResolver(ITRequestFormSchema),
         defaultValues: {
-        requester: {
-            employeeId: 'EMP001',
-            name: 'Nguyễn Văn A',
-            email: 'nguyenvana@vsvn.com.vn',
-            department: 'Phòng Kỹ thuật',
-        },
-        itRequest: {
-            dateRequired: new Date().toISOString().split('T')[0],
-            dateCompleted: new Date().toISOString().split('T')[0],
-            itCategory: 'server',
-            itCategoryOther: '',
-            reason: '',
-            priority: 'medium',
-        }
+            requester: {
+                employeeId: '',
+                name: '',
+                email: '',
+                department: '',
+            },
+            itRequest: {
+                dateRequired: new Date().toISOString().split('T')[0],
+                dateCompleted: new Date().toISOString().split('T')[0],
+                itCategory: 'server',
+                itCategoryOther: '',
+                reason: '',
+                priority: 'medium',
+            }
         },
     });
 
@@ -109,7 +110,7 @@ const App = () => {
                                     id="requester.employeeId"
                                     {...register('requester.employeeId')}
                                     placeholder={tCommon('usercode')}
-                                    className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className={`${errors.requester?.employeeId ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
                                 />
                                 {errors.requester?.employeeId && <p className="text-red-500 text-xs mt-1">{errors.requester.employeeId.message}</p>}
                                 </div>
@@ -123,7 +124,7 @@ const App = () => {
                                     id="requester.name"
                                     {...register('requester.name')}
                                     placeholder={tCommon('name')}
-                                    className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className={`${errors.requester?.name ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
                                 />
                                 {errors.requester?.name && <p className="text-red-500 text-xs mt-1">{errors.requester.name.message}</p>}
                                 </div>
@@ -137,7 +138,7 @@ const App = () => {
                                     id="requester.email"
                                     {...register('requester.email')}
                                     placeholder="email@vsvn.com.vn"
-                                    className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className={`${errors.requester?.email ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
                                 />
                                 {errors.requester?.email && <p className="text-red-500 text-xs mt-1">{errors.requester.email.message}</p>}
                                 </div>
@@ -152,7 +153,7 @@ const App = () => {
                                     {...register('requester.department')}
                                     placeholder={tCommon('department')}
                                     disabled
-                                    className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 bg-gray-50 cursor-not-allowed"
+                                    className={`${errors.requester?.department ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border cursor-not-allowed`}
                                 />
                                 {errors.requester?.department && <p className="text-red-500 text-xs mt-1">{errors.requester.department.message}</p>}
                                 </div>
@@ -231,7 +232,7 @@ const App = () => {
                                     id="itRequest.itCategoryOther"
                                     {...register('itRequest.itCategoryOther')}
                                     placeholder={t('create.ex_other_category')}
-                                    className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className={`${errors.itRequest?.itCategoryOther ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
                                 />
                                 {errors.itRequest?.itCategoryOther && <p className="text-red-500 text-xs mt-1">{errors.itRequest.itCategoryOther.message}</p>}
                                 </div>
@@ -246,7 +247,7 @@ const App = () => {
                                 {...register('itRequest.reason')}
                                 placeholder={tCommon('reason')}
                                 rows={4}
-                                className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                                className={`${errors.itRequest?.reason ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
                                 ></textarea>
                                 {errors.itRequest?.reason && <p className="text-red-500 text-xs mt-1">{errors.itRequest.reason.message}</p>}
                             </div>
@@ -270,19 +271,19 @@ const App = () => {
                         </div>
 
                         <div className='flex gap-4 justify-end'>
-                            <button
-                            type="button"
-                            onClick={onCancel}
-                            className='px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                            <Button
+                                type="button"
+                                onClick={onCancel}
+                                className='px-6 py-2 border bg-white border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
                             >
                                 {tCommon('cancel')}
-                            </button>
-                            <button
-                            type='submit'
-                            className='px-6 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                            </Button>
+                            <Button
+                                type='submit'
+                                className='px-6 py-2 bg-black border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
                             >
                                 {tCommon('save')}
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </div>

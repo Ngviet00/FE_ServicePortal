@@ -1,7 +1,5 @@
 import timekeepingApi, { WorkingDay } from "@/api/timeKeepingApi";
-import { DateInput } from "@/components/DateInput";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -12,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"
 import { formatDateToInputString } from "./Components/functions";
+import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 
 export default function Timekeeping () {
     const [fromDate, setFromDate] = useState("")
@@ -64,34 +63,24 @@ export default function Timekeeping () {
         enabled: !!fromDate && !!toDate && !!user?.userCode
     });
 
-    const handleFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newFromDate = e.target.value;
-        setFromDate(newFromDate);
-
-        const newDate = new Date(newFromDate);
+    const handleFromDateChange = (fromDate: string) => {
+        setFromDate(fromDate);
+        const newDate = new Date(fromDate);
         const currentTo = new Date(toDate);
 
-        if (
-            newDate.getFullYear() !== currentTo.getFullYear() ||
-            newDate.getMonth() !== currentTo.getMonth()
-        ) {
+        if (newDate.getFullYear() !== currentTo.getFullYear() || newDate.getMonth() !== currentTo.getMonth()) {
             const lastDay = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
             const lastDayStr = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
             setToDate(lastDayStr);
         }
     };
 
-    const handleToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newToDate = e.target.value;
-        setToDate(newToDate);
-
-        const newDate = new Date(newToDate);
+    const handleToDateChange = (toDate: string) => {
+        setToDate(toDate);
+        const newDate = new Date(toDate);
         const currentFrom = new Date(fromDate);
 
-        if (
-            newDate.getFullYear() !== currentFrom.getFullYear() ||
-            newDate.getMonth() !== currentFrom.getMonth()
-        ) {
+        if (newDate.getFullYear() !== currentFrom.getFullYear() || newDate.getMonth() !== currentFrom.getMonth()) {
             const firstDay = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
             const firstDayStr = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
             setFromDate(firstDayStr);
@@ -132,12 +121,30 @@ export default function Timekeeping () {
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('time_keeping.time_keeping')}</h3>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-                <Label className="min-w-[40px]">{t('time_keeping.from')}</Label>
-                <DateInput value={fromDate} onChange={handleFromDateChange} className="w-[160px] sm:w-40"/>
+                <label>{t('time_keeping.from')}</label>
+                <DateTimePicker
+                    enableTime={false}
+                    dateFormat="Y-m-d"
+                    initialDateTime={fromDate}
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    onChange={(_selectedDates, dateStr, _instance) => {
+                        handleFromDateChange(dateStr)
+                    }}
+                    className={`dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer`}
+                />
 
-                <div className="flex">
-                    <Label className="min-w-[20px] sm:ml-4 w-[50px]">{t('time_keeping.to')}</Label>
-                    <DateInput value={toDate} onChange={handleToDateChange} className="w-[160px] sm:w-40"/>
+                <div className="flex flex-wrap items-center gap-2 ml-4">
+                    <label>{t('time_keeping.to')}</label>
+                    <DateTimePicker
+                        enableTime={false}
+                        dateFormat="Y-m-d"
+                        initialDateTime={toDate}
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        onChange={(_selectedDates, dateStr, _instance) => {
+                            handleToDateChange(dateStr)
+                        }}
+                        className={`dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer`}
+                    />
                 </div>
 
                 <Button className="w-full sm:w-auto mt-2 sm:mt-0 hover:cursor-pointer" onClick={handleSearch} disabled={btnLoading}>

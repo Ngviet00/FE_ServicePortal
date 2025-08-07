@@ -35,6 +35,10 @@ import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/Deta
 import ChangeOrgUnit from '@/features/OrgUnit/ChangeOrgUnit';
 import StatisticalFormIT from '@/features/FormIT/StatisticalFormIT';
 import CreateFormIT from '@/features/FormIT/CreateFormIT';
+import ListFormIT from '@/features/FormIT/ListFormIT';
+import PendingApproval from '@/features/Approval/PendingApproval';
+import AssignedTasks from '@/features/Approval/AssignedTasks';
+import ApprovalHistory from '@/features/Approval/ApprovalHistory';
 
 function App() {
 	const location = useLocation();
@@ -84,12 +88,17 @@ function App() {
 
 		{ path: "/form-it/statistical", element: <StatisticalFormIT />},
 		{ path: "/form-it/create", element: <CreateFormIT />},
+		{ path: "/form-it", element: <ListFormIT />},
+
 		{ path: "/form-it/edit/:id", element: <StatisticalFormIT />},
 		{ path: "/form-it/view/:id", element: <StatisticalFormIT />},
-		{ path: "/form-it/list", element: <StatisticalFormIT />},
 		{ path: "/form-it/wait-approval", element: <StatisticalFormIT />},
 		{ path: "/form-it/history-approval", element: <StatisticalFormIT />},
 		{ path: "/form-it/setting-form-it", element: <StatisticalFormIT />},
+
+		{ path: "/approval/pending-approval", element: <PendingApproval />},
+		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},
+		{ path: "/approval/approval-history", element: <ApprovalHistory />},
 	];
   
 	return (
