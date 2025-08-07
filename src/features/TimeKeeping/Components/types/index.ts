@@ -1,24 +1,15 @@
 export type AttendanceStatus = 'X' | 'CN' | 'SH' | 'NPL' | 'ABS' | 'AL' | 'MC' | 'UL' | 'COMP' | 'PL' | 'ACC' | 'ML' | 'MAT' | 'TV' | 'WO'
-  
-export interface UserTimeKeeping {
-    nvMaNV: string,
-    nvHoTen: string,
-    bpTen: string,
-    dataTimeKeeping: TimeKeeping[]
-}
 
 export interface UpdateTimeKeeping {
-    nvMaNV?: string,
-    nvHoTen?: string,
-    bpTen?: string,
-    date?: string,
-    currentValue?: string,
-    currentBgColor?: string,
-    rowIndex?: number,
-    colIndex?: number,
-    thu: string,
-    vao: string,
-    ra: string,
+    Result?: string,
+    UserCode?: string,
+    Name?: string,
+    Department?: string,
+    CurrentDate?: string,
+    Den?: string,
+    Ve?: string,
+    RowIndex?: number,
+    ColIndex?: number
 }
 
 export interface TimeKeeping {

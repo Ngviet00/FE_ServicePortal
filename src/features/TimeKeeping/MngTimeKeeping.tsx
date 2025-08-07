@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -7,8 +8,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next"
 import timekeepingApi, { useConfirmTimeKeeping, useEditTimeAttendanceHistory } from "@/api/timeKeepingApi";
 import { ConfirmDialogToHR } from "./Components/ConfirmDialogToHR";
-import { getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
-import { AttendanceStatus, TimeKeeping, UpdateTimeKeeping, UserTimeKeeping } from "./Components/types";
+import { calculateRoundedTime, getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
+import { AttendanceStatus, UpdateTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
 import { useDebounce } from "@/lib";
 import { Button } from "@/components/ui/button";
@@ -29,15 +30,16 @@ export default function MngTimekeeping () {
     const [deptId, setDeptId] = useState<string>("")
     const confirmTimeKeeping = useConfirmTimeKeeping();
     const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
-    const [dataAttendances, setDataAttendances] = useState<UserTimeKeeping[]>([])
+    const [dataAttendances, setDataAttendances] = useState<UpdateTimeKeeping[]>([])
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(20)
+    const [pageSize, setPageSize] = useState(50)
     const [keySearch, setKeySearch] = useState("")
     const debouncedKeySearch = useDebounce(keySearch, 300);
     const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
     const [isOpenModalListHistoryEditTimeKeeping, setOpenModalListHistoryEditTimeKeeping] = useState(false);
     const queryClient = useQueryClient();
+    const [countHistoryEditTimeKeepingNotSendHR, setCountHistoryEditTimeKeepingNotSendHR] = useState(0)
 
     const daysInMonth = getDaysInMonth(year, month)
     const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
@@ -49,10 +51,11 @@ export default function MngTimekeeping () {
         };
     });
     
-    const { data: countHistoryEditTimeKeepingNotSendHR } = useQuery({
+    useQuery({
         queryKey: ['count-history-edit-timekeeping-not-send-hr'],
         queryFn: async () => {
             const res = await timekeepingApi.CountHistoryEditTimeKeepingNotSendHR(user?.userCode ?? '')
+            setCountHistoryEditTimeKeepingNotSendHR(res.data.data)
             return res.data.data
         }
     });
@@ -84,38 +87,20 @@ export default function MngTimekeeping () {
             Month: month,
             UserName: user?.userName ?? ""
         });
+        setCountHistoryEditTimeKeepingNotSendHR(0)
     }
 
     const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
-    const saveChangeUpdateTimeKeeping = async (finalResult: string) => {
-        if (selectedData?.rowIndex === undefined || selectedData?.colIndex === undefined) {
-            return;
-        }
-
-        const old = dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex];
-
-        let oldValue = ''
-
-        if (old.customValueTimeAttendance != null && old.customValueTimeAttendance != '') {
-            oldValue = old.customValueTimeAttendance
-        }
-        else {
-            oldValue = old.result ?? ''
-        }
-        
-        // const oldValue = dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex].result;
-        // console.log(dataAttendances[selectedData.rowIndex].dataTimeKeeping[selectedData.colIndex], 6666666666);
-
-        if (oldValue === finalResult) {
+    const saveChangeUpdateTimeKeeping = async (finalResult: string, currentUserCode: string, currentDate: string) => {
+        if (selectedData?.Result === finalResult) {
             setOpenModalUpdateTimeKeeping(false);
             return;
         }
-        // console.log(oldValue, finalResult, 33);
         await editTimeAttendanceHistory.mutateAsync({
-            Datetime: selectedData.date,
-            OldValue: oldValue,
+            Datetime: currentDate,
+            OldValue: selectedData?.Result,
             CurrentValue: finalResult,
-            UserCode: selectedData.nvMaNV,
+            UserCode: currentUserCode,
             UserCodeUpdate: user?.userCode,
             UpdatedBy: user?.userName ?? ''
         });
@@ -201,19 +186,24 @@ export default function MngTimekeeping () {
                     <Button className="mr-1 bg-red-700 hover:bg-red-800 hover:cursor-pointer" onClick={() => setOpenModalListHistoryEditTimeKeeping(true)}>
                         Lịch sử chỉnh sửa ({countHistoryEditTimeKeepingNotSendHR ?? 0})
                     </Button>
-                    
-                    <ConfirmDialogToHR 
-                            title={t('mng_time_keeping.want_to_continue')}
-                            description={t('mng_time_keeping.description')}
-                            onConfirm={handleSendToHR}
-                            isPending={confirmTimeKeeping.isPending}
-                            confirmText={t('mng_time_keeping.continue')}
-                            cancelText={t('mng_time_keeping.cancel')}
-                        >
-                        <button disabled={confirmTimeKeeping.isPending} className={`${confirmTimeKeeping.isPending ? 'opacity-70' : ''}hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800`}>
-                            {t('mng_time_keeping.btn_confirm_hr')}
-                        </button>
-                    </ConfirmDialogToHR>
+                    {
+                        dataAttendances.length > 0 ? (
+                            <ConfirmDialogToHR 
+                                    title={t('mng_time_keeping.want_to_continue')}
+                                    description={t('mng_time_keeping.description')}
+                                    onConfirm={handleSendToHR}
+                                    isPending={confirmTimeKeeping.isPending}
+                                    confirmText={t('mng_time_keeping.continue')}
+                                    cancelText={t('mng_time_keeping.cancel')}
+                                >
+                                <button disabled={confirmTimeKeeping.isPending} className={`${confirmTimeKeeping.isPending ? 'opacity-70' : ''}hover:cursor-pointer px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-blue-600 hover:bg-blue-800`}>
+                                    {t('mng_time_keeping.btn_confirm_hr')}
+                                </button>
+                            </ConfirmDialogToHR>
+                        ) : (
+                            <></>
+                        )
+                    }
                 </div>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-x-4 gap-y-2 items-start">
@@ -281,62 +271,84 @@ export default function MngTimekeeping () {
                                 </TableRow>
                             ) :
                             (
-                                dataAttendances?.map((item: UserTimeKeeping, idx: number) => (
+                                dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
                                     <TableRow key={idx} className="border-b dark:border-[#9b9b9b]">
-                                        <TableCell className="text-left border-r">{item.nvMaNV}</TableCell>
-                                        <TableCell className="text-left border-r">{item.nvHoTen}</TableCell>
-                                        <TableCell className="text-left border-r">{item.bpTen}</TableCell>
+                                        <TableCell className="text-left border-r">{item.UserCode}</TableCell>
+                                        <TableCell className="text-left border-r">{item.Name}</TableCell>
+                                        <TableCell className="text-left border-r">{item.Department}</TableCell>
                                         {
-                                            item.dataTimeKeeping.map((data: TimeKeeping, index: number) => {
-                                                const isCustomValueTimeAttendance = data.customValueTimeAttendance != null && data.customValueTimeAttendance != ''
-                                                const isSendToHR = data?.isSentToHR
-
-                                                const result = isCustomValueTimeAttendance ? data?.customValueTimeAttendance : data.result
-                                                let bgColor = ''
-                                                let textColor = 'black';
+                                            daysHeader.map(({ dayStr }, colIdx: number) => {
+                                                let bgColor = '#FFFFFF'
+                                                let textColor = '#000000'
+                                                const dayNumber = parseInt(dayStr, 10);
+                                                 
+                                                let result = (item as any)[`ATT${dayNumber}`]?.toString() || '';
+                                                const den = (item as any)[`Den${dayNumber}`]?.toString() || '';
+                                                const ve = (item as any)[`Ve${dayNumber}`]?.toString() || ''
+                                                const wh = (item as any)[`WH${dayNumber}`]?.toString() || '';
+                                                const ot = (item as any)[`OT${dayNumber}`]?.toString() || '';
+                                                const fullDate = `${year}-${month.toString().padStart(2, '0')}-${dayStr}`
+                                                const isSunday = new Date(fullDate).getDay() === 0;
                                                 
-                                                if (isCustomValueTimeAttendance == true && isSendToHR == false) {
-                                                    bgColor = '#4679FF'
+                                                if (result == 'X') {
+                                                    if (isSunday) {
+                                                        result = 'CN_X'
+                                                    }
+                                                    else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
+                                                        result = 'X'
+                                                    }
+                                                    else if (parseFloat(wh) < 8) {
+                                                        const calculateTime = calculateRoundedTime(8 - parseFloat(wh))
+                                                        result = calculateTime == '1' ? 'X' : calculateTime 
+                                                    }
                                                 }
-                                                else if (result == '?' && new Date(data.bcNgay) < new Date()) {
-                                                    bgColor = '#FF7B7D'
+                                                else if (result == 'SH') {
+                                                    bgColor = '#3AFD13'
                                                 }
-                                                else if (result == 'CN_X' || !isNaN(parseFloat(result ?? ''))) {
-                                                    bgColor = '#FFFFFF'
+                                                else if (result == 'CN') {
+                                                    if (den != '' && ve != '' && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
+                                                        result = 'CN_X'
+                                                        bgColor = '#FFFFFF'
+                                                        textColor = '#000000'
+                                                    }
+                                                    else {
+                                                        bgColor = '#858585'
+                                                    }
                                                 }
-                                                else if (result == 'SH' || result == 'CN' || result == 'X' || result == '') {
-                                                    bgColor = statusColors[result ?? ''] ?? ''
-                                                    textColor = result == 'CN' ? 'white' : 'black'
+                                                else if (result == 'ABS' || result == 'MISS') {
+                                                    bgColor = '#FD5C5E'
                                                 }
-                                                else {
-                                                    bgColor = '#E1CD00'
+                                                else if (result != 'X') {
+                                                    bgColor = '#ffe378'
                                                 }
-
+                                                
                                                 return (
                                                     <TableCell
                                                         onClick={() => {
-                                                            setSelectedData({
-                                                                nvMaNV: item.nvMaNV,
-                                                                nvHoTen: item.nvHoTen,
-                                                                bpTen: item.bpTen,
-                                                                date: data.bcNgay,
-                                                                currentValue: result,
-                                                                currentBgColor: bgColor,
-                                                                rowIndex: idx,
-                                                                colIndex: index,
-                                                                thu: data.thu,
-                                                                vao: data.vao,
-                                                                ra: data.ra
-                                                            });
-                                                            setOpenModalUpdateTimeKeeping(true)
+                                                            const invalidResults = ['X', 'CN_X', 'NM'];
+                                                            if (!invalidResults.includes(result)) {
+                                                                setSelectedData({
+                                                                    Name: item.Name,
+                                                                    UserCode: item.UserCode,
+                                                                    CurrentDate: fullDate,
+                                                                    Result: result,
+                                                                    Den: den,
+                                                                    Ve: ve,
+                                                                    RowIndex: idx,
+                                                                    ColIndex: colIdx
+                                                                })
+                                                                setOpenModalUpdateTimeKeeping(true)
+                                                            }
                                                         }}
-                                                        style={{backgroundColor: data?.currentBgColor ?? bgColor ?? '', color: textColor}} 
-                                                        key={index} className={`p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer`}>
-                                                        <div className="text-xs">
-                                                            {result == 'CN' ? 'CN' : result}
+                                                        key={dayStr}
+                                                        style={{backgroundColor: bgColor, color: textColor}}  
+                                                        className={`p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer`}
+                                                    >
+                                                        <div className="flex justify-center text-xs">
+                                                            {result}
                                                         </div>
                                                     </TableCell>
-                                                );
+                                                )
                                             })
                                         }
                                     </TableRow>
