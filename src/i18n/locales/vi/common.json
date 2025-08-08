@@ -9,5 +9,15 @@
     "save": "Lưu",
     "reason": "Lý do",
     "note": "Ghi chú",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    
+    "previous": "Trước",
+	"next": "Sau",
+	"per_page": "Số mục/trang",
+
+    "delete": "Xóa",
+    "confirm_delete": "Bạn có muốn xóa?",
+    "submit": "Xác nhận",
+
+    "no_results": "Không có kết quả"
 }

@@ -1,0 +1,11 @@
+{
+    "title": "Danh sách quyền",
+    "add": "Thêm",
+    "name": "Tên",
+    "description": "Mô tả",
+    "action": "Hành động",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "required": "Bắt buộc",
+    "submit": "Xác nhận"
+}

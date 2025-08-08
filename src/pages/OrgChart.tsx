@@ -86,7 +86,7 @@ const NodeContent: React.FC<{ people: Person[]; orgUnitId: number }> = ({ people
 			<div key={p.usercode} className="dark:text-black">
 				{
 					idx == 0 ? (
-						<><strong className="dark:text-red-700 text-blue-600 font-bold">{p.orgUnitName}</strong> <br /></>
+						<><strong className={`dark:text-red-700 ${p.usercode == 'null' ? 'text-red-600' : 'text-blue-600'} font-bold`}>{p.orgUnitName}</strong> <br /></>
 					) : (<></>)
 				}
 				<strong className="dark:text-black">{p.usercode == 'null' ? 'Empty' : p.usercode}</strong>

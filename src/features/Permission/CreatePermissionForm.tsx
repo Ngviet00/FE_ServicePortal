@@ -20,52 +20,52 @@ import {
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { getErrorMessage, ShowToast } from "@/lib"
-import roleApi from "@/api/roleApi"
 import { useTranslation } from "react-i18next"
-
-const createUserSchema = z.object({
-    name: z.string().min(1, { message: "Tên không được để trống" }),
-    code: z.string().min(1, { message: "Mã không được để trống" }),
-})
-
-type CreateUserFormValues = z.infer<typeof createUserSchema>
+import permissionApi from "@/api/permissionApi"
 
 type Props = {
-    role?: {
+    permission?: {
         id: number,
         name: string,
-        code: string
+        description: string
     },
     onAction?: () => void;
 };
 
-export default function CreateRoleComponent({ role, onAction }: Props) {
+export default function CreatePermissionForm({ permission, onAction }: Props) {
     const [open, setOpen] = useState(false)
-    const { t } = useTranslation();
+    const { t } = useTranslation('permission');
+
+    const createUserSchema = z.object({
+        name: z.string().min(1, { message: t('required') }),
+        description: z.string().min(1, { message: t('required') }),
+    })
+
+    type CreateUserFormValues = z.infer<typeof createUserSchema>
     
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             name: "",
-            code: "",
+            description: "",
         },
     })
 
     useEffect(() => {
-        if (role && open) {
-            form.reset({ name: role.name, code: role.code });
+        if (permission && open) {
+            form.reset({ name: permission.name, description: permission.description });
         } else {
-            form.reset({ name: "", code: "" });
+            form.reset({ name: "", description: "" });
         }
-    }, [role, open, form]);
+    }, [permission, open, form]);
 
     const onSubmit = async (values: CreateUserFormValues) => {
         try {
-            if (role?.id) {
-                await roleApi.update(role.id, values);
+            if (permission?.id) {
+                await permissionApi.update(permission.id, values);
                 ShowToast("Success");
             } else {
-                await roleApi.create(values);
+                await permissionApi.create(values);
                 ShowToast("Success");
             }
             onAction?.();
@@ -80,13 +80,13 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {
-                    role?.id ? (
+                    permission?.id ? (
                         <button className="hover:cursor-pointer ml-3 rounded-[3px] px-[5px] py-[2px] bg-[#555555] text-white">
-                            {t('list_role_page.edit')}
+                            {t('edit')}
                         </button>
                     ) : (
                         <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">
-                            {t('list_role_page.btn_create_role')}
+                            {t('add')}
                         </Button>
                     )
                 }
@@ -94,7 +94,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
 
             <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
                 <DialogHeader>
-                    <DialogTitle>{role?.id ? t('list_role_page.btn_update_role') : t('list_role_page.btn_create_role')}</DialogTitle>
+                    <DialogTitle>{permission?.id ? t('edit') : t('add')}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
@@ -104,9 +104,9 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="name">{t('list_role_page.name')}</Label>
+                                    <Label htmlFor="name">{t('name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="..." {...field} />
+                                        <Input id="name" placeholder={t('name')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -115,12 +115,12 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
 
                         <FormField
                             control={form.control}
-                            name="code"
+                            name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="name">{t('list_role_page.code')}</Label>
+                                    <Label htmlFor="name">{t('description')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder="..." {...field} />
+                                        <Input id="code" placeholder={t('description')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -129,7 +129,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                         
                         <div className="flex justify-end">
                             <Button type="submit" className="hover:cursor-pointer">
-                                {t('list_role_page.submit')}
+                                {t('submit')}
                             </Button>
                         </div>
                     </form>

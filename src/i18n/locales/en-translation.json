@@ -3,7 +3,6 @@
 	"edit": "Edit",
 	"update": "Update",
 	"submit": "Submit",
-
 	"org_chart_page": {
 		"loading": "Loading...",
 		"select": "Select",
@@ -43,6 +42,10 @@
 		"home": "Dashboard",
 		"admin": {
 			"role": "Role",
+			"permission": "Permission",
+			"request_type": "Request type",
+			"approval_flow": "Approval flow",
+			"setting_org_unit": "Add org unit",
 			"admin_setting": "Setting"
 		},
 		"hr": {
@@ -178,7 +181,10 @@
 		"name": "Name",
 		"code": "Code",
 		"action": "Action",
-		"btn_update_role": "Update role"
+		"btn_update_role": "Update role",
+		"add": "Add",
+		"edit": "Edit",
+		"submit": "Submit"
 	},
 	"list_leave_request": {
 		"write_leave_name": "Write leave",

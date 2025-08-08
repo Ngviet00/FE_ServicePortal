@@ -22,11 +22,12 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		label: "Admin",
 		icon: LockKeyhole,
 		children: [
-			{ label: "sidebar.admin.admin_setting", route: "/admin-setting" },
 			{ label: "sidebar.admin.role", route: "/role" },
-			{ label: "Permission", route: "/permission" },
-			{ label: "Request Type", route: "/request-type" },
-			{ label: "Work Flow", route: "/work-flow" },
+			{ label: "sidebar.admin.permission", route: "/permission" },
+			{ label: "sidebar.admin.request_type", route: "/request-type" },
+			{ label: "sidebar.admin.approval_flow", route: "/approval-flow" },
+			{ label: "sidebar.admin.setting_org_unit", route: "/setting-org-unit" },
+			{ label: "sidebar.admin.admin_setting", route: "/admin-setting" },
 		],
 	},
 	{

@@ -3,7 +3,6 @@
 	"edit": "Sửa",
 	"update": "Cập nhật",
 	"submit": "Xác nhận",
-
 	"org_chart_page": {
 		"loading": "Đang tải...",
 		"select": "Chọn",
@@ -43,6 +42,10 @@
 		"home": "Trang chủ",
 		"admin": {
 			"role": "Vai trò",
+			"permission": "Quyền",
+			"request_type": "Loại yêu cầu",
+			"approval_flow": "Luồng phê duyệt",
+			"setting_org_unit": "Thêm vị trí",
 			"admin_setting": "Cài đặt"
 		},
 		"hr": {
@@ -177,7 +180,10 @@
 		"name": "Tên",
 		"code": "Mã",
 		"action": "Hành động",
-		"btn_update_role": "Cập nhật"
+		"btn_update_role": "Cập nhật",
+		"add": "Thêm",
+		"edit": "Sửa",
+		"submit": "Xác nhận"
 	},
 	"list_leave_request": {
 		"write_leave_name": "Người làm đơn",

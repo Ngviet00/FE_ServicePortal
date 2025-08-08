@@ -162,31 +162,31 @@ export default function ListFormIT () {
 
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
-                                Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
-                                    {Array.from({ length: 6 }).map((_, i) => (
-                                        <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
-                                    ))}
-                                    </div>
-                                ))
-                            ) : isError || leaveRequests.length === 0 ? (
-                                <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
-                            ) : (
-                                leaveRequests.map((item: LeaveRequestData) => (
-                                    <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                        <div className="mb-1 font-bold">{item.name} ({item.requesterUserCode})</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                            Array.from({ length: 3 }).map((_, index) => (
+                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
+                                ))}
+                                </div>
+                            ))
+                        ) : isError || leaveRequests.length === 0 ? (
+                            <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
+                        ) : (
+                            leaveRequests.map((item: LeaveRequestData) => (
+                                <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                    <div className="mb-1 font-bold">{item.name} ({item.requesterUserCode})</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
+                                    <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             </div>
             {

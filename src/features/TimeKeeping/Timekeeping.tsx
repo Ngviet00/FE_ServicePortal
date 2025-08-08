@@ -2,27 +2,27 @@ import timekeepingApi, { WorkingDay } from "@/api/timeKeepingApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ShowToast } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"
-import { formatDateToInputString } from "./Components/functions";
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
+import { formatDateToInputString } from "./Components/functions";
 
 export default function Timekeeping () {
     const [fromDate, setFromDate] = useState("")
     const [toDate, setToDate] = useState("")
     const [btnLoading, setBtnLoading] = useState(false)
     const { t } = useTranslation()
+    const { t: tCommon } = useTranslation('common')
     const {user} = useAuthStore()
 
     useEffect(() => {
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-
+        
         setFromDate(formatDateToInputString(firstDay));
         setToDate(formatDateToInputString(now));
     }, []);
@@ -156,89 +156,83 @@ export default function Timekeeping () {
                 <span>{t('time_keeping.day_ot')}: <span className="font-bold text-red-800">{(otDay/60).toFixed(1)}</span></span>
                 <span>{t('time_keeping.night_ot')}: <span className="font-bold text-red-800">{(otNight/60).toFixed(1)}</span></span>
             </div>
-            <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
-                <div className="min-w-[1200px]">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-b bg-gray-300 hover:bg-gray-400 dark:bg-black dark:text-white">
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.usercode')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.username')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.dept')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.date')}</TableHead>
-                                <TableHead className="w-[50px] text-center border-r">{t('time_keeping.day')}</TableHead>
-                                <TableHead className="w-[50px] text-center border-r">{t('time_keeping.shift')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.from')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.to')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.day_time_work')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.night_time_work')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.day_ot_work')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.night_ot_work')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.late')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.early')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.go_out')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r">{t('time_keeping.note')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-
-                        <TableBody>
-                            { 
+            <div className="mt-5">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm border border-gray-200">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="sticky top-0 z-20 p-1 border w-[115px]">{t('time_keeping.usercode')}</th>
+                                <th className="sticky top-0 z-20 p-1 border w-[170px]">{t('time_keeping.username')}</th>
+                                <th className="p-1 border w-[100px]">{t('time_keeping.dept')}</th>
+                                <th className="p-1 border w-[100px]">{t('time_keeping.date')}</th>
+                                <th className="p-1 border w-[50px]">{t('time_keeping.day')}</th>
+                                <th className="p-1 border w-[60px]">{t('time_keeping.shift')}</th>
+                                <th className="p-1 border w-[80px]">{t('time_keeping.from')}</th>
+                                <th className="p-1 border w-[80px]">{t('time_keeping.to')}</th>
+                                <th className="p-1 border w-[130px]">{t('time_keeping.day_time_work')}</th>
+                                <th className="p-1 border w-[140px]">{t('time_keeping.night_time_work')}</th>
+                                <th className="p-1 border w-[150px]">{t('time_keeping.day_ot_work')}</th>
+                                <th className="p-1 border w-[160px]">{t('time_keeping.night_ot_work')}</th>
+                                <th className="p-1 border w-[100px]">{t('time_keeping.late')}</th>
+                                <th className="p-1 border w-[100px]">{t('time_keeping.early')}</th>
+                                <th className="p-1 border w-[100px]">{t('time_keeping.go_out')}</th>
+                                <th className="p-1 border w-[100px]">{t('time_keeping.note')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
                                 isPending ? (
-                                    Array.from({ length: 10 }).map((_, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        </TableRow>
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
+                                        </tr>  
                                     ))
                                 ) : isError || personalTimekeepingData?.length == 0 || personalTimekeepingData == null ? (
-                                    <TableRow>
-                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={15}>{error?.message ?? "No results"}</TableCell>
-                                    </TableRow>
-                                ) : 
-                                (
+                                    <tr>
+                                        <td colSpan={16} className="px-4 py-2 text-center font-bold text-red-700">
+                                            { error?.message ?? tCommon('no_results') } 
+                                        </td>
+                                    </tr>
+                                ) : (
                                     personalTimekeepingData?.map((item: WorkingDay, idx: number) => (
-                                        <TableRow key={idx} className={`border-b hover:bg-gray-300`}>
-                                            <TableCell className="text-center border-r">{item?.NVMaNV}</TableCell>
-                                            <TableCell className="text-center border-r">{item?.NVHoTen}</TableCell>
-                                            <TableCell className="text-center border-r">{item?.BPTenV}</TableCell>
-                                            <TableCell className={`text-center border-r ${item?.Thu == 'CN' ? 'font-bold text-red-600' : ''}`}>
-                                                {item?.BCNgay ? formatDate(item?.BCNgay, "dd/MM/yyyy") : "--"}
-                                            </TableCell>
-                                            <TableCell className={`text-center border-r ${item?.Thu == 'CN' ? 'font-bold text-red-600' : ''}`}>{item?.Thu}</TableCell>
-                                            <TableCell className="text-center border-r">{item?.CVietTat}</TableCell>
-                                            <TableCell className="text-center border-r">{item.InDau}</TableCell>
-                                            <TableCell className="text-center border-r">{item?.OutCuoi}</TableCell>
-                                            <TableCell className={`text-center border-r`}>{item?.BCTGLamNgay1}</TableCell>
-                                            <TableCell className="text-center border-r">{item?.BCTGLamToi1}</TableCell>
-                                            <TableCell className={`text-center border-r ${item?.LamThemNgay != 0 && (item?.LamThemNgay ?? 0) >= 60 ? 'font-bold text-green-800 bg-green-300' : ''}`}>
-                                                {(item?.LamThemNgay ?? 0) >= 60 ? item?.LamThemNgay : 0}
-                                            </TableCell>
-                                            <TableCell className={`text-center border-r ${item?.LamThemToi != 0 && (item?.LamThemToi ?? 0) ? 'font-bold text-green-800 bg-green-300' : ''}`}>
-                                                {(item?.LamThemToi ?? 0) >= 60 ? item.LamThemToi : 0}
-                                            </TableCell>
-                                            <TableCell className={`text-center border-r ${item?.DiMuon != '0' ? 'font-bold bg-red-600 text-white' : ''}`}>{item?.DiMuon}</TableCell>
-                                            <TableCell className={`text-center border-r ${item?.VeSom != '0' ? 'font-bold bg-red-600 text-white' : ''}`}>{item?.VeSom}</TableCell>
-                                            <TableCell className={`text-center border-r ${item?.RaNgoai != '0' ? 'font-bold bg-red-600' : ''}`}>{item?.RaNgoai}</TableCell>
-                                            <TableCell className="text-center border-r font-bold">{item?.BCGhiChu}</TableCell>
-                                        </TableRow>
+                                        <tr key={idx} className="hover:bg-gray-50">
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.NVMaNV}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.NVHoTen}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.BPTenV}</td>
+                                            <td className={`${item?.Thu == 'CN' ? 'font-bold text-red-600' : ''} px-4 py-2 border whitespace-nowrap`}>{item?.BCNgay ? formatDate(item?.BCNgay, "dd/MM/yyyy") : "--"}</td>
+                                            <td className={`${item?.Thu == 'CN' ? 'font-bold text-red-600' : ''} px-4 py-2 text-center border whitespace-nowrap`}>{item?.Thu}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.CVietTat}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.InDau}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.OutCuoi}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCTGLamNgay1}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCTGLamToi1}</td>
+                                            <td className={`${item?.LamThemNgay != 0 && (item?.LamThemNgay ?? 0) >= 60 ? 'font-bold text-green-800 bg-green-300' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{(item?.LamThemNgay ?? 0) >= 60 ? item?.LamThemNgay : 0}</td>
+                                            <td className={`${item?.LamThemToi != 0 && (item?.LamThemToi ?? 0) >= 60 ? 'font-bold text-green-800 bg-green-300' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{(item?.LamThemToi ?? 0) >= 60 ? item.LamThemToi : 0}</td>
+                                            <td className={`${item?.DiMuon != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.DiMuon}</td>
+                                            <td className={`${item?.VeSom != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.VeSom}</td>
+                                            <td className={`${item?.RaNgoai != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.RaNgoai}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCGhiChu}</td>
+                                        </tr>
                                     ))
                                 )
                             }
-                        </TableBody>
-                    </Table>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

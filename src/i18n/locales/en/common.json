@@ -9,5 +9,15 @@
     "save": "Save",
     "reason": "Reason",
     "note": "Note",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+
+    "previous": "Previous",
+	"next": "Next",
+	"per_page": "Per page",
+
+    "delete": "Delete",
+    "confirm_delete": "Do you want to delete?",
+    "submit": "Submit",
+
+    "no_results": "No results"
 }
