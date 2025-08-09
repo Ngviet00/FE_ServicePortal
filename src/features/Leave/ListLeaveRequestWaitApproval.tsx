@@ -28,6 +28,7 @@ import { formatDate } from "@/lib/time"
 import { Checkbox } from "@/components/ui/checkbox"
 import useHasPermission from "@/hooks/useHasPermission"
 import { Spinner } from "@/components/ui/spinner"
+import departmentApi from "@/api/departmentApi"
 
 export default function ListLeaveRequestWaitApproval () {
     const { t } = useTranslation();
@@ -43,21 +44,32 @@ export default function ListLeaveRequestWaitApproval () {
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
     const registerAllLeaveMutation = useRegisterAllLeaveRequest();
+    const [selectedDepartment, setSelectedDepartment] = useState('');
     // const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-leave-request-wait-approval', page, pageSize],
+        queryKey: ['get-leave-request-wait-approval', page, pageSize, selectedDepartment],
         queryFn: async () => {
             const res = await leaveRequestApi.getLeaveRequestWaitApproval({
                 page: page,
                 pageSize: pageSize,
                 OrgUnitId: user?.orgUnitID,
-                UserCode: user?.userCode
+                UserCode: user?.userCode,
+                selectedDepartment: selectedDepartment
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
         },
         // enabled: isOrgUnitIdAvailable
+    });
+
+    
+    const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-department-distinct-name'],
+        queryFn: async () => {
+            const res = await departmentApi.getAllWithDistinctName()
+            return res.data.data
+        },
     });
 
     function handleApproval(shouldGoBack?: boolean) {
@@ -208,6 +220,23 @@ export default function ListLeaveRequestWaitApproval () {
                         </Button>
                     </div>
                 )}
+            </div>
+
+            <div className="w-full md:w-1/4 mt-2">
+                <Label htmlFor="department" className="mb-1">Department</Label>
+                <select
+                    value={selectedDepartment}
+                    id="department"
+                    onChange={(e) => setSelectedDepartment(e.target.value)}
+                    className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                    <option value="">--Chọn--</option>
+                    {
+                        departments.map((item: string) => (
+                            <option key={item} value={item}>{item}</option>
+                        ))
+                    }
+                </select>
             </div>
 
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">

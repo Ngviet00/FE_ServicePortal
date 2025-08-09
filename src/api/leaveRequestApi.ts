@@ -100,7 +100,8 @@ interface GetWaitApproval {
     page?: number,
     pageSize?: number,
     UserCode?: string, 
-    OrgUnitId?: number | undefined
+    OrgUnitId?: number | undefined,
+    selectedDepartment?: string,
 }
 
 interface HrRegisterAllLeave {
