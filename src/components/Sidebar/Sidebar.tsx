@@ -9,8 +9,8 @@ import { RoleEnum } from "@/lib";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
 import useHasPermission from "@/hooks/useHasPermission";
-import userApi from "@/api/userApi";
 import "./style.css"
+import approvalApi from "@/api/approvalApi";
 
 export default function Sidebar() {
 	const { t } = useTranslation();
@@ -41,7 +41,7 @@ export default function Sidebar() {
 	const { data: countWaitApprovalSidebar } = useQuery({
 		queryKey: ["count-wait-approval-sidebar"],
 		queryFn: async () => {
-			const res = await userApi.countWaitApprovalSidebar({
+			const res = await approvalApi.CountWaitApprovalAndAssignedInSidebar({
 				UserCode: user?.userCode,
 				OrgUnitId: user?.orgUnitID ?? -9999,
 			});
