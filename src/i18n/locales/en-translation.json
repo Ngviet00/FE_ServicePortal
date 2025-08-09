@@ -169,10 +169,13 @@
 		"btn_create_type_leave": "Create type leave",
 		"search": "Search",
 		"name": "Name",
+		"nameV": "Name Vietnamese",
 		"modified_at": "Modified At",
 		"modified_by": "Modified By",
 		"action": "Action",
-		"btn_update_type_leave": "Update type leave"
+		"btn_update_type_leave": "Update type leave",
+		"code": "Code",
+		"required": "Required"
 	},
 	"list_role_page": {
 		"title": "Roles",

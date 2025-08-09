@@ -24,17 +24,12 @@ import { useAuthStore } from "@/store/authStore"
 import { useTranslation } from "react-i18next"
 import typeLeaveApi from "@/api/typeLeaveApi"
 
-const createUserSchema = z.object({
-    name: z.string().min(1, { message: "Tên không được để trống" }),
-    modified_by: z.string().nullable().optional()
-})
-
-type CreateUserFormValues = z.infer<typeof createUserSchema>
-
 type Props = {
     typeLeave?: {
         id: number,
         name: string,
+        nameV: string,
+        code: string,
         modified_by?: string,
     },
     onAction?: () => void;
@@ -45,17 +40,28 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
     const { user } = useAuthStore();
     const { t } = useTranslation();
 
+    const createUserSchema = z.object({
+        name: z.string().min(1, { message: t('type_leave_page.required') }),
+        nameV: z.string().min(1, { message: t('type_leave_page.required') }),
+        code: z.string().min(1, { message: t('type_leave_page.required') }),
+        modified_by: z.string().nullable().optional()
+    })
+
+    type CreateUserFormValues = z.infer<typeof createUserSchema>
+
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             name: "",
+            nameV: "",
+            code: "",
             modified_by: user?.userCode
         },
     })
 
     useEffect(() => {
         if (typeLeave && open) {
-            form.reset({ name: typeLeave.name });
+            form.reset({ name: typeLeave.name, nameV: typeLeave.nameV, code: typeLeave.code });
         } else {
             form.reset({ name: "" });
         }
@@ -65,6 +71,8 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
         try {
             const data = {
                 name: values.name,
+                nameV: values.nameV,
+                code: values.code,
                 modified_by: user?.userCode
             }
             if (typeLeave?.id) {
@@ -88,7 +96,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                 {
                     typeLeave?.id ? (
                         <button className="hover:cursor-pointer ml-3 rounded-[3px] px-[5px] py-[2px] bg-[#555555] text-white">
-                            Edit
+                            {t('edit')}
                         </button>
                     ) : (
                         <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">
@@ -113,6 +121,34 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                                     <Label htmlFor="name">{t('type_leave_page.name')}</Label>
                                     <FormControl>
                                         <Input id="name" placeholder="..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}  
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="nameV"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label htmlFor="nameV">{t('type_leave_page.nameV')}</Label>
+                                    <FormControl>
+                                        <Input id="nameV" placeholder="..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}  
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="code"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label htmlFor="code">{t('type_leave_page.code')}</Label>
+                                    <FormControl>
+                                        <Input id="code" placeholder="..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

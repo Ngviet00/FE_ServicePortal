@@ -167,11 +167,14 @@
 		"title": "Loại phép",
 		"btn_create_type_leave": "Thêm loại phép",
 		"search": "Tìm kiếm",
-		"name": "Tên",
+		"name": "Tên tiếng anh",
+		"nameV": "Tên tiếng việt",
 		"modified_at": "Sửa lúc",
 		"modified_by": "Người sửa",
 		"action": "Hành động",
-		"btn_update_type_leave": "Sửa loại phép"
+		"btn_update_type_leave": "Sửa loại phép",
+		"code": "Mã",
+		"required": "Bắt buộc"
 	},
 	"list_role_page": {
 		"title": "Vai trò",
