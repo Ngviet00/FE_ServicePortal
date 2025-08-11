@@ -1,48 +1,120 @@
+import approvalApi from "@/api/approvalApi";
+import departmentApi from "@/api/departmentApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
+import PaginationControl from "@/components/PaginationControl/PaginationControl";
+import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import useHasPermission from "@/hooks/useHasPermission";
+import { REQUEST_TYPE } from "@/lib";
+import { formatDate } from "@/lib/time";
+import { useAuthStore } from "@/store/authStore";
+import { Checkbox } from "@radix-ui/react-checkbox";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
-interface Form {
+interface PendingApprovalResponse {
 	id: string;
-	type: string;
-	creator: string;
-	created: string;
-	description: string;
+	requestTypeId: number;
+	currentOrgUnitId: number
+	createdAt: string | Date 
+	requestType?: {
+		id: number,
+		name: string,
+		nameE: string,
+	},
+	historyApplicationForm?: {
+		userApproval?: string
+	},
+	leaveRequest?: {
+		id?: string,
+		code?: string,
+		name?: string,
+		userNameWriteLeaveRequest?: string
+	},
+	memoNotification?: {
+		id?: string,
+		code?: string,
+		createdBy?: string,
+	}
 }
 
-const formsData: Form[] = [
-	{
-		id: 'IT-20250807-001',
-		type: 'IT',
-		creator: 'Nguyễn Văn A',
-		created: '07/08/2025',
-		description: 'Yêu cầu cấp laptop cho nhân viên mới.',
-	},
-	{
-		id: 'PO-20250807-002',
-		type: 'PO',
-		creator: 'Trần Thị B',
-		created: '07/08/2025',
-		description: 'Yêu cầu mua thiết bị văn phòng cho phòng kế toán.',
-	},
-	{
-		id: 'SAP-20250807-003',
-		type: 'SAP',
-		creator: 'Lê Văn C',
-		created: '07/08/2025',
-		description: 'Yêu cầu phân quyền tài chính trong hệ thống SAP.',
-	},
-];
+function GetCodeByRequestTypeId(item: PendingApprovalResponse) {
+	let result = ''
+
+	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = item?.leaveRequest?.code || ''
+	}
+	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = item?.memoNotification?.code || '';
+	}
+
+	return result
+}
+
+function GetUserRequestByRequestTypeId(item: PendingApprovalResponse) {
+	let result = ''
+
+	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = item?.leaveRequest?.name || ''
+	}
+	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = item?.memoNotification?.createdBy || '';
+	}
+
+	return result
+}
+
+function GetUserCreatedByRequestTypeId(item: PendingApprovalResponse) {
+	let result = ''
+
+	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = item?.leaveRequest?.userNameWriteLeaveRequest || ''
+	}
+	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = item?.memoNotification?.createdBy || '';
+	}
+
+	return result
+}
+
+function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
+	let result = ''
+
+	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = `/leave-request/detail-wait-approval/${item?.leaveRequest?.id ?? '-1'}`
+	}
+	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/memo-notify/detail-wait-approval/${item?.memoNotification?.id ?? '1'}`
+	}
+
+	return result
+}
 
 export default function PendingApproval() {
+	const { t } = useTranslation('pendingApproval')
+	const { t: tCommon } = useTranslation('common')
+	const lang = useTranslation().i18n.language.split('-')[0]
+    const [requestType, setRequestType] = useState('');
+	const [page, setPage] = useState(1)
+	const [pageSize, setPageSize] = useState(10)
+	const [totalPage, setTotalPage] = useState(0)
+	const { user } = useAuthStore()
+	const [selectedDepartment, setSelectedDepartment] = useState('')
+	const hasPermissionHrMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
+	const [selectedIds, setSelectedIds] = useState<string[]>([])
+	//  const currentPageIds = leaveRequests.map((item: LeaveRequestData) => item.id);
 
-	const lang = useTranslation().i18n.language.split('-')[0];
-    const [filter, setFilter] = useState('Tất cả');
-    const [, setSelectedForm] = useState<Form | null>(null);
+	function setCurrentPage(page: number): void {
+        setPage(page)
+    }
 
-    const filteredForms = filter === 'Tất cả' ? formsData : formsData.filter((f) => f.type === filter);
+    function handlePageSizeChange(size: number): void {
+        setPage(1)
+        setPageSize(size)
+    }
 
 	const { data: requestTypes = []} = useQuery({
         queryKey: ['get-all-request-type'],
@@ -55,18 +127,72 @@ export default function PendingApproval() {
         },
     });
 
+	const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-department-distinct-name'],
+        queryFn: async () => {
+            const res = await departmentApi.getAllWithDistinctName()
+            return res.data.data
+        },
+    });
+
+	const { data: ListWaitApprovals = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-list-wait-approval', page, pageSize, requestType, selectedDepartment],
+        queryFn: async () => {
+            const res = await approvalApi.GetAllApproval({
+                Page: page,
+                PageSize: pageSize,
+				OrgUnitId: user?.orgUnitID,
+				UserCode: user?.userCode,
+				RequestTypeId: requestType == '' ? null : Number(requestType),
+				DepartmentName: selectedDepartment
+            });
+			setTotalPage(res.data.total_pages)
+            return res.data.data;
+        },
+    });
+
+	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
+		setRequestType(e.target.value)
+	}
+	
+	const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
+		setSelectedDepartment(e.target.value)
+	}
+
+	// const handleSelectAllCurrentPage = (checked: string | boolean) => {
+    //     if (ListWaitApprovals.length > 0) {
+    //         if (checked) {
+    //             const newSelected = Array.from(new Set([...selectedIds, ...currentPageIds]));
+    //             setSelectedIds(newSelected);
+    //         } else {
+    //             const newSelected = selectedIds.filter(id => !currentPageIds.includes(id));
+    //             setSelectedIds(newSelected);
+    //         }
+    //     } else {
+    //         setSelectedIds([]);
+    //     }
+    // };
+
+	// const handleRowCheckboxChange = (id: string, checked: string | boolean) => {
+    //     if (checked) {
+    //         setSelectedIds(prev => [...prev, id]);
+    //     } else {
+    //         setSelectedIds(prev => prev.filter(item => item !== id));
+    //     }
+    // };
+
     return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">Danh sách chờ duyệt</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('pending_approval.title')}</h3>
             </div>
 
 			<div className="mt-2 flex">
 				<div className="w-[20%]">
-					<Label className="mb-2">Loại yêu cầu</Label>
-					<select value={filter} onChange={(e) => setFilter(e.target.value)} className="border p-1 rounded w-full cursor-pointer">
-						<option value="Tất cả">
-							{ lang == 'vi' ? 'Tất cả' : 'ALL' }
+					<Label className="mb-2">{t('pending_approval.request_type')}</Label>
+					<select value={requestType} onChange={(e) => handleOnChangeRequestType(e)} className="border p-1 rounded w-full cursor-pointer">
+						<option value="">
+							{ lang == 'vi' ? 'Tất cả' : 'All' }
 						</option>
 						{
 							requestTypes.map((item: IRequestType, idx: number) => (
@@ -75,57 +201,206 @@ export default function PendingApproval() {
 						}
 					</select>
 				</div>
+
+				{
+					hasPermissionHrMngLeaveRq && (
+						<div className="w-[20%] ml-4">
+							<Label className="mb-2">{t('pending_approval.department')}</Label>
+							<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
+								<option value="">
+									{ lang == 'vi' ? 'Tất cả' : 'All' }
+								</option>
+								{
+									departments.map((item: string, idx: number) => (
+										<option key={idx} value={item}>{item}</option>
+									))
+								}
+							</select>
+						</div>
+					)
+				}
+
 			</div>
 
 			<div>
 				<div className="overflow-x-auto">
-         			<table className="min-w-full text-sm border border-gray-200">
-						<thead className="bg-gray-100">
-							<tr>
-								<th className="px-4 py-2 border">Mã đơn</th>
-								<th className="px-4 py-2 border">Loại đơn</th>
-								<th className="px-4 py-2 border">Người tạo</th>
-								<th className="px-4 py-2 border">Ngày tạo</th>
-								<th className="px-4 py-2 border">Người đăng ký</th>
-								<th className="px-4 py-2 border">Người duyệt gần nhất</th>
-								<th className="px-4 py-2 border">Trạng thái</th>
-								<th className="px-4 py-2 border text-center">Hành động</th>
-							</tr>
-						</thead>
-						<tbody>
-							{filteredForms.map((form) => (
-								<tr key={form.id} className="hover:bg-gray-50">
-									<td className="px-4 py-2 border whitespace-nowrap text-left">{form.id}</td>
-									<td className="px-4 py-2 border whitespace-nowrap text-center">{form.type}</td>
-									<td className="px-4 py-2 border whitespace-nowrap text-center">{form.creator}</td>
-									<td className="px-4 py-2 border whitespace-nowrap text-center">{form.created}</td>
-									<td className="px-4 py-2 border whitespace-nowrap text-center">{`nguyen van a`}</td>
-									<td className="px-4 py-2 border whitespace-nowrap text-center">{`nguyen van a`}</td>
-									<td className="px-4 py-2 border text-center">
-										<span className="inline-block px-2 py-1 text-xs text-white bg-yellow-500 rounded">
-											Chờ duyệt
-										</span>
-									</td>
-									<td className="px-4 py-2 border text-center space-x-1">
-										<button
-											onClick={() => setSelectedForm(form)}
-											className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-										>
-											Xem
-										</button>
-										<button className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600">
-											Duyệt
-										</button>
-										<button className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-											Từ chối
-										</button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-        			</table>
+					{
+						//hiển thị của hr
+						hasPermissionHrMngLeaveRq ? (
+							<table className="min-w-full text-sm border border-gray-200">
+								<thead className="bg-gray-100">
+									<tr>
+										{
+											hasPermissionHrMngLeaveRq  ? (
+												<th className="px-4 py-2 border">
+													<Checkbox 
+														checked={selectedIds.length > 0 && currentPageIds.every((id: string) => selectedIds.includes(id))}
+														onCheckedChange={(checked) => handleSelectAllCurrentPage(checked)}
+														className="hover:cursor-pointer"
+													/>
+												</th>
+											) : (<></>)
+										}
+										<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.last_approved')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
+										<th className="px-4 py-2 border text-center">{t('pending_approval.action')}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{
+										isPending ? (
+											Array.from({ length: 3 }).map((_, index) => (
+												<tr key={index}>
+													{
+														hasPermissionHrMngLeaveRq && (
+															<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
+														)
+													}
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+												</tr>  
+											))
+										) : isError || ListWaitApprovals?.length == 0 ? (
+											<tr>
+												<td colSpan={hasPermissionHrMngLeaveRq ? 9 : 8} className="px-4 py-2 text-center font-bold text-red-700">
+													{ error?.message ?? tCommon('no_results') } 
+												</td>
+											</tr>
+										) : (
+											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => (
+												<tr key={idx} className="hover:bg-gray-50">
+													{
+														hasPermissionHrMngLeaveRq ? (
+															<td className="px-4 py-2 border whitespace-nowrap text-center">
+																<Checkbox
+																	checked={selectedIds.includes(item.id ?? "")}
+																	onCheckedChange={(checked) => handleRowCheckboxChange(item.id ?? "", checked)}
+																	className="hover:cursor-pointer"
+																/>
+															</td>
+														) : (<></>)
+													}
+													<td className="px-4 py-2 border whitespace-nowrap text-center">1</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-left">
+														<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+															{ GetCodeByRequestTypeId(item) }
+														</Link>
+													</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserCreatedByRequestTypeId(item)}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userApproval ? item?.historyApplicationForm?.userApproval : '--'}</td>
+													<td className="px-4 py-2 border text-center">
+														<StatusLeaveRequest status="Pending"/>
+													</td>
+													<td className="px-4 py-2 border text-center space-x-1">
+														<button
+															className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+														>
+															<Link to={GetUrlDetailWaitApproval(item)}>
+																{t('pending_approval.detail')}
+															</Link>
+														</button>
+													</td>
+												</tr>
+											))
+										)
+									}
+								</tbody>
+							</table>
+						) : (
+							<table className="min-w-full text-sm border border-gray-200">
+								<thead className="bg-gray-100">
+									<tr>
+										<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.last_approved')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
+										<th className="px-4 py-2 border text-center">{t('pending_approval.action')}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{
+										isPending ? (
+											Array.from({ length: 3 }).map((_, index) => (
+												<tr key={index}>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+												</tr>  
+											))
+										) : isError || ListWaitApprovals?.length == 0 ? (
+											<tr>
+												<td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
+													{ error?.message ?? tCommon('no_results') } 
+												</td>
+											</tr>
+										) : (
+											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => (
+												<tr key={idx} className="hover:bg-gray-50">
+													<td className="px-4 py-2 border whitespace-nowrap text-left">
+														<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+															{ GetCodeByRequestTypeId(item) }
+														</Link>
+													</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserCreatedByRequestTypeId(item)}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userApproval ? item?.historyApplicationForm?.userApproval : '--'}</td>
+													<td className="px-4 py-2 border text-center">
+														<StatusLeaveRequest status="Pending"/>
+													</td>
+													<td className="px-4 py-2 border text-center space-x-1">
+														<button
+															className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+														>
+															<Link to={GetUrlDetailWaitApproval(item)}>
+																{t('pending_approval.detail')}
+															</Link>
+														</button>
+													</td>
+												</tr>
+											))
+										)
+									}
+								</tbody>
+							</table>
+						)
+					}
      		 	</div>
 			</div>
+			{
+                ListWaitApprovals.length > 0 ? (<PaginationControl
+                    currentPage={page}
+                    totalPages={totalPage}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={handlePageSizeChange}
+                />) : (null)
+            }
 			{/* <div className="block md:hidden space-y-4">
 				{isPending ? (
 					Array.from({ length: 3 }).map((_, index) => (

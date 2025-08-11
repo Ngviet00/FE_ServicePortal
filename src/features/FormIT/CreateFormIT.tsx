@@ -46,7 +46,8 @@ const App = () => {
         formState: { errors },
         watch,
         control,
-        reset
+        reset,
+        setValue 
     } = useForm<ITRequestState>({
         resolver: zodResolver(ITRequestFormSchema),
         defaultValues: {
@@ -85,6 +86,20 @@ const App = () => {
     //         <span className="block sm:inline">Yêu cầu đã được gửi thành công! Dữ liệu đã được log vào console.</span>
     //     </div>
     // )}
+
+    const watchItCategory = watch('itRequest.itCategory') || []; // Là mảng
+        const handleCategoryChange = (value) => {
+        const current = watchItCategory || [];
+        if (current.includes(value)) {
+            // Nếu đã chọn thì bỏ chọn
+            const newSelected = current.filter(item => item !== value);
+            // cập nhật giá trị
+            setValue('itRequest.itCategory', newSelected);
+        } else {
+            // Nếu chưa chọn thì thêm vào
+            setValue('itRequest.itCategory', [...current, value]);
+        }
+        };
 
     return (
         <div className="p-1 pl-1 pt-0 space-y-4">
@@ -206,6 +221,54 @@ const App = () => {
                             </div>
 
                             <div className="form-group mt-4">
+                            <label className="block text-sm font-medium text-gray-700">
+                                {t('create.category')}<DotRequireComponent />
+                            </label>
+                            <div className="flex flex-col gap-2 mt-2">
+                                <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    value="server"
+                                    checked={watchItCategory.includes('server')}
+                                    onChange={() => handleCategoryChange('server')}
+                                    className="border-gray-300 focus:ring-indigo-500 text-indigo-600"
+                                />
+                                <span>Server</span>
+                                </label>
+                                <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    value="network"
+                                    checked={watchItCategory.includes('network')}
+                                    onChange={() => handleCategoryChange('network')}
+                                    className="border-gray-300 focus:ring-indigo-500 text-indigo-600"
+                                />
+                                <span>Network</span>
+                                </label>
+                                <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    value="account"
+                                    checked={watchItCategory.includes('account')}
+                                    onChange={() => handleCategoryChange('account')}
+                                    className="border-gray-300 focus:ring-indigo-500 text-indigo-600"
+                                />
+                                <span>Tài khoản/Mật khẩu</span>
+                                </label>
+                                <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    value="other"
+                                    checked={watchItCategory.includes('other')}
+                                    onChange={() => handleCategoryChange('other')}
+                                    className="border-gray-300 focus:ring-indigo-500 text-indigo-600"
+                                />
+                                <span>Khác</span>
+                                </label>
+                            </div>
+                            {errors.itRequest?.itCategory && <p className="text-red-500 text-xs mt-1">{errors.itRequest.itCategory.message}</p>}
+                            </div>
+                            {/* <div className="form-group mt-4">
                                 <label htmlFor="itRequest.itCategory" className="block text-sm font-medium text-gray-700">
                                 {t('create.category')}<DotRequireComponent />
                                 </label>
@@ -236,7 +299,7 @@ const App = () => {
                                 />
                                 {errors.itRequest?.itCategoryOther && <p className="text-red-500 text-xs mt-1">{errors.itRequest.itCategoryOther.message}</p>}
                                 </div>
-                            )}
+                            )} */}
 
                             <div className="form-group mt-4">
                                 <label htmlFor="itRequest.reason" className="block text-sm font-medium text-gray-700">

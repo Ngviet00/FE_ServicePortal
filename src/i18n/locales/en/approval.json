@@ -1,0 +1,21 @@
+{
+    "pending_approval": {
+        "department": "Department",
+        "title": "List wait approvals",
+        "request_type": "Request type",
+        "code": "Code",
+        "user_request": "Requester",
+        "created_at": "Created at",
+        "user_register": "Registrant",
+        "last_approved": "Last approved",
+        "status": "Status",
+        "action": "Action",
+        "detail": "Detail"
+    },
+    "assigned": {
+
+    },
+    "history_approval_processed": {
+
+    }
+}

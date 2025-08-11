@@ -71,12 +71,6 @@ export const TYPE_LEAVE = [
     }
 ]
 
-export enum ENUM_TIME_LEAVE {
-    ALL_DAY = "1",
-    MORNING = "2",
-    AFTERNOON = "3",
-}
-
 export const TIME_LEAVE = [
     {
         label: "all_day",
@@ -151,4 +145,13 @@ export enum STATUS_ENUM {
     REJECT = 4,
     ACCIDENT = 5,
     FINAL_APPROVAL = 6,
+}
+
+export enum REQUEST_TYPE {
+    LEAVE_REQUEST = 1,
+    TIME_KEEPING = 2,
+    MEMO_NOTIFICATION = 3,
+    FORM_IT = 4,
+    PURCHASE = 5,
+    SAP = 6
 }
