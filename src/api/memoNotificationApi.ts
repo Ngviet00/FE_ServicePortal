@@ -20,14 +20,12 @@ interface GetHistoryMemoNotifyWaitApproval {
     PageSize: number
 }
 
-interface ApprovalMemoNotify {
-    UserCodeApproval?: string,
-    UserNameApproval?: string,
-    OrgUnitId?: number,
-    MemoNotificationId?: string,
-    Status?: boolean,
-    Note?: string,
-    urlFrontend?: string
+interface HistoryApproval {
+    actionType?: string,
+    comment?: string,
+    createdAt?: string | Date,
+    userApproval?: string,
+    userCodeApproval?: string
 }
 
 export interface IMemoNotify {
@@ -46,11 +44,11 @@ export interface IMemoNotify {
     updatedAt?: Date,
     applyAllDepartment: boolean,
     attachments: File[],
-    departmentNames?: string,
-    requestStatusId?: number,
-    comment?: string,
-    userApproval?: string,
-    historyApplicationFormCreatedAt?: Date | string | undefined,
+    memoNotificationDepartments?: string,
+    applicationForm?: {
+        requestStatusId?: number,
+        historyApplicationForms?: [] | HistoryApproval[] | undefined
+    }
 };
 
 const memoNotificationApi = {
@@ -72,10 +70,6 @@ const memoNotificationApi = {
 
     getById(id: string) {
         return axiosClient.get(`/memo-notification/${id}`)
-    },
-
-    approval(data: ApprovalMemoNotify) {
-        return axiosClient.post(`/memo-notification/approval`, data)
     },
 
     create(formData: FormData) {
@@ -103,20 +97,6 @@ const memoNotificationApi = {
             responseType: 'blob',
         })
     }
-}
-
-export function useApprovalMemoNotify() {
-    return useMutation({
-        mutationFn: async (data: ApprovalMemoNotify) => {
-            await memoNotificationApi.approval(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
 }
 
 export function useCreateMemoNotification() {

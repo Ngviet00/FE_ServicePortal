@@ -1,4 +1,5 @@
-import memoNotificationApi, { useApprovalMemoNotify } from '@/api/memoNotificationApi';
+import { useApproval } from '@/api/approvalApi';
+import memoNotificationApi from '@/api/memoNotificationApi';
 import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -15,9 +16,9 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuthStore()
     const [note, setNote] = useState("")
-    const approvalMemoNotify = useApprovalMemoNotify();
     const navigate = useNavigate()
     const queryClient = useQueryClient();
+    const approval = useApproval();
 
     const { data: memo } = useQuery({
         queryKey: ['get-detail-memo-notify'],
@@ -49,16 +50,17 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
 
     const handleApproval = async (status: boolean) => {
         try {
-            await approvalMemoNotify.mutateAsync({
+            await approval.mutateAsync({
                 UserCodeApproval: user?.userCode,
                 UserNameApproval: user?.userName ?? "",
                 OrgUnitId: user?.orgUnitID,
                 Status: status,
                 Note: note,
                 MemoNotificationId: id,
-                urlFrontend: window.location.origin
+                urlFrontend: window.location.origin,
+                RequestTypeId: memo.requestTypeId
             })
-            navigate("/memo-notify/wait-approval")
+            navigate("/approval/pending-approval")
             queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
         } catch (err) {
             console.log(err);

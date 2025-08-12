@@ -171,7 +171,7 @@ export default function LeaveRequestForm() {
                     form.setValue("user_code", user?.userCode || "")
                     form.setValue("name", results?.name)
                     form.setValue("department", results?.department)
-                    form.setValue("position", results?.position ?? "Staff")
+                    form.setValue("position", results?.position ?? "")
                     form.setValue("from_date", results.fromDate.split('T')[0] + ' ' + results.fromDate.split('T')[1].substring(0, 5))
                     form.setValue("to_date", results.toDate.split('T')[0] + ' ' + results.toDate.split('T')[1].substring(0, 5))
                     form.setValue("time_leave", results?.timeLeave?.id?.toString())
@@ -196,7 +196,7 @@ export default function LeaveRequestForm() {
             form.setValue('user_code', user?.userCode || "")
             form.setValue('name', user?.userName ?? "")
             form.setValue('department', deptName)
-            form.setValue('position', position == null || position == '' ? 'Staff' : position)
+            form.setValue('position', position == null || position == '' ? '' : position)
 
             return res.data.data;
         },
@@ -367,7 +367,7 @@ export default function LeaveRequestForm() {
                                                         onChange={field.onChange}
                                                         name={field.name}
                                                         id="type_leave" 
-                                                        className={`w-[180px] hover:cursor-pointer dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-300"}`}>
+                                                        className={`w-[250px] hover:cursor-pointer dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-300"}`}>
                                                         <option value="">--Select--</option>
                                                         {
                                                             isPending ? (
@@ -380,6 +380,7 @@ export default function LeaveRequestForm() {
                                                                         {
                                                                             lang == 'vi' ? t(item.nameV) : t(item.name)
                                                                         }
+                                                                        &nbsp;__&nbsp;{item.code}
                                                                     </option>
                                                                 ))
                                                             )

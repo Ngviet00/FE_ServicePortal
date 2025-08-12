@@ -18,10 +18,10 @@ import { MultiSelect } from "react-multi-select-component";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import QuillEditorCDN from "@/components/QuillEditorCDN";
 import DotRequireComponent from "@/components/DotRequireComponent";
-import departmentApi from "@/api/departmentApi";
 import FileListPreview from "@/components/ComponentCustom/FileListPreviewMemoNotify";
 import systemConfigApi from "@/api/systemConfigApi";
 import useHasPermission from "@/hooks/useHasPermission";
+import orgUnitApi from "@/api/orgUnitApi";
 
 // Remove all HTML tags to check empty
 const isQuillContentEmpty = (html: string) => {
@@ -103,10 +103,10 @@ export default function CreateMemoNotification () {
     const { data: options = [] } = useQuery({
         queryKey: ['get-all-department'],
         queryFn: async () => {
-            const res = await departmentApi.getAll()
-            return res.data.data.map((dept: {bpMa: number, bpTen: string}) => ({
-                value: dept.bpMa,
-                label: dept.bpTen,
+            const res = await orgUnitApi.GetAllDepartment()
+            return res.data.data.map((dept: {deptId: number, name: string}) => ({
+                value: dept.deptId,
+                label: dept.name,
             }));
         },
     });
@@ -120,6 +120,7 @@ export default function CreateMemoNotification () {
         const formData = new FormData();
 
         formData.append("orgUnitId", String(user?.orgUnitID ?? ''));
+        formData.append("departmentId", String(user?.departmentId ?? ''));
         formData.append("urlFrontend", window.location.origin);
 
         formData.append("title", values.title);
@@ -249,7 +250,7 @@ export default function CreateMemoNotification () {
                                 const selectedOptions = options.filter((opt: {value: number}) => field.value?.includes(opt.value));
                                 return (
                                     <FormItem className="mt-5">
-                                        <FormLabel>Phòng ban áp dụng</FormLabel>
+                                        <FormLabel>Phòng ban áp dụng <DotRequireComponent /></FormLabel>
                                         <FormControl>
                                             <div className={fieldState.invalid ? "border border-red-500 rounded-[5px]" : ""}>
                                                 <MultiSelect

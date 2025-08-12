@@ -1,5 +1,5 @@
 import approvalApi from "@/api/approvalApi";
-import departmentApi from "@/api/departmentApi";
+import orgUnitApi from "@/api/orgUnitApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
@@ -9,7 +9,6 @@ import useHasPermission from "@/hooks/useHasPermission";
 import { REQUEST_TYPE } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import { useQuery } from "@tanstack/react-query";
 import { ChangeEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -105,7 +104,6 @@ export default function PendingApproval() {
 	const [selectedDepartment, setSelectedDepartment] = useState('')
 	const hasPermissionHrMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
 	const [selectedIds, setSelectedIds] = useState<string[]>([])
-	//  const currentPageIds = leaveRequests.map((item: LeaveRequestData) => item.id);
 
 	function setCurrentPage(page: number): void {
         setPage(page)
@@ -128,12 +126,12 @@ export default function PendingApproval() {
     });
 
 	const { data: departments = [] } = useQuery({
-        queryKey: ['get-all-department-distinct-name'],
-        queryFn: async () => {
-            const res = await departmentApi.getAllWithDistinctName()
-            return res.data.data
-        },
-    });
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		},
+	});
 
 	const { data: ListWaitApprovals = [], isPending, isError, error } = useQuery({
         queryKey: ['get-list-wait-approval', page, pageSize, requestType, selectedDepartment],
@@ -144,12 +142,18 @@ export default function PendingApproval() {
 				OrgUnitId: user?.orgUnitID,
 				UserCode: user?.userCode,
 				RequestTypeId: requestType == '' ? null : Number(requestType),
-				DepartmentName: selectedDepartment
+				DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment)
             });
 			setTotalPage(res.data.total_pages)
             return res.data.data;
         },
     });
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const currentPageIds = ListWaitApprovals
+		.filter((item: { requestTypeId: number; }) => item.requestTypeId === 1)
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		.map((item: { leaveRequest: { id: any; }; }) => item.leaveRequest.id);
 
 	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
 		setRequestType(e.target.value)
@@ -159,27 +163,27 @@ export default function PendingApproval() {
 		setSelectedDepartment(e.target.value)
 	}
 
-	// const handleSelectAllCurrentPage = (checked: string | boolean) => {
-    //     if (ListWaitApprovals.length > 0) {
-    //         if (checked) {
-    //             const newSelected = Array.from(new Set([...selectedIds, ...currentPageIds]));
-    //             setSelectedIds(newSelected);
-    //         } else {
-    //             const newSelected = selectedIds.filter(id => !currentPageIds.includes(id));
-    //             setSelectedIds(newSelected);
-    //         }
-    //     } else {
-    //         setSelectedIds([]);
-    //     }
-    // };
+	const handleSelectAllCurrentPage = (checked: string | boolean) => {
+        if (ListWaitApprovals.length > 0) {
+            if (checked) {
+                const newSelected = Array.from(new Set([...selectedIds, ...currentPageIds]));
+                setSelectedIds(newSelected);
+            } else {
+                const newSelected = selectedIds.filter(id => !currentPageIds.includes(id));
+                setSelectedIds(newSelected);
+            }
+        } else {
+            setSelectedIds([]);
+        }
+    };
 
-	// const handleRowCheckboxChange = (id: string, checked: string | boolean) => {
-    //     if (checked) {
-    //         setSelectedIds(prev => [...prev, id]);
-    //     } else {
-    //         setSelectedIds(prev => prev.filter(item => item !== id));
-    //     }
-    // };
+	const handleRowCheckboxChange = (id: string, checked: string | boolean) => {
+        if (checked) {
+            setSelectedIds(prev => [...prev, id]);
+        } else {
+            setSelectedIds(prev => prev.filter(item => item !== id));
+        }
+    };
 
     return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
@@ -211,15 +215,14 @@ export default function PendingApproval() {
 									{ lang == 'vi' ? 'Tất cả' : 'All' }
 								</option>
 								{
-									departments.map((item: string, idx: number) => (
-										<option key={idx} value={item}>{item}</option>
+									departments.map((item: { deptId: number, name: string }) => (
+										<option key={item.deptId} value={item.deptId}>{item.name}</option>
 									))
 								}
 							</select>
 						</div>
 					)
 				}
-
 			</div>
 
 			<div>
@@ -230,17 +233,14 @@ export default function PendingApproval() {
 							<table className="min-w-full text-sm border border-gray-200">
 								<thead className="bg-gray-100">
 									<tr>
-										{
-											hasPermissionHrMngLeaveRq  ? (
-												<th className="px-4 py-2 border">
-													<Checkbox 
-														checked={selectedIds.length > 0 && currentPageIds.every((id: string) => selectedIds.includes(id))}
-														onCheckedChange={(checked) => handleSelectAllCurrentPage(checked)}
-														className="hover:cursor-pointer"
-													/>
-												</th>
-											) : (<></>)
-										}
+										<th className="px-4 py-2 border">
+											<input
+												type="checkbox" 
+												className="hover:cursor-pointer scale-[1.3]"
+												checked={selectedIds.length > 0 && currentPageIds.every((id: string) => selectedIds.includes(id))}
+												onChange={(event) => handleSelectAllCurrentPage(event.target.checked)}
+											/>
+										</th>
 										<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
@@ -256,11 +256,6 @@ export default function PendingApproval() {
 										isPending ? (
 											Array.from({ length: 3 }).map((_, index) => (
 												<tr key={index}>
-													{
-														hasPermissionHrMngLeaveRq && (
-															<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
-														)
-													}
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
@@ -274,26 +269,26 @@ export default function PendingApproval() {
 											))
 										) : isError || ListWaitApprovals?.length == 0 ? (
 											<tr>
-												<td colSpan={hasPermissionHrMngLeaveRq ? 9 : 8} className="px-4 py-2 text-center font-bold text-red-700">
+												<td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
 													{ error?.message ?? tCommon('no_results') } 
 												</td>
 											</tr>
 										) : (
 											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => (
 												<tr key={idx} className="hover:bg-gray-50">
-													{
-														hasPermissionHrMngLeaveRq ? (
-															<td className="px-4 py-2 border whitespace-nowrap text-center">
-																<Checkbox
-																	checked={selectedIds.includes(item.id ?? "")}
-																	onCheckedChange={(checked) => handleRowCheckboxChange(item.id ?? "", checked)}
-																	className="hover:cursor-pointer"
+													<td className="px-4 py-2 border whitespace-nowrap text-center">
+														{
+															item.requestTypeId == 1 && (
+																<input
+																	type="checkbox" 
+																	className="hover:cursor-pointer scale-[1.3]"
+																	checked={selectedIds.includes(item?.leaveRequest?.id ?? "")}
+																	onChange={(event) => handleRowCheckboxChange(item?.leaveRequest?.id ?? "", event.target.checked)}
 																/>
-															</td>
-														) : (<></>)
-													}
-													<td className="px-4 py-2 border whitespace-nowrap text-center">1</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-left">
+															)
+														}
+													</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">
 														<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
 															{ GetCodeByRequestTypeId(item) }
 														</Link>

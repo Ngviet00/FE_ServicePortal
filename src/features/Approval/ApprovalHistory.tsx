@@ -1,107 +1,215 @@
 
+import approvalApi from '@/api/approvalApi';
+import requestTypeApi, { IRequestType } from '@/api/requestTypeApi';
+import PaginationControl from '@/components/PaginationControl/PaginationControl';
+import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
 import { Label } from '@/components/ui/label';
-import React from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { REQUEST_TYPE } from '@/lib';
+import { useAuthStore } from '@/store/authStore';
+import { useQuery } from '@tanstack/react-query';
+import { formatDate } from 'date-fns';
+import React, { ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
-interface HistoryItem {
-    id: string;
-    formType: string;
-    requester: string;
-    approvedDate: string;
-    action: 'Duyệt' | 'Xử lý';
-    result: 'Đã duyệt' | 'Từ chối' | 'Đã xử lý';
+interface HistoryApprovalProcessedResponse {
+	actionType: string;
+	createdAt: string | Date,
+	requestStatusId?: number,
+	requestType?: {
+		id: number,
+		name: string,
+		nameE: string,
+	},
+	leaveRequest?: {
+		id?: string,
+		code?: string,
+		name?: string
+	},
+	memoNotification?: {
+		id?: string,
+		code?: string,
+		createdBy?: string,
+	}
 }
 
-const history: HistoryItem[] = [
-    {
-        id: 'IT-20250801-001',
-        formType: 'IT',
-        requester: 'Nguyễn Văn A',
-        approvedDate: '07/08/2025',
-        action: 'Duyệt',
-        result: 'Đã duyệt',
-    },
-    {
-        id: 'PO-20250802-002',
-        formType: 'PO',
-        requester: 'Trần Thị B',
-        approvedDate: '06/08/2025',
-        action: 'Xử lý',
-        result: 'Đã xử lý',
-    },
-    {
-		id: 'SAP-20250803-003',
-		formType: 'SAP',
-		requester: 'Lê Văn C',
-		approvedDate: '05/08/2025',
-		action: 'Duyệt',
-		result: 'Từ chối',
-    },
-];
+function GetCodeByRequestTypeId(item: HistoryApprovalProcessedResponse) {
+	let result = ''
 
-const resultColor = (result: HistoryItem['result']) => {
-  switch (result) {
-    case 'Đã duyệt':
-      return 'bg-green-500';
-    case 'Từ chối':
-      return 'bg-red-500';
-    case 'Đã xử lý':
-      return 'bg-blue-500';
-    default:
-      return 'bg-gray-500';
-  }
-};
+	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = item?.leaveRequest?.code || ''
+	}
+	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = item?.memoNotification?.code || '';
+	}
+
+	return result
+}
+
+function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
+	let result = ''
+
+	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = `/leave-request/detail-wait-approval/${item?.leaveRequest?.id ?? '-1'}`
+	}
+	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/memo-notify/detail-wait-approval/${item?.memoNotification?.id ?? '1'}`
+	}
+
+	return result
+}
+
+
+function GetUserRequestByRequestTypeId(item: HistoryApprovalProcessedResponse) {
+	let result = ''
+
+	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = item?.leaveRequest?.name || ''
+	}
+	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = item?.memoNotification?.createdBy || '';
+	}
+
+	return result
+}
 
 const ApprovalHistory: React.FC = () => {
+	const { t } = useTranslation('pendingApproval')
+	const { t: tCommon } = useTranslation('common')
+	const lang = useTranslation().i18n.language.split('-')[0]
+	const [requestType, setRequestType] = useState('');
+	const [page, setPage] = useState(1)
+	const [pageSize, setPageSize] = useState(10)
+	const [totalPage, setTotalPage] = useState(0)
+	const { user } = useAuthStore()
+
+	const { data: requestTypes = []} = useQuery({
+        queryKey: ['get-all-request-type'],
+        queryFn: async () => {
+            const res = await requestTypeApi.getAll({
+                page: 1,
+                pageSize: 200,
+            });
+            return res.data.data;
+        },
+    });
+
+	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
+		setRequestType(e.target.value)
+	}
+
+	const { data: ListHistoryApprovalsProcessed = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-list-history-approval-processed', page, pageSize, requestType],
+        queryFn: async () => {
+            const res = await approvalApi.GetListHistoryApprovalOrProcessed({
+                Page: page,
+                PageSize: pageSize,
+				UserCode: user?.userCode,
+				RequestTypeId: requestType == '' ? null : Number(requestType),
+            });
+			setTotalPage(res.data.total_pages)
+            return res.data.data;
+        },
+    });
+
+	function setCurrentPage(page: number): void {
+        setPage(page)
+    }
+
+    function handlePageSizeChange(size: number): void {
+        setPage(1)
+        setPageSize(size)
+    }
+		
 	return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">Lịch sử duyệt / xử lý</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('history_approval_processed.title')}</h3>
             </div>
 
 			<div className="mt-2 flex">
 				<div>
-					<Label className="mb-2">Loại yêu cầu</Label>
-					<select className="border p-1 rounded w-full md:w-auto cursor-pointer">
-						<option value="Tất cả">Tất cả</option>
-						<option value="IT">Đơn IT</option>
-						<option value="PO">Đơn Mua Bán</option>
-						<option value="SAP">Đơn SAP</option>
+					<Label className="mb-2">{t('history_approval_processed.request_type')}</Label>
+					<select className="border p-1 rounded w-full md:w-auto cursor-pointer" value={requestType} onChange={(e) => handleOnChangeRequestType(e)}>
+						<option value="">
+							{ lang == 'vi' ? 'Tất cả' : 'All' }
+						</option>
+						{
+							requestTypes.map((item: IRequestType, idx: number) => (
+								<option key={idx} value={item.id}>{lang == 'vi' ? item.name : item.nameE}</option>
+							))
+						}
 					</select>
 				</div>
 			</div>
 
 			<div>
 				<div className="overflow-x-auto bg-white rounded shadow border border-gray-200">
-					<table className="min-w-full text-sm">
+					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-3 border text-left whitespace-nowrap">Mã đơn</th>
-								<th className="px-4 py-3 border text-left whitespace-nowrap">Loại đơn</th>
-								<th className="px-4 py-3 border text-left whitespace-nowrap">Người yêu cầu</th>
-								<th className="px-4 py-3 border text-left whitespace-nowrap">Ngày duyệt / xử lý</th>
-								<th className="px-4 py-3 border text-left whitespace-nowrap">Hành động</th>
-								<th className="px-4 py-3 border text-left whitespace-nowrap">Kết quả</th>
+								<th className="px-4 py-2 border">{t('history_approval_processed.code')}</th>
+								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.request_type')}</th>
+								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.user_request')}</th>
+								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.approval_at')}</th>
+								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.action')}</th>
+								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.result')}</th>
 							</tr>
 						</thead>
 						<tbody>
-							{history.map((item) => (
-								<tr key={item.id} className="hover:bg-gray-50">
-									<td className="px-4 py-3 border whitespace-nowrap">{item.id}</td>
-									<td className="px-4 py-3 border whitespace-nowrap">{item.formType}</td>
-									<td className="px-4 py-3 border whitespace-nowrap">{item.requester}</td>
-									<td className="px-4 py-3 border whitespace-nowrap">{item.approvedDate}</td>
-									<td className="px-4 py-3 border whitespace-nowrap">{item.action}</td>
-									<td className="px-4 py-3 border whitespace-nowrap">
-										<span className={`inline-block px-2 py-1 text-xs font-medium text-white rounded \${resultColor(item.result)}`}>
-											{item.result}
-										</span>
-									</td>
-								</tr>
-							))}
-					</tbody>
+							{
+								isPending ? (
+									Array.from({ length: 3 }).map((_, index) => (
+										<tr key={index}>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
+										</tr>  
+									))
+								) : isError || ListHistoryApprovalsProcessed?.length == 0 ? (
+									<tr>
+										<td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
+											{ error?.message ?? tCommon('no_results') } 
+										</td>
+									</tr>
+								) : (
+									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => (
+										<tr key={idx} className="hover:bg-gray-50">
+											<td className="px-4 py-2 border whitespace-nowrap text-center">
+												<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+													{ GetCodeByRequestTypeId(item) }
+												</Link>
+											</td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center">
+												{ item.actionType }
+											</td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center">
+												<StatusLeaveRequest status={item?.requestStatusId == 6 ? "In Process" : item?.requestStatusId}/>
+											</td>
+										</tr>
+									))
+								)
+							}
+						</tbody>
 					</table>
 				</div>
 			</div>
+			{
+                ListHistoryApprovalsProcessed.length > 0 ? (<PaginationControl
+                    currentPage={page}
+                    totalPages={totalPage}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={handlePageSizeChange}
+                />) : (null)
+            }
         </div>
 	);
 };

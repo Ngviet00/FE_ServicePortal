@@ -16,6 +16,12 @@
 
     },
     "history_approval_processed": {
-
+        "title": "History approval/processed",
+        "request_type": "Request type",
+        "code": "Code",
+        "user_request": "Requester",
+        "approval_at": "Approved at",
+        "action": "Action",
+        "result": "Result"
     }
 }

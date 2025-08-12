@@ -29,8 +29,6 @@ import PersonalInfo from '@/pages/PersonalInfo';
 import './App.css'
 import HRManagementLeaveRequest from '@/features/Leave/HRManagementLeaveRequest';
 import RoleAndPermissionUser from '@/features/User/RoleAndPermissionUser';
-import HistoryApprovalNotification from '@/features/MemoNotification/HistoryApprovalNotification';
-import WaitApprovalNotification from '@/features/MemoNotification/WaitApprovalNotification';
 import DetailMemoNotificationWaitApproval from '@/features/MemoNotification/DetailWaitApprovalMemoNotification';
 import ChangeOrgUnit from '@/features/OrgUnit/ChangeOrgUnit';
 import StatisticalFormIT from '@/features/FormIT/StatisticalFormIT';
@@ -82,8 +80,6 @@ function App() {
 		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
 		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
 		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/memo-notify/wait-approval", element: <WaitApprovalNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/memo-notify/history-approval", element: <HistoryApprovalNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
 		{ path: "/memo-notify/detail-wait-approval/:id", element: <DetailMemoNotificationWaitApproval/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
 		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
 		

@@ -16,6 +16,12 @@
 
     },
     "history_approval_processed": {
-
+        "title": "Lịch sử duyệt / xử lý",
+        "request_type": "Loại yêu cầu",
+        "code": "Mã đơn",
+        "user_request": "Người yêu cầu",
+        "approval_at": "Ngày duyệt/xử lý",
+        "action": "Hành động",
+        "result": "Kết quả"
     }
 }
