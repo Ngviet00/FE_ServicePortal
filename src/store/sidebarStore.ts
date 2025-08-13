@@ -159,11 +159,11 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
 			menu.children?.some((child) => pathname.startsWith(child.route))
 		);
 		if (!matchedMenu) {
-			set({
-				submenusVisible: Object.fromEntries(
-					SIDEBAR_MENUS.map((m) => [m.key, false])
-				),
-			});
+			// set({
+			// 	submenusVisible: Object.fromEntries(
+			// 		SIDEBAR_MENUS.map((m) => [m.key, false])
+			// 	),
+			// });
 		}
 	},
 }));

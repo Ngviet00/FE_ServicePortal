@@ -1,12 +1,15 @@
 import approvalApi from "@/api/approvalApi";
+import { useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi";
 import orgUnitApi from "@/api/orgUnitApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import useHasPermission from "@/hooks/useHasPermission";
-import { REQUEST_TYPE } from "@/lib";
+import { REQUEST_TYPE, ShowToast } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
@@ -83,10 +86,10 @@ function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 	let result = ''
 
 	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/leave-request/detail-wait-approval/${item?.leaveRequest?.id ?? '-1'}`
+		result = `/approval/approval-leave-request/${item?.leaveRequest?.id ?? '-1'}`
 	}
 	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/memo-notify/detail-wait-approval/${item?.memoNotification?.id ?? '1'}`
+		result = `/approval/approval-memo-notify/${item?.memoNotification?.id ?? '1'}`
 	}
 
 	return result
@@ -104,6 +107,8 @@ export default function PendingApproval() {
 	const [selectedDepartment, setSelectedDepartment] = useState('')
 	const hasPermissionHrMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
 	const [selectedIds, setSelectedIds] = useState<string[]>([])
+	const [loadingRegisterAll, setLoadingRegisterAll] = useState(false)
+	const registerAllLeaveMutation = useRegisterAllLeaveRequest()
 
 	function setCurrentPage(page: number): void {
         setPage(page)
@@ -149,7 +154,6 @@ export default function PendingApproval() {
         },
     });
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const currentPageIds = ListWaitApprovals
 		.filter((item: { requestTypeId: number; }) => item.requestTypeId === 1)
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,10 +189,60 @@ export default function PendingApproval() {
         }
     };
 
+	const hrExportExcelLeaveRequest = useHrExportExcelLeaveRequest();
+	const handleExport = async () => {
+		if (selectedIds.length <= 0) {
+			ShowToast("Chọn đơn nghỉ phép muốn xuất excel", "error")
+			return
+		}
+		await hrExportExcelLeaveRequest.mutateAsync(selectedIds)
+	};
+
+	const registerAllLeave = async () => {
+		if (selectedIds.length <= 0) {
+			ShowToast("Chọn đơn nghỉ cần đăng ký", "error")
+			return
+		}
+		setLoadingRegisterAll(true)
+		try
+		{
+			await registerAllLeaveMutation.mutateAsync({
+				UserCode: user?.userCode,
+				UserName: user?.userName ?? "",
+				leaveRequestIds: selectedIds
+			})
+			setPage(1)
+			setSelectedIds([])
+		}
+		finally {   
+			setLoadingRegisterAll(false)
+		}
+	}
+
     return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('pending_approval.title')}</h3>
+				{hasPermissionHrMngLeaveRq && (
+                    <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
+                        <Button
+                            variant="outline"
+                            disabled={hrExportExcelLeaveRequest.isPending}
+                            onClick={handleExport}
+                            className="text-xs px-2 bg-blue-700 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                        >
+                            {hrExportExcelLeaveRequest.isPending ? <Spinner className="text-white" size="small"/> : t('pending_approval.export_excel')}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            disabled={loadingRegisterAll}
+                            onClick={registerAllLeave}
+                            className="text-xs px-2 bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                        >
+                            {t('pending_approval.register_all')}
+                        </Button>
+                    </div>
+                )}
             </div>
 
 			<div className="mt-2 flex">
@@ -336,7 +390,6 @@ export default function PendingApproval() {
 											Array.from({ length: 3 }).map((_, index) => (
 												<tr key={index}>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>

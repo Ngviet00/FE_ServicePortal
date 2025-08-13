@@ -22,6 +22,7 @@ interface ApprovalRequest {
     UserNameApproval?: string,
     OrgUnitId?: number,
     MemoNotificationId?: string,
+    LeaveRequestId?: string,
     Status?: boolean,
     Note?: string,
     urlFrontend?: string

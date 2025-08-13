@@ -1,5 +1,7 @@
 {
     "pending_approval": {
+        "export_excel": "Export excel",
+        "register_all": "Register",
         "department": "Department",
         "title": "List wait approvals",
         "request_type": "Request type",
@@ -23,5 +25,12 @@
         "approval_at": "Approved at",
         "action": "Action",
         "result": "Result"
+    },
+    "history_component": {
+        "title": "History approval",
+        "username_approval": "Approver",
+        "action": "Action",
+        "comment": "Comment",
+        "approved": "Approved At"
     }
 }

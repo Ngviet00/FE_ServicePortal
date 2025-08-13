@@ -3,6 +3,13 @@
 	"edit": "Edit",
 	"update": "Update",
 	"submit": "Submit",
+	"cancel": "Cancel",
+	"save": "Save",
+	"confirm": "Do you want to continue?",
+	"approval": "Approval",
+	"reject": "Reject",
+	"note": "Note",
+	"title_wait_approval": "Detail wait approval",
 	"org_chart_page": {
 		"loading": "Loading...",
 		"select": "Select",

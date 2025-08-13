@@ -45,6 +45,7 @@ export default function HomePage() {
                     email: result?.email,
                     userName: result?.nvHoTen,
                     departmentId: result?.departmentId,
+                    departmentName: result?.departmentName,
                     orgUnitID: result?.orgUnitID,
                     nvGioiTinh: result?.nvGioiTinh,
                     dateOfBirth: result?.dateOfBirth,

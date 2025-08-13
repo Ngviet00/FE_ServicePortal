@@ -1,5 +1,7 @@
 {
     "pending_approval": {
+        "export_excel": "Xuất Excel",
+        "register_all": "Đăng ký",
         "department": "Phòng ban",
         "title": "Danh sách chờ duyệt",
         "request_type": "Loại yêu cầu",
@@ -23,5 +25,12 @@
         "approval_at": "Ngày duyệt/xử lý",
         "action": "Hành động",
         "result": "Kết quả"
+    },
+    "history_component": {
+        "title": "Lịch sử phê duyệt",
+        "username_approval": "Người duyệt",
+        "action": "Hành động",
+        "comment": "Chú thích",
+        "approved": "Thời gian duyệt"
     }
 }

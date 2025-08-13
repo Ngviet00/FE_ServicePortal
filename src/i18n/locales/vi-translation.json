@@ -3,6 +3,13 @@
 	"edit": "Sửa",
 	"update": "Cập nhật",
 	"submit": "Xác nhận",
+	"cancel": "Hủy",
+	"save": "Lưu",
+	"confirm": "Bạn có muốn tiếp tục?",
+	"approval": "Duyệt",
+	"reject": "Từ chối",
+	"note": "Ghi chú",
+	"title_wait_approval": "Chi tiết chờ duyệt",
 	"org_chart_page": {
 		"loading": "Đang tải...",
 		"select": "Chọn",

@@ -51,10 +51,10 @@ function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
 	let result = ''
 
 	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/leave-request/detail-wait-approval/${item?.leaveRequest?.id ?? '-1'}`
+		result = `/approval/view-leave-request/${item?.leaveRequest?.id ?? '-1'}`
 	}
 	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/memo-notify/detail-wait-approval/${item?.memoNotification?.id ?? '1'}`
+		result = `/approval/view-memo-notify/${item?.memoNotification?.id ?? '1'}`
 	}
 
 	return result
@@ -168,7 +168,7 @@ const ApprovalHistory: React.FC = () => {
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
-										</tr>  
+										</tr>
 									))
 								) : isError || ListHistoryApprovalsProcessed?.length == 0 ? (
 									<tr>

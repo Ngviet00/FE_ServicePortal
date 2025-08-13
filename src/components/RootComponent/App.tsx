@@ -12,7 +12,6 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import RedirectIfAuthenticated from '@/routes/IsAuthenticated';
 import PrivateRoute from '@/routes/PrivateRoute';
-import ListLeaveRequestWaitApproval from '@/features/Leave/ListLeaveRequestWaitApproval';
 import ListTypeLeave from '@/features/TypeLeave/ListTypeLeave';
 import OrgChart from '@/pages/OrgChart';
 import Timekeeping from '@/features/TimeKeeping/Timekeeping';
@@ -21,7 +20,6 @@ import MngTimekeeping from '@/features/TimeKeeping/MngTimeKeeping';
 import MemoNotification from '@/features/MemoNotification/MemoNotification';
 import CreateMemoNotification from '@/features/MemoNotification/CreateMemoNotification';
 import DetailMemoNotification from '@/pages/DetailMemoNotification';
-import HistoryListApproval from '@/features/Leave/HistoryListApproval';
 import AdminSetting from '@/pages/AdminSetting';
 import HRManagementTimekeeping from '@/features/TimeKeeping/HRManagementTimekeeping';
 import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOthers';
@@ -41,6 +39,9 @@ import ListPermission from '@/features/Permission/ListPermission';
 import ListRequestType from '@/features/RequestType/ListRequestType';
 import ApprovalFlow from '@/pages/ApprovalFlow';
 import SettingOrgUnit from '@/pages/SettingOrgUnit';
+import ViewOnlyMemoNotification from '@/features/MemoNotification/ViewOnlyMemoNotification';
+import DetailWaitApprovalLeaveRq from '@/features/Leave/DetailWaitApprovalLeaveRq';
+import ViewOnlyLeaveRq from '@/features/Leave/ViewOnlyLeaveRq';
 
 function App() {
 	const location = useLocation();
@@ -77,19 +78,16 @@ function App() {
 		{ path: "/change-org-unit", element: <ChangeOrgUnit />, allowedRoles: [RoleEnum.HR] },
 
 		//memo notification
-		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] }, //danh sách của user tạo
+		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] }, 
 		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/memo-notify/detail-wait-approval/:id", element: <DetailMemoNotificationWaitApproval/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> },
+		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> }, //ở ngoài homepage
 		
 		//leave + timekeeping
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestForm/> },
 		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>},
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
-		{ path: "/leave/history-approved", element: <HistoryListApproval/>},
-		{ path: "/leave/wait-approval", element: <ListLeaveRequestWaitApproval/>},
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>, allowedPermissions: ['time_keeping.mng_time_keeping']},
 
@@ -99,14 +97,18 @@ function App() {
 		{ path: "/form-it", element: <ListFormIT />},
 		{ path: "/form-it/edit/:id", element: <StatisticalFormIT />},
 		{ path: "/form-it/view/:id", element: <StatisticalFormIT />},
-		{ path: "/form-it/wait-approval", element: <StatisticalFormIT />},
-		{ path: "/form-it/history-approval", element: <StatisticalFormIT />},
 		{ path: "/form-it/setting-form-it", element: <StatisticalFormIT />},
 
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},
 		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},
 		{ path: "/approval/approval-history", element: <ApprovalHistory />},
+
+		{ path: "/approval/approval-memo-notify/:id", element: <DetailMemoNotificationWaitApproval />, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/approval/view-memo-notify/:id", element: <ViewOnlyMemoNotification />},
+
+		{ path: "/approval/approval-leave-request/:id", element: <DetailWaitApprovalLeaveRq />},
+		{ path: "/approval/view-leave-request/:id", element: <ViewOnlyLeaveRq />},
 	];
   
 	return (

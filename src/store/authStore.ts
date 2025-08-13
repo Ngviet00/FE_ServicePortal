@@ -6,6 +6,7 @@ export interface User {
     userCode: string,
     userName?: string | undefined | null,
     departmentId?: number | undefined | null,
+    departmentName?: string,
     IsActive?: number;
     isChangePassword?: number;
     orgUnitID?: number,
