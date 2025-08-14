@@ -41,7 +41,7 @@ const DetailWaitApprovalLeaveRq = () => {
             Note: note,
             LeaveRequestId: id,
             urlFrontend: window.location.origin,
-            RequestTypeId: leaveRequest?.applicationFormDto?.requestTypeId
+            RequestTypeId: leaveRequest?.applicationForm?.requestTypeId
         }
 
         try {
@@ -94,7 +94,7 @@ const DetailWaitApprovalLeaveRq = () => {
                 </p>
             </div>
 
-            <HistoryApproval historyApplicationForm={leaveRequest.historyApplicationForm}/>
+            <HistoryApproval historyApplicationForm={leaveRequest?.historyApplicationForm}/>
 
             <div>
                 <Label className='mb-1'>{t('note')}</Label>

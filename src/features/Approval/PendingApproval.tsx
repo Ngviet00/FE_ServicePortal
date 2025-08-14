@@ -12,7 +12,7 @@ import useHasPermission from "@/hooks/useHasPermission";
 import { REQUEST_TYPE, ShowToast } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -109,6 +109,7 @@ export default function PendingApproval() {
 	const [selectedIds, setSelectedIds] = useState<string[]>([])
 	const [loadingRegisterAll, setLoadingRegisterAll] = useState(false)
 	const registerAllLeaveMutation = useRegisterAllLeaveRequest()
+	const queryClient = useQueryClient()
 
 	function setCurrentPage(page: number): void {
         setPage(page)
@@ -213,6 +214,8 @@ export default function PendingApproval() {
 			})
 			setPage(1)
 			setSelectedIds([])
+			queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+			queryClient.invalidateQueries({ queryKey: ['get-list-wait-approval'] });
 		}
 		finally {   
 			setLoadingRegisterAll(false)
