@@ -1,5 +1,23 @@
 {
     "all_day": "All Day",
     "morning": "Morning",
-    "afternoon": "Afternoon"   
+    "afternoon": "Afternoon",
+    "usercode": "Usercode",
+    "name": "Name",
+    "email": "Email",
+    "department": "Department",
+    "save": "Save",
+    "reason": "Reason",
+    "note": "Note",
+    "cancel": "Cancel",
+
+    "previous": "Previous",
+	"next": "Next",
+	"per_page": "Per page",
+
+    "delete": "Delete",
+    "confirm_delete": "Do you want to delete?",
+    "submit": "Submit",
+
+    "no_results": "No results"
 }

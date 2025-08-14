@@ -23,11 +23,7 @@
     overflow-x: auto;
 }
 
-@media (min-width: 769px) { 
-    tbody tr td {
-        border-bottom: none;
-    }
-    
+@media (min-width: 769px) {     
     .list-memo-notify table {
         border-collapse: collapse;
     }

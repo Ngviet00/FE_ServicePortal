@@ -1,0 +1,40 @@
+{
+    "statistical": {
+        "title": "Statistical",
+        "time": "Time",
+        "total": "Total",
+        "inprocess": "In process",
+        "completed": "completed",
+        "pending": "Pending",
+        "total_request": "Total request",
+        "total_by_type": "Total request by type",
+        "total_by_dept": "Total request by department",
+        "recent_request": "Recent request",
+        "content": "Title",
+        "user_sent": "User sent",
+        "dept": "Department",
+        "time_sent": "Time sent",
+        "status": "Status",
+        "priority": "Priority"
+    },
+    "create": {
+        "title": "Create new form IT",
+        "text_info_user_request": "Info user requester",
+        "text_info_request": "Info request",
+        "date_request": "Date request",
+        "date_required_completed": "Date required completed",
+        "category": "Category",
+        "other_category": "Please select another category",
+        "ex_other_category": "Ex: Accounting Software Error",
+        "priority": "Priority",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+    },
+    "list": {
+
+    },
+    "setting": {
+
+    }
+}

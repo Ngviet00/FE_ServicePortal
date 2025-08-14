@@ -4,11 +4,13 @@ import { getErrorMessage, ShowToast } from '@/lib';
 
 export interface LeaveRequestData {
     id?: string | null,
+    orgUnitId: number,
     requesterUserCode?: string | null,
     writeLeaveUserCode?: string | null,
     userNameWriteLeaveRequest?: string | null,
     name?: string | null,
     department?: string | null,
+    departmentId: number,
     position?: string | null,
     fromDate?: string | null,
     toDate?: string | null,
@@ -87,23 +89,6 @@ interface GetLeaveRequest {
     Date?: string
 }
 
-interface ApprovalData {
-    NameUserApproval: string | null,
-    UserCodeApproval: string | null,
-    LeaveRequestId: string,
-    Status: boolean,
-    Note: string | null,
-    UrlFrontEnd: string | null
-}
-
-interface GetWaitApproval {
-    page?: number,
-    pageSize?: number,
-    UserCode?: string, 
-    OrgUnitId?: number | undefined,
-    selectedDepartment?: string,
-}
-
 interface HrRegisterAllLeave {
     UserCode: string | undefined,
     UserName: string | undefined,
@@ -113,15 +98,6 @@ interface HrRegisterAllLeave {
 const leaveRequestApi = {
     getAll(params: GetLeaveRequest) {
         return axiosClient.get('/leave-request/get-all', {params})
-    },
-    getLeaveRequestWaitApproval(params: GetWaitApproval) {
-        return axiosClient.get('/leave-request/get-leave-request-wait-approval', {params})
-    },
-    countWaitApprovalLeaveRequest(params: GetWaitApproval) {
-        return axiosClient.get('/leave-request/count-wait-approval', {params})
-    },
-    approvalLeaveRequest(data: ApprovalData) {
-        return axiosClient.post('/leave-request/approval', data)
     },
     getById(id: string) {
         return axiosClient.get(`/leave-request/get-by-id/${id}`)
@@ -137,9 +113,6 @@ const leaveRequestApi = {
     },
     registerAllLeaveRequest(data: HrRegisterAllLeave) {
         return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
-    },
-    getHistoryLeaveRequestApproval(params: GetLeaveRequest) {
-        return axiosClient.get(`/leave-request/history-approval/`, {params})
     },
     createLeaveRequestForOther(data: CreateLeaveRequestForManyPeople) {
         return axiosClient.post('/leave-request/create-leave-for-others', data)

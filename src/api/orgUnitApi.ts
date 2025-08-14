@@ -8,6 +8,9 @@ interface SaveChangeOrgUnitUser {
 }
 
 const orgUnitApi = {
+    GetAllDepartment() {
+        return axiosClient.get('/org-unit/get-all-departments')
+    },
     GetAllDepartmentAndFirstOrgUnit() {
         return axiosClient.get('/org-unit/get-all-dept-and-first-org-unit')
     },

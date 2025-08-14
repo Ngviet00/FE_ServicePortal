@@ -1,4 +1,4 @@
-import memoNotificationApi, { useApprovalMemoNotify } from '@/api/memoNotificationApi';
+import { useApproval } from '@/api/approvalApi';
 import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -9,15 +9,21 @@ import { useAuthStore } from '@/store/authStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import HistoryApproval from '../Approval/Components/HistoryApproval';
+import ModalConfirm from '@/components/ModalConfirm';
+import memoNotificationApi from '@/api/memoNotificationApi';
 
 const DetailWaitApprovalMemoNotification: React.FC = () => {
+    const { t } = useTranslation();
     const [uploadedFiles, setUploadedFiles] = useState<{ id: string, fileName: string; contentType: string }[]>([]);
     const { id } = useParams<{ id: string }>();
     const { user } = useAuthStore()
     const [note, setNote] = useState("")
-    const approvalMemoNotify = useApprovalMemoNotify();
     const navigate = useNavigate()
     const queryClient = useQueryClient();
+    const approval = useApproval();
+    const [statusModalConfirm, setStatusModalConfirm] = useState('')
 
     const { data: memo } = useQuery({
         queryKey: ['get-detail-memo-notify'],
@@ -43,32 +49,37 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
         }
     }
 
-    if (!memo) {
-        return <div className="p-6">Đang tải...</div>
-    }
+    const handleSaveModalConfirm = async (type: string) => {
+        const payload = {
+            UserCodeApproval: user?.userCode,
+            UserNameApproval: user?.userName ?? "",
+            OrgUnitId: user?.orgUnitID,
+            Status: type == 'approval' ? true : false,
+            Note: note,
+            MemoNotificationId: id,
+            urlFrontend: window.location.origin,
+            RequestTypeId: memo.requestTypeId
+        }
 
-    const handleApproval = async (status: boolean) => {
         try {
-            await approvalMemoNotify.mutateAsync({
-                UserCodeApproval: user?.userCode,
-                UserNameApproval: user?.userName ?? "",
-                OrgUnitId: user?.orgUnitID,
-                Status: status,
-                Note: note,
-                MemoNotificationId: id,
-                urlFrontend: window.location.origin
-            })
-            navigate("/memo-notify/wait-approval")
+            await approval.mutateAsync(payload)
+            setStatusModalConfirm('')
+            navigate("/approval/pending-approval")
             queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+
         } catch (err) {
             console.log(err);
         }
     }
 
+    if (!memo) {
+        return <div className="p-6">Đang tải...</div>
+    }
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">Chi tiết chờ duyệt</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('title_wait_approval')}</h3>
             </div>
 
             <div className="p-4 mt-2 space-y-4 border rounded-[3px] border-gray-200">
@@ -105,24 +116,33 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
                 </div>
             </div>
 
+            <HistoryApproval historyApplicationForm={memo.historyApplicationForm}/>
+
             <div>
-                <Label className='mb-1'>Ghi chú</Label>
+                <Label className='mb-1'>{t('note')}</Label>
                 <Textarea placeholder='Note' value={note} onChange={(e) => setNote(e.target.value)}/>
             </div>
+
+            <ModalConfirm
+                type={statusModalConfirm}
+                isOpen={statusModalConfirm != ''}
+                onClose={() => setStatusModalConfirm('')}
+                onSave={handleSaveModalConfirm}
+            />
 
             <div>
                 <div className="flex justify-end gap-4 mt-8">
                     <Button
-                        onClick={() => handleApproval(true)}
-                        className="px-4 py-2 bg-green-600 text-white rounded-[3px] shadow-lg hover:bg-green-700 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                        onClick={() => setStatusModalConfirm('approval')}
+                        className="px-4 py-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
                     >
-                        Duyệt
+                        {t('approval')}
                     </Button>
                     <Button
-                        onClick={() => handleApproval(false)}
+                        onClick={() => setStatusModalConfirm('reject')}
                         className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base"
                     >
-                        Từ Chối
+                        {t('reject')}
                     </Button>
                 </div>
             </div>

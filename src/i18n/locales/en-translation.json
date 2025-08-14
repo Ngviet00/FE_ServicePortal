@@ -3,7 +3,13 @@
 	"edit": "Edit",
 	"update": "Update",
 	"submit": "Submit",
-
+	"cancel": "Cancel",
+	"save": "Save",
+	"confirm": "Do you want to continue?",
+	"approval": "Approval",
+	"reject": "Reject",
+	"note": "Note",
+	"title_wait_approval": "Detail wait approval",
 	"org_chart_page": {
 		"loading": "Loading...",
 		"select": "Select",
@@ -43,6 +49,10 @@
 		"home": "Dashboard",
 		"admin": {
 			"role": "Role",
+			"permission": "Permission",
+			"request_type": "Request type",
+			"approval_flow": "Approval flow",
+			"setting_org_unit": "Add org unit",
 			"admin_setting": "Setting"
 		},
 		"hr": {
@@ -55,22 +65,29 @@
 		},
 		"notification": {
 			"title": "Notification",
-			"create": "Create notification",
-			"list": "List notification",
-			"wait_approval": "Wait approval",
-			"history_approval": "History approval"
+			"create": "Create new notification",
+			"list": "Created notifications"
 		},
 		"leave_request": {
-			"title": "Leave request",
+			"title": "Leave, timekeeping",
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
 			"list_leave": "List leave request",
-			"wait_approval": "Wait approval",
-			"history_approved": "History Approved"
+			"time_keeping": "Timekeeping",
+			"mng_time_keeping": "Manage timekeeping"
 		},
-		"time_keeping": {
-			"time_keeping": "Time keeping",
-			"mng_time_keeping": "Manage time keeping"
+		"IT": {
+			"title": "IT",
+			"statistical": "Statistical",
+			"create": "Create new request",
+			"list": "List",
+			"setting": "Setting"
+		},
+		"approval": {
+			"title": "Approval",
+			"pending_approval": "Pending approval",
+			"assigned": "Assigned",
+			"history_approval": "Approved/Processed"
 		}
 	},
 
@@ -159,10 +176,13 @@
 		"btn_create_type_leave": "Create type leave",
 		"search": "Search",
 		"name": "Name",
+		"nameV": "Name Vietnamese",
 		"modified_at": "Modified At",
 		"modified_by": "Modified By",
 		"action": "Action",
-		"btn_update_type_leave": "Update type leave"
+		"btn_update_type_leave": "Update type leave",
+		"code": "Code",
+		"required": "Required"
 	},
 	"list_role_page": {
 		"title": "Roles",
@@ -171,7 +191,10 @@
 		"name": "Name",
 		"code": "Code",
 		"action": "Action",
-		"btn_update_role": "Update role"
+		"btn_update_role": "Update role",
+		"add": "Add",
+		"edit": "Edit",
+		"submit": "Submit"
 	},
 	"list_leave_request": {
 		"write_leave_name": "Write leave",

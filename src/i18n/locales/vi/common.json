@@ -1,5 +1,23 @@
 {
     "all_day": "Cả Ngày",
     "morning": "Buổi Sáng",
-    "afternoon": "Buổi chiều"   
+    "afternoon": "Buổi chiều",
+    "usercode": "Mã nhân viên",
+    "name": "Họ tên",
+    "email": "Email",
+    "department": "Phòng ban",
+    "save": "Lưu",
+    "reason": "Lý do",
+    "note": "Ghi chú",
+    "cancel": "Hủy",
+    
+    "previous": "Trước",
+	"next": "Sau",
+	"per_page": "Số mục/trang",
+
+    "delete": "Xóa",
+    "confirm_delete": "Bạn có muốn xóa?",
+    "submit": "Xác nhận",
+
+    "no_results": "Không có kết quả"
 }

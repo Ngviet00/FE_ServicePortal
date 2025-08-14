@@ -266,7 +266,6 @@ export default function ListLeaveRequest () {
                                                                     Edit
                                                                 </Link>
                                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
-                                                                <StatusLeaveRequest status="Pending" />
                                                             </TableCell>
                                                         </>
                                                     )
@@ -414,7 +413,7 @@ export default function ListLeaveRequest () {
                                 ))
                             )}
                         </div>
-                    </div>
+                </div>
             </div>
             {
                 leaveRequests.length > 0 ? (<PaginationControl

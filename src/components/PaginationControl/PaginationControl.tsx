@@ -10,6 +10,7 @@ import { FC, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { ListPerPage } from "@/lib";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 type PaginationWithPageSizeProps = {
 	currentPage: number;
@@ -55,6 +56,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 	const [editingDotIndex, setEditingDotIndex] = useState<number | null>(null);
 	const [inputValue, setInputValue] = useState("");
 	const visiblePages = getVisiblePages(currentPage, totalPages);
+	const { t } = useTranslation('common');
 
 	return (
 		<div className="flex items-center justify-between mt-4">
@@ -136,7 +138,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 			</div>
 
 			<div className="ml-4 flex items-center space-x-2">
-				<Label htmlFor="page-size">Per page</Label>
+				<Label htmlFor="page-size">{t('per_page')}</Label>
 				<Select
 					value={pageSize.toString()}
 					onValueChange={(val) => {

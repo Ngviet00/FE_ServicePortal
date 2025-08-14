@@ -8,9 +8,9 @@ import { useQuery } from "@tanstack/react-query";
 import { RoleEnum } from "@/lib";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
-import "./style.css"
 import useHasPermission from "@/hooks/useHasPermission";
-import userApi from "@/api/userApi";
+import "./style.css"
+import approvalApi from "@/api/approvalApi";
 
 export default function Sidebar() {
 	const { t } = useTranslation();
@@ -41,7 +41,7 @@ export default function Sidebar() {
 	const { data: countWaitApprovalSidebar } = useQuery({
 		queryKey: ["count-wait-approval-sidebar"],
 		queryFn: async () => {
-			const res = await userApi.countWaitApprovalSidebar({
+			const res = await approvalApi.CountWaitApprovalAndAssignedInSidebar({
 				UserCode: user?.userCode,
 				OrgUnitId: user?.orgUnitID ?? -9999,
 			});
@@ -108,14 +108,9 @@ export default function Sidebar() {
 								<menu.icon size={20} />
 								<span className="pl-5 flex-1">
 									{t(menu.label)}
-									{
-										countWaitApprovalSidebar?.countWaitLeaveRequest > 0 && menu.key == "leave_request"
-											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countWaitLeaveRequest})</span>
-											: <></>
-									}
-									{
-										countWaitApprovalSidebar?.countWaitNotification > 0 && menu.key == "MemoNotification"
-											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countWaitNotification})</span>
+									{ 
+										countWaitApprovalSidebar?.total > 0 && menu.key == "approval"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.total})</span>
 											: <></>
 									}
 								</span>
@@ -127,61 +122,56 @@ export default function Sidebar() {
 								/>
 							</div>
 							<ul className={`submenu ${submenusVisible[menu.key] ? "open" : ""}`}>
-								{menu.children?.map((child) => {
-									if (child.route === "/role" && !isSuperAdmin) {
-										return null
-									}
-									
-									if (child.route === "/approval-flow" && !isSuperAdmin) {
-										return null
-									}
-
-									// if (
-									// 	child.route === "/leave/create-leave-for-others"
-									// 	&& !havePermissionCreatemultipleLeaveRequest
-									// ) {
-									// 	return null;
-									// }
-
-									if (child.route === '/management-time-keeping') {
-										if (!havePermissionMngTimeKeeping) {
-											return null;
-										}
-
-										if (!hasHRRole && !havePermissionMngTimeKeeping) {
+								{
+									menu.children?.map((child) => {
+										if (child.route === "/role" && !isSuperAdmin) {
 											return null
 										}
-									}
+										
+										if (child.route === "/approval-flow" && !isSuperAdmin) {
+											return null
+										}
 
-									const isActive = currentPath === child.route;
-									
-									return (
-										<li key={child.route} className={`text-blue-900 ${isActive ? "bg-[#e3e3e3]" : ""}`}>
-											<Link
-												to={child.route}
-												onClick={() => setVisibleSubmenuByPath(child.route, child.parentKey ?? menu.key)}
-												className={`dark:hover:text-black sidebar-link hover:bg-[#e3e3e3] flex items-center ${
-													isActive ? "dark:text-black" : "dark:text-white"
-												}`}
-											>
-												<Dot />
-												<span>
-													{t(child.label)}
-													{countWaitApprovalSidebar?.countWaitLeaveRequest > 0 && child.route == "/leave/wait-approval" && (
-														<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
-															({countWaitApprovalSidebar?.countWaitLeaveRequest})
-														</span>
-													)}
-													{countWaitApprovalSidebar?.countWaitNotification > 0 && child.route == "/memo-notify/wait-approval" && (
-														<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
-															({countWaitApprovalSidebar?.countWaitNotification})
-														</span>
-													)}
-												</span>
-											</Link>
-										</li>
-									);
-								})}
+										if (child.route === '/management-time-keeping') {
+											if (!havePermissionMngTimeKeeping) {
+												return null;
+											}
+
+											if (!hasHRRole && !havePermissionMngTimeKeeping) {
+												return null
+											}
+										}
+
+										const isActive = currentPath === child.route;
+										
+										return (
+											<li key={child.route} className={`text-blue-900 ${isActive ? "bg-[#e3e3e3]" : ""}`}>
+												<Link
+													to={child.route}
+													onClick={() => setVisibleSubmenuByPath(child.route, child.parentKey ?? menu.key)}
+													className={`dark:hover:text-black sidebar-link hover:bg-[#e3e3e3] flex items-center ${
+														isActive ? "dark:text-black" : "dark:text-white"
+													}`}
+												>
+													<Dot />
+													<span>
+														{t(child.label)}
+														{countWaitApprovalSidebar?.totalWaitApproval > 0 && child.route == "/approval/pending-approval" && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.totalWaitApproval})
+															</span>
+														)}
+														{countWaitApprovalSidebar?.totalAssigned > 0 && child.route == "/approval/assigned-tasks" && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.totalAssigned})
+															</span>
+														)}
+													</span>
+												</Link>
+											</li>
+										);
+									})
+								}
 							</ul>
 						</div>
 					);

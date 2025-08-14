@@ -35,6 +35,8 @@ const formSchema = z.object({
     name_register: z.string().nonempty({ message: "Required" }),
     name: z.string().nonempty({ message: "Required" }),
     department: z.string().nonempty({ message: "Required" }),
+    departmentId: z.number({ invalid_type_error: "Must be a number" }),
+    orgUnitId: z.number({ invalid_type_error: "Must be a number" }),
     position: z.string().nonempty({ message: "Required" }),
     from_date: z.string().nonempty({ message: "Required" }),
     to_date: z.string().nonempty({ message: "Required" }),
@@ -58,6 +60,8 @@ const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
     userNameWriteLeaveRequest: values.name_register,
     name: values.name,
     department: values.department,
+    departmentId: values.departmentId,
+    orgUnitId: values.orgUnitId,
     position: values.position,
     fromDate: values.from_date.replace(" ", "T") + ":00+07:00",
     toDate: values.to_date.replace(" ", "T") + ":00+07:00",
@@ -85,7 +89,9 @@ export default function LeaveRequestForm() {
             user_code_register: user?.userCode || "",
             name_register: user?.userName || "",
             name: "",
-            department: "",
+            department: user?.departmentName,
+            departmentId: user?.departmentId ?? -1,
+            orgUnitId: user?.orgUnitID,
             position: "",
             from_date: `${new Date().toISOString().slice(0, 10)} 08:00`,
             to_date: `${new Date().toISOString().slice(0, 10)} 17:00`,
@@ -171,7 +177,7 @@ export default function LeaveRequestForm() {
                     form.setValue("user_code", user?.userCode || "")
                     form.setValue("name", results?.name)
                     form.setValue("department", results?.department)
-                    form.setValue("position", results?.position ?? "Staff")
+                    form.setValue("position", results?.position ?? "")
                     form.setValue("from_date", results.fromDate.split('T')[0] + ' ' + results.fromDate.split('T')[1].substring(0, 5))
                     form.setValue("to_date", results.toDate.split('T')[0] + ' ' + results.toDate.split('T')[1].substring(0, 5))
                     form.setValue("time_leave", results?.timeLeave?.id?.toString())
@@ -190,13 +196,11 @@ export default function LeaveRequestForm() {
         queryKey: ['get-me'],
         queryFn: async () => {
             const res = await userApi.getMe();
-            const deptName = res?.data?.data?.bpTen;
-            const position = res?.data?.data?.cvTen;
 
             form.setValue('user_code', user?.userCode || "")
             form.setValue('name', user?.userName ?? "")
-            form.setValue('department', deptName)
-            form.setValue('position', position == null || position == '' ? 'Staff' : position)
+            form.setValue('department', user?.departmentName ?? "")
+            form.setValue('position', "Staff")
 
             return res.data.data;
         },
@@ -278,7 +282,7 @@ export default function LeaveRequestForm() {
                                         <FormItem>
                                             <FormLabel>{t('leave_request.create.department')}<DotRequireComponent/></FormLabel>
                                             <FormControl>
-                                                <Input placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.department')} {...field} />
+                                                <Input className="bg-gray-100" readOnly placeholder={isPendingLoadUser ? "Loading..." : t('leave_request.create.department')} {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -367,7 +371,7 @@ export default function LeaveRequestForm() {
                                                         onChange={field.onChange}
                                                         name={field.name}
                                                         id="type_leave" 
-                                                        className={`w-[180px] hover:cursor-pointer dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-300"}`}>
+                                                        className={`w-[250px] hover:cursor-pointer dark:bg-[#454545] shadow-xs border p-1 rounded-[5px] ${fieldState.invalid ? "border-red-500" : "border-gray-300"}`}>
                                                         <option value="">--Select--</option>
                                                         {
                                                             isPending ? (
@@ -380,6 +384,7 @@ export default function LeaveRequestForm() {
                                                                         {
                                                                             lang == 'vi' ? t(item.nameV) : t(item.name)
                                                                         }
+                                                                        &nbsp;__&nbsp;{item.code}
                                                                     </option>
                                                                 ))
                                                             )

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getErrorMessage, ShowToast, useDebounce } from "@/lib"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import roleApi, { IRole } from "@/api/roleApi"
 import React from "react"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
@@ -13,6 +12,7 @@ import { useTranslation } from "react-i18next"
 
 export default function ListRole () {
     const { t } = useTranslation();
+    const { t: tCommon } = useTranslation('common')
     const [name, setName] = useState("")
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
@@ -96,44 +96,52 @@ export default function ListRole () {
                 />
             </div>
 
-            <div className="my-5 relative shadow-md sm:rounded-lg pb-3">
-                <div className="max-h-[450px] w-full overflow-x-auto">
-                    <Table className="min-w-[1024px] w-full">
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[50px] text-left">{t('list_role_page.name')}</TableHead>
-                                <TableHead className="w-[50px] text-left">{t('list_role_page.code')}</TableHead>
-                                <TableHead className="w-[100px] text-right">{t('list_role_page.action')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isPending ? (
+            <div className="mt-5">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm border border-gray-200">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="px-4 py-2 border w-[70px]">STT</th>
+                                <th className="px-4 py-2 border w-[400px]">{t('list_role_page.name')}</th>
+                                <th className="px-4 py-2 border w-[300px]">{t('list_role_page.code')}</th>
+                                <th className="px-4 py-2 border">{t('list_role_page.action')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                isPending ? (
                                     Array.from({ length: 3 }).map((_, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[50px] text-left"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                            <TableCell className="w-[100px] text-right"><div className="flex justify-end"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center"/></div></TableCell>
-                                        </TableRow>
+                                        <tr key={index}>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
+                                        </tr>  
                                     ))
                                 ) : isError || roles.length == 0 ? (
-                                    <TableRow>
-                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={4}>{error?.message ?? "No results"}</TableCell>
-                                    </TableRow>
+                                    <tr>
+                                        <td colSpan={4} className="px-4 py-2 text-center font-bold text-red-700">
+                                            { error?.message ?? tCommon('no_results') } 
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    roles.map((item: IRole) => (
-                                        <TableRow key={item.id}>
-                                            <TableCell className="font-medium text-left">{item?.name}</TableCell>
-                                            <TableCell className="font-medium text-left">{item?.code}</TableCell>
-                                            <TableCell className="text-right">
+                                    roles?.map((item: IRole, idx: number) => (
+                                        <tr key={item.id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                                {(page - 1) * pageSize + idx + 1}
+                                            </td>
+                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.code}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
                                                 <CreateRoleComponent role={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
-                                                <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
-                                            </TableCell>
-                                        </TableRow>
+                                                <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
+                                            </td>
+                                        </tr>
                                     ))
                                 )
                             }
-                        </TableBody>
-                    </Table>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             {

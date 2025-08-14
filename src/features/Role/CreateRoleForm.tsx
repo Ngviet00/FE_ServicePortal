@@ -82,7 +82,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                 {
                     role?.id ? (
                         <button className="hover:cursor-pointer ml-3 rounded-[3px] px-[5px] py-[2px] bg-[#555555] text-white">
-                            Edit
+                            {t('list_role_page.edit')}
                         </button>
                     ) : (
                         <Button variant="outline" className="bg-black hover:bg-black hover:text-white text-white hover:cursor-pointer">
@@ -129,7 +129,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                         
                         <div className="flex justify-end">
                             <Button type="submit" className="hover:cursor-pointer">
-                                Submit
+                                {t('list_role_page.submit')}
                             </Button>
                         </div>
                     </form>

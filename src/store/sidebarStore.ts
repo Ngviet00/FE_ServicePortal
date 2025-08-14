@@ -1,4 +1,4 @@
-import { House, LockKeyhole, Ticket, Users, Bell } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell, Computer, ClipboardCheck } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -22,11 +22,12 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		label: "Admin",
 		icon: LockKeyhole,
 		children: [
-			{ label: "sidebar.admin.admin_setting", route: "/admin-setting" },
 			{ label: "sidebar.admin.role", route: "/role" },
-			{ label: "Permission", route: "/permission" },
-			{ label: "Request Type", route: "/request-type" },
-			{ label: "Work Flow", route: "/work-flow" },
+			{ label: "sidebar.admin.permission", route: "/permission" },
+			{ label: "sidebar.admin.request_type", route: "/request-type" },
+			{ label: "sidebar.admin.approval_flow", route: "/approval-flow" },
+			{ label: "sidebar.admin.setting_org_unit", route: "/setting-org-unit" },
+			{ label: "sidebar.admin.admin_setting", route: "/admin-setting" },
 		],
 	},
 	{
@@ -49,8 +50,6 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [
 			{ label: "sidebar.notification.create", route: "/memo-notify/create" },
 			{ label: "sidebar.notification.list", route: "/memo-notify" },
-			{ label: "sidebar.notification.wait_approval", route: "/memo-notify/wait-approval"},
-			{ label: "sidebar.notification.history_approval", route: "/memo-notify/history-approval"},
 		],
 	},
 	{
@@ -61,12 +60,31 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
 			{ label: "sidebar.leave_request.create_leave_for_others", route: "/leave/create-leave-for-others" },
 			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
-			{ label: "sidebar.leave_request.wait_approval", route: "/leave/wait-approval" },
-			{ label: "sidebar.leave_request.history_approved", route: "/leave/history-approved" },
-			{ label: "sidebar.time_keeping.time_keeping", route: "/time-keeping" },
-			{ label: "sidebar.time_keeping.mng_time_keeping", route: "/management-time-keeping" },
+			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },
+			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 		],
 	},
+	{
+		key: "IT",
+		label: "sidebar.IT.title",
+		icon: Computer,
+		children: [
+			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
+			{ label: "sidebar.IT.create", route: "/form-it/create" },
+			{ label: "sidebar.IT.list", route: "/form-it" },
+			{ label: "sidebar.IT.setting", route: "/form-it/setting" },
+		],
+	},
+	{
+		key: "approval",
+		label: "sidebar.approval.title",
+		icon: ClipboardCheck,
+		children: [
+			{ label: "sidebar.approval.pending_approval", route: "/approval/pending-approval" },
+			{ label: "sidebar.approval.assigned", route: "/approval/assigned-tasks" },
+			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
+		],
+	}
 ];
 
 type SidebarMenuKey = typeof SIDEBAR_MENUS[number]["key"];
@@ -141,11 +159,11 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
 			menu.children?.some((child) => pathname.startsWith(child.route))
 		);
 		if (!matchedMenu) {
-			set({
-				submenusVisible: Object.fromEntries(
-					SIDEBAR_MENUS.map((m) => [m.key, false])
-				),
-			});
+			// set({
+			// 	submenusVisible: Object.fromEntries(
+			// 		SIDEBAR_MENUS.map((m) => [m.key, false])
+			// 	),
+			// });
 		}
 	},
 }));

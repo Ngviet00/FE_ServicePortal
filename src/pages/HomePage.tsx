@@ -44,7 +44,8 @@ export default function HomePage() {
                 updateUser({
                     email: result?.email,
                     userName: result?.nvHoTen,
-                    departmentId: result?.bpMa,
+                    departmentId: result?.departmentId,
+                    departmentName: result?.departmentName,
                     orgUnitID: result?.orgUnitID,
                     nvGioiTinh: result?.nvGioiTinh,
                     dateOfBirth: result?.dateOfBirth,
@@ -122,7 +123,7 @@ export default function HomePage() {
                                 <label className='text-base text-gray-500 dark:text-white'>{t('home_page.phone')}</label>
                             </div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.position')}</label>
+                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.department')}</label>
                             </div>
                         </div>
                         <div>
@@ -136,7 +137,7 @@ export default function HomePage() {
                                 <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : formatData(UserData?.phone)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "SuperAdmin" :  UserData?.cvTen && (UserData?.cvTen != "" || UserData?.cvTen != null) ? UserData?.cvTen : "Staff"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "MIS" : formatData(UserData?.departmentName)}</label>
                             </div>
                         </div>
                     </div>
@@ -152,9 +153,6 @@ export default function HomePage() {
                             <div className='mb-5'>
                                 <label className='text-base text-gray-500 dark:text-white'>{t('home_page.date_join_company')}</label>
                             </div>
-                            <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.department')}</label>
-                            </div>
                         </div>
                         <div>
                             <div className='mb-5 truncate max-w-[200px]'>
@@ -165,9 +163,6 @@ export default function HomePage() {
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
                                 <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.nvNgayVao ? formatDate(formatData(UserData?.nvNgayVao), "dd/MM/yyyy") : "---"}</label>
-                            </div>
-                            <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "MIS" : formatData(UserData?.bpTen)}</label>
                             </div>
                         </div>
                     </div>

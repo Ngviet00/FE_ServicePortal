@@ -1,0 +1,11 @@
+{
+    "title": "Danh sách loại yêu cầu",
+    "add": "Thêm",
+    "name": "Tên",
+    "nameE": "Tên tiếng anh",
+    "action": "Hành động",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "required": "Bắt buộc",
+    "submit": "Xác nhận"
+}

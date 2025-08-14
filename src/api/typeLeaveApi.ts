@@ -15,6 +15,7 @@ export interface ITypeLeave {
     id: number;
     name: string;
     nameV: string,
+    code: string,
     modifiedBy: string,
     modifiedAt: string,
 };

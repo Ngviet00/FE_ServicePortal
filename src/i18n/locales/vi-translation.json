@@ -3,7 +3,13 @@
 	"edit": "Sửa",
 	"update": "Cập nhật",
 	"submit": "Xác nhận",
-
+	"cancel": "Hủy",
+	"save": "Lưu",
+	"confirm": "Bạn có muốn tiếp tục?",
+	"approval": "Duyệt",
+	"reject": "Từ chối",
+	"note": "Ghi chú",
+	"title_wait_approval": "Chi tiết chờ duyệt",
 	"org_chart_page": {
 		"loading": "Đang tải...",
 		"select": "Chọn",
@@ -43,6 +49,10 @@
 		"home": "Trang chủ",
 		"admin": {
 			"role": "Vai trò",
+			"permission": "Quyền",
+			"request_type": "Loại yêu cầu",
+			"approval_flow": "Luồng phê duyệt",
+			"setting_org_unit": "Thêm vị trí",
 			"admin_setting": "Cài đặt"
 		},
 		"hr": {
@@ -55,22 +65,29 @@
 		},
 		"notification": {
 			"title": "Thông báo",
-			"create": "Tạo thông báo",
-			"list": "Danh sách thông báo",
-			"wait_approval": "Duyệt thông báo",
-			"history_approval": "Đã duyệt"
+			"create": "Tạo mới thông báo",
+			"list": "Danh sách thông báo đã tạo"
 		},
 		"leave_request": {
-			"title": "Nghỉ phép",
+			"title": "Nghỉ phép, chấm công",
 			"create_leave": "Xin nghỉ phép",
 			"create_leave_for_others" : "Xin nghỉ phép thay người khác",
-			"list_leave": "Danh sách nghỉ",
-			"wait_approval": "Chờ duyệt",
-			"history_approved": "Lịch sử duyệt"
-		},
-		"time_keeping": {
+			"list_leave": "Danh sách nghỉ phép đã tạo",
 			"time_keeping": "Chấm công",
 			"mng_time_keeping": "Quản lý chấm công"
+		},
+		"IT": {
+			"title": "IT",
+			"statistical": "Thống kê",
+			"create": "Tạo yêu cầu mới",
+			"list": "Danh sách đơn đã tạo",
+			"setting": "Cài đặt"
+		},
+		"approval": {
+			"title": "Phê duyệt",
+			"pending_approval": "Chờ duyệt",
+			"assigned": "Được giao",
+			"history_approval": "Đã duyệt/xử lý xong"
 		}
 	},
 
@@ -157,11 +174,14 @@
 		"title": "Loại phép",
 		"btn_create_type_leave": "Thêm loại phép",
 		"search": "Tìm kiếm",
-		"name": "Tên",
+		"name": "Tên tiếng anh",
+		"nameV": "Tên tiếng việt",
 		"modified_at": "Sửa lúc",
 		"modified_by": "Người sửa",
 		"action": "Hành động",
-		"btn_update_type_leave": "Sửa loại phép"
+		"btn_update_type_leave": "Sửa loại phép",
+		"code": "Mã",
+		"required": "Bắt buộc"
 	},
 	"list_role_page": {
 		"title": "Vai trò",
@@ -170,7 +190,10 @@
 		"name": "Tên",
 		"code": "Mã",
 		"action": "Hành động",
-		"btn_update_role": "Cập nhật"
+		"btn_update_role": "Cập nhật",
+		"add": "Thêm",
+		"edit": "Sửa",
+		"submit": "Xác nhận"
 	},
 	"list_leave_request": {
 		"write_leave_name": "Người làm đơn",

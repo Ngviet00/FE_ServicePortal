@@ -1,0 +1,11 @@
+{
+    "title": "List permissions",
+    "add": "Add",
+    "name": "Name",
+    "description": "Description",
+    "action": "Action",
+    "edit": "Edit",
+    "delete": "Delete",
+    "required": "Required",
+    "submit": "Submit"
+}
