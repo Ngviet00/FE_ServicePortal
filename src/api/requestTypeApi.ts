@@ -13,19 +13,19 @@ export interface IRequestType {
 
 const requestTypeApi = {
     getAll(params: GetAllParams) {
-        return axiosClient.get('/request-type/get-all', {params})
+        return axiosClient.get('/request-type', {params})
     },
     getById(id: number) {
         return axiosClient.get(`/request-type/${id}`)
     },
     create(data: {name: string}) {
-        return axiosClient.post('/request-type/create', data)
+        return axiosClient.post('/request-type', data)
     },
     update(id: number, data: {name: string}){
-        return axiosClient.put(`/request-type/update/${id}`, data)
+        return axiosClient.put(`/request-type/${id}`, data)
     },
     delete(id: number) {
-        return axiosClient.delete(`/request-type/delete/${id}`)
+        return axiosClient.delete(`/request-type/${id}`)
     }
 }
 

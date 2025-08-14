@@ -27,7 +27,7 @@ type Props = {
     permission?: {
         id: number,
         name: string,
-        description: string
+        group: string
     },
     onAction?: () => void;
 };
@@ -38,7 +38,7 @@ export default function CreatePermissionForm({ permission, onAction }: Props) {
 
     const createUserSchema = z.object({
         name: z.string().min(1, { message: t('required') }),
-        description: z.string().min(1, { message: t('required') }),
+        group: z.string().min(1, { message: t('required') }),
     })
 
     type CreateUserFormValues = z.infer<typeof createUserSchema>
@@ -47,15 +47,15 @@ export default function CreatePermissionForm({ permission, onAction }: Props) {
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             name: "",
-            description: "",
+            group: "",
         },
     })
 
     useEffect(() => {
         if (permission && open) {
-            form.reset({ name: permission.name, description: permission.description });
+            form.reset({ name: permission.name, group: permission.group });
         } else {
-            form.reset({ name: "", description: "" });
+            form.reset({ name: "", group: "" });
         }
     }, [permission, open, form]);
 
@@ -115,12 +115,12 @@ export default function CreatePermissionForm({ permission, onAction }: Props) {
 
                         <FormField
                             control={form.control}
-                            name="description"
+                            name="group"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="name">{t('description')}</Label>
+                                    <Label htmlFor="name">{t('group')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder={t('description')} {...field} />
+                                        <Input id="code" placeholder={t('group')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

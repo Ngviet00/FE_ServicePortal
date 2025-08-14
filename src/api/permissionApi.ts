@@ -9,24 +9,24 @@ interface GetAllParams {
 export interface IPermission {
     id: number;
     name: string;
-    description: string;
+    group: string;
 };
 
 const permissionApi = {
     getAll(params: GetAllParams) {
-        return axiosClient.get('/permission/get-all', {params})
+        return axiosClient.get('/permission', {params})
     },
     getById(id: number) {
         return axiosClient.get(`/permission/${id}`)
     },
     create(data: {name: string}) {
-        return axiosClient.post('/permission/create', data)
+        return axiosClient.post('/permission', data)
     },
     update(id: number, data: {name: string}){
-        return axiosClient.put(`/permission/update/${id}`, data)
+        return axiosClient.put(`/permission/${id}`, data)
     },
     delete(id: number) {
-        return axiosClient.delete(`/permission/delete/${id}`)
+        return axiosClient.delete(`/permission/${id}`)
     }
 }
 export default permissionApi;

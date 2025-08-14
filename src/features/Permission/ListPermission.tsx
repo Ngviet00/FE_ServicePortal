@@ -109,7 +109,7 @@ export default function ListPermission () {
                                                 {(page - 1) * pageSize + idx + 1}
                                             </td>
                                             <td className="px-4 py-2 border whitespace-nowrap">{item.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item.description}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap">{item.group}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">
                                                 <CreatePermissionForm permission={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-permissions'] })}/>
                                                 <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>

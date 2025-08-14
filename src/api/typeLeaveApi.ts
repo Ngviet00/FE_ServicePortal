@@ -14,7 +14,7 @@ interface Data {
 export interface ITypeLeave {
     id: number;
     name: string;
-    nameV: string,
+    nameE: string,
     code: string,
     modifiedBy: string,
     modifiedAt: string,
@@ -22,7 +22,7 @@ export interface ITypeLeave {
 
 const typeLeaveApi = {
     getAll(params: GetAllParams) {
-        return axiosClient.get('/type-leave/get-all', {params})
+        return axiosClient.get('/type-leave', {params})
     },
 
     getById(id: number) {
@@ -30,15 +30,15 @@ const typeLeaveApi = {
     },
 
     create(data: Data) {
-        return axiosClient.post('/type-leave/create', data)
+        return axiosClient.post('/type-leave', data)
     },
 
     update(id: number, data: Data){
-        return axiosClient.put(`/type-leave/update/${id}`, data)
+        return axiosClient.put(`/type-leave/${id}`, data)
     },
     
     delete(id: number) {
-        return axiosClient.delete(`/type-leave/delete/${id}`)
+        return axiosClient.delete(`/type-leave/${id}`)
     }
 }
 export default typeLeaveApi;

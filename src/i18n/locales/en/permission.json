@@ -2,7 +2,7 @@
     "title": "List permissions",
     "add": "Add",
     "name": "Name",
-    "description": "Description",
+    "group": "group",
     "action": "Action",
     "edit": "Edit",
     "delete": "Delete",
