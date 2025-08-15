@@ -21,10 +21,10 @@ function HRManagementTimekeeping() {
 
     const [selectedUserMngTKeeping, setSelectedUserMngTKeeping] = useState<OptionType[]>([]);
 
-    const { data: getAllDeptInOrgUnits = [] } = useQuery({
-        queryKey: ['get-all-dept-in-org-unit'],
+    const { data: getDepartmentAndChildrenTeam = [] } = useQuery({
+        queryKey: ['get-department-and-children-team'],
         queryFn: async () => {
-            const res = await orgUnitApi.GetAllDepartmentAndFirstOrgUnit()
+            const res = await orgUnitApi.GetDepartmentAndChildrenTeam()
             return res.data.data;
         },
     });
@@ -72,7 +72,6 @@ function HRManagementTimekeeping() {
             return
         }
         const userCode = currentSelectedUser?.value;
-        console.log(userCode, checkedIds.map(Number));
         await attachUserMngOrgUnit.mutateAsync(
             {
                 userCode: userCode, 
@@ -87,7 +86,7 @@ function HRManagementTimekeeping() {
     }
 
     const handleOnChangeCurrentSelectedUser = async (item) => {
-        const result = await timekeepingApi.GetOrgUnitIdAttachedByUserCode(item?.value)
+        const result = await timekeepingApi.GetOrgUnitIdMngByUser(item?.value)
         setCurrentSelectedUser(item)
 
         const ids = result.data.data.map((num: { toString: () => never; }) => num.toString());
@@ -220,15 +219,7 @@ function HRManagementTimekeeping() {
                         <div className="pl-2">
                             <TreeCheckbox
                                 defaultCheckedIds={checkedIds}
-                                data={getAllDeptInOrgUnits}
-                                loadChildren={async (node) => {
-                                    const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
-                                    return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
-                                        id: item.NVMaNV.toString(),
-                                        label: item.NVHoTen,
-                                        type: "user"
-                                    }));
-                                }}
+                                data={getDepartmentAndChildrenTeam}
                                 onChange={handleCheckedChange}
                             />
                         </div>

@@ -14,12 +14,11 @@ interface DataUserPermission {
 }
 
 interface GetUser {
-    page?: number;
-    page_size?: number;
-    name?: string;
-    sex?: string,
-    positionId?: string,
-    departmentName?: string
+    Page?: number;
+    PageSize?: number;
+    Name?: string;
+    Sex?: number | null,
+    DepartmentId?: number | null
 }
 
 interface ResetPasswordRequest {
@@ -38,14 +37,14 @@ export interface ListUserData {
 
 export interface GetListUserData {
     id: string,
-    userCode: string,
+    nvMaNV: string,
     nvHoTen?: string,
-    bpTen?: string,
+    departmentName?: string,
     cvTen?: string,
     nvGioiTinh?: boolean,
-    phone?: string,
-    email?: string,
-    dateOfBirth: Date,
+    nvDienThoai?: string,
+    nvEmail?: string,
+    nvNgaySinh: string,
     nvNgayVao?: string,
     roles: IRole[]
 }
@@ -70,7 +69,7 @@ export interface UpdateUserMngTimeKeeping {
 
 const userApi = {
     getAll(params: GetUser) {
-        return axiosClient.get('/user/get-all', {params})
+        return axiosClient.get('/user', {params})
     },
     getById(id: string | undefined) {
         return axiosClient.get(`/user/get-by-id/${id}`)

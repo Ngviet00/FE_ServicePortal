@@ -98,7 +98,7 @@ const timekeepingApi = {
     AttachUserManageOrgUnit(data: {userCode: string, orgUnitIds: number[]}) {
         return axiosClient.post('/time-keeping/attach-user-manager-org-unit', data)
     },
-    GetOrgUnitIdAttachedByUserCode(userCode: string) {
+    GetOrgUnitIdMngByUser(userCode: string) {
         return axiosClient.get(`/time-keeping/get-org-unit-id-attach-by-usercode?userCode=${userCode}`)
     },
     GetIdOrgUnitByUserCodeAndUnitId(userCode: string) {

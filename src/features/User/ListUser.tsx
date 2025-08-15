@@ -1,24 +1,22 @@
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { getErrorMessage, RoleEnum, ShowToast, useDebounce } from "@/lib"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import React, { useEffect, useState } from "react"
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import userApi, { GetListUserData, useResetPassword } from "@/api/userApi"
 import useHasRole from "@/hooks/useHasRole"
 import { useTranslation } from "react-i18next"
-import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
 import { Link } from "react-router-dom"
 import orgUnitApi from "@/api/orgUnitApi"
 
 export default function ListUser () {
     const { t } = useTranslation();
+    const { t: tCommon } = useTranslation('common')
     const [name, setName] = useState("")
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
@@ -28,7 +26,6 @@ export default function ListUser () {
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedSex, setSelectedSex] = useState('');
 
-    const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
     const resetPassword = useResetPassword();
     
@@ -37,11 +34,11 @@ export default function ListUser () {
         queryKey: ['get-all-user', debouncedName, page, pageSize, selectedSex, selectedDepartment],
         queryFn: async () => {
             const res = await userApi.getAll({
-                page: page,
-                page_size: pageSize,
-                name: debouncedName,
-                sex: selectedSex,
-                departmentName: selectedDepartment
+                Page: page,
+                PageSize: pageSize,
+                Name: debouncedName,
+                Sex: selectedSex == '' ? null : Number(selectedSex),
+                DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment)
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -60,15 +57,8 @@ export default function ListUser () {
         setPage(1);
     }, [debouncedName]);
 
-    function handleSuccessDelete(shouldGoBack?: boolean) {
-        if (shouldGoBack && page > 1) {
-            setPage(prev => prev - 1);
-        } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-user'] });
-        }
-    }
-
     const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPage(1)
         setName(e.target.value)
     }
 
@@ -80,28 +70,6 @@ export default function ListUser () {
         setPage(1)
         setPageSize(size)
     }
-
-    const mutation = useMutation({
-        mutationFn: async (id: string) => {
-            await userApi.delete(id);
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (error) => {
-            ShowToast(getErrorMessage(error), "error");
-        }
-    });
-
-    const handleDelete = async (id: string) => {
-        try {
-            const shouldGoBack = users.length === 1;
-            await mutation.mutateAsync(id);
-            handleSuccessDelete(shouldGoBack);
-        } catch (error) {
-            ShowToast(getErrorMessage(error), "error");
-        }
-    };
     
     const handleShowModal = (item: GetListUserData) => {
         setSelectedItem(item);
@@ -111,7 +79,7 @@ export default function ListUser () {
 
     const handleResetPassword = async (item: GetListUserData) => {
         try {
-            await resetPassword.mutateAsync({ userCode: item.userCode, password: passwordReset });
+            await resetPassword.mutateAsync({ userCode: item.nvMaNV, password: passwordReset });
             setSelectedItem(null)
         }
         catch (err) {
@@ -140,13 +108,16 @@ export default function ListUser () {
                     <select
                         value={selectedDepartment}
                         id="department"
-                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                        onChange={(e) => {
+                            setPage(1)
+                            setSelectedDepartment(e.target.value)}
+                        }
                         className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="">--Chọn--</option>
                         {
-                            departments.map((item: {deptId: number, name: string}) => (
-                                <option key={item.deptId} value={item.deptId}>{item.name}</option>
+                            departments.map((item: {id: number, name: string}) => (
+                                <option key={item.id} value={item.id}>{item.name}</option>
                             ))
                         }
                     </select>
@@ -155,7 +126,10 @@ export default function ListUser () {
                     <Label htmlFor="sex" className="mb-1">Sex</Label>
                     <select
                         value={selectedSex}
-                        onChange={(e) => setSelectedSex(e.target.value)}
+                        onChange={(e) => {
+                            setPage(1)
+                            setSelectedSex(e.target.value)}
+                        }
                         id="sex"
                         className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
@@ -165,57 +139,59 @@ export default function ListUser () {
                     </select>
                 </div>
             </div>
-            <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
-                <div className="min-w-[1200px]">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[120px] text-left">{t('list_user_page.usercode')}</TableHead>
-                                <TableHead className="w-[180px] text-left">{t('list_user_page.name')}</TableHead>
-                                <TableHead className="w-[130px] text-left">{t('list_user_page.department')}</TableHead>
-                                <TableHead className="w-[150px] text-left">{t('list_user_page.sex')}</TableHead>
-                                <TableHead className="w-[150px] text-left">{t('list_user_page.phone')}</TableHead>
-                                <TableHead className="w-[120px] text-left">{t('list_user_page.email')}</TableHead>
-                                <TableHead className="w-[150px] text-left">{t('list_user_page.dob')}</TableHead>
-                                <TableHead className="w-[150px] text-left">{t('list_user_page.date_join_company')}</TableHead>
-                                <TableHead className="w-[120px] text-left">{t('list_user_page.action')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-
-                        <TableBody>
-                            { isPending ? (
-                                Array.from({ length: 10 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[180px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[130px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[150px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[120px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></TableCell>
-                                        <TableCell className="w-[200px] text-left"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></TableCell>
-                                    </TableRow>
-                                ))
-                            ) : isError || users.length == 0 ? (
-                                <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={9}>{error?.message ?? "No results"}</TableCell>
-                                </TableRow>
-                            ) : (
-                                users.map((item: GetListUserData) => (
-                                        <TableRow key={item.id}>
-                                            <TableCell className="font-medium text-left">{item?.userCode}</TableCell>
-                                            <TableCell className="text-left">{item?.nvHoTen}</TableCell>
-                                            <TableCell className="text-left">{item?.bpTen}</TableCell>
-                                            <TableCell className="text-left">{item?.nvGioiTinh == false ? "Male" : "Female"}</TableCell>
-                                            <TableCell className="text-left">{item?.phone ? item.phone : "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.email ? item?.email : "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.dateOfBirth ? formatDate(item?.dateOfBirth, "dd/MM/yyyy") : "--"}</TableCell>
-                                            <TableCell className="text-left">{item?.nvNgayVao ? formatDate(item?.nvNgayVao, "dd/MM/yyyy") : "--"}</TableCell>
-                                            <TableCell className="text-left">
+            <div className="mt-5">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm border border-gray-200">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="w-[120px] px-4 py-2 border">{t('list_user_page.usercode')}</th>
+                                <th className="w-[180px] px-4 py-2 border">{t('list_user_page.name')}</th>
+                                <th className="w-[130px] px-4 py-2 border">{t('list_user_page.department')}</th>
+                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.sex')}</th>
+                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.phone')}</th>
+                                <th className="w-[120px] px-4 py-2 border">{t('list_user_page.email')}</th>
+                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.dob')}</th>
+                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.date_join_company')}</th>
+                                <th className="w-[120px] px-4 py-2 border">{t('list_user_page.action')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                        </tr>  
+                                    ))
+                                ) : isError || users.length == 0 ? (
+                                    <tr>
+                                        <td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
+                                            { error?.message ?? tCommon('no_results') } 
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    users.map((item: GetListUserData, idx: number) => (
+                                        <tr key={idx} className="hover:bg-gray-50">
+                                            <td className=" px-4 py-2 border whitespace-nowrap font-medium text-left">{item?.nvMaNV}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">{item?.nvHoTen}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">{item?.departmentName}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">{item?.nvGioiTinh}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">{item?.nvDienThoai ? item.nvDienThoai : "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">{item?.nvEmail ? item?.nvEmail : "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">{item?.nvNgaySinh ?? "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">{item.nvNgayVao ?? "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-left">
                                                 {
                                                     isSuperAdmin ? (<>
-                                                        <Link to={`/user/role-and-permission/${item?.userCode}`} className="bg-blue-900 px-2 py-1.5 rounded text-white text-xs font-bold">
+                                                        <Link to={`/user/role-and-permission/${item?.nvMaNV}`} className="bg-blue-900 px-2 py-1.5 rounded text-white text-xs font-bold">
                                                             Role
                                                         </Link>
                                                         <Button
@@ -225,18 +201,16 @@ export default function ListUser () {
                                                         >
                                                             Reset PW
                                                         </Button>
-                                                        
-                                                        <ButtonDeleteComponent id={item.userCode} onDelete={() => handleDelete(item.id)}/>
                                                     </>
                                                     ) : "--"
                                                 }
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                            </td>
+                                        </tr>
+                                    ))    
                                 )
                             }
-                        </TableBody>
-                    </Table>
+                        </tbody>
+                    </table>
                     {selectedItem && (
                         <Dialog 
                             open={!!selectedItem} 

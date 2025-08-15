@@ -4,28 +4,43 @@ import { getErrorMessage, ShowToast } from '@/lib';
 
 interface SaveChangeOrgUnitUser {
     UserCodes: string[],
-    OrgUnitId: number
+    ViTriToChucId: number
 }
 
 const orgUnitApi = {
     GetAllDepartment() {
         return axiosClient.get('/org-unit/get-all-departments')
     },
-    GetAllDepartmentAndFirstOrgUnit() {
-        return axiosClient.get('/org-unit/get-all-dept-and-first-org-unit')
+
+    GetTeamByDeptIdAndUserNotSetOrgPositionId(departmentId: number) {
+        return axiosClient.get(`/org-unit/get-team-by-department-id-and-user-not-set-org-position-id-by-department-name?departmentId=${departmentId}`)
     },
-    GetAllDeptOfOrgUnit() {
-        return axiosClient.get('/org-unit/get-all-dept-of-orgunit')
+
+    GetListUserByTeamId(teamId: number) {
+        return axiosClient.get(`/org-unit/get-list-user-by-team-id?teamId=${teamId}`)
     },
-    GetOrgUnitTeamAndUserNotSetOrgUnitWithDept(departmentId: number) {
-        return axiosClient.get(`/org-unit/get-orgunit-team-and-user-not-set-orgunit-with-dept?departmentId=${departmentId}`)
-    },
-    GetOrgUnitUserWithDept(departmentId: number) {
-        return axiosClient.get(`/org-unit/get-orgunit-user-by-with-dept?departmentId=${departmentId}`)
-    },
+
     SaveChangeOrgUnitUser(data: SaveChangeOrgUnitUser) {
         return axiosClient.post('/org-unit/save-change-org-unit-user', data)
+    },
+
+    GetDepartmentAndChildrenTeam() {
+        return axiosClient.get(`/org-unit/get-department-and-children-team`)
     }
+
+    // GetAllDepartmentAndFirstOrgUnit() {
+    //     return axiosClient.get('/org-unit/get-all-dept-and-first-org-unit')
+    // },
+    // GetAllDeptOfOrgUnit() {
+    //     return axiosClient.get('/org-unit/get-all-dept-of-orgunit')
+    // },
+    // GetOrgUnitTeamAndUserNotSetOrgUnitWithDept(departmentId: number) {
+    //     return axiosClient.get(`/org-unit/get-orgunit-team-and-user-not-set-orgunit-with-dept?departmentId=${departmentId}`)
+    // },
+    // GetOrgUnitUserWithDept(departmentId: number) {
+    //     return axiosClient.get(`/org-unit/get-orgunit-user-by-with-dept?departmentId=${departmentId}`)
+    // },
+
 }
 
 export function useSaveChangeOrgUnitUser() {

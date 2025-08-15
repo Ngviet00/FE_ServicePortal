@@ -1,4 +1,4 @@
-import TreeCheckbox, { TreeCheckboxLeaveRequest, TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
+import TreeCheckbox, { TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
 import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,6 +11,7 @@ import userApi from "@/api/userApi";
 import { useTranslation } from "react-i18next";
 import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
 import delegatedTempApi, { useAddNewDelegatedTemp, useDeleteDelegatedTemp } from "@/api/delegatedTempApi";
+import { TreeCheckboxLeaveRequest } from "@/components/JsTreeCheckbox/TreeCheckBoxLeaveRequest";
 
 function HRManagementLeaveRequest() {
     const { t } = useTranslation('mngLeaveRequest');
@@ -246,7 +247,7 @@ function HRManagementLeaveRequest() {
                     </div>
                 </div>
             </div>
-            <div>
+            {/* <div>
                 <span className="text-3xl mb-2 block">{t('assign_permission')}</span>
                 <div className="flex items-end">
                     <div>
@@ -303,7 +304,7 @@ function HRManagementLeaveRequest() {
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }
