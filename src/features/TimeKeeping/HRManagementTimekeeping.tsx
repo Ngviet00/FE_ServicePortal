@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import orgUnitApi from "@/api/orgUnitApi";
 import timekeepingApi, { useAttachUserManageOrgUnit, useChangeUserMngTimekeeping, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeepingApi";
 import userApi from "@/api/userApi";
@@ -67,14 +68,18 @@ function HRManagementTimekeeping() {
     }
 
     const handleSaveUserMngTimeKeeping = async() => {
-        if (currentSelectedUser.length == 0) {
+        const selectedUser = Object.values(currentSelectedUser)
+
+        if (selectedUser.length == 0) {
             ShowToast("Chưa chọn người quản lý", "error")
             return
         }
-        const userCode = currentSelectedUser?.value;
+
+        const userCode = selectedUser[1]
+
         await attachUserMngOrgUnit.mutateAsync(
             {
-                userCode: userCode, 
+                userCode: userCode?.toString(),
                 orgUnitIds: checkedIds.map(Number)
             }
         );
@@ -85,7 +90,7 @@ function HRManagementTimekeeping() {
         setCurrentSelectedUser([])
     }
 
-    const handleOnChangeCurrentSelectedUser = async (item) => {
+    const handleOnChangeCurrentSelectedUser = async (item: any) => {
         const result = await timekeepingApi.GetOrgUnitIdMngByUser(item?.value)
         setCurrentSelectedUser(item)
 
@@ -105,23 +110,26 @@ function HRManagementTimekeeping() {
     }
 
     const handleSaveChangeUser = async () => {
-        if (selectOldUser.length == 0) {
+        const oldUser = Object.values(selectOldUser)
+        const newUser = Object.values(selectNewUser)
+
+        if (oldUser.length == 0) {
             ShowToast("Chọn người cũ", "error")
             return
         }
 
-        if (selectNewUser.length == 0) {
+        if (newUser.length == 0) {
             ShowToast("Chọn người mới", "error")
             return
         }
 
-        if (selectOldUser?.value == selectNewUser?.value) {
+        if (oldUser[1] == newUser[1]) {
             ShowToast("Không thể chọn cùng 1 người", "error")
             return
         }
         const payload = {
-            oldUserCode: selectOldUser.value,
-            newUserCode: selectNewUser.value,
+            oldUserCode: oldUser[1]?.toString(),
+            newUserCode: newUser[1]?.toString(),
         }
         await changeUserMngTimekeeping.mutateAsync(payload);
         setCheckedIds([])

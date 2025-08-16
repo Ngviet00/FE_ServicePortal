@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { TreeCheckboxChooseUserChangeOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckboxChooseUserChangeOrgUnit";
 import { TreeCheckBoxChooseNewOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckBoxChooseNewOrgUnit";
 import orgUnitApi, { useSaveChangeOrgUnitUser } from "@/api/orgUnitApi";
-import positionApi from "@/api/positionApi";
+import positionApi from "@/api/orgPositionApi";
 
 function ChangeOrgUnit() {
     const { t } = useTranslation('changeOrgUnit');
@@ -64,7 +64,7 @@ function ChangeOrgUnit() {
 
         await saveChangeOrgUnitUser.mutateAsync({
             UserCodes: selectedUser,
-            ViTriToChucId: Number(newOrgPositionId)
+            OrgPositionId: Number(newOrgPositionId)
         })
 
         setNewOrgPositionId("")
@@ -104,7 +104,7 @@ function ChangeOrgUnit() {
                             key={keyChooseNewOrgUnit}
                             data={departments}
                             loadChildren={async (node) => {
-                                const children = await positionApi.GetPositionsByDepartmentId(parseInt(node.id))
+                                const children = await positionApi.GetOrgPositionsByDepartmentId(parseInt(node.id))
                                 const result = children?.data?.data?.map((item: { id: { toString: () => never; }; name: never; }) => ({
                                     id: item.id.toString(),
                                     label: item.name,

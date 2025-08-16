@@ -138,82 +138,82 @@ export default function ListLeaveRequest () {
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
                         <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[100px] text-left">{t('list_leave_request.usercode')}</TableHead>
-                                    <TableHead className="w-[150px] text-left">{t('list_leave_request.name')}</TableHead>
-                                    <TableHead className="w-[130px] text-left">{t('list_leave_request.department')}</TableHead>
-                                    <TableHead className="w-[100px] text-left">{t('list_leave_request.position')}</TableHead>
-                                    <TableHead className="w-[150px] text-left">{t('list_leave_request.from')}</TableHead>
-                                    <TableHead className="w-[150px] text-left">{t('list_leave_request.to')}</TableHead>
-                                    <TableHead className="w-[120px] text-left">{t('list_leave_request.type_leave')}</TableHead>
-                                    <TableHead className="w-[120px] text-left">{t('list_leave_request.time_leave')}</TableHead>
-                                    <TableHead className="w-[200px] text-center">{t('list_leave_request.reason')}</TableHead>
-                                    <TableHead className="w-[150px] text-left">{t('list_leave_request.write_leave_name')}</TableHead>
+                                <TableRow className="bg-[#f3f4f6] border">
+                                    <TableHead className="w-[100px] text-left border">{t('list_leave_request.usercode')}</TableHead>
+                                    <TableHead className="w-[150px] text-left border">{t('list_leave_request.name')}</TableHead>
+                                    <TableHead className="w-[130px] text-left border">{t('list_leave_request.department')}</TableHead>
+                                    <TableHead className="w-[100px] text-left border">{t('list_leave_request.position')}</TableHead>
+                                    <TableHead className="w-[150px] text-left border">{t('list_leave_request.from')}</TableHead>
+                                    <TableHead className="w-[150px] text-left border">{t('list_leave_request.to')}</TableHead>
+                                    <TableHead className="w-[120px] text-left border">{t('list_leave_request.type_leave')}</TableHead>
+                                    <TableHead className="w-[120px] text-left border">{t('list_leave_request.time_leave')}</TableHead>
+                                    <TableHead className="w-[200px] text-center border">{t('list_leave_request.reason')}</TableHead>
+                                    <TableHead className="w-[150px] text-left border">{t('list_leave_request.write_leave_name')}</TableHead>
                                     {
                                         filterStatus == 1 ? (
                                             <>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.created_at')}
                                                 </TableHead>
 
-                                                <TableHead className="w-[120px] text-left">
+                                                <TableHead className="w-[120px] text-left border">
                                                     {t('list_leave_request.status')}
                                                 </TableHead>
                                             </>
                                         )
                                         : filterStatus == 2 ? (
                                             <>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.created_at')}
                                                 </TableHead>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.approve_by')}
                                                 </TableHead>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.approved_at')}
                                                 </TableHead>
 
-                                                <TableHead className="w-[120px] text-left">
+                                                <TableHead className="w-[120px] text-left border">
                                                     {t('list_leave_request.status')}
                                                 </TableHead>
                                             </>
                                         )
                                         : filterStatus == 3 ? (
                                             <>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.created_at')}
                                                 </TableHead>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.approve_by')}
                                                 </TableHead>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.approved_at')}
                                                 </TableHead>
 
-                                                <TableHead className="w-[120px] text-left">
+                                                <TableHead className="w-[120px] text-left border">
                                                     {t('list_leave_request.status')}
                                                 </TableHead>
                                             </>
                                         )
                                         : (
                                             <>
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.created_at')}
                                                 </TableHead>
 
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.approve_by')}
                                                 </TableHead>
 
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.approved_at')}
                                                 </TableHead>
 
-                                                <TableHead className="w-[120px] text-center">
+                                                <TableHead className="w-[120px] text-center border">
                                                     {t('list_leave_request.note')}
                                                 </TableHead>
 
-                                                <TableHead className="w-[120px] text-left">
+                                                <TableHead className="w-[120px] text-left border">
                                                     {t('list_leave_request.status')}
                                                 </TableHead>
                                             </>
@@ -236,7 +236,7 @@ export default function ListLeaveRequest () {
                                     ))
                                 ) : isError || leaveRequests.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={13} className="text-red-700 font-medium dark:text-white">
+                                        <TableCell colSpan={13} className="text-red-700 text-center font-medium dark:text-white">
                                             {error?.message ?? t('list_leave_request.no_result')}
                                         </TableCell>
                                     </TableRow>
@@ -353,7 +353,7 @@ export default function ListLeaveRequest () {
                                     </div>
                                 ))
                             ) : isError || leaveRequests.length === 0 ? (
-                                <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
+                                <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white text-center">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (
                                     <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">

@@ -44,7 +44,7 @@ export interface IMemoNotify {
     updatedAt?: Date,
     applyAllDepartment: boolean,
     attachments: File[],
-    memoNotificationDepartments?: string,
+    memoNotificationDepartments?: object[],
     applicationForm?: {
         requestStatusId?: number,
         historyApplicationForms?: [] | HistoryApproval[] | undefined
@@ -53,7 +53,7 @@ export interface IMemoNotify {
 
 const memoNotificationApi = {
     getAll(params: GetAll) {
-        return axiosClient.get('/memo-notification/get-all', {params})
+        return axiosClient.get('/memo-notification', {params})
     },
 
     getWaitApproval(params: GetMemoNotifyWaitApproval) {
@@ -73,7 +73,7 @@ const memoNotificationApi = {
     },
 
     create(formData: FormData) {
-        return axiosClient.post('/memo-notification/create', formData, {
+        return axiosClient.post('/memo-notification', formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -89,7 +89,7 @@ const memoNotificationApi = {
     },
 
     delete(id: string | undefined) {
-        return axiosClient.delete(`/memo-notification/delete/${id}`)
+        return axiosClient.delete(`/memo-notification/${id}`)
     },
 
     downloadFile(id: string) {

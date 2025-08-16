@@ -8,14 +8,14 @@ import orgUnitApi from '@/api/orgUnitApi';
 type Person = {
 	nvHoTen: string,
 	nvMaNV: string;
-	viTriToChucId: number
+	orgPositionId: number
 	positionName: string
 	teamName: string | null | undefined
-	parentPositionId: number
+	parentOrgPositionId: number
 };
 
 type OrgChartNode = {
-	viTriToChucId: number
+	orgPositionId: number
 	teamName: string;
 	positionName: string
 	people: Person[]
@@ -38,27 +38,27 @@ function groupUsersByOrgUnit(rawNodes: any[]): OrgChartNode[] {
 	const grouped: { [key: number]: OrgChartNode } = {};
 
 	rawNodes.forEach((raw) => {
-		const viTriToChucId = raw.viTriToChucId;
-		if (!grouped[viTriToChucId]) {
-			grouped[viTriToChucId] = {
-				viTriToChucId: viTriToChucId,
+		const orgPositionId = raw.orgPositionId;
+		if (!grouped[orgPositionId]) {
+			grouped[orgPositionId] = {
+				orgPositionId: orgPositionId,
 				teamName: raw.teamName,
 				positionName: raw.positionName,
 				people: [],
 				children: [],
 			};
 		}
-		grouped[viTriToChucId].people.push({
+		grouped[orgPositionId].people.push({
 			nvHoTen: `${raw.nvHoTen}`,
 			nvMaNV: `${raw.nvMaNV}`,
-			viTriToChucId: viTriToChucId,
+			orgPositionId: orgPositionId,
 			teamName: `${raw.teamName}`,
-			parentPositionId: raw.parentPositionId,
+			parentOrgPositionId: raw.parentOrgPositionId,
 			positionName: raw.positionName,
 		});
 
 		if (raw.children && raw.children.length > 0) {
-			grouped[viTriToChucId].children.push(...groupUsersByOrgUnit(raw.children));
+			grouped[orgPositionId].children.push(...groupUsersByOrgUnit(raw.children));
 		}
 	});
 
@@ -68,14 +68,14 @@ function groupUsersByOrgUnit(rawNodes: any[]): OrgChartNode[] {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 	const root: OrgChartNode = {
-		viTriToChucId: rawRoot.viTriToChucId,
+		orgPositionId: rawRoot.orgPositionId,
 		teamName: rawRoot.teamName,
 		people: [{
 			nvHoTen: rawRoot.nvHoTen,
 			nvMaNV: rawRoot.nvMaNV,
-			viTriToChucId: rawRoot.viTriToChucId,
+			orgPositionId: rawRoot.orgPositionId,
 			teamName: rawRoot.teamName,
-			parentPositionId: rawRoot.parentPositionId,
+			parentOrgPositionId: rawRoot.parentOrgPositionId,
 			positionName: rawRoot.positionName,
 		}],
 		children: [],
@@ -87,7 +87,7 @@ function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 	return root;
 }
 
-const NodeContent: React.FC<{ people: Person[]; viTriToChucId: number }> = ({ people }) => (
+const NodeContent: React.FC<{ people: Person[]; orgPositionId: number }> = ({ people }) => (
 	<div style={nodeStyle}>
 		{people.map((p, idx) => (
 			<div key={p.nvMaNV} className="dark:text-black">
@@ -104,7 +104,7 @@ const NodeContent: React.FC<{ people: Person[]; viTriToChucId: number }> = ({ pe
 );
 
 const RenderNode: React.FC<{ node: OrgChartNode }> = ({ node }) => (
-	<TreeNode label={<NodeContent people={node.people} viTriToChucId={node.viTriToChucId} />}>
+	<TreeNode label={<NodeContent people={node.people} orgPositionId={node.orgPositionId} />}>
 		{node.children.map((child, idx) => (
 			<RenderNode key={idx} node={child} />
 		))}
@@ -198,7 +198,7 @@ const OrgChartTree: React.FC = () => {
 							lineWidth="2px"
 							lineColor="#bbb"
 							lineBorderRadius="8px"
-							label={<NodeContent people={orgChartData.people} viTriToChucId={orgChartData.viTriToChucId} />}
+							label={<NodeContent people={orgChartData.people} orgPositionId={orgChartData.orgPositionId} />}
 						>
 							{orgChartData.children.map((child, idx) => (
 								<RenderNode key={idx} node={child} />

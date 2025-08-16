@@ -4,7 +4,7 @@ import { getErrorMessage, ShowToast } from '@/lib';
 
 export interface LeaveRequestData {
     id?: string | null,
-    orgUnitId: number,
+    orgPositionId: number,
     requesterUserCode?: string | null,
     writeLeaveUserCode?: string | null,
     userNameWriteLeaveRequest?: string | null,
@@ -97,7 +97,7 @@ interface HrRegisterAllLeave {
 
 const leaveRequestApi = {
     getAll(params: GetLeaveRequest) {
-        return axiosClient.get('/leave-request/get-all', {params})
+        return axiosClient.get('/leave-request', {params})
     },
     getById(id: string) {
         return axiosClient.get(`/leave-request/get-by-id/${id}`)

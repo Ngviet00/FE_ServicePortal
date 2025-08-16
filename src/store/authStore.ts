@@ -9,7 +9,7 @@ export interface User {
     departmentName?: string,
     IsActive?: number;
     isChangePassword?: number;
-    viTriToChucId?: number,
+    orgPositionId?: number,
     dateOfBirth?: Date,
     email?: string,
     nvGioiTinh?: boolean,

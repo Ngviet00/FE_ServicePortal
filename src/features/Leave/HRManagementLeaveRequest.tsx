@@ -1,6 +1,6 @@
 import TreeCheckbox, { TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
 import { Button } from "@/components/ui/button";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
@@ -10,19 +10,32 @@ import orgUnitApi from "@/api/orgUnitApi";
 import userApi from "@/api/userApi";
 import { useTranslation } from "react-i18next";
 import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
-import delegatedTempApi, { useAddNewDelegatedTemp, useDeleteDelegatedTemp } from "@/api/delegatedTempApi";
+// import delegatedTempApi, { useAddNewDelegatedTemp, useDeleteDelegatedTemp } from "@/api/delegatedTempApi";
 import { TreeCheckboxLeaveRequest } from "@/components/JsTreeCheckbox/TreeCheckBoxLeaveRequest";
 
 function HRManagementLeaveRequest() {
     const { t } = useTranslation('mngLeaveRequest');
     const [checkedIds, setCheckedIds] = useState<string[]>([]);
     const updateUserHavePermissionMngLeaveRequest = useUpdateUserHavePermissionCreateMultipleLeaveRequest();
-    const queryClient = useQueryClient();
+    // const queryClient = useQueryClient();
 
-    const { data: getAllDeptInOrgUnits = [] } = useQuery({
-        queryKey: ['get-all-dept-in-org-unit'],
+
+    const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-departments'],
         queryFn: async () => {
-            const res = await orgUnitApi.GetAllDepartmentAndFirstOrgUnit()
+            const res = await orgUnitApi.GetAllDepartment()
+            return res?.data?.data?.map((dept: {id: number, name: string}) => ({
+                id: dept.id,
+                label: dept.name,
+                type: 'department'
+            }))
+        },
+    });
+
+    const { data: getDepartmentAndChildrenTeam = [] } = useQuery({
+        queryKey: ['get-department-and-children-team'],
+        queryFn: async () => {
+            const res = await orgUnitApi.GetDepartmentAndChildrenTeam()
             return res.data.data;
         },
     });
@@ -84,9 +97,9 @@ function HRManagementLeaveRequest() {
         await attachUserMngOrgUnit.mutateAsync(payLoad)
     }
 
-    const [mainUser, setMainUser] = useState<OptionType[]>([]);
+    // const [mainUser, setMainUser] = useState<OptionType[]>([]);
 
-    const [delegatedUser, setDelegatedUser] = useState<OptionType[]>([]);
+    // const [delegatedUser, setDelegatedUser] = useState<OptionType[]>([]);
 
     const searchUserOptionChooseManageAttendance = async (input: string): Promise<OptionType[]> => {
         const res = await userApi.getUserToSelectMngTKeeping({
@@ -101,48 +114,48 @@ function HRManagementLeaveRequest() {
         }));
     };
 
-    const { data: getAllDelegatedTempLeaveRq = [] } = useQuery({
-        queryKey: ['get-all-delegated-temp-leave-rq'],
-        queryFn: async () => {
-            const res = await delegatedTempApi.GetAll()
-            return res.data.data;
-        },
-    });
+    // const { data: getAllDelegatedTempLeaveRq = [] } = useQuery({
+    //     queryKey: ['get-all-delegated-temp-leave-rq'],
+    //     queryFn: async () => {
+    //         const res = await delegatedTempApi.GetAll()
+    //         return res.data.data;
+    //     },
+    // });
 
-    const addDelegatedTemp = useAddNewDelegatedTemp();
-    const handleClickSaveDelegatedUser = async() => {
-        if (mainUser.length == 0 || delegatedUser.length == 0) {
-            ShowToast("Chưa chọn người phụ trách", "error")
-            return
-        }
+    // const addDelegatedTemp = useAddNewDelegatedTemp();
+    // const handleClickSaveDelegatedUser = async() => {
+    //     if (mainUser.length == 0 || delegatedUser.length == 0) {
+    //         ShowToast("Chưa chọn người phụ trách", "error")
+    //         return
+    //     }
 
-        const mainUserCode = mainUser[0].value;
-        const delegatedUserCode = delegatedUser[0].value
+    //     const mainUserCode = mainUser[0].value;
+    //     const delegatedUserCode = delegatedUser[0].value
 
-        await addDelegatedTemp.mutateAsync({
-            mainUserCode: mainUserCode,
-            tempUserCode: delegatedUserCode
-        })
+    //     await addDelegatedTemp.mutateAsync({
+    //         mainUserCode: mainUserCode,
+    //         tempUserCode: delegatedUserCode
+    //     })
         
-        setMainUser([])
-        setDelegatedUser([])
+    //     setMainUser([])
+    //     setDelegatedUser([])
 
-        queryClient.invalidateQueries({
-            queryKey: ['get-all-delegated-temp-leave-rq'],
-        });
-    }
+    //     queryClient.invalidateQueries({
+    //         queryKey: ['get-all-delegated-temp-leave-rq'],
+    //     });
+    // }
 
-    const deleteDelegatedTemp = useDeleteDelegatedTemp();
-    const handleRemoveDelegatedTemp = async (mainOrgUnitId: number, tempUserCode: string) => {
-        await deleteDelegatedTemp.mutateAsync({
-            mainOrgUnitId: mainOrgUnitId,
-            tempUserCode: tempUserCode
-        });
+    // const deleteDelegatedTemp = useDeleteDelegatedTemp();
+    // const handleRemoveDelegatedTemp = async (mainOrgUnitId: number, tempUserCode: string) => {
+    //     await deleteDelegatedTemp.mutateAsync({
+    //         mainOrgUnitId: mainOrgUnitId,
+    //         tempUserCode: tempUserCode
+    //     });
 
-        queryClient.invalidateQueries({
-            queryKey: ['get-all-delegated-temp-leave-rq'],
-        });
-    }
+    //     queryClient.invalidateQueries({
+    //         queryKey: ['get-all-delegated-temp-leave-rq'],
+    //     });
+    // }
 
     const [hrMngLeaveRequest, setHrMngLeaveRequest] = useState<OptionType[]>([]);
 
@@ -193,14 +206,15 @@ function HRManagementLeaveRequest() {
                     <TreeCheckboxLeaveRequest
                         onClickOpenDetailPositionMngLeaveRequest={handleClickOpenDetailPositionMngLeaveRequest}
                         defaultCheckedIds={checkedIds}
-                        data={getAllDeptInOrgUnits}
+                        data={departments}
                         loadChildren={async (node) => {
-                            const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
-                            return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
-                                id: item.NVMaNV.toString(),
-                                label: item.NVHoTen,
-                                type: "user"
-                            }));
+                            if (node.type == 'team') {
+                                const children = await orgUnitApi.GetListUserByTeamId(parseInt(node.id))
+                                return children.data.data
+                            } else {
+                                const children = await orgUnitApi.GetTeamByDeptIdAndUserNotSetOrgPositionId(Number(node.id))
+                                return children.data.data;
+                            }
                         }}
                         onChange={handleCheckedChange}
                     />
@@ -224,7 +238,7 @@ function HRManagementLeaveRequest() {
                             ) : (
                                 <TreeCheckbox
                                     defaultCheckedIds={idLocations}
-                                    data={getAllDeptInOrgUnits}
+                                    data={getDepartmentAndChildrenTeam}
                                     onChange={handleCheckedChangeLocations}
                                 />  
                             )

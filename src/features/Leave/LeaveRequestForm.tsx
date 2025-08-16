@@ -36,7 +36,7 @@ const formSchema = z.object({
     name: z.string().nonempty({ message: "Required" }),
     department: z.string().nonempty({ message: "Required" }),
     departmentId: z.number({ invalid_type_error: "Must be a number" }),
-    orgUnitId: z.number({ invalid_type_error: "Must be a number" }),
+    orgPositionId: z.number({ invalid_type_error: "Must be a number" }),
     position: z.string().nonempty({ message: "Required" }),
     from_date: z.string().nonempty({ message: "Required" }),
     to_date: z.string().nonempty({ message: "Required" }),
@@ -61,7 +61,7 @@ const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
     name: values.name,
     department: values.department,
     departmentId: values.departmentId,
-    orgUnitId: values.orgUnitId,
+    orgPositionId: values.orgPositionId,
     position: values.position,
     fromDate: values.from_date.replace(" ", "T") + ":00+07:00",
     toDate: values.to_date.replace(" ", "T") + ":00+07:00",
@@ -91,7 +91,7 @@ export default function LeaveRequestForm() {
             name: "",
             department: user?.departmentName,
             departmentId: user?.departmentId ?? -1,
-            orgUnitId: user?.orgUnitID,
+            orgPositionId: user?.orgPositionId,
             position: "",
             from_date: `${new Date().toISOString().slice(0, 10)} 08:00`,
             to_date: `${new Date().toISOString().slice(0, 10)} 17:00`,
@@ -382,7 +382,7 @@ export default function LeaveRequestForm() {
                                                                 typeLeaves.map((item: ITypeLeave) => (
                                                                     <option key={item.id} value={item.id}>
                                                                         {
-                                                                            lang == 'vi' ? t(item.nameV) : t(item.name)
+                                                                            lang == 'vi' ? t(item.name) : t(item.nameE)
                                                                         }
                                                                         &nbsp;__&nbsp;{item.code}
                                                                     </option>

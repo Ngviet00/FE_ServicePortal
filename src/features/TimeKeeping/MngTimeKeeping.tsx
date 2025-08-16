@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import ModalUpdateTimeKeeping from "./Components/ModalUpdateTimeKeeping";
 import ModalHistoryEditTimeKeeping from "./Components/ModalListHistoryEditTimeKeeping";
+import orgUnitApi from "@/api/orgUnitApi";
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
@@ -49,6 +50,14 @@ export default function MngTimekeeping () {
             dayStr: day.toString().padStart(2, "0"),
             dateObj,
         };
+    });
+
+    const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-departments'],
+        queryFn: async () => {
+            const res = await orgUnitApi.GetAllDepartment()
+            return res.data.data
+        },
     });
     
     useQuery({
@@ -110,14 +119,6 @@ export default function MngTimekeeping () {
         setOpenModalUpdateTimeKeeping(false);
     }
 
-    const { data: getDeptUserMngTimeKeeping = [] } = useQuery({
-        queryKey: ['get-dept-user-mng-time-keeping'],
-        queryFn: async () => {
-            const res = await timekeepingApi.getDeptUserMngTimeKeeping(user?.userCode ?? "")
-            return res.data.data;
-        },
-    });
-
     function setCurrentPage(page: number): void {
         setPage(page)
     }
@@ -172,8 +173,8 @@ export default function MngTimekeeping () {
                             }}>
                             <option value="" className="text-sm">--Tất cả--</option>
                             {
-                                getDeptUserMngTimeKeeping.map((item: {id: number, name: string, deptId: number}, idx: number) => (
-                                    <option key={idx} className="text-sm" value={item.deptId}>{item.name}</option>
+                                departments.map((item: {id: number, name: string}, idx: number) => (
+                                    <option key={idx} className="text-sm" value={item.id}>{item.name}</option>
                                 ))
                             }
                         </select>
@@ -226,8 +227,8 @@ export default function MngTimekeeping () {
             <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
                 <div className="min-w-[1200px]">
                     <Table>
-                        <TableHeader className="sticky top-0 bg-gray-300 dark:bg-black z-20">
-                            <TableRow className="border-b bg-gray-300 hover:bg-gray-300 dark:bg-black dark:text-white">
+                        <TableHeader className="sticky top-0 bg-gray-50 dark:bg-black z-20">
+                            <TableRow className="border-b bg-[#f3f4f6] dark:bg-black dark:text-white">
                                 <TableHead className="w-[0px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.usercode')}</TableHead>
                                 <TableHead className="w-[100px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.name')}</TableHead>
                                 <TableHead className="w-[100px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.dept')}</TableHead>

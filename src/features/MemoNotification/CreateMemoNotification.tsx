@@ -119,7 +119,7 @@ export default function CreateMemoNotification () {
         
         const formData = new FormData();
 
-        formData.append("orgUnitId", String(user?.chucDanhId ?? ''));
+        formData.append("orgPositionId", String(user?.orgPositionId ?? ''));
         formData.append("departmentId", String(user?.departmentId ?? ''));
         formData.append("urlFrontend", window.location.origin);
 

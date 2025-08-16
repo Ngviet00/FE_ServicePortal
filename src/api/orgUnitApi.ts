@@ -4,7 +4,7 @@ import { getErrorMessage, ShowToast } from '@/lib';
 
 interface SaveChangeOrgUnitUser {
     UserCodes: string[],
-    ViTriToChucId: number
+    OrgPositionId: number
 }
 
 const orgUnitApi = {

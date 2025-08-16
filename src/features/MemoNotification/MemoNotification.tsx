@@ -111,10 +111,12 @@ export default function MemoNotification () {
                                     <tr key={idx} className="pl-0 pt-0 memo-row bg-white border dark:bg-[#1e1e1e69]">
                                         <td data-label="Tiêu đề" className="border text-black p-4 break-words whitespace-normal dark:text-white">{ item?.title }</td>
                                         <td data-label="Nội dung" className="border text-black px-4 py-4 dark:text-white break-words whitespace-normal clamp-content border-b-0 border-l-0 border-r-0 border-t-0" dangerouslySetInnerHTML={{ __html: item?.content ?? '' }}/>
-                                        <td data-label="Bộ phận áp dụng" className="border text-black px-4 py-4 break-words whitespace-normal dark:text-white">{item.applyAllDepartment ? "Tất cả phòng ban" : item?.memoNotificationDepartments ?? "---"}</td>
+                                        <td data-label="Bộ phận áp dụng" className="border text-black px-4 py-4 break-words whitespace-normal dark:text-white">
+                                            {item.applyAllDepartment ? "Tất cả phòng ban" : item?.memoNotificationDepartments?.map(dep => dep.orgUnit.name).join(', ')}
+                                        </td>
                                         <td data-label="Thời gian hiển thị" className="border text-black border-b px-4 py-4 dark:text-white">{formatDate(item?.fromDate?.toString() ?? "")} - {formatDate(item?.toDate?.toString() ?? "")}</td>
                                         <td data-label="Trạng thái" className={`text-black border px-4 py-4 font-bold dark:text-white`}>
-                                            <span className={`${item.status ? 'text-green-700' : 'text-red-700'}`}>{item.status ? "Active" : "Deadactive"}</span>
+                                            <span className={`${item?.status ? 'text-green-700' : 'text-red-700'}`}>{item?.status ? "Active" : "Deadactive"}</span>
                                         </td>
                                         <td data-label="Thời gian tạo" className="text-black border dark:text-white px-4 py-4">{formatDate(item?.createdAt?.toString() ?? "", "yyyy/MM/dd HH:mm:ss")}</td>
                                         <td data-label="Người tạo" className="text-black border dark:text-white px-4 py-4">{item?.createdBy}</td>
@@ -122,22 +124,22 @@ export default function MemoNotification () {
                                             <StatusLeaveRequest status={item?.applicationForm?.requestStatusId == 6 ? "In Process" : item?.applicationForm?.requestStatusId}/>
                                         </td>
                                         <td data-label="Ghi chú" className="text-black border dark:text-white px-4 py-4">
-                                            {historyApproval != undefined && historyApproval?.length > 0 && historyApproval[0].comment != '' ? historyApproval[0].comment : "--"}
+                                            {historyApproval != undefined && historyApproval?.length > 0 && historyApproval[0]?.comment != '' ? historyApproval[0]?.comment : "--"}
                                         </td>
                                         <td data-label="Người duyệt" className="border dark:text-white px-4 py-4 font-bold text-red-700">
-                                            {historyApproval != undefined && historyApproval?.length > 0 ? historyApproval[0].userApproval : "--"}
+                                            {historyApproval != undefined && historyApproval?.length > 0 ? historyApproval[0]?.userApproval : "--"}
                                         </td>
                                         <td data-label="Thời gian duyệt" className="border text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">
-                                            {historyApproval != undefined && historyApproval?.length > 0 ? formatDate(historyApproval[0].createdAt, "yyyy/MM/dd HH:mm:ss") : "--"}
+                                            {historyApproval != undefined && historyApproval?.length > 0 ? formatDate(historyApproval[0]?.createdAt, "yyyy/MM/dd HH:mm:ss") : "--"}
                                         </td>
                                         <td data-label="Hành động" id="td-action" className="border text-black dark:text-white px-4 py-4">
                                             <Link
-                                                to={`/memo-notify/edit/${item.id}`}
+                                                to={`/memo-notify/edit/${item?.id}`}
                                                 className="bg-black text-white px-2 py-0.5 rounded-[3px] leading-none text-sm"
                                             >
                                                 Edit
                                             </Link>
-                                            <ButtonDeleteComponent className="" id={item.id} onDelete={() => handleDelete(item.id)} />
+                                            <ButtonDeleteComponent className="" id={item?.id} onDelete={() => handleDelete(item?.id)} />
                                         </td>
                                     </tr>
                                 )
