@@ -1,4 +1,4 @@
-import memoNotificationApi, { IMemoNotify, useDeleteMemoNotification } from "@/api/memoNotificationApi";
+import memoNotificationApi, { IMemoNotify, IMemoNotifyDepartment, useDeleteMemoNotification } from "@/api/memoNotificationApi";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -112,7 +112,7 @@ export default function MemoNotification () {
                                         <td data-label="Tiêu đề" className="border text-black p-4 break-words whitespace-normal dark:text-white">{ item?.title }</td>
                                         <td data-label="Nội dung" className="border text-black px-4 py-4 dark:text-white break-words whitespace-normal clamp-content border-b-0 border-l-0 border-r-0 border-t-0" dangerouslySetInnerHTML={{ __html: item?.content ?? '' }}/>
                                         <td data-label="Bộ phận áp dụng" className="border text-black px-4 py-4 break-words whitespace-normal dark:text-white">
-                                            {item.applyAllDepartment ? "Tất cả phòng ban" : item?.memoNotificationDepartments?.map(dep => dep.orgUnit.name).join(', ')}
+                                            {item.applyAllDepartment ? "Tất cả phòng ban" : item?.memoNotificationDepartments?.map((dep: IMemoNotifyDepartment) => dep?.orgUnit?.name).join(', ')}
                                         </td>
                                         <td data-label="Thời gian hiển thị" className="border text-black border-b px-4 py-4 dark:text-white">{formatDate(item?.fromDate?.toString() ?? "")} - {formatDate(item?.toDate?.toString() ?? "")}</td>
                                         <td data-label="Trạng thái" className={`text-black border px-4 py-4 font-bold dark:text-white`}>
@@ -124,10 +124,10 @@ export default function MemoNotification () {
                                             <StatusLeaveRequest status={item?.applicationForm?.requestStatusId == 6 ? "In Process" : item?.applicationForm?.requestStatusId}/>
                                         </td>
                                         <td data-label="Ghi chú" className="text-black border dark:text-white px-4 py-4">
-                                            {historyApproval != undefined && historyApproval?.length > 0 && historyApproval[0]?.comment != '' ? historyApproval[0]?.comment : "--"}
+                                            {historyApproval != undefined && historyApproval?.length > 0 && historyApproval[0]?.note != '' ? historyApproval[0]?.note : "--"}
                                         </td>
                                         <td data-label="Người duyệt" className="border dark:text-white px-4 py-4 font-bold text-red-700">
-                                            {historyApproval != undefined && historyApproval?.length > 0 ? historyApproval[0]?.userApproval : "--"}
+                                            {historyApproval != undefined && historyApproval?.length > 0 ? historyApproval[0]?.userNameApproval : "--"}
                                         </td>
                                         <td data-label="Thời gian duyệt" className="border text-black border-b border-[#b1b1b169] dark:text-white px-4 py-4">
                                             {historyApproval != undefined && historyApproval?.length > 0 ? formatDate(historyApproval[0]?.createdAt, "yyyy/MM/dd HH:mm:ss") : "--"}

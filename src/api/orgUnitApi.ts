@@ -7,6 +7,13 @@ interface SaveChangeOrgUnitUser {
     OrgPositionId: number
 }
 
+export interface OrgUnit {
+    id: number | null,
+    name: string | null,
+    parentOrgUnitId: number | null,
+    unitId: number | null
+}
+
 const orgUnitApi = {
     GetAllDepartment() {
         return axiosClient.get('/org-unit/get-all-departments')

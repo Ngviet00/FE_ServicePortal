@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
+import { OrgUnit } from './orgUnitApi';
 
 interface GetAll {
     currentUserCode?: string,
@@ -21,10 +22,10 @@ interface GetHistoryMemoNotifyWaitApproval {
 }
 
 interface HistoryApproval {
-    actionType?: string,
-    comment?: string,
+    action?: string,
+    note?: string,
     createdAt?: string | Date,
-    userApproval?: string,
+    userNameApproval?: string,
     userCodeApproval?: string
 }
 
@@ -44,12 +45,19 @@ export interface IMemoNotify {
     updatedAt?: Date,
     applyAllDepartment: boolean,
     attachments: File[],
-    memoNotificationDepartments?: object[],
+    memoNotificationDepartments?: IMemoNotifyDepartment[],
     applicationForm?: {
         requestStatusId?: number,
         historyApplicationForms?: [] | HistoryApproval[] | undefined
     }
 };
+
+export interface IMemoNotifyDepartment {
+    id?: string | null
+    memoNotificationId?: string
+    departmentId?: number,
+    orgUnit: OrgUnit
+}
 
 const memoNotificationApi = {
     getAll(params: GetAll) {

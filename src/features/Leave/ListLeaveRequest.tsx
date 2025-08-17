@@ -97,7 +97,7 @@ export default function ListLeaveRequest () {
                 </Button>
             </div>
 
-            <div className="mb-5 shadow-md sm:rounded-lg pb-3">
+            <div className="mb-5 pb-3">
                 <div className="p-3">
                     <Tabs defaultValue="1" className="w-full" onValueChange={handleChangeFilter}>
                         <TabsList className="mb-5 flex flex-wrap justify-center gap-2 p-0">
@@ -225,43 +225,45 @@ export default function ListLeaveRequest () {
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <TableRow key={index}>
-                                        {Array.from({ length: 13 }).map((_, i) => (
+                                        {Array.from({ length: filterStatus == 1 ? 12 : filterStatus == 2 || filterStatus == 3 ? 14 : 15 }).map((_, i) => (
                                             <TableCell key={i}>
-                                            <div className="flex justify-center">
-                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                            </div>
+                                                <div className="flex justify-center">
+                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                </div>
                                             </TableCell>
                                         ))}
                                         </TableRow>
                                     ))
                                 ) : isError || leaveRequests.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={13} className="text-red-700 text-center font-medium dark:text-white">
+                                        <TableCell colSpan={filterStatus == 1 ? 12 : filterStatus == 2 || filterStatus == 3 ? 14 : 15} className="text-red-700 border text-center font-medium dark:text-white">
                                             {error?.message ?? t('list_leave_request.no_result')}
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     leaveRequests.map((item: LeaveRequestData) => {
+                                        const latestHistoryApproval = item?.applicationForm?.historyApplicationForms?.[0]
+                                        
                                         return (
                                             <TableRow key={item.id}>
-                                                <TableCell className="text-left">{item.requesterUserCode}</TableCell>
-                                                <TableCell className="text-left">{item.name}</TableCell>
-                                                <TableCell className="text-left">{item.department}</TableCell>
-                                                <TableCell className="text-left">{item.position}</TableCell>
-                                                <TableCell className="text-left">{ formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-left">{ formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-left">{lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</TableCell>
-                                                <TableCell className="text-left">{lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</TableCell>
-                                                <TableCell className="text-center">{item.reason}</TableCell>
-                                                <TableCell className="text-center font-bold text-red-700">{item.userNameWriteLeaveRequest}</TableCell>
+                                                <TableCell className="text-left border">{item?.userCodeRequestor}</TableCell>
+                                                <TableCell className="text-left border">{item?.userNameRequestor}</TableCell>
+                                                <TableCell className="text-left border">{item?.orgUnit?.name}</TableCell>
+                                                <TableCell className="text-left border">{item.position}</TableCell>
+                                                <TableCell className="text-left border">{ formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
+                                                <TableCell className="text-left border">{ formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
+                                                <TableCell className="text-left border">{lang == 'vi' ? item?.typeLeave?.name : item?.typeLeave?.nameE}</TableCell>
+                                                <TableCell className="text-left border">{lang == 'vi' ? item?.timeLeave?.name : item?.timeLeave?.nameE}</TableCell>
+                                                <TableCell className="text-center border">{item.reason}</TableCell>
+                                                <TableCell className="text-center font-bold text-red-700 border">{item.createdBy}</TableCell>
                                                 {
                                                     filterStatus == 1 ? (
                                                         <>
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     Edit
                                                                 </Link>
@@ -271,65 +273,65 @@ export default function ListLeaveRequest () {
                                                     )
                                                     : filterStatus == 2 ? (
                                                         <>
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
                                                             </TableCell>
 
-                                                             <TableCell className="text-center text-red-700 font-bold">
-                                                                { item?.historyApplicationForm?.userApproval ?? "--" }
+                                                             <TableCell className="text-center text-red-700 font-bold border">
+                                                                { latestHistoryApproval?.userNameApproval ?? "--" }
                                                             </TableCell>
 
-                                                            <TableCell className="text-center">
+                                                            <TableCell className="text-center border">
                                                                 {
-                                                                    item?.historyApplicationForm?.createdAt ? formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
+                                                                    latestHistoryApproval?.createdAt ? formatDate(latestHistoryApproval?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
                                                                 }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 <StatusLeaveRequest status="In Process" />
                                                             </TableCell>
                                                         </>
                                                     )
                                                     : filterStatus == 3 ? (
                                                         <>
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
                                                             </TableCell>
 
-                                                            <TableCell className="text-center text-red-700 font-bold">
-                                                                { item?.historyApplicationForm?.userApproval ?? "--" }
+                                                            <TableCell className="text-center text-red-700 font-bold border">
+                                                                { latestHistoryApproval?.userNameApproval ?? "--" }
                                                             </TableCell>
 
-                                                            <TableCell className="text-center">
+                                                            <TableCell className="text-center border">
                                                                 {
-                                                                    item?.historyApplicationForm?.createdAt ? formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
+                                                                    latestHistoryApproval?.createdAt ? formatDate(latestHistoryApproval?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
                                                                 }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 <StatusLeaveRequest status="Completed" />
                                                             </TableCell>
                                                         </>
                                                     )
                                                     : (
                                                         <>
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 { formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left font-bold text-red-700">
-                                                                { item?.historyApplicationForm?.userApproval }
+                                                            <TableCell className="text-left font-bold text-red-700 border">
+                                                                { latestHistoryApproval?.userNameApproval }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left">
-                                                                { formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
+                                                            <TableCell className="text-left border">
+                                                                { formatDate(latestHistoryApproval?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left font-bold text-red-700">
-                                                                { item?.historyApplicationForm?.comment }
+                                                            <TableCell className="text-left font-bold text-red-700 border">
+                                                                { latestHistoryApproval?.note && latestHistoryApproval?.note != '' ? latestHistoryApproval?.note : "--" }
                                                             </TableCell>
 
-                                                            <TableCell className="text-left">
+                                                            <TableCell className="text-left border">
                                                                 <StatusLeaveRequest status="Reject" />
                                                             </TableCell>
                                                         </>
@@ -353,7 +355,7 @@ export default function ListLeaveRequest () {
                                     </div>
                                 ))
                             ) : isError || leaveRequests.length === 0 ? (
-                                <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white text-center">{error?.message ?? t('list_leave_request.no_result')}</div>
+                                <div className="pt-2 pl-4 text-red-700 border text-center font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => (
                                     <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">

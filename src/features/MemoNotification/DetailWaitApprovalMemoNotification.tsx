@@ -53,12 +53,12 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
         const payload = {
             UserCodeApproval: user?.userCode,
             UserNameApproval: user?.userName ?? "",
-            OrgUnitId: user?.orgUnitID,
+            OrgPositionId: user?.orgPositionId,
             Status: type == 'approval' ? true : false,
             Note: note,
             MemoNotificationId: id,
             urlFrontend: window.location.origin,
-            RequestTypeId: memo.requestTypeId
+            RequestTypeId: memo?.applicationForm?.requestTypeId
         }
 
         try {
@@ -116,7 +116,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
                 </div>
             </div>
 
-            <HistoryApproval historyApplicationForm={memo.historyApplicationForm}/>
+            <HistoryApproval historyApplicationForm={memo?.applicationForm?.historyApplicationForms[0]}/>
 
             <div>
                 <Label className='mb-1'>{t('note')}</Label>

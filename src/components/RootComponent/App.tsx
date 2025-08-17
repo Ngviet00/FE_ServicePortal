@@ -89,7 +89,7 @@ function App() {
 		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>},
 		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
 		{ path: "/time-keeping", element: <Timekeeping/>},
-		{ path: "/management-time-keeping", element: <MngTimekeeping/>, allowedPermissions: ['time_keeping.mng_time_keeping']},
+		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']
 
 		//form it
 		{ path: "/form-it/statistical", element: <StatisticalFormIT />},

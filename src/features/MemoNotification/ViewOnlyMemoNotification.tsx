@@ -81,7 +81,7 @@ const ViewOnlyMemoNotification: React.FC = () => {
                 </div>
             </div>
 
-            <HistoryApproval historyApplicationForm={memo.historyApplicationForm}/>
+            <HistoryApproval historyApplicationForm={memo?.applicationForm?.historyApplicationForms[0]}/>
         </div>
     )
 };

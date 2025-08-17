@@ -175,8 +175,8 @@ export default function LeaveRequestForm() {
                     const data = await leaveRequestApi.getById(id);
                     const results = data.data.data;
                     form.setValue("user_code", user?.userCode || "")
-                    form.setValue("name", results?.name)
-                    form.setValue("department", results?.department)
+                    form.setValue("name", results?.userNameRequestor)
+                    form.setValue("department", results?.orgUnit?.name)
                     form.setValue("position", results?.position ?? "")
                     form.setValue("from_date", results.fromDate.split('T')[0] + ' ' + results.fromDate.split('T')[1].substring(0, 5))
                     form.setValue("to_date", results.toDate.split('T')[0] + ' ' + results.toDate.split('T')[1].substring(0, 5))

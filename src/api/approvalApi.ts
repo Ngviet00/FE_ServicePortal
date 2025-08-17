@@ -4,13 +4,13 @@ import { useMutation } from '@tanstack/react-query';
 
 export interface CountWaitApprovalAndAssignedInSidebar {
     UserCode?: string,
-    OrgUnitId?: number
+    OrgPositionId?: number
 }
 
 export interface ListWaitApprovalRequest {
     RequestTypeId?: number | null,
     UserCode?: string,
-    OrgUnitId?: number,
+    OrgPositionId?: number,
     Page?: number,
     PageSize?: number,
     DepartmentId?: number | null
@@ -20,18 +20,27 @@ interface ApprovalRequest {
     RequestTypeId?: number,
     UserCodeApproval?: string,
     UserNameApproval?: string,
-    OrgUnitId?: number,
+    OrgPositionId?: number,
     MemoNotificationId?: string,
     LeaveRequestId?: string,
     Status?: boolean,
     Note?: string,
     urlFrontend?: string
 }
+
 export interface ListHistoryApprovalOrProcessedRequest {
     RequestTypeId?: number | null,
     UserCode?: string,
     Page?: number,
     PageSize?: number,
+}
+
+export interface HistoryApproval {
+    userNameApproval?: string,
+    action: string;
+    note?: string,
+	createdAt: string | Date,
+	requestStatusId?: number,
 }
 
 const approvalApi = {
