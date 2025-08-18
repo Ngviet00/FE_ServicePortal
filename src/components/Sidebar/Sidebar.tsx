@@ -30,20 +30,20 @@ export default function Sidebar() {
 	const { user } = useAuthStore()
 	const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN])
 	const hasHRRole = useHasRole([RoleEnum.HR])
-	const isUnion = useHasRole([RoleEnum.UNION])
-	const isIT = useHasRole([RoleEnum.IT])
+	// const isUnion = useHasRole([RoleEnum.UNION])
+	// const isIT = useHasRole([RoleEnum.IT])
 
-	const hasPermissionCreateNotification = useHasPermission(['memo_notification.create'])
+	// const hasPermissionCreateNotification = useHasPermission(['memo_notification.create'])
 	const isMobile = useIsReponsive()
 	const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
-	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgUnitID !== null && user.orgUnitID !== undefined;
+	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgPositionId !== null && user.orgPositionId !== undefined;
 
 	const { data: countWaitApprovalSidebar } = useQuery({
 		queryKey: ["count-wait-approval-sidebar"],
 		queryFn: async () => {
 			const res = await approvalApi.CountWaitApprovalAndAssignedInSidebar({
 				UserCode: user?.userCode,
-				OrgUnitId: user?.orgUnitID ?? -9999,
+				OrgPositionId: user?.orgPositionId ?? -9999,
 			});
 			return res.data.data;
 		},
@@ -93,11 +93,11 @@ export default function Sidebar() {
 					if (menu.key == 'Admin' && !isSuperAdmin) return null;
 					if (menu.key == 'HR' && !hasHRRole) return null;
 
-					if (menu.key == 'MemoNotification') {
-						if (!isUnion && !isIT && !hasHRRole && !hasPermissionCreateNotification) {
-							return null;
-						}
-					}
+					// if (menu.key == 'MemoNotification') {
+					// 	if (!isUnion && !isIT && !hasHRRole && !hasPermissionCreateNotification) {
+					// 		return null;
+					// 	}
+					// }
 
 					return (
 						<div className="menu-group" key={menu.key}>
@@ -132,15 +132,15 @@ export default function Sidebar() {
 											return null
 										}
 
-										if (child.route === '/management-time-keeping') {
-											if (!havePermissionMngTimeKeeping) {
-												return null;
-											}
+										// if (child.route === '/management-time-keeping') {
+										// 	if (!havePermissionMngTimeKeeping) {
+										// 		return null;
+										// 	}
 
-											if (!hasHRRole && !havePermissionMngTimeKeeping) {
-												return null
-											}
-										}
+										// 	if (!hasHRRole && !havePermissionMngTimeKeeping) {
+										// 		return null
+										// 	}
+										// }
 
 										const isActive = currentPath === child.route;
 										

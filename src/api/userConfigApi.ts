@@ -17,7 +17,7 @@ const userConfigApi = {
     },
 
     saveOrUpdate(data: UserConfigData) {
-        return axiosClient.post('/user-config/save-or-update', data)
+        return axiosClient.post('/user-config', data)
     },
 }
 

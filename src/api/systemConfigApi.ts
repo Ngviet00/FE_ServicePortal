@@ -18,19 +18,19 @@ export interface SystemConfig {
 
 const systemConfigApi = {
     getAll() {
-        return axiosClient.get('/system-config/get-all')
+        return axiosClient.get('/system-config')
     },
 
     GetByConfigKey(configKey: string) {
-        return axiosClient.get(`/system-config/get-config-by-key?configKey=${configKey}`)
+        return axiosClient.get(`/system-config/${configKey}`)
     },
 
     AddConfig(data: SystemConfig) {
-        return axiosClient.post('/system-config/add-config', data)
+        return axiosClient.post('/system-config', data)
     },
 
     UpdateConfig(configKey: string, data: SystemConfig){
-        return axiosClient.put(`/system-config/update-config/${configKey}`, data)
+        return axiosClient.put(`/system-config/${configKey}`, data)
     }
 }
 

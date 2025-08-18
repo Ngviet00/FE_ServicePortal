@@ -104,8 +104,8 @@ export default function CreateMemoNotification () {
         queryKey: ['get-all-department'],
         queryFn: async () => {
             const res = await orgUnitApi.GetAllDepartment()
-            return res.data.data.map((dept: {deptId: number, name: string}) => ({
-                value: dept.deptId,
+            return res.data.data.map((dept: {id: number, name: string}) => ({
+                value: dept.id,
                 label: dept.name,
             }));
         },
@@ -119,7 +119,7 @@ export default function CreateMemoNotification () {
         
         const formData = new FormData();
 
-        formData.append("orgUnitId", String(user?.orgUnitID ?? ''));
+        formData.append("orgPositionId", String(user?.orgPositionId ?? ''));
         formData.append("departmentId", String(user?.departmentId ?? ''));
         formData.append("urlFrontend", window.location.origin);
 
@@ -178,8 +178,8 @@ export default function CreateMemoNotification () {
 
                     const selectedDepartments = result.applyAllDepartment
                         ? options.map((opt: {value: string}) => opt.value)
-                        : result.departmentIdApply;
-
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        : result?.memoNotificationDepartments?.map((item: { orgUnit: { id: any; }; }) => item?.orgUnit?.id);
                     form.reset({
                         title: result.title,
                         content: result.content,

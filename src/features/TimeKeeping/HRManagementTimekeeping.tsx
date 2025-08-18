@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import orgUnitApi from "@/api/orgUnitApi";
 import timekeepingApi, { useAttachUserManageOrgUnit, useChangeUserMngTimekeeping, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeepingApi";
 import userApi from "@/api/userApi";
@@ -21,10 +22,10 @@ function HRManagementTimekeeping() {
 
     const [selectedUserMngTKeeping, setSelectedUserMngTKeeping] = useState<OptionType[]>([]);
 
-    const { data: getAllDeptInOrgUnits = [] } = useQuery({
-        queryKey: ['get-all-dept-in-org-unit'],
+    const { data: getDepartmentAndChildrenTeam = [] } = useQuery({
+        queryKey: ['get-department-and-children-team'],
         queryFn: async () => {
-            const res = await orgUnitApi.GetAllDepartmentAndFirstOrgUnit()
+            const res = await orgUnitApi.GetDepartmentAndChildrenTeam()
             return res.data.data;
         },
     });
@@ -67,15 +68,18 @@ function HRManagementTimekeeping() {
     }
 
     const handleSaveUserMngTimeKeeping = async() => {
-        if (currentSelectedUser.length == 0) {
+        const selectedUser = Object.values(currentSelectedUser)
+
+        if (selectedUser.length == 0) {
             ShowToast("Chưa chọn người quản lý", "error")
             return
         }
-        const userCode = currentSelectedUser?.value;
-        console.log(userCode, checkedIds.map(Number));
+
+        const userCode = selectedUser[1]
+
         await attachUserMngOrgUnit.mutateAsync(
             {
-                userCode: userCode, 
+                userCode: userCode?.toString(),
                 orgUnitIds: checkedIds.map(Number)
             }
         );
@@ -86,8 +90,8 @@ function HRManagementTimekeeping() {
         setCurrentSelectedUser([])
     }
 
-    const handleOnChangeCurrentSelectedUser = async (item) => {
-        const result = await timekeepingApi.GetOrgUnitIdAttachedByUserCode(item?.value)
+    const handleOnChangeCurrentSelectedUser = async (item: any) => {
+        const result = await timekeepingApi.GetOrgUnitIdMngByUser(item?.value)
         setCurrentSelectedUser(item)
 
         const ids = result.data.data.map((num: { toString: () => never; }) => num.toString());
@@ -106,23 +110,26 @@ function HRManagementTimekeeping() {
     }
 
     const handleSaveChangeUser = async () => {
-        if (selectOldUser.length == 0) {
+        const oldUser = Object.values(selectOldUser)
+        const newUser = Object.values(selectNewUser)
+
+        if (oldUser.length == 0) {
             ShowToast("Chọn người cũ", "error")
             return
         }
 
-        if (selectNewUser.length == 0) {
+        if (newUser.length == 0) {
             ShowToast("Chọn người mới", "error")
             return
         }
 
-        if (selectOldUser?.value == selectNewUser?.value) {
+        if (oldUser[1] == newUser[1]) {
             ShowToast("Không thể chọn cùng 1 người", "error")
             return
         }
         const payload = {
-            oldUserCode: selectOldUser.value,
-            newUserCode: selectNewUser.value,
+            oldUserCode: oldUser[1]?.toString(),
+            newUserCode: newUser[1]?.toString(),
         }
         await changeUserMngTimekeeping.mutateAsync(payload);
         setCheckedIds([])
@@ -220,15 +227,7 @@ function HRManagementTimekeeping() {
                         <div className="pl-2">
                             <TreeCheckbox
                                 defaultCheckedIds={checkedIds}
-                                data={getAllDeptInOrgUnits}
-                                loadChildren={async (node) => {
-                                    const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
-                                    return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
-                                        id: item.NVMaNV.toString(),
-                                        label: item.NVHoTen,
-                                        type: "user"
-                                    }));
-                                }}
+                                data={getDepartmentAndChildrenTeam}
                                 onChange={handleCheckedChange}
                             />
                         </div>

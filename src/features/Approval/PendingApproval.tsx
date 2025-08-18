@@ -28,13 +28,13 @@ interface PendingApprovalResponse {
 		nameE: string,
 	},
 	historyApplicationForm?: {
-		userApproval?: string
+		userNameApproval?: string
 	},
 	leaveRequest?: {
 		id?: string,
 		code?: string,
-		name?: string,
-		userNameWriteLeaveRequest?: string
+		userNameRequestor?: string,
+		createdBy?: string
 	},
 	memoNotification?: {
 		id?: string,
@@ -60,7 +60,7 @@ function GetUserRequestByRequestTypeId(item: PendingApprovalResponse) {
 	let result = ''
 
 	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.name || ''
+		result = item?.leaveRequest?.userNameRequestor || ''
 	}
 	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
 		result = item?.memoNotification?.createdBy || '';
@@ -73,7 +73,7 @@ function GetUserCreatedByRequestTypeId(item: PendingApprovalResponse) {
 	let result = ''
 
 	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.userNameWriteLeaveRequest || ''
+		result = item?.leaveRequest?.createdBy || ''
 	}
 	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
 		result = item?.memoNotification?.createdBy || '';
@@ -145,7 +145,7 @@ export default function PendingApproval() {
             const res = await approvalApi.GetAllApproval({
                 Page: page,
                 PageSize: pageSize,
-				OrgUnitId: user?.orgUnitID,
+				OrgPositionId: user?.orgPositionId,
 				UserCode: user?.userCode,
 				RequestTypeId: requestType == '' ? null : Number(requestType),
 				DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment)
@@ -272,8 +272,8 @@ export default function PendingApproval() {
 									{ lang == 'vi' ? 'Tất cả' : 'All' }
 								</option>
 								{
-									departments.map((item: { deptId: number, name: string }) => (
-										<option key={item.deptId} value={item.deptId}>{item.name}</option>
+									departments.map((item: { deptId: number, name: string }, idx: number) => (
+										<option key={idx} value={item.deptId}>{item.name}</option>
 									))
 								}
 							</select>
@@ -354,7 +354,7 @@ export default function PendingApproval() {
 													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserCreatedByRequestTypeId(item)}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userApproval ? item?.historyApplicationForm?.userApproval : '--'}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
 													<td className="px-4 py-2 border text-center">
 														<StatusLeaveRequest status="Pending"/>
 													</td>
@@ -420,7 +420,7 @@ export default function PendingApproval() {
 													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserCreatedByRequestTypeId(item)}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userApproval ? item?.historyApplicationForm?.userApproval : '--'}</td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
 													<td className="px-4 py-2 border text-center">
 														<StatusLeaveRequest status="Pending"/>
 													</td>

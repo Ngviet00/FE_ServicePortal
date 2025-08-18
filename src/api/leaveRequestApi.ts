@@ -1,14 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, ShowToast } from '@/lib';
+import { HistoryApproval } from './approvalApi';
 
 export interface LeaveRequestData {
     id?: string | null,
-    orgUnitId: number,
-    requesterUserCode?: string | null,
+    orgPositionId?: number,
+    userCodeRequestor?: string | null,
     writeLeaveUserCode?: string | null,
     userNameWriteLeaveRequest?: string | null,
-    name?: string | null,
+    userNameRequestor?: string | null,
     department?: string | null,
     departmentId: number,
     position?: string | null,
@@ -20,28 +21,28 @@ export interface LeaveRequestData {
     image?: string | null,
     urlFrontend: string | null,
     createdAt?: string | null,
+    createdBy?: string | null,
     typeLeave?: {
         name?: string
-        nameV?: string
+        nameE?: string
     },
     timeLeave?: {
-        description?: string,
-        english?: string
-    }
+        name?: string,
+        nameE?: string
+    },
+    orgUnit?: {
+        name: string
+    },
     applicationForm?: {
         currentPositionId: number | null,
         status: string | null,
-        createdAt: string | null
-    },
-    historyApplicationForm?: {
-        userApproval?: string | null,
-        actionType?: string | null,
-        comment?: string | null
-        createdAt: string | null
+        createdAt: string | null,
+        historyApplicationForms?: HistoryApproval[]
     }
 }
 
 export interface CreateLeaveRequestForManyPeople {
+    OrgPositionId: number | undefined,
     Leaves: LeaveRequestData[]
 }
 
@@ -97,19 +98,19 @@ interface HrRegisterAllLeave {
 
 const leaveRequestApi = {
     getAll(params: GetLeaveRequest) {
-        return axiosClient.get('/leave-request/get-all', {params})
+        return axiosClient.get('/leave-request', {params})
     },
     getById(id: string) {
-        return axiosClient.get(`/leave-request/get-by-id/${id}`)
+        return axiosClient.get(`/leave-request/${id}`)
     },
     create(data: LeaveRequestData) {
-        return axiosClient.post('/leave-request/create', data)
+        return axiosClient.post('/leave-request', data)
     },
     update(id: string, data: LeaveRequestData){
-        return axiosClient.put(`/leave-request/update/${id}`, data)
+        return axiosClient.put(`/leave-request/${id}`, data)
     },
     delete(id: string) {
-        return axiosClient.delete(`/leave-request/delete/${id}`)
+        return axiosClient.delete(`/leave-request/${id}`)
     },
     registerAllLeaveRequest(data: HrRegisterAllLeave) {
         return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)

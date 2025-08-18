@@ -163,7 +163,6 @@ export default function Timekeeping () {
                             <tr>
                                 <th className="sticky top-0 z-20 p-1 border w-[115px]">{t('time_keeping.usercode')}</th>
                                 <th className="sticky top-0 z-20 p-1 border w-[170px]">{t('time_keeping.username')}</th>
-                                <th className="p-1 border w-[100px]">{t('time_keeping.dept')}</th>
                                 <th className="p-1 border w-[100px]">{t('time_keeping.date')}</th>
                                 <th className="p-1 border w-[50px]">{t('time_keeping.day')}</th>
                                 <th className="p-1 border w-[60px]">{t('time_keeping.shift')}</th>
@@ -186,7 +185,6 @@ export default function Timekeeping () {
                                         <tr key={index}>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
@@ -213,7 +211,6 @@ export default function Timekeeping () {
                                         <tr key={idx} className="hover:bg-gray-50">
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">{item.NVMaNV}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">{item.NVHoTen}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.BPTenV}</td>
                                             <td className={`${item?.Thu == 'CN' ? 'font-bold text-red-600' : ''} px-4 py-2 border whitespace-nowrap`}>{item?.BCNgay ? formatDate(item?.BCNgay, "dd/MM/yyyy") : "--"}</td>
                                             <td className={`${item?.Thu == 'CN' ? 'font-bold text-red-600' : ''} px-4 py-2 text-center border whitespace-nowrap`}>{item?.Thu}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">{item.CVietTat}</td>

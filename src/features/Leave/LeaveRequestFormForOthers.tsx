@@ -21,6 +21,7 @@ const leaveRequestSchema = z.object({
     user_code_register: z.string().nonempty({ message: "Bắt buộc." }),
     name: z.string().nonempty({ message: "Bắt buộc." }),
     department: z.string().nonempty({ message: "Bắt buộc." }),
+    departmentId: z.number({ invalid_type_error: "Must be a number" }),
     position: z.string().nonempty({ message: "Bắt buộc." }),
     from_date: z.string().nonempty({ message: "Bắt buộc.." }),
     to_date: z.string().nonempty({ message: "Bắt buộc." }),
@@ -35,7 +36,6 @@ const leaveRequestSchema = z.object({
     message: "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.",
     path: ["to_date"],
 });
-
  
 const leaveSchema = z.object({
     leaveRequests: z.array(leaveRequestSchema)
@@ -43,19 +43,6 @@ const leaveSchema = z.object({
 
 type LeaveForm = z.infer<typeof leaveSchema>;
 type SingleLeaveRequest = z.infer<typeof leaveRequestSchema>;
-
-const defaultSingleLeaveRequest: SingleLeaveRequest = {
-    user_code: "",
-    user_code_register: "",
-    name: "",
-    department: "",
-    position: "",
-    from_date: `${new Date().toISOString().slice(0, 10)} 08:00`,
-    to_date: `${new Date().toISOString().slice(0, 10)} 17:00`,
-    type_leave: "",
-    time_leave: "",
-    reason: "",
-};
 
 export default function LeaveRequestFormForOthers() {
     const { t } = useTranslation('createLeaveOther');
@@ -65,6 +52,20 @@ export default function LeaveRequestFormForOthers() {
     const navigate = useNavigate();
     const [isSearchingUser, setIsSearchingUser] = useState(false)
     const saveLeaveRequestForManyPeople = useCreateLeaveRequestForManyPeople(); 
+
+    const defaultSingleLeaveRequest: SingleLeaveRequest = {
+        user_code: "",
+        user_code_register: "",
+        name: "",
+        department: "",
+        departmentId: user?.departmentId ?? -1,
+        position: "",
+        from_date: `${new Date().toISOString().slice(0, 10)} 08:00`,
+        to_date: `${new Date().toISOString().slice(0, 10)} 17:00`,
+        type_leave: "",
+        time_leave: "",
+        reason: "",
+    };
 
     const hasPermission = useHasPermission(['leave_request.create_multiple_leave_request'])
 
@@ -90,11 +91,12 @@ export default function LeaveRequestFormForOthers() {
             values: any,
             user: User | null
         ): LeaveRequestData => ({
-            requesterUserCode: values.user_code ?? null,
+            userCodeRequestor: values.user_code ?? null,
             writeLeaveUserCode: user?.userCode ?? "",
             userNameWriteLeaveRequest: user?.userName ?? "",
-            name: values.name,
+            userNameRequestor: values.name,
             department: values.department,
+            departmentId: values.departmentId,
             position: values.position,
             fromDate: values.from_date.replace(" ", "T") + ":00+07:00",
             toDate: values.to_date.replace(" ", "T") + ":00+07:00",
@@ -105,6 +107,7 @@ export default function LeaveRequestFormForOthers() {
         });
 
         const payload = {
+            OrgPositionId: user?.orgPositionId,
             Leaves: data.leaveRequests.map((leaveRequest) =>
                 formatSingleLeaveRequest(leaveRequest, currentUser)
             ),
@@ -154,9 +157,9 @@ export default function LeaveRequestFormForOthers() {
                 usercode: userCode
             });
             const result = fetchData?.data?.data
-            setValue(`leaveRequests.${index}.name`, result?.nvHoTen, { shouldValidate: true });
-            setValue(`leaveRequests.${index}.department`, result?.bpTen, { shouldValidate: true });
-            setValue(`leaveRequests.${index}.position`, result?.cvTen, { shouldValidate: true });
+            setValue(`leaveRequests.${index}.name`, result?.NVHoTen, { shouldValidate: true });
+            setValue(`leaveRequests.${index}.department`, result?.DepartmentName, { shouldValidate: true });
+            setValue(`leaveRequests.${index}.position`, result?.Position, { shouldValidate: true });
         } 
         catch (err) {
             ShowToast(getErrorMessage(err), "error");
@@ -280,8 +283,9 @@ export default function LeaveRequestFormForOthers() {
                                                         typeLeaves.map((item) => (
                                                             <option key={item.id} value={item.id}>
                                                                 {
-                                                                    lang == 'vi' ? t(item.nameV) : t(item.name)
+                                                                    lang == 'vi' ? t(item.name) : t(item.nameE)
                                                                 }
+                                                                &nbsp;__&nbsp;{item.code}
                                                             </option>
                                                         ))
                                                     )

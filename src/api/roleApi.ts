@@ -14,19 +14,19 @@ export interface IRole {
 
 const roleApi = {
     getAll(params: GetAllParams) {
-        return axiosClient.get('/role/get-all', {params})
+        return axiosClient.get('/role', {params})
     },
     getById(id: number) {
         return axiosClient.get(`/role/${id}`)
     },
     create(data: {name: string}) {
-        return axiosClient.post('/role/create', data)
+        return axiosClient.post('/role', data)
     },
     update(id: number, data: {name: string}){
-        return axiosClient.put(`/role/update/${id}`, data)
+        return axiosClient.put(`/role/${id}`, data)
     },
     delete(id: number) {
-        return axiosClient.delete(`/role/delete/${id}`)
+        return axiosClient.delete(`/role/${id}`)
     }
 }
 export default roleApi;

@@ -8,9 +8,12 @@ import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
 import { useNavigate, useParams } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import leaveRequestApi from "@/api/leaveRequestApi"
+import leaveRequestApi, { useRegisterAllLeaveRequest } from "@/api/leaveRequestApi"
 import { formatDate } from "@/lib/time"
 import { useApproval } from "@/api/approvalApi"
+import useHasRole from "@/hooks/useHasRole"
+import { RoleEnum, STATUS_ENUM } from "@/lib"
+import useHasPermission from "@/hooks/useHasPermission"
 
 const DetailWaitApprovalLeaveRq = () => {
     const lang = useTranslation().i18n.language.split('-')[0]
@@ -22,6 +25,7 @@ const DetailWaitApprovalLeaveRq = () => {
     const approval = useApproval()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
+    const registerAllLeaveMutation = useRegisterAllLeaveRequest()
 
     const { data: leaveRequest } = useQuery({
         queryKey: ['get-detail-leave-request'],
@@ -32,11 +36,16 @@ const DetailWaitApprovalLeaveRq = () => {
         enabled: id != null || id != undefined
     });
 
+    
+    const isHR = useHasRole([RoleEnum.HR])
+    const hasPermissionHRMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
+    const isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR = isHR && hasPermissionHRMngLeaveRq && leaveRequest?.applicationForm?.requestStatus?.id == STATUS_ENUM.WAIT_HR
+
     const handleSaveModalConfirm = async (type: string) => {
         const payload = {
             UserCodeApproval: user?.userCode,
             UserNameApproval: user?.userName ?? "",
-            OrgUnitId: user?.orgUnitID,
+            OrgPositionId: user?.orgPositionId,
             Status: type == 'approval' ? true : false,
             Note: note,
             LeaveRequestId: id,
@@ -45,14 +54,28 @@ const DetailWaitApprovalLeaveRq = () => {
         }
 
         try {
-            await approval.mutateAsync(payload)
-            setStatusModalConfirm('')
-            navigate("/approval/pending-approval")
-            queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+            if (isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR) {
+                await registerAllLeaveMutation.mutateAsync({
+                    UserCode: user?.userCode,
+                    UserName: user?.userName ?? "",
+                    leaveRequestIds: [id ?? ""]
+                })
+                setStatusModalConfirm('')
+                navigate("/approval/pending-approval")
+                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+            }
+            else {
+                await approval.mutateAsync(payload)
+                setStatusModalConfirm('')
+                navigate("/approval/pending-approval")
+                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+            }
+
         } catch (err) {
             console.log(err);
         }
     }
+
     
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -64,14 +87,14 @@ const DetailWaitApprovalLeaveRq = () => {
                     <strong className="text-blue-600">Mã đơn:</strong> <span className="font-bold text-gray-600">{leaveRequest?.code}</span>
                 </p>
                 <p className="my-2">
-                    <strong>Mã nhân viên:</strong> {leaveRequest?.requesterUserCode}
+                    <strong>Mã nhân viên:</strong> {leaveRequest?.userCodeRequestor}
                 </p>
                 <p className="my-2">
-                    <strong>Người gửi:</strong> {leaveRequest?.name}
+                    <strong>Người gửi:</strong> {leaveRequest?.userNameRequestor}
                 </p>
 
                 <p className="my-2">
-                    <strong>Phòng ban:</strong> {leaveRequest?.departmentId}
+                    <strong>Phòng ban:</strong> {leaveRequest?.orgUnit.name}
                 </p>
                 <p className="my-2">
                     <strong>Chức vụ:</strong> {leaveRequest?.position}
@@ -86,7 +109,7 @@ const DetailWaitApprovalLeaveRq = () => {
                 </p>
 
                 <p className="my-2">
-                    <strong>Thời gian nghỉ:</strong> {lang == 'vi' ? leaveRequest?.timeLeave.description : leaveRequest?.timeLeave.english}
+                    <strong>Thời gian nghỉ:</strong> {lang == 'vi' ? leaveRequest?.timeLeave.name : leaveRequest?.timeLeave.nameE}
                 </p>
 
                 <p className="my-2">
@@ -94,7 +117,7 @@ const DetailWaitApprovalLeaveRq = () => {
                 </p>
             </div>
 
-            <HistoryApproval historyApplicationForm={leaveRequest?.historyApplicationForm}/>
+            <HistoryApproval historyApplicationForm={leaveRequest?.applicationForm?.historyApplicationForms[0]}/>
 
             <div>
                 <Label className='mb-1'>{t('note')}</Label>
@@ -109,18 +132,32 @@ const DetailWaitApprovalLeaveRq = () => {
             />
             <div>
                 <div className="flex justify-end gap-4 mt-8">
-                    <Button
-                        onClick={() => setStatusModalConfirm('approval')}
-                        className="px-4 py-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
-                    >
-                        {t('approval')}
-                    </Button>
-                    <Button
-                        onClick={() => setStatusModalConfirm('reject')}
-                        className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base"
-                    >
-                        {t('reject')}
-                    </Button>
+                    {
+                        isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR ? (
+                            <Button
+                                onClick={() => setStatusModalConfirm('approval')}
+                                className="px-4 py-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                            >
+                                {t('approval')}
+                            </Button>
+                        ) : (
+                            <>
+                                <Button
+                                    onClick={() => setStatusModalConfirm('approval')}
+                                    className="px-4 py-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                                >
+                                    {t('approval')}
+                                </Button>
+                                <Button
+                                    onClick={() => setStatusModalConfirm('reject')}
+                                    className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base"
+                                >
+                                    {t('reject')}
+                                </Button>
+                            </>
+                        )
+                    }
+
                 </div>
             </div>
         </div>

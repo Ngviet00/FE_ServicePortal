@@ -79,7 +79,7 @@ export function TreeCheckBoxChooseNewOrgUnit({ data, onChange, loadChildren }: P
 			return (
 				<div key={idx} className={`relative py-1 pl-${level === 0 ? 0 : 4}`}>
 					<div className="flex items-center space-x-2">
-						{((hasChildren || loadChildren) && node.type != "org_unit_user") ? (
+						{((hasChildren || loadChildren) && node.type != "org_position_user") ? (
 						<button
 							type="button"
 							onClick={() => toggleExpand(node)}
@@ -90,9 +90,9 @@ export function TreeCheckBoxChooseNewOrgUnit({ data, onChange, loadChildren }: P
 						) : (
 						<div className="w-4" />
 						)}
-						<label className={`flex items-center space-x-2 select-none ${node.type == 'org_unit_user' ? 'cursor-pointer' : ''}`}>
+						<label className={`flex items-center space-x-2 select-none ${node.type == 'org_position_user' ? 'cursor-pointer' : ''}`}>
 							{
-								node.type == "org_unit_user" ? (
+								node.type == "org_position_user" ? (
 									<>
 										<SmartCheckbox
 											checked={checkedSet.has(node.id)}
@@ -115,9 +115,9 @@ export function TreeCheckBoxChooseNewOrgUnit({ data, onChange, loadChildren }: P
 						<div className="ml-8 text-sm text-gray-500 italic">Đang tải...</div>
 					)}
 
-					{isExpanded && !loadingMap[node.id] && !hasChildren && (
+					{/* {isExpanded && !loadingMap[node.id] && !hasChildren && (
 						<div className="ml-8 text-sm text-red-500 italic">Không có kết quả</div>
-					)}
+					)} */}
 				</div>
 			);
 		});

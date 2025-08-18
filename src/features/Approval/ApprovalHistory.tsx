@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 interface HistoryApprovalProcessedResponse {
-	actionType: string;
+	action: string;
 	createdAt: string | Date,
 	requestStatusId?: number,
 	requestType?: {
@@ -25,7 +25,7 @@ interface HistoryApprovalProcessedResponse {
 	leaveRequest?: {
 		id?: string,
 		code?: string,
-		name?: string
+		userNameRequestor?: string
 	},
 	memoNotification?: {
 		id?: string,
@@ -65,7 +65,7 @@ function GetUserRequestByRequestTypeId(item: HistoryApprovalProcessedResponse) {
 	let result = ''
 
 	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.name || ''
+		result = item?.leaveRequest?.userNameRequestor ?? ''
 	}
 	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
 		result = item?.memoNotification?.createdBy || '';
@@ -96,6 +96,7 @@ const ApprovalHistory: React.FC = () => {
     });
 
 	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
+		setPage(1)
 		setRequestType(e.target.value)
 	}
 
@@ -188,7 +189,7 @@ const ApprovalHistory: React.FC = () => {
 											<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center">
-												{ item.actionType }
+												{ item.action }
 											</td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center">
 												<StatusLeaveRequest status={item?.requestStatusId == 6 ? "In Process" : item?.requestStatusId}/>

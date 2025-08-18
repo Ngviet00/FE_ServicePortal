@@ -28,14 +28,14 @@ const ViewOnlyLeaveRq = () => {
                     <strong className="text-blue-600">Mã đơn:</strong> <span className="font-bold text-gray-600">{leaveRequest?.code}</span>
                 </p>
                 <p className="my-2">
-                    <strong>Mã nhân viên:</strong> {leaveRequest?.requesterUserCode}
+                    <strong>Mã nhân viên:</strong> {leaveRequest?.userCodeRequestor}
                 </p>
                 <p className="my-2">
-                    <strong>Người gửi:</strong> {leaveRequest?.name}
+                    <strong>Người gửi:</strong> {leaveRequest?.userNameRequestor}
                 </p>
 
                 <p className="my-2">
-                    <strong>Phòng ban:</strong> {leaveRequest?.department?.name}
+                    <strong>Phòng ban:</strong> {leaveRequest?.orgUnit.name}
                 </p>
                 <p className="my-2">
                     <strong>Chức vụ:</strong> {leaveRequest?.position}
@@ -50,7 +50,7 @@ const ViewOnlyLeaveRq = () => {
                 </p>
 
                 <p className="my-2">
-                    <strong>Thời gian nghỉ:</strong> {lang == 'vi' ? leaveRequest?.timeLeave.description : leaveRequest?.timeLeave.english}
+                    <strong>Thời gian nghỉ:</strong> {lang == 'vi' ? leaveRequest?.timeLeave.name : leaveRequest?.timeLeave.nameE}
                 </p>
 
                 <p className="my-2">

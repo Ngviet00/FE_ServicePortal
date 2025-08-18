@@ -28,7 +28,7 @@ type Props = {
     typeLeave?: {
         id: number,
         name: string,
-        nameV: string,
+        nameE: string,
         code: string,
         modified_by?: string,
     },
@@ -42,7 +42,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
 
     const createUserSchema = z.object({
         name: z.string().min(1, { message: t('type_leave_page.required') }),
-        nameV: z.string().min(1, { message: t('type_leave_page.required') }),
+        nameE: z.string().min(1, { message: t('type_leave_page.required') }),
         code: z.string().min(1, { message: t('type_leave_page.required') }),
         modified_by: z.string().nullable().optional()
     })
@@ -53,7 +53,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             name: "",
-            nameV: "",
+            nameE: "",
             code: "",
             modified_by: user?.userCode
         },
@@ -61,7 +61,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
 
     useEffect(() => {
         if (typeLeave && open) {
-            form.reset({ name: typeLeave.name, nameV: typeLeave.nameV, code: typeLeave.code });
+            form.reset({ name: typeLeave.name, nameE: typeLeave.nameE, code: typeLeave.code });
         } else {
             form.reset({ name: "" });
         }
@@ -71,7 +71,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
         try {
             const data = {
                 name: values.name,
-                nameV: values.nameV,
+                nameE: values.nameE,
                 code: values.code,
                 modified_by: user?.userCode
             }
@@ -129,10 +129,10 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
 
                         <FormField
                             control={form.control}
-                            name="nameV"
+                            name="nameE"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="nameV">{t('type_leave_page.nameV')}</Label>
+                                    <Label htmlFor="nameV">{t('type_leave_page.nameE')}</Label>
                                     <FormControl>
                                         <Input id="nameV" placeholder="..." {...field} />
                                     </FormControl>

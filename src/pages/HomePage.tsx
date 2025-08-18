@@ -46,7 +46,7 @@ export default function HomePage() {
                     userName: result?.nvHoTen,
                     departmentId: result?.departmentId,
                     departmentName: result?.departmentName,
-                    orgUnitID: result?.orgUnitID,
+                    orgPositionId: result?.orgPositionId,
                     nvGioiTinh: result?.nvGioiTinh,
                     dateOfBirth: result?.dateOfBirth,
                     IsActive: result?.isActive,

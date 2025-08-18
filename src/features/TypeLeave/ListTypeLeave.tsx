@@ -71,7 +71,7 @@ export default function ListTypeLeave () {
 							<tr>
 								<th className="px-4 py-2 border w-[70px]">STT</th>
 								<th className="px-4 py-2 border w-[400px]">{t('type_leave_page.name')}</th>
-                                <th className="px-4 py-2 border w-[400px]">{t('type_leave_page.nameV')}</th>
+                                <th className="px-4 py-2 border w-[400px]">{t('type_leave_page.nameE')}</th>
                                 <th className="px-4 py-2 border w-[400px]">{t('type_leave_page.code')}</th>
 								<th className="px-4 py-2 border w-[300px]">{t('type_leave_page.action')}</th>
 							</tr>
@@ -101,7 +101,7 @@ export default function ListTypeLeave () {
                                                 {idx + 1}
                                             </td>
                                             <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.nameV}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.nameE}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap">{item.code}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">
                                                 <CreateTypeLeaveForm typeLeave={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-type-leave'] })}/>

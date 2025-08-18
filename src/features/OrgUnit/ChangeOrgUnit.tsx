@@ -6,26 +6,30 @@ import { useTranslation } from "react-i18next";
 import { TreeCheckboxChooseUserChangeOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckboxChooseUserChangeOrgUnit";
 import { TreeCheckBoxChooseNewOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckBoxChooseNewOrgUnit";
 import orgUnitApi, { useSaveChangeOrgUnitUser } from "@/api/orgUnitApi";
-import userApi from "@/api/userApi";
+import positionApi from "@/api/orgPositionApi";
 
 function ChangeOrgUnit() {
     const { t } = useTranslation('changeOrgUnit');
 
-    const { data: getAllDeptOfOrgUnit = [] } = useQuery({
-        queryKey: ['get-all-dept-og-org-unit'],
+    const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-departments'],
         queryFn: async () => {
-            const res = await orgUnitApi.GetAllDeptOfOrgUnit()
-            return res.data.data;
+            const res = await orgUnitApi.GetAllDepartment()
+            return res?.data?.data?.map((dept: {id: number, name: string}) => ({
+                id: dept.id,
+                label: dept.name,
+                type: 'department'
+            }))
         },
     });
 
-    const [newOrgUnit, setNewOrgUnit] = useState("")
+    const [newOrgPositionId, setNewOrgPositionId] = useState("")
     const handleCheckedChangeNewOrgUnitUser = useCallback((id: string, checked: boolean) => {
         if (!checked) {
-            setNewOrgUnit("")
+            setNewOrgPositionId("")
             return
         }
-        setNewOrgUnit(id)
+        setNewOrgPositionId(id)
     }, [])
 
     const [selectedUser, setSelectedUser] = useState<string[]>([])
@@ -48,7 +52,7 @@ function ChangeOrgUnit() {
     const saveChangeOrgUnitUser =  useSaveChangeOrgUnitUser()
 
     const handleSaveChangeOrgUnitUser = async () => {
-        if (newOrgUnit == "") {
+        if (newOrgPositionId == "") {
             ShowToast("Chưa chọn vị trí cần chuyển", "error")
             return
         }
@@ -60,10 +64,10 @@ function ChangeOrgUnit() {
 
         await saveChangeOrgUnitUser.mutateAsync({
             UserCodes: selectedUser,
-            OrgUnitId: Number(newOrgUnit)
+            OrgPositionId: Number(newOrgPositionId)
         })
 
-        setNewOrgUnit("")
+        setNewOrgPositionId("")
         setSelectedUser([])
 
         setKeyChooseNewOrgUnit(prevKey => prevKey + 1);
@@ -80,22 +84,14 @@ function ChangeOrgUnit() {
                 <div className="border p-4 rounded w-[30%]">
                     <TreeCheckboxChooseUserChangeOrgUnit
                         key={keyChooseUserChangeOrgUnit}
-                        data={getAllDeptOfOrgUnit}
+                        data={departments}
                         loadChildren={async (node) => {
-                            if (node.type == 'jobtitle') {
-                                const children = await userApi.GetUserByParentOrgUnit(parseInt(node.id))
-                                return children?.data?.data?.map((item: { NVMaNV: { toString: () => never; }; NVHoTen: never; }) => ({
-                                    id: item.NVMaNV.toString(),
-                                    label: item.NVHoTen,
-                                    type: "user"
-                                }));
+                            if (node.type == 'team') {
+                                const children = await orgUnitApi.GetListUserByTeamId(parseInt(node.id))
+                                return children.data.data
                             } else {
-                                const children = await orgUnitApi.GetOrgUnitTeamAndUserNotSetOrgUnitWithDept(Number(node.id))
-                                return children?.data?.data?.map((item: { id: { toString: () => never; }; label: never; type: string; }) => ({
-                                    id: item.id.toString(),
-                                    label: item.label,
-                                    type: item.type
-                                }));
+                                const children = await orgUnitApi.GetTeamByDeptIdAndUserNotSetOrgPositionId(Number(node.id))
+                                return children.data.data;
                             }
                         }}
                         onChange={handleCheckedChooseUserToChangeOrgUnit}
@@ -106,13 +102,13 @@ function ChangeOrgUnit() {
                     <div>
                         <TreeCheckBoxChooseNewOrgUnit
                             key={keyChooseNewOrgUnit}
-                            data={getAllDeptOfOrgUnit}
+                            data={departments}
                             loadChildren={async (node) => {
-                                const children = await orgUnitApi.GetOrgUnitUserWithDept(parseInt(node.id))
+                                const children = await positionApi.GetOrgPositionsByDepartmentId(parseInt(node.id))
                                 const result = children?.data?.data?.map((item: { id: { toString: () => never; }; name: never; }) => ({
                                     id: item.id.toString(),
                                     label: item.name,
-                                    type: "org_unit_user"
+                                    type: "org_position_user"
                                 }));
                                 return result
                             }}

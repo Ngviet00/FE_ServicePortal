@@ -3,20 +3,23 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import React, { useState, useRef } from 'react';
 import userApi from '@/api/userApi';
+import orgUnitApi from '@/api/orgUnitApi';
 
 type Person = {
-	userName: string,
-	usercode: string;
-	orgUnitId: number;
-	orgUnitName: string | null | undefined
-	name: string | null | undefined,
+	nvHoTen: string,
+	nvMaNV: string;
+	orgPositionId: number
+	positionName: string
+	teamName: string | null | undefined
+	parentOrgPositionId: number
 };
 
 type OrgChartNode = {
-	orgUnitId: number;
-	orgUnitName: string;
-	people: Person[];
-	children: OrgChartNode[];
+	orgPositionId: number
+	teamName: string;
+	positionName: string
+	people: Person[]
+	children: OrgChartNode[]
 };
 
 const nodeStyle: React.CSSProperties = {
@@ -35,25 +38,27 @@ function groupUsersByOrgUnit(rawNodes: any[]): OrgChartNode[] {
 	const grouped: { [key: number]: OrgChartNode } = {};
 
 	rawNodes.forEach((raw) => {
-		const orgId = raw.orgUnitId;
-		if (!grouped[orgId]) {
-			grouped[orgId] = {
-				orgUnitId: orgId,
-				orgUnitName: raw.orgUnitName,
+		const orgPositionId = raw.orgPositionId;
+		if (!grouped[orgPositionId]) {
+			grouped[orgPositionId] = {
+				orgPositionId: orgPositionId,
+				teamName: raw.teamName,
+				positionName: raw.positionName,
 				people: [],
 				children: [],
 			};
 		}
-		grouped[orgId].people.push({
-			userName: `${raw.nvHoTen}`,
-			usercode: `${raw.nvMaNV}`,
-			orgUnitId: orgId,
-			orgUnitName: `${raw.orgUnitName}`,
-			name:  `${raw.name}`,
+		grouped[orgPositionId].people.push({
+			nvHoTen: `${raw.nvHoTen}`,
+			nvMaNV: `${raw.nvMaNV}`,
+			orgPositionId: orgPositionId,
+			teamName: `${raw.teamName}`,
+			parentOrgPositionId: raw.parentOrgPositionId,
+			positionName: raw.positionName,
 		});
 
 		if (raw.children && raw.children.length > 0) {
-			grouped[orgId].children.push(...groupUsersByOrgUnit(raw.children));
+			grouped[orgPositionId].children.push(...groupUsersByOrgUnit(raw.children));
 		}
 	});
 
@@ -63,16 +68,18 @@ function groupUsersByOrgUnit(rawNodes: any[]): OrgChartNode[] {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 	const root: OrgChartNode = {
-		orgUnitId: rawRoot.orgUnitId,
-		orgUnitName: rawRoot.orgUnitName,
+		orgPositionId: rawRoot.orgPositionId,
+		teamName: rawRoot.teamName,
 		people: [{
-			userName: rawRoot.nvHoTen,
-			usercode: rawRoot.nvMaNV,
-			orgUnitId: rawRoot.orgUnitId,
-			orgUnitName: rawRoot.orgUnitName,
-			name: rawRoot.name,
+			nvHoTen: rawRoot.nvHoTen,
+			nvMaNV: rawRoot.nvMaNV,
+			orgPositionId: rawRoot.orgPositionId,
+			teamName: rawRoot.teamName,
+			parentOrgPositionId: rawRoot.parentOrgPositionId,
+			positionName: rawRoot.positionName,
 		}],
 		children: [],
+		positionName: rawRoot.positionName
 	};
 
 	const flatChildren = groupUsersByOrgUnit(rawRoot.children || []);
@@ -80,24 +87,24 @@ function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 	return root;
 }
 
-const NodeContent: React.FC<{ people: Person[]; orgUnitId: number }> = ({ people }) => (
+const NodeContent: React.FC<{ people: Person[]; orgPositionId: number }> = ({ people }) => (
 	<div style={nodeStyle}>
 		{people.map((p, idx) => (
-			<div key={p.usercode} className="dark:text-black">
+			<div key={p.nvMaNV} className="dark:text-black">
 				{
 					idx == 0 ? (
-						<><strong className={`dark:text-red-700 ${p.usercode == 'null' ? 'text-red-600' : 'text-blue-600'} font-bold`}>{p.orgUnitName}</strong> <br /></>
+						<><strong className={`dark:text-red-700 ${p.nvMaNV == 'null' ? 'text-red-600' : 'text-blue-600'} font-bold`}>{p.positionName}</strong> <br /></>
 					) : (<></>)
 				}
-				<strong className="dark:text-black">{p.usercode == 'null' ? 'Empty' : p.usercode}</strong>
-				 	<br/> {p.userName == '' ? 'Empty' : p.userName}
+				<strong className="dark:text-black">{p.nvMaNV == 'null' ? 'Empty' : p.nvMaNV}</strong>
+				 	<br/> {p.nvHoTen == '' ? 'Empty' : p.nvHoTen}
 			</div>
 		))}
 	</div>
 );
 
 const RenderNode: React.FC<{ node: OrgChartNode }> = ({ node }) => (
-	<TreeNode label={<NodeContent people={node.people} orgUnitId={node.orgUnitId} />}>
+	<TreeNode label={<NodeContent people={node.people} orgPositionId={node.orgPositionId} />}>
 		{node.children.map((child, idx) => (
 			<RenderNode key={idx} node={child} />
 		))}
@@ -111,7 +118,7 @@ const OrgChartTree: React.FC = () => {
 	const [isDragging, setIsDragging] = useState<boolean>(false);
 	const [isHoveringChart, setIsHoveringChart] = useState<boolean>(false);
 	const chartRef = useRef<HTMLDivElement | null>(null);
-	const [department, setDepartment] = useState<number | null>(113); // default = Production
+	const [department, setDepartment] = useState<number | null>(null); // default = Production
 
 	const { data: rawData, isLoading } = useQuery({
 		queryKey: ['org-chart', department],
@@ -122,6 +129,14 @@ const OrgChartTree: React.FC = () => {
 		},
 		enabled: department !== null,
 	});
+
+	const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-departments'],
+        queryFn: async () => {
+            const res = await orgUnitApi.GetAllDepartment()
+            return res.data.data
+        },
+    });
 
 	const orgChartData: OrgChartNode | null = rawData ? convertToOrgChartNode(rawData) : null;
 
@@ -149,9 +164,11 @@ const OrgChartTree: React.FC = () => {
 					className="dark:bg-[#454545] border border-gray-300 px-[20px] py-[5px]"
 				>
 					<option value="">--{t('org_chart_page.select')}--</option>
-					<option value="113">Production</option>
-					<option value="110">HR</option>
-					<option value="118">MIS/IT</option>
+					{
+						departments.map((item: {id: number, name: string}) => (
+							<option key={item.id} value={item.id}>{item.name}</option>
+						))
+					}
 				</select>
 			</div>
 
@@ -181,14 +198,14 @@ const OrgChartTree: React.FC = () => {
 							lineWidth="2px"
 							lineColor="#bbb"
 							lineBorderRadius="8px"
-							label={<NodeContent people={orgChartData.people} orgUnitId={orgChartData.orgUnitId} />}
+							label={<NodeContent people={orgChartData.people} orgPositionId={orgChartData.orgPositionId} />}
 						>
 							{orgChartData.children.map((child, idx) => (
 								<RenderNode key={idx} node={child} />
 							))}
 						</Tree>
 					) : (
-						<div>{t('org_chart_page.no_data')}</div>
+						<div>No results</div>
 					)}
 				</div>
 			}
