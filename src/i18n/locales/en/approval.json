@@ -32,5 +32,18 @@
         "action": "Action",
         "comment": "Comment",
         "approved": "Approved At"
+    },
+    "detail_approval_leave_request": {
+        "title": "Leave application detail",
+        "code": "Application code",
+        "user_code": "Usercode",
+        "user_requestor": "Username",
+        "department": "Department",
+        "position": "Position",
+        "from_date": "From date",
+        "to_date": "To date",
+        "type_leave": "Type leave",
+        "time_leave": "Time leave",
+        "reason": "Reason"   
     }
 }

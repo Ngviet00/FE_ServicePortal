@@ -32,5 +32,18 @@
         "action": "Hành động",
         "comment": "Chú thích",
         "approved": "Thời gian duyệt"
+    },
+    "detail_approval_leave_request": {
+        "title": "Chi tiết đơn nghỉ phép",
+        "code": "Mã đơn",
+        "user_code": "Mã nhân viên",
+        "user_requestor": "Người gửi",
+        "department": "Phòng ban",
+        "position": "Chức vụ",
+        "from_date": "Ngày bắt đầu",
+        "to_date": "Ngày kết thúc",
+        "type_leave": "Loại phép",
+        "time_leave": "Thời gian nghỉ",
+        "reason": "Lý do"   
     }
 }
