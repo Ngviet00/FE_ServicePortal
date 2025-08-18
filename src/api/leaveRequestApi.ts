@@ -5,7 +5,7 @@ import { HistoryApproval } from './approvalApi';
 
 export interface LeaveRequestData {
     id?: string | null,
-    orgPositionId: number,
+    orgPositionId?: number,
     userCodeRequestor?: string | null,
     writeLeaveUserCode?: string | null,
     userNameWriteLeaveRequest?: string | null,
@@ -30,7 +30,7 @@ export interface LeaveRequestData {
         name?: string,
         nameE?: string
     },
-    orgUnit: {
+    orgUnit?: {
         name: string
     },
     applicationForm?: {
@@ -42,6 +42,7 @@ export interface LeaveRequestData {
 }
 
 export interface CreateLeaveRequestForManyPeople {
+    OrgPositionId: number | undefined,
     Leaves: LeaveRequestData[]
 }
 

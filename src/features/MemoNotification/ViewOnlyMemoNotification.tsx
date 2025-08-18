@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
 import { getErrorMessage, ShowToast } from '@/lib';
 import { formatDate } from '@/lib/time';
@@ -64,7 +65,7 @@ const ViewOnlyMemoNotification: React.FC = () => {
                     <span className='dark:text-white'>
                         Department apply: {" "}
                         <span className="font-bold text-black dark:text-white">
-                            { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo.departmentNames }
+                            { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo?.memoNotificationDepartments?.map((item: { orgUnit: { name: any; }; }) => item?.orgUnit?.name)?.join(', ') }
                         </span>
                     </span>
                 </div>

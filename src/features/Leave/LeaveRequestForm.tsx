@@ -55,10 +55,10 @@ const formSchema = z.object({
 });
 
 const formatData = (values: z.infer<typeof formSchema>): LeaveRequestData => ({
-    requesterUserCode: values.user_code ?? null,
+    userCodeRequestor: values.user_code ?? null,
     writeLeaveUserCode: values.user_code_register,
     userNameWriteLeaveRequest: values.name_register,
-    name: values.name,
+    userNameRequestor: values.name,
     department: values.department,
     departmentId: values.departmentId,
     orgPositionId: values.orgPositionId,

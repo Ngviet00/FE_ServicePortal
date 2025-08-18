@@ -178,8 +178,8 @@ export default function CreateMemoNotification () {
 
                     const selectedDepartments = result.applyAllDepartment
                         ? options.map((opt: {value: string}) => opt.value)
-                        : result.departmentIdApply;
-
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        : result?.memoNotificationDepartments?.map((item: { orgUnit: { id: any; }; }) => item?.orgUnit?.id);
                     form.reset({
                         title: result.title,
                         content: result.content,

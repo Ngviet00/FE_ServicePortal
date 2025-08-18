@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useApproval } from '@/api/approvalApi';
 import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
 import { Button } from '@/components/ui/button';
@@ -99,7 +100,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
                     <span className='dark:text-white'>
                         Department apply: {" "}
                         <span className="font-bold text-black dark:text-white">
-                            { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo.departmentNames }
+                            { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo?.memoNotificationDepartments?.map((item: { orgUnit: { name: any; }; }) => item?.orgUnit?.name)?.join(', ') }
                         </span>
                     </span>
                 </div>

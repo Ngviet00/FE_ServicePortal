@@ -357,62 +357,71 @@ export default function ListLeaveRequest () {
                             ) : isError || leaveRequests.length === 0 ? (
                                 <div className="pt-2 pl-4 text-red-700 border text-center font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
-                                leaveRequests.map((item: LeaveRequestData) => (
-                                    <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                        <div className="mb-1 font-bold">{item.name} ({item.requesterUserCode})</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
-                                        <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
-                                        {
-                                            filterStatus == 1 ? (
-                                                <>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="PENDING" /></div>
-                                                    <div className="mb-1">
-                                                            <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                 Edit
-                                                            </Link>
-                                                            <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
-                                                    </div>
-                                                </>
-                                            )
-                                            : filterStatus == 2 ? (
-                                                <>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval ?? "--" }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>
-                                                        {
-                                                            item?.historyApplicationForm?.createdAt ? formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
-                                                        }
-                                                    </div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="IN_PROCESS" /></div>
+                                leaveRequests.map((item: LeaveRequestData) => {
+                                    const latestHistoryApproval = item?.applicationForm?.historyApplicationForms?.[0]
+
+                                    return (
+                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                            <div className="mb-1 font-bold">{item.userNameRequestor} ({item.userCodeRequestor})</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeave?.name : item?.typeLeave?.nameE}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.name : item?.timeLeave?.nameE}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
+                                            {
+                                                filterStatus == 1 ? (
+                                                    <>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="PENDING" /></div>
+                                                        <div className="mb-1">
+                                                                <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                    Edit
+                                                                </Link>
+                                                                <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
+                                                        </div>
                                                     </>
-                                            )
-                                            : filterStatus == 3 ? (
-                                                <>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="COMPLETED" /></div>
-                                                </>
-                                            )
-                                            : (
-                                                <>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ item?.historyApplicationForm?.userApproval }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.approved_at')} </strong>{ formatDate(item.historyApplicationForm?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.note')}: </strong>{ item?.historyApplicationForm?.comment }</div>
-                                                    <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="REJECT" /></div>
-                                                </>
-                                            )
-                                        }
-                                    </div>
-                                ))
+                                                )
+                                                : filterStatus == 2 ? (
+                                                    <>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ latestHistoryApproval?.userNameApproval ?? "--" }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>
+                                                            {
+                                                                latestHistoryApproval?.createdAt ? formatDate(latestHistoryApproval?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
+                                                            }
+                                                        </div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="IN_PROCESS" /></div>
+                                                        </>
+                                                )
+                                                : filterStatus == 3 ? (
+                                                    <>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ latestHistoryApproval?.userNameApproval ?? "--" }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.approved_at')}: </strong>
+                                                            {
+                                                                latestHistoryApproval?.createdAt ? formatDate(latestHistoryApproval?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") : "--"
+                                                            }
+                                                        </div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="COMPLETED" /></div>
+                                                    </>
+                                                )
+                                                : (
+                                                    <>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.created_at')}: </strong>{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.approve_by')}: </strong>{ latestHistoryApproval?.userNameApproval }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.approved_at')} </strong>{ formatDate(latestHistoryApproval?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.note')}: </strong>{ latestHistoryApproval?.note && latestHistoryApproval?.note != '' ? latestHistoryApproval?.note : "--" }</div>
+                                                        <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="REJECT" /></div>
+                                                    </>
+                                                )
+                                            }
+                                        </div>
+                                    )
+                                }
+                            )
                             )}
                         </div>
                 </div>

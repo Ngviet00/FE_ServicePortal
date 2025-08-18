@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useParams } from 'react-router-dom'
 import { useState } from 'react'
 import { formatDate } from '@/lib/time'
@@ -56,7 +57,7 @@ export default function DetailMemoNotification() {
                 <span className='dark:text-white'>
                     Department apply: {" "}
                     <span className="font-bold text-black dark:text-white">
-                        { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo.departmentNames }
+                        { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo?.memoNotificationDepartments?.map((item: { orgUnit: { name: any; }; }) => item?.orgUnit?.name)?.join(', ') }
                     </span>
                 </span>
             </div>
