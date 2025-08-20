@@ -32,6 +32,9 @@ import viRequestType from './locales/vi/requestType.json'
 import enApproval from './locales/en/approval.json'
 import viApproval from './locales/vi/approval.json'
 
+import enAdmin from './locales/en/admin.json'
+import viAdmin from './locales/vi/admin.json'
+
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
@@ -40,6 +43,7 @@ i18n
     debug: false,
     defaultNS: 'translation',
     ns: [
+		'admin',
 		'pendingApproval',
 		'requestType',
 		'translation', 
@@ -53,6 +57,7 @@ i18n
 	],
     resources: {
 		en: {
+			admin: enAdmin,
 			pendingApproval: enApproval,
 			requestType: enRequestType,
 			permission: enPermission,
@@ -65,6 +70,7 @@ i18n
 			changeOrgUnit: enChangeOrgUnit
 		},
 		vi: {
+			admin: viAdmin,
 			pendingApproval: viApproval,
 			requestType: viRequestType,
 			permission: viPermission,

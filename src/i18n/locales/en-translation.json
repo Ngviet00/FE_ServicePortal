@@ -53,6 +53,8 @@
 			"request_type": "Request type",
 			"approval_flow": "Approval flow",
 			"setting_org_unit": "Add org unit",
+			"priority": "Priority",
+			"it_category": "IT Category",
 			"admin_setting": "Setting"
 		},
 		"hr": {

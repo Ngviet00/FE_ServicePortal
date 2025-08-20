@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { RoleEnum } from "@/lib";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
-import useHasPermission from "@/hooks/useHasPermission";
+// import useHasPermission from "@/hooks/useHasPermission";
 import "./style.css"
 import approvalApi from "@/api/approvalApi";
 
@@ -35,7 +35,7 @@ export default function Sidebar() {
 
 	// const hasPermissionCreateNotification = useHasPermission(['memo_notification.create'])
 	const isMobile = useIsReponsive()
-	const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
+	// const havePermissionMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
 	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgPositionId !== null && user.orgPositionId !== undefined;
 
 	const { data: countWaitApprovalSidebar } = useQuery({

@@ -27,6 +27,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.admin.request_type", route: "/request-type" },
 			{ label: "sidebar.admin.approval_flow", route: "/approval-flow" },
 			{ label: "sidebar.admin.setting_org_unit", route: "/setting-org-unit" },
+			{ label: "sidebar.admin.priority", route: "/priority" },
+			{ label: "sidebar.admin.it_category", route: "/it-category" },
 			{ label: "sidebar.admin.admin_setting", route: "/admin-setting" },
 		],
 	},

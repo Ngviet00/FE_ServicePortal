@@ -42,6 +42,8 @@ import SettingOrgUnit from '@/pages/SettingOrgUnit';
 import ViewOnlyMemoNotification from '@/features/MemoNotification/ViewOnlyMemoNotification';
 import DetailWaitApprovalLeaveRq from '@/features/Leave/DetailWaitApprovalLeaveRq';
 import ViewOnlyLeaveRq from '@/features/Leave/ViewOnlyLeaveRq';
+import ListPriority from '@/features/Priority/ListPriority';
+import ListITCategory from '@/features/ITCategory/ListITCategory';
 
 function App() {
 	const location = useLocation();
@@ -66,6 +68,8 @@ function App() {
 		{ path: "/request-type", element: <ListRequestType />, allowedRoles: [RoleEnum.SUPERADMIN] },
 		{ path: "/approval-flow", element: <ApprovalFlow />, allowedRoles: [RoleEnum.SUPERADMIN] },
 		{ path: "/setting-org-unit", element: <SettingOrgUnit />, allowedRoles: [RoleEnum.SUPERADMIN] },
+		{ path: "/priority", element: <ListPriority />, allowedRoles: [RoleEnum.SUPERADMIN] },
+		{ path: "/it-category", element: <ListITCategory />, allowedRoles: [RoleEnum.SUPERADMIN] },
 		{ path: "/admin-setting", element: <AdminSetting />, allowedRoles: [RoleEnum.SUPERADMIN] },
 
 		//hr

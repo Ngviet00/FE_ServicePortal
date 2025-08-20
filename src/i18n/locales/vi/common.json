@@ -19,5 +19,7 @@
     "confirm_delete": "Bạn có muốn xóa?",
     "submit": "Xác nhận",
 
-    "no_results": "Không có kết quả"
+    "no_results": "Không có kết quả",
+
+    "required": "Bắt buộc"
 }

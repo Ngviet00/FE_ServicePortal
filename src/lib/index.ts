@@ -156,3 +156,18 @@ export enum REQUEST_TYPE {
     PURCHASE = 5,
     SAP = 6
 }
+
+export enum IT_CATEGORY {
+    SERVER = 1,
+    NETWORK = 2,
+    EMAIL = 3,
+    SOFTWARE = 4,
+    ERP = 5,
+    OTHER = 6
+}
+
+export enum PRIORITY {
+    LOW = 1,
+    MEDIUM = 2,
+    HIGH = 3,
+}

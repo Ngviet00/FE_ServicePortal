@@ -98,14 +98,14 @@ const userApi = {
     getMe() {
         return axiosClient.get(`/user/me`)
     },
-    GetUserByParentOrgUnit(orgUnitId: number) {
-        return axiosClient.get(`/user/get-user-by-parent-org-unit-id?orgUnitId=${orgUnitId}`)
-    },
     getUserToSelectMngTKeeping(params: getUserToSelectMngTKeeping) {
         return axiosClient.get('/user/search-all-user-from-viclock', {params})
     },
     getRoleAndPermissionOfUser(userCode: string) {
         return axiosClient.get(`/user/get-role-permission-user?userCode=${userCode}`)
+    },
+    SearchUserCombineViClockAndWebSystem(userCode: string) {
+        return axiosClient.get(`/user/search-user-combine-viclock-and-web-system?userCode=${userCode}`)
     }
 }
 

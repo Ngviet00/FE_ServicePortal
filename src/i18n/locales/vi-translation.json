@@ -53,6 +53,8 @@
 			"request_type": "Loại yêu cầu",
 			"approval_flow": "Luồng phê duyệt",
 			"setting_org_unit": "Thêm vị trí",
+			"priority": "Ưu tiên",
+			"it_category": "Danh mục IT",
 			"admin_setting": "Cài đặt"
 		},
 		"hr": {

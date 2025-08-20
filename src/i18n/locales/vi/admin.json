@@ -1,0 +1,20 @@
+{
+    "priority_page": {
+        "title": "Mức độ ưu tiên",
+        "name": "Tiếng việt",
+        "nameE": "Tiếng anh",
+        "action": "Hành động",
+        "create": "Thêm mới",
+        "update": "Sửa",
+        "submit": "Xác nhận"
+    },
+    "it_category_page": {
+        "title": "Danh mục IT",
+        "name": "Tên",
+        "code": "Mã",
+        "action": "Hành động",
+        "create": "Thêm mới",
+        "update": "Sửa",
+        "submit": "Xác nhận"
+    }   
+}

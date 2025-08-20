@@ -26,6 +26,7 @@
         "category": "Category",
         "other_category": "Please select another category",
         "ex_other_category": "Ex: Accounting Software Error",
+        "position": "Position",
         "priority": "Priority",
         "low": "Low",
         "medium": "Medium",
