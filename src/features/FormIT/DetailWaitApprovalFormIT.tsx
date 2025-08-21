@@ -9,25 +9,26 @@ import priorityApi, { IPriority } from '@/api/priorityApi';
 import itCategoryApi, { ITCategoryInterface } from '@/api/itCategoryApi';
 import { useEffect, useRef, useState } from 'react';
 import DotRequireComponent from '@/components/DotRequireComponent';
-import FullscreenLoader from '@/components/FullscreenLoader';
 import { getErrorMessage, ShowToast } from '@/lib';
-import userApi from '@/api/userApi';
 import { useAuthStore } from '@/store/authStore';
 import itFormApi, { CreateITFormRequest, ITFormCategory, useCreateITForm, useUpdateITForm } from '@/api/itFormApi';
-import { Spinner } from '@/components/ui/spinner';
 import { useNavigate, useParams } from 'react-router-dom';
+import ModalConfirm from '@/components/ModalConfirm';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
-const CreateFormIT = () => {
-    const { t } = useTranslation('formIT');
+const DetailWaitApprovalFormIT = () => {
+    const { t } = useTranslation();
     const { t: tCommon  } = useTranslation('common');
     const { user } = useAuthStore()
     const lang = useTranslation().i18n.language.split('-')[0]
-    const [isSearchingUser, setIsSearchingUser] = useState(false)
     const previousUserCodeValueRef = useRef('');
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { id } = useParams<{ id: string }>();
-    const isEdit = !!id;
+    const isApproval = !!id;
+    const [statusModalConfirm, setStatusModalConfirm] = useState('')
+    const [note, setNote] = useState("")
     
     const ITRequestFormSchema = z.object({
         requester: z.object({
@@ -54,8 +55,6 @@ const CreateFormIT = () => {
         handleSubmit,
         formState: { errors },
         control,
-        reset,
-        getValues,
         setValue
     } = useForm<ITRequestState>({
         resolver: zodResolver(ITRequestFormSchema),
@@ -98,7 +97,7 @@ const CreateFormIT = () => {
             RequiredCompletionDate: data.itRequest.dateCompleted
         };
 
-        if (isEdit) {
+        if (isApproval) {
             await updateItForm.mutateAsync({id: id, data: payload})
         }
         else {
@@ -125,65 +124,6 @@ const CreateFormIT = () => {
         },
     });
 
-    const onCancel = () => {
-        if (isEdit) {
-            navigate("/form-it")
-        }
-        else {
-            reset();
-        }
-    };
-
-    const handleFindUser = async () => {
-        const value = getValues('requester.userCode')
-
-        if (value == previousUserCodeValueRef.current) {
-            return
-        }
-
-        previousUserCodeValueRef.current = value;
-
-        if (!value.trim()) {
-            setValue('requester.name', '')
-            setValue('requester.department', '')
-            setValue('requester.email', '')
-            return
-        }
-
-        try {
-            setIsSearchingUser(true)
-            await new Promise(resolve => setTimeout(resolve, 300));
-            const fetchData = await userApi.SearchUserCombineViClockAndWebSystem(value)
-            const result = fetchData?.data?.data
-
-            if (result == null || result == undefined || result?.userCode == null) {
-                ShowToast("Không tìm thấy người dùng", "error")
-                setValue('requester.name', '', { shouldValidate: true })
-                setValue('requester.department', '', { shouldValidate: true })
-                setValue('requester.email', '', { shouldValidate: true })
-
-                return
-            }
-
-            if (result?.orgPositionId == null || result?.departmentId == null) {
-                ShowToast("Chưa được thiết lập vị trí phòng ban, liên hệ HR", "error")
-                setValue('requester.name', result?.nvHoTen, { shouldValidate: true })
-                setValue('requester.department', '', { shouldValidate: true })
-                return
-            }
-
-            setValue('requester.name', result?.nvHoTen, { shouldValidate: true })
-            setValue('requester.department', result?.departmentName, { shouldValidate: true })
-            setValue('requester.departmentId', result?.departmentId, { shouldValidate: true })
-            setValue('requester.email', result?.email ?? '', { shouldValidate: true })
-        }   
-        catch (err) {
-            ShowToast(getErrorMessage(err), "error");
-        }
-        finally {
-            setIsSearchingUser(false)
-        }
-    }
 
     useEffect(() => {
         if (id) {
@@ -212,17 +152,59 @@ const CreateFormIT = () => {
         }
     }, [id, setValue])
 
+    const handleSaveModalConfirm = async (type: string) => {
+        alert(type)
+        // const payload = {
+        //     UserCodeApproval: user?.userCode,
+        //     UserNameApproval: user?.userName ?? "",
+        //     OrgPositionId: user?.orgPositionId,
+        //     Status: type == 'approval' ? true : false,
+        //     Note: note,
+        //     LeaveRequestId: id,
+        //     urlFrontend: window.location.origin,
+        //     RequestTypeId: leaveRequest?.applicationForm?.requestTypeId
+        // }
+
+        // try {
+        //     if (isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR) {
+        //         await registerAllLeaveMutation.mutateAsync({
+        //             UserCode: user?.userCode,
+        //             UserName: user?.userName ?? "",
+        //             leaveRequestIds: [id ?? ""]
+        //         })
+        //         setStatusModalConfirm('')
+        //         navigate("/approval/pending-approval")
+        //         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+        //     }
+        //     else {
+        //         await approval.mutateAsync(payload)
+        //         setStatusModalConfirm('')
+        //         navigate("/approval/pending-approval")
+        //         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+        //     }
+
+        // } catch (err) {
+        //     console.log(err);
+        // }
+    }
+
     return (
         <div className="p-1 pl-1 pt-0 space-y-4">
-            {isSearchingUser && <FullscreenLoader />}
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{isEdit ? 'Cập nhật' : t('create.title')}</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{isApproval ? 'Cập nhật' : t('create.title')}</h3>
                 <Button onClick={() => navigate("/form-it")} className="w-full md:w-auto hover:cursor-pointer">
                     Danh sách đã tạo
                 </Button>
             </div>
 
-            <div className="flex flex-col min-h-screen">
+            <ModalConfirm
+                type={statusModalConfirm}
+                isOpen={statusModalConfirm != ''}
+                onClose={() => setStatusModalConfirm('')}
+                onSave={handleSaveModalConfirm}
+            />
+
+            <div className="flex min-h-screen">
                 <div className="w-full max-w-3xl bg-white rounded-xl pl-0">
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
                         <div className="space-y-6">
@@ -236,13 +218,12 @@ const CreateFormIT = () => {
                                             {tCommon('usercode')}<DotRequireComponent />
                                         </label>
                                         <input
-                                            readOnly={isEdit == true}
+                                            disabled
                                             {...register('requester.userCode')}
-                                            onBlur={handleFindUser}
                                             type="text"
                                             id="requester.userCode"
                                             placeholder={tCommon('usercode')}
-                                            className={`${errors.requester?.userCode ? 'border-red-500' : 'border-gray-300'} ${isEdit == true ? 'bg-gray-100' : ''} mt-1 w-full p-2 rounded-md text-sm border select-none`}
+                                            className={`${errors.requester?.userCode ? 'border-red-500' : 'border-gray-300'} bg-gray-100 mt-1 w-full p-2 rounded-md text-sm border select-none`}
                                         />
                                         {errors.requester?.userCode && <p className="text-red-500 text-xs mt-1">{errors.requester.userCode.message}</p>}
                                     </div>
@@ -253,7 +234,7 @@ const CreateFormIT = () => {
                                         </label>
                                         <input
                                             {...register('requester.name')}
-                                            readOnly
+                                            disabled
                                             type="text"
                                             id="requester.name"
                                             placeholder={tCommon('name')}
@@ -268,7 +249,7 @@ const CreateFormIT = () => {
                                         </label>
                                         <input
                                             {...register('requester.department')}
-                                            readOnly
+                                            disabled
                                             type="text"
                                             id="requester.department"
                                             placeholder={tCommon('department')}
@@ -284,11 +265,12 @@ const CreateFormIT = () => {
                                             {t('create.position')}<DotRequireComponent />
                                         </label>
                                         <input
+                                            disabled
                                             {...register('requester.position')}
                                             type="text"
                                             id="requester.position"
                                             placeholder={t('create.position')}
-                                            className={`${errors.requester?.position ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
+                                            className={`${errors.requester?.position ? 'border-red-500' : 'border-gray-300'} bg-gray-100 mt-1 w-full p-2 rounded-md text-sm border`}
                                         />
                                         {errors.requester?.position && <p className="text-red-500 text-xs mt-1">{errors.requester.position.message}</p>}
                                     </div>
@@ -298,11 +280,12 @@ const CreateFormIT = () => {
                                             Email<DotRequireComponent />
                                         </label>
                                         <input
+                                            disabled
                                             {...register('requester.email')}
                                             type="email"
                                             id="requester.email"
                                             placeholder="email@vsvn.com.vn"
-                                            className={`${errors.requester?.email ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
+                                            className={`${errors.requester?.email ? 'border-red-500' : 'border-gray-300'} bg-gray-100 mt-1 w-full p-2 rounded-md text-sm border`}
                                         />
                                         {errors.requester?.email && <p className="text-red-500 text-xs mt-1">{errors.requester.email.message}</p>}
                                     </div>
@@ -321,11 +304,12 @@ const CreateFormIT = () => {
                                             control={control}
                                             render={({ field }) => (
                                                 <DateTimePicker
+                                                    disabled={true}
                                                     enableTime={false}
                                                     dateFormat="Y-m-d"
                                                     initialDateTime={field.value}
                                                     onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer bg-[#fdfdfd]`}
+                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 bg-gray-100 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                                                 />
                                             )}
                                         />
@@ -341,11 +325,12 @@ const CreateFormIT = () => {
                                             control={control}
                                             render={({ field }) => (
                                                 <DateTimePicker
+                                                    disabled={true}
                                                     enableTime={false}
                                                     dateFormat="Y-m-d"
                                                     initialDateTime={field.value}
                                                     onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer bg-[#fdfdfd]`}
+                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 bg-gray-100 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                                                 />
                                             )}
                                         />
@@ -371,7 +356,7 @@ const CreateFormIT = () => {
                                                             className="w-[48%] flex items-center space-x-2 cursor-pointer select-none"
                                                         >
                                                             <input
-                                                                disabled={isEdit == true}
+                                                                disabled
                                                                 type="checkbox"
                                                                 value={item.id}
                                                                 checked={checked}
@@ -405,11 +390,12 @@ const CreateFormIT = () => {
                                         {tCommon('reason')}<DotRequireComponent />
                                     </label>
                                     <textarea
+                                        disabled
                                         id="itRequest.reason"
                                         {...register('itRequest.reason')}
                                         placeholder={tCommon('reason')}
                                         rows={4}
-                                        className={`${errors.itRequest?.reason ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
+                                        className={`${errors.itRequest?.reason ? 'border-red-500' : 'border-gray-300'} bg-gray-100 mt-1 w-full p-2 rounded-md text-sm border`}
                                     ></textarea>
                                     {errors.itRequest?.reason && <p className="text-red-500 text-xs mt-1">{errors.itRequest.reason.message}</p>}
                                 </div>
@@ -419,9 +405,10 @@ const CreateFormIT = () => {
                                         {t('create.priority')}
                                     </label>
                                     <select
+                                        disabled
                                         id="itRequest.priority"
                                         {...register('itRequest.priority')}
-                                        className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 bg-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
                                     >
                                         {
                                             priorities?.map((item: IPriority, idx: number) => (
@@ -433,28 +420,85 @@ const CreateFormIT = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <div className='flex gap-4 justify-end'>
-                            <Button
-                                type="button"
-                                onClick={onCancel}
-                                className='px-6 py-2 border bg-white border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
-                            >
-                                {tCommon('cancel')}
-                            </Button>
-                            <Button
-                                disabled={createItForm.isPending || updateItForm.isPending}
-                                type='submit'
-                                className='px-6 py-2 bg-black border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
-                            >
-                                {createItForm.isPending || updateItForm.isPending ? <Spinner size="small" className='text-white'/> : tCommon('save')}
-                            </Button>
-                        </div>
                     </form>
+                </div>
+                <div className='pl-5 border-l-1 ml-5 w-full'>
+                    <div className="flex justify-end flex-col gap-4 mt-8">
+                        <div className='flex-1'>
+                            <div className='w-full'>
+                                <Label className='mb-1'>{t('note')}</Label>
+                                <Textarea placeholder='Note' value={note} onChange={(e) => setNote(e.target.value)} className="border-gray-300"/>
+                            </div>
+                        </div>
+                        <div>
+                            <Label className='mb-1'>{t('asssigned')}</Label>
+                            <div className="form-group mt-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    {t('create.category')}<DotRequireComponent />
+                                </label>
+                                <Controller
+                                    name="itRequest.itCategory"
+                                    control={control}
+                                    render={({ field }) => (
+                                        
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {ItCategories?.map((item: ITCategoryInterface, idx: number) => {
+                                                const checked = field.value?.includes(item?.id ?? -1);
+                                                return (
+                                                    <label
+                                                        key={idx}
+                                                        className="w-[48%] flex items-center space-x-2 cursor-pointer select-none"
+                                                    >
+                                                        <input
+                                                            disabled
+                                                            type="checkbox"
+                                                            value={item.id}
+                                                            checked={checked}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    field.onChange([...field.value, item.id]); // thêm vào mảng
+                                                                } else {
+                                                                    field.onChange(
+                                                                        field.value.filter((val: number) => val !== item.id) // bỏ khỏi mảng
+                                                                    );
+                                                                }
+                                                            }}
+                                                            className="border-gray-300 scale-[1.4] accent-black"
+                                                        />
+                                                        <span>{item.name}</span>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                />
+                                {errors.itRequest?.itCategory && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.itRequest.itCategory.message}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        <div className='flex justify-end'>
+                            <Button
+                                onClick={() => setStatusModalConfirm('approval')}
+                                className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                            >
+                                {t('approval')}
+                            </Button>
+                            <Button
+                                onClick={() => setStatusModalConfirm('reject')}
+                                className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base"
+                            >
+                                {t('reject')}
+                        </Button>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-export default CreateFormIT;
+export default DetailWaitApprovalFormIT;

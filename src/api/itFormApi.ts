@@ -1,19 +1,115 @@
 import { useMutation } from '@tanstack/react-query';
 import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
+import { OrgUnit } from './orgUnitApi';
+import { IPriority } from './priorityApi';
+import { ITCategoryInterface } from './itCategoryApi';
+import { IRequestType } from './requestTypeApi';
 
 interface GetAll {
-    currentUserCode?: string,
+    UserCode?: string,
     Page: number
     PageSize: number
 }
 
-interface CreateITFormRequest {
-    UserCodeRequestor: string
+export interface CreateITFormRequest {
+    UserCodeRequestor?: string;
+    UserNameRequestor?: string,
+    UserCodeCreated?: string;
+    UserNameCreated?: string
+    DepartmentId?: number;
+    Email?: string;
+    Position?: string;
+    Reason?: string;
+    PriorityId?: number;
+    OrgPositionId: number;
+    ITCategories: number[];
+    RequestDate?: string; 
+    RequiredCompletionDate?: string;
+    TargetCompletionDate?: string;
+    ActualCompletionDate?: string;
 }
 
 interface UpdateITFormRequest {
-    UserCodeRequestor: string
+    UserCodeRequestor?: string;
+    UserCodeCreated?: string;
+    DepartmentId?: number;
+    Email?: string;
+    Position?: string;
+    Reason?: string;
+    PriorityId?: number;
+    OrgPositionId: number;
+    ITCategories: number[];
+    RequestDate?: string; 
+    RequiredCompletionDate?: string;
+    TargetCompletionDate?: string;
+    ActualCompletionDate?: string;
+}
+
+export interface ITFormCategory {
+    id: number;
+    itFormId: string;
+    itCategoryId: number;
+    itCategory: ITCategoryInterface;
+}
+
+export interface ITForm {
+    id: string;
+    applicationFormId: string;
+    code: string;
+    userCodeRequestor: string;
+    userNameRequestor: string | null;
+    userCodeCreated: string;
+    userNameCreated: string | null;
+    departmentId: number;
+    email: string;
+    position: string;
+    reason: string;
+    priorityId: number;
+    noteManagerIT: string | null;
+    requestDate: string;
+    requiredCompletionDate: string;
+    targetCompletionDate: string | null;
+    actualCompletionDate: string | null;
+    createdAt: string;
+    updatedAt: string | null;
+    deletedAt: string | null;
+    orgUnit: OrgUnit;
+    priority: IPriority;
+    applicationForm: ApplicationForm;
+    itFormCategories: ITFormCategory[];
+}
+
+export interface IRequestStatus {
+    id: number;
+    name: string;
+    nameE: string;
+}
+
+interface HistoryApplicationForm { 
+    id: string; 
+    applicationFormId: string | null;
+    userNameApproval: string | null;
+    userCodeApproval: string | null;
+    action: string | null;
+    note: string | null;
+    createdAt: string | null;
+    deletedAt: string | null;
+}
+
+export interface ApplicationForm {
+    id: string;
+    userCodeRequestor: string;
+    userNameRequestor: string | null;
+    requestTypeId: number;
+    requestStatusId: number;
+    orgPositionId: number;
+    createdAt: string;
+    updatedAt: string | null;
+    deletedAt: string | null;
+    historyApplicationForms: HistoryApplicationForm[]
+    requestType: IRequestType;
+    requestStatus: IRequestStatus;
 }
 
 const itFormApi = {
@@ -30,7 +126,7 @@ const itFormApi = {
     },
 
     update(id: string, data: UpdateITFormRequest){
-        return axiosClient.post(`/it-form/${id}`, data)
+        return axiosClient.put(`/it-form/${id}`, data)
     },
 
     delete(id: string | undefined) {
@@ -38,7 +134,7 @@ const itFormApi = {
     }
 }
 
-export function useCreateMemoNotification() {
+export function useCreateITForm() {
     return useMutation({
         mutationFn: async (data: CreateITFormRequest) => {
             await itFormApi.create(data)
@@ -52,7 +148,7 @@ export function useCreateMemoNotification() {
     })
 }
 
-export function useUpdateMemoNotification() {
+export function useUpdateITForm() {
     return useMutation({
         mutationFn: async ({id, data} : {id: string, data: UpdateITFormRequest}) => {
             await itFormApi.update(id, data)

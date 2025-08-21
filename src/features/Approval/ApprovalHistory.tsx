@@ -146,7 +146,7 @@ const ApprovalHistory: React.FC = () => {
 			</div>
 
 			<div>
-				<div className="overflow-x-auto bg-white rounded shadow border border-gray-200">
+				<div className="overflow-x-auto bg-white rounded border-gray-200">
 					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>

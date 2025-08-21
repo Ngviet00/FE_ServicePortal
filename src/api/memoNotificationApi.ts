@@ -89,7 +89,7 @@ const memoNotificationApi = {
     },
 
     update(id: string, formData: FormData){
-        return axiosClient.put(`/memo-notification/update/${id}`, formData, {
+        return axiosClient.put(`/memo-notification/${id}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }

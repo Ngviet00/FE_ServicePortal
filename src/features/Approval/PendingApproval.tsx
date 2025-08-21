@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from "@/api/approvalApi";
+import { ITForm } from "@/api/itFormApi";
 import { useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi";
 import orgUnitApi from "@/api/orgUnitApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
@@ -16,6 +18,26 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+
+const subKeys = ["leaveRequest", "itForm", "memoNotification"];
+
+function getSubForm(item: any) {
+	const key = subKeys.find(k => item[k] !== null);
+	return key ? item[key] : null;
+}
+
+function getInfo(item: any) {
+	const sub = getSubForm(item);
+	if (!sub) return null;
+
+	return {
+		id: sub.id,
+		code: sub.code,
+		userNameRequestor: sub.userNameRequestor,
+		userNameCreated: sub.userNameCreated,
+		departmentName: sub.departmentName,
+	};
+}
 
 interface PendingApprovalResponse {
 	id: string;
@@ -40,46 +62,8 @@ interface PendingApprovalResponse {
 		id?: string,
 		code?: string,
 		createdBy?: string,
-	}
-}
-
-function GetCodeByRequestTypeId(item: PendingApprovalResponse) {
-	let result = ''
-
-	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.code || ''
-	}
-	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = item?.memoNotification?.code || '';
-	}
-
-	return result
-}
-
-function GetUserRequestByRequestTypeId(item: PendingApprovalResponse) {
-	let result = ''
-
-	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.userNameRequestor || ''
-	}
-	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = item?.memoNotification?.createdBy || '';
-	}
-
-	return result
-}
-
-function GetUserCreatedByRequestTypeId(item: PendingApprovalResponse) {
-	let result = ''
-
-	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.createdBy || ''
-	}
-	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = item?.memoNotification?.createdBy || '';
-	}
-
-	return result
+	},
+	itForm: ITForm
 }
 
 function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
@@ -90,6 +74,9 @@ function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 	}
 	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
 		result = `/approval/approval-memo-notify/${item?.memoNotification?.id ?? '1'}`
+	}
+	else if (item.requestTypeId == REQUEST_TYPE.FORM_IT) {
+		result = `/approval/approval-form-it/${item?.itForm?.id ?? '1'}`
 	}
 
 	return result
@@ -157,7 +144,6 @@ export default function PendingApproval() {
 
 	const currentPageIds = ListWaitApprovals
 		.filter((item: { requestTypeId: number; }) => item.requestTypeId === 1)
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		.map((item: { leaveRequest: { id: any; }; }) => item.leaveRequest.id);
 
 	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -272,8 +258,8 @@ export default function PendingApproval() {
 									{ lang == 'vi' ? 'Tất cả' : 'All' }
 								</option>
 								{
-									departments.map((item: { deptId: number, name: string }, idx: number) => (
-										<option key={idx} value={item.deptId}>{item.name}</option>
+									departments.map((item: { id: number, name: string }, idx: number) => (
+										<option key={idx} value={item.id}>{item.name}</option>
 									))
 								}
 							</select>
@@ -322,7 +308,7 @@ export default function PendingApproval() {
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-												</tr>  
+												</tr>
 											))
 										) : isError || ListWaitApprovals?.length == 0 ? (
 											<tr>
@@ -331,44 +317,48 @@ export default function PendingApproval() {
 												</td>
 											</tr>
 										) : (
-											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => (
-												<tr key={idx} className="hover:bg-gray-50">
-													<td className="px-4 py-2 border whitespace-nowrap text-center">
-														{
-															item.requestTypeId == 1 && (
-																<input
-																	type="checkbox" 
-																	className="hover:cursor-pointer scale-[1.3]"
-																	checked={selectedIds.includes(item?.leaveRequest?.id ?? "")}
-																	onChange={(event) => handleRowCheckboxChange(item?.leaveRequest?.id ?? "", event.target.checked)}
-																/>
-															)
-														}
-													</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">
-														<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-															{ GetCodeByRequestTypeId(item) }
-														</Link>
-													</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserCreatedByRequestTypeId(item)}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
-													<td className="px-4 py-2 border text-center">
-														<StatusLeaveRequest status="Pending"/>
-													</td>
-													<td className="px-4 py-2 border text-center space-x-1">
-														<button
-															className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-														>
-															<Link to={GetUrlDetailWaitApproval(item)}>
-																{t('pending_approval.detail')}
+											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => {
+												const data = getInfo(item)
+
+												return (
+													<tr key={idx} className="hover:bg-gray-50">
+														<td className="px-4 py-2 border whitespace-nowrap text-center">
+															{
+																item.requestTypeId == 1 && (
+																	<input
+																		type="checkbox" 
+																		className="hover:cursor-pointer scale-[1.3]"
+																		checked={selectedIds.includes(item?.leaveRequest?.id ?? "")}
+																		onChange={(event) => handleRowCheckboxChange(item?.leaveRequest?.id ?? "", event.target.checked)}
+																	/>
+																)
+															}
+														</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">
+															<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+																{ data?.code }
 															</Link>
-														</button>
-													</td>
-												</tr>
-											))
+														</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameCreated}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
+														<td className="px-4 py-2 border text-center">
+															<StatusLeaveRequest status="Pending"/>
+														</td>
+														<td className="px-4 py-2 border text-center space-x-1">
+															<button
+																className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+															>
+																<Link to={GetUrlDetailWaitApproval(item)}>
+																	{t('pending_approval.detail')}
+																</Link>
+															</button>
+														</td>
+													</tr>
+												)
+											})
 										)
 									}
 								</tbody>
@@ -380,6 +370,7 @@ export default function PendingApproval() {
 										<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
+										<th className="px-4 py-2 border">{t('pending_approval.department')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.last_approved')}</th>
@@ -400,41 +391,47 @@ export default function PendingApproval() {
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 												</tr>  
 											))
 										) : isError || ListWaitApprovals?.length == 0 ? (
 											<tr>
-												<td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
+												<td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
 													{ error?.message ?? tCommon('no_results') } 
 												</td>
 											</tr>
 										) : (
-											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => (
-												<tr key={idx} className="hover:bg-gray-50">
-													<td className="px-4 py-2 border whitespace-nowrap text-left">
-														<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-															{ GetCodeByRequestTypeId(item) }
-														</Link>
-													</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserCreatedByRequestTypeId(item)}</td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
-													<td className="px-4 py-2 border text-center">
-														<StatusLeaveRequest status="Pending"/>
-													</td>
-													<td className="px-4 py-2 border text-center space-x-1">
-														<button
-															className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-														>
-															<Link to={GetUrlDetailWaitApproval(item)}>
-																{t('pending_approval.detail')}
+											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => {
+												const data = getInfo(item)
+
+												return (
+													<tr key={idx} className="hover:bg-gray-50">
+														<td className="px-4 py-2 border whitespace-nowrap text-left">
+															<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+																{data?.code}
 															</Link>
-														</button>
-													</td>
-												</tr>
-											))
+														</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.departmentName}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameCreated}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
+														<td className="px-4 py-2 border text-center">
+															<StatusLeaveRequest status="Pending"/>
+														</td>
+														<td className="px-4 py-2 border text-center space-x-1">
+															<button
+																className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+															>
+																<Link to={GetUrlDetailWaitApproval(item)}>
+																	{t('pending_approval.detail')}
+																</Link>
+															</button>
+														</td>
+													</tr>
+												)
+											})
 										)
 									}
 								</tbody>

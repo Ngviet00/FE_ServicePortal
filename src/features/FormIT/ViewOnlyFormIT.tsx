@@ -17,7 +17,7 @@ import itFormApi, { CreateITFormRequest, ITFormCategory, useCreateITForm, useUpd
 import { Spinner } from '@/components/ui/spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const CreateFormIT = () => {
+const ViewOnlyFormIT = () => {
     const { t } = useTranslation('formIT');
     const { t: tCommon  } = useTranslation('common');
     const { user } = useAuthStore()
@@ -457,4 +457,4 @@ const CreateFormIT = () => {
     );
 };
 
-export default CreateFormIT;
+export default ViewOnlyFormIT;
