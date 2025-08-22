@@ -21,5 +21,9 @@
 
     "no_results": "No results",
     
-    "required": "Required"
+    "required": "Required",
+
+    "approval": "Approval",
+	"reject": "Reject",
+    "resolved": "Resolved"
 }

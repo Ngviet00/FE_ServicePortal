@@ -21,5 +21,9 @@
 
     "no_results": "Không có kết quả",
 
-    "required": "Bắt buộc"
+    "required": "Bắt buộc",
+
+    "approval": "Duyệt",
+	"reject": "Từ chối",
+    "resolved": "Đã xử lý"
 }

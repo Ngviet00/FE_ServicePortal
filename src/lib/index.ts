@@ -143,9 +143,10 @@ export enum STATUS_ENUM {
     PENDING = 1,
     IN_PROCESS = 2,
     COMPLETED = 3,
-    REJECT = 5,
     WAIT_HR = 4,
+    REJECT = 5,
     FINAL_APPROVAL = 6,
+    ASSIGNED = 7
 }
 
 export enum REQUEST_TYPE {

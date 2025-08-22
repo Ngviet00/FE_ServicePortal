@@ -15,6 +15,7 @@ import { CircleCheck, Info, Ticket, ClipboardCheck } from 'lucide-react';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement);
 
@@ -143,11 +144,14 @@ const StatisticalFormIT = () => {
                     <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{dummyData.kpis.slaCompliance}</div>
                 </div>
 
-                <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
-                    <ClipboardCheck className='text-[#1c398e]' size={35}/>
-                    <h3 className="text-gray-600 mb-2">{t('statistical.pending')}</h3>
-                    <div className="text-3xl font-bold text-blue-900" id="csatScore">{dummyData.kpis.csatScore}</div>
-                </div>
+                <Link to="/form-it/all-form-it">
+                    <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                        <ClipboardCheck className='text-[#1c398e]' size={35}/>
+                        <h3 className="text-gray-600 mb-2">{t('statistical.pending')}</h3>
+                        <div className="text-3xl font-bold text-blue-900" id="csatScore">{dummyData.kpis.csatScore}</div>
+                    </div>
+                </Link>
+
             </div>
 
             <div className="flex w-full gap-x-10 mb-0">

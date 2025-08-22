@@ -67,6 +67,11 @@ export interface UpdateUserMngTimeKeeping {
     orgUnitId: number[]
 }
 
+export interface ISelectedUserAssigned {
+    userCode: string;
+    email: string;
+}
+
 const userApi = {
     getAll(params: GetUser) {
         return axiosClient.get('/user', {params})
@@ -106,6 +111,9 @@ const userApi = {
     },
     SearchUserCombineViClockAndWebSystem(userCode: string) {
         return axiosClient.get(`/user/search-user-combine-viclock-and-web-system?userCode=${userCode}`)
+    },
+    GetMultipleUserViclockByOrgPositionId(orgPositionId: number) {
+        return axiosClient.get(`/user/get-multiple-user-by-org-position-id/${orgPositionId}`)
     }
 }
 

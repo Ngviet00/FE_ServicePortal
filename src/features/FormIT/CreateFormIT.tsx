@@ -218,7 +218,7 @@ const CreateFormIT = () => {
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{isEdit ? 'Cập nhật' : t('create.title')}</h3>
                 <Button onClick={() => navigate("/form-it")} className="w-full md:w-auto hover:cursor-pointer">
-                    Danh sách đã tạo
+                    {t('create.btn_list')}
                 </Button>
             </div>
 

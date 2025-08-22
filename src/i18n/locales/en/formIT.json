@@ -19,6 +19,7 @@
     },
     "create": {
         "title": "Create new form IT",
+        "btn_list": "List",
         "text_info_user_request": "Info user requester",
         "text_info_request": "Info request",
         "date_request": "Date request",
@@ -30,10 +31,24 @@
         "priority": "Priority",
         "low": "Low",
         "medium": "Medium",
-        "high": "High"
+        "high": "High",
+        "note": "Note",
+        "title_approval": "Approval form IT",
+        "assigned": "Assigned to"
     },
     "list": {
-
+        "title": "List form IT",
+        "btn_create": "Create",
+        "code": "Code",
+        "reason": "Reason",
+        "user_requestor": "Requestor",
+        "department": "Department",
+        "user_register": "User register",
+        "created_at": "Created At",
+        "approved_by": "Approval by",
+        "status": "Status",
+        "action": "Action",
+        "edit": "Edit"
     },
     "setting": {
 

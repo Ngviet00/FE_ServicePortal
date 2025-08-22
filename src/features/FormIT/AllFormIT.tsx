@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton"
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -11,8 +11,10 @@ import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import itFormApi, { ITForm, useDeleteITForm } from "@/api/itFormApi"
 import { STATUS_ENUM } from "@/lib"
+import { Label } from "@/components/ui/label"
+import orgUnitApi from "@/api/orgUnitApi"
 
-export default function ListFormIT () {
+export default function AllFormIT () {
     const { t } = useTranslation('formIT');
     const { t:tCommon} = useTranslation('common');
     const [totalPage, setTotalPage] = useState(0)
@@ -20,7 +22,9 @@ export default function ListFormIT () {
     const [pageSize, setPageSize] = useState(10)
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
-    
+    const [selectedDepartment, setSelectedDepartment] = useState('')
+    const lang = useTranslation().i18n.language.split('-')[0]
+
     const { data: itForms = [], isPending, isError, error } = useQuery({
         queryKey: ['get-all-it-form', { page, pageSize }],
         queryFn: async () => {
@@ -54,6 +58,19 @@ export default function ListFormIT () {
         handleSuccessDelete(shouldGoBack);
     };
 
+    const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
+        setSelectedDepartment(e.target.value)
+    }
+
+    
+	const { data: departments = [] } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		},
+	});
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
@@ -61,6 +78,20 @@ export default function ListFormIT () {
                 <Button asChild className="w-full md:w-auto">
                     <Link to="/form-it/create">{t('list.btn_create')}</Link>
                 </Button>
+            </div>
+
+            <div className="w-[20%] ml-4">
+                <Label className="mb-2">{t('pending_approval.department')}</Label>
+                <select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
+                    <option value="">
+                        { lang == 'vi' ? 'Tất cả' : 'All' }
+                    </option>
+                    {
+                        departments.map((item: { id: number, name: string }, idx: number) => (
+                            <option key={idx} value={item.id}>{item.name}</option>
+                        ))
+                    }
+                </select>
             </div>
 
             <div className="mb-5 pb-3">

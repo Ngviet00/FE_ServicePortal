@@ -19,6 +19,7 @@
     },
     "create": {
         "title": "Tạo đơn IT",
+        "btn_list": "Danh sách đã tạo",
         "text_info_user_request": "Thông tin người yêu cầu",
         "text_info_request": "Thông tin yêu cầu",
         "date_request": "Ngày yêu cầu",
@@ -30,10 +31,24 @@
         "priority": "Mức độ ưu tiên",
         "low": "Thấp",
         "medium": "Trung bình",
-        "high": "Cao"
+        "high": "Cao",
+        "note": "Ghi chú",
+        "title_approval": "Phê duyệt",
+        "assigned": "Assigned"
     },
     "list": {
-
+        "title": "Danh sách đã tạo",
+        "btn_create": "Tạo mới",
+        "code": "Mã đơn",
+        "reason": "Lý do",
+        "user_requestor": "Người yêu cầu",
+        "department": "Phòng ban",
+        "user_register": "Người đăng ký",
+        "created_at": "Thời gian tạo",
+        "approved_by": "Thời gian duyệt",
+        "status": "Trạng thái",
+        "action": "Hành động",
+        "edit": "Sửa"
     },
     "setting": {
         

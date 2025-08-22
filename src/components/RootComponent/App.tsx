@@ -46,6 +46,7 @@ import ListPriority from '@/features/Priority/ListPriority';
 import ListITCategory from '@/features/ITCategory/ListITCategory';
 import DetailWaitApprovalFormIT from '@/features/FormIT/DetailWaitApprovalFormIT';
 import ViewOnlyFormIT from '@/features/FormIT/ViewOnlyFormIT';
+import AllFormIT from '@/features/FormIT/AllFormIT';
 
 function App() {
 	const location = useLocation();
@@ -102,6 +103,7 @@ function App() {
 		{ path: "/form-it/create", element: <CreateFormIT />},
 		{ path: "/form-it", element: <ListFormIT />},
 		{ path: "/form-it/edit/:id", element: <CreateFormIT />},
+		{ path: "/form-it/all-form-it", element: <AllFormIT />},
 
 		{ path: "/form-it/view/:id", element: <StatisticalFormIT />},
 		{ path: "/form-it/setting-form-it", element: <StatisticalFormIT />},

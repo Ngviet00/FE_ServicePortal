@@ -5,6 +5,7 @@ import { OrgUnit } from './orgUnitApi';
 import { IPriority } from './priorityApi';
 import { ITCategoryInterface } from './itCategoryApi';
 import { IRequestType } from './requestTypeApi';
+import { ISelectedUserAssigned } from './userApi';
 
 interface GetAll {
     UserCode?: string,
@@ -112,6 +113,23 @@ export interface ApplicationForm {
     requestStatus: IRequestStatus;
 }
 
+export interface IAssignedTask {
+    UserCodeApproval?: string,
+    UserNameApproval?: string,
+    NoteManager?: string,
+    OrgPositionId?: number
+    ITFormId?: string
+    UrlFrontend?: string
+    UserAssignedTasks?: ISelectedUserAssigned[];
+}
+
+export interface IResolvedTask {
+    UserCodeApproval?: string,
+    UserNameApproval?: string,
+    ITFormId?: string
+    UrlFrontend?: string
+}
+
 const itFormApi = {
     getAll(params: GetAll) {
         return axiosClient.get('/it-form', {params})
@@ -131,6 +149,12 @@ const itFormApi = {
 
     delete(id: string | undefined) {
         return axiosClient.delete(`/it-form/${id}`)
+    },
+    assignedTask(data: IAssignedTask) {
+        return axiosClient.post('/it-form/assigned-task', data)
+    },
+    resolvedTask(data: IResolvedTask) {
+        return axiosClient.post('/it-form/resolved-task', data)
     }
 }
 
@@ -166,6 +190,34 @@ export function useDeleteITForm() {
     return useMutation({
         mutationFn: async (id: string | undefined) => {
             await itFormApi.delete(id)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useAssignedTaskITForm() {
+    return useMutation({
+        mutationFn: async (data: IAssignedTask) => {
+            await itFormApi.assignedTask(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useResolvedTaskITForm() {
+    return useMutation({
+        mutationFn: async (data: IResolvedTask) => {
+            await itFormApi.resolvedTask(data)
         },
         onSuccess: () => {
             ShowToast("Success");

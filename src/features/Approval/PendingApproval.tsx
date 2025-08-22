@@ -76,7 +76,7 @@ function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 		result = `/approval/approval-memo-notify/${item?.memoNotification?.id ?? '1'}`
 	}
 	else if (item.requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/approval-form-it/${item?.itForm?.id ?? '1'}`
+		result = `/approval/approval-form-it/${item?.itForm?.id ?? '1'}?mode=approval`
 	}
 
 	return result

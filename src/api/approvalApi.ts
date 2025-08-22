@@ -23,9 +23,10 @@ interface ApprovalRequest {
     OrgPositionId?: number,
     MemoNotificationId?: string,
     LeaveRequestId?: string,
+    ITFormId?: string,
     Status?: boolean,
     Note?: string,
-    urlFrontend?: string
+    urlFrontend?: string,
 }
 
 export interface ListHistoryApprovalOrProcessedRequest {
@@ -43,6 +44,12 @@ export interface HistoryApproval {
 	requestStatusId?: number,
 }
 
+export interface IListAssigned {
+    UserCode?: string,
+    Page?: number,
+    PageSize?: number,
+}
+
 const approvalApi = {
     CountWaitApprovalAndAssignedInSidebar(params: CountWaitApprovalAndAssignedInSidebar) {
         return axiosClient.get('/approval/count-wait-approval-and-assigned-in-sidebar', {params})
@@ -55,6 +62,9 @@ const approvalApi = {
     },
     GetListHistoryApprovalOrProcessed(params: ListHistoryApprovalOrProcessedRequest) {
         return axiosClient.get('/approval/list-history-approval-or-processed', {params})
+    },
+    GetListAssigned(params: IListAssigned) {
+        return axiosClient.get('/approval/list-assigned', {params})
     }
 }
 
