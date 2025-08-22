@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import userApi, { ISelectedUserAssigned } from '@/api/userApi';
 import { useApproval } from '@/api/approvalApi';
 import { Spinner } from '@/components/ui/spinner';
+import HistoryApproval from '../Approval/Components/HistoryApproval';
 
 const DetailWaitApprovalFormIT = () => {
     const { t } = useTranslation('formIT');
@@ -262,7 +263,6 @@ const DetailWaitApprovalFormIT = () => {
                                             {t('create.date_required_completed')}<DotRequireComponent />
                                         </label>
                                         <DateTimePicker
-                                            // key={dataItForm?.requiredCompletionDate}
                                             disabled={true}
                                             enableTime={false}
                                             dateFormat="Y-m-d"
@@ -279,13 +279,15 @@ const DetailWaitApprovalFormIT = () => {
                                     </label>
                                     <div className="flex flex-wrap gap-2 mt-2">
                                         {ItCategories?.map((item: ITCategoryInterface, idx: number) => {
-                                            const checked = dataItForm?.itFormCategories?.filter((itemITC: { itCategoryId: number | undefined; }) => itemITC.itCategoryId == item.id);
+                                            const isChecked = !!dataItForm?.itFormCategories?.some((e: { itCategoryId: number }) => e.itCategoryId === item.id);
+
                                             return (
                                                 <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer select-none">
                                                     <input
+                                                        value={item.id}
                                                         disabled
                                                         type="checkbox"
-                                                        checked={checked?.length > 0}
+                                                        checked={isChecked}
                                                         className="border-gray-300 scale-[1.4] accent-black"
                                                     />
                                                     <span>{item.name}</span>
@@ -334,42 +336,59 @@ const DetailWaitApprovalFormIT = () => {
                     <div className="flex justify-end flex-col gap-4 mt-8">
                         <div className='flex-1'>
                             <div className='w-full'>
-                                <Label className='mb-1'>{t('create.note')}</Label>
+                                <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'>{isAssigned || isFinalApproval ? '(Manager IT)' : ''}</span></Label>
                                 <Textarea 
-                                    readOnly={mode == 'view' || dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED} 
+                                    readOnly={mode == 'view' || isAssigned} 
                                     placeholder={t('create.note')} 
-                                    value={dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED ? dataItForm?.NoteManager ?? note : note} 
+                                    value={isAssigned ? dataItForm?.noteManagerIT ?? note : note} 
                                     onChange={(e) => setNote(e.target.value)} 
                                     className={`${mode == 'view' || dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED ? 'bg-gray-100': ''} border-gray-300`}
                                 />
                             </div>
                         </div>
                         {
-                            dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL || dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED ? (
+                            isFinalApproval || isAssigned ? (
                                 <div>
                                     <div className="form-group">
                                         <label className="block text-sm font-medium text-gray-700">
                                             {t('create.assigned')}<DotRequireComponent />
                                         </label>
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {
-                                                const isChecked = dataItForm?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
+                                        {
+                                            isAssigned ? (
+                                                <div className="flex flex-col gap-2 mt-2">
+                                                    {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                             
+                                                        const isExist = dataItForm?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
 
-                                                return (
-                                                    <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer select-none">
-                                                        <input
-                                                            disabled={mode == 'view' || dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED}
-                                                            type="checkbox"
-                                                            checked={isChecked}
-                                                            value={item.nvMaNV}
-                                                            className="border-gray-300 scale-[1.4] accent-black"
-                                                            onChange={(e) => handleCheckboxChangeUserAssigned(e, item)}
-                                                        />
-                                                        <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
+                                                        if (isExist) {
+                                                            return (
+                                                                <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
+                                                                    <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
+                                                                </label>
+                                                            );
+                                                        }                                                        
+                                                    })}
+                                                </div>
+                                            ) : isFinalApproval ? (
+                                                <div className="flex flex-wrap gap-2 mt-2">
+                                                    {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                            
+                                                        return (
+                                                            <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
+                                                                <input
+                                                                    disabled={mode == 'view' || isAssigned}
+                                                                    type="checkbox"
+                                                                    checked={selectedUserAssigned.some(e => e.userCode == item.nvMaNV)}
+                                                                    value={item.nvMaNV}
+                                                                    className="border-gray-300 scale-[1.4] accent-black"
+                                                                    onChange={(e) => handleCheckboxChangeUserAssigned(e, item)}
+                                                                />
+                                                                <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (<></>)
+                                        }
+                                        
                                     </div>
                                 </div>
                             ) : (<></>)
@@ -396,6 +415,7 @@ const DetailWaitApprovalFormIT = () => {
                                 </div>
                             ) : (<></>)
                         }
+                        <HistoryApproval historyApplicationForm={dataItForm?.applicationForm?.historyApplicationForms[0]}/>
                     </div>
                 </div>
             </div>
