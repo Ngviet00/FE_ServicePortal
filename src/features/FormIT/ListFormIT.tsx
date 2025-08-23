@@ -65,7 +65,7 @@ export default function ListFormIT () {
 
             <div className="mb-5 pb-3">
                 <div className="mt-2">
-                    <div className="overflow-x-auto max-h-[500px] hidden md:block">
+                    <div className="overflow-x-auto hidden md:block">
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
@@ -112,10 +112,16 @@ export default function ListFormIT () {
                                                     <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
                                                 </td>
                                                 <td className="text-center border font-bold text-red-700">
-                                                    <Link to={`/form-it/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                        {t('list.edit')}
-                                                    </Link>
-                                                    <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
+                                                    {
+                                                        item?.applicationForm?.requestStatusId == STATUS_ENUM.PENDING ? (
+                                                            <>
+                                                                <Link to={`/form-it/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                    {t('list.edit')}
+                                                                </Link>
+                                                                <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
+                                                            </>
+                                                        ) : (<>--</>)
+                                                    }
                                                 </td>
                                             </tr>
                                         )

@@ -34,7 +34,9 @@
         "high": "Cao",
         "note": "Ghi chú",
         "title_approval": "Phê duyệt",
-        "assigned": "Assigned"
+        "assigned": "Assigned",
+        "target_completion_date": "Ngày dự kiến hoàn thành",
+        "actual_completion_date": "Ngày hoàn thành thực tế"
     },
     "list": {
         "title": "Danh sách đã tạo",
@@ -48,7 +50,9 @@
         "approved_by": "Thời gian duyệt",
         "status": "Trạng thái",
         "action": "Hành động",
-        "edit": "Sửa"
+        "edit": "Sửa",
+        "title_all_form_it": "Tất cả đơn IT"
+
     },
     "setting": {
         

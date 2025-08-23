@@ -34,7 +34,9 @@
         "high": "High",
         "note": "Note",
         "title_approval": "Approval form IT",
-        "assigned": "Assigned to"
+        "assigned": "Assigned to",
+        "target_completion_date": "Target Completion Date",
+        "actual_completion_date": "Actual Completion Date"
     },
     "list": {
         "title": "List form IT",
@@ -48,7 +50,8 @@
         "approved_by": "Approval by",
         "status": "Status",
         "action": "Action",
-        "edit": "Edit"
+        "edit": "Edit",
+        "title_all_form_it": "All form IT"
     },
     "setting": {
 

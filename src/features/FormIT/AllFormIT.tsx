@@ -1,18 +1,15 @@
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChangeEvent, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Link } from "react-router-dom"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { ChangeEvent, useEffect, useState } from "react"
+import { Link, useSearchParams } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
-import { useAuthStore } from "@/store/authStore"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import itFormApi, { ITForm, useDeleteITForm } from "@/api/itFormApi"
-import { STATUS_ENUM } from "@/lib"
+import itFormApi, { ITForm } from "@/api/itFormApi"
 import { Label } from "@/components/ui/label"
 import orgUnitApi from "@/api/orgUnitApi"
+import { STATUS_ENUM } from "@/lib"
 
 export default function AllFormIT () {
     const { t } = useTranslation('formIT');
@@ -20,15 +17,28 @@ export default function AllFormIT () {
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const {user} = useAuthStore()
-    const queryClient = useQueryClient();
     const [selectedDepartment, setSelectedDepartment] = useState('')
+    const [selectedStatus, setSelectedStatus] = useState('')
+    const [searchParams] = useSearchParams();
+
+    useEffect(() => {
+        const statusIdParam = searchParams.get('statusId');
+        if (statusIdParam !== null) {
+            setSelectedStatus(statusIdParam);
+        }
+    }, [searchParams]);
+
     const lang = useTranslation().i18n.language.split('-')[0]
 
     const { data: itForms = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-all-it-form', { page, pageSize }],
+        queryKey: ['get-all-it-form', { page, pageSize, selectedDepartment, selectedStatus }],
         queryFn: async () => {
-            const res = await itFormApi.getAll({UserCode: user?.userCode ?? "", Page: page, PageSize: pageSize });
+            const res = await itFormApi.getAll({
+                Page: page,
+                PageSize: pageSize,
+                DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
+                RequestStatusId: selectedStatus == '' ? null : Number(selectedStatus)
+            });
             setTotalPage(res.data.total_pages)
             return res.data.data;
         },
@@ -43,25 +53,15 @@ export default function AllFormIT () {
         setPageSize(size)
     }
 
-    function handleSuccessDelete(shouldGoBack?: boolean) {
-        if (shouldGoBack && page > 1) {
-            setPage(prev => prev - 1);
-        } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-it-form']});
-        }
-    }
-
-    const delITForm = useDeleteITForm(); 
-    const handleDelete = async (id: string) => {
-        const shouldGoBack = itForms.length === 1;
-        await delITForm.mutateAsync(id);
-        handleSuccessDelete(shouldGoBack);
-    };
-
     const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
+        setPage(1)
         setSelectedDepartment(e.target.value)
     }
 
+    const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
+        setPage(1)
+        setSelectedStatus(e.target.value)
+    }
     
 	const { data: departments = [] } = useQuery({
 		queryKey: ['get-all-department'],
@@ -74,29 +74,42 @@ export default function AllFormIT () {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{t('list.title')}</h3>
-                <Button asChild className="w-full md:w-auto">
-                    <Link to="/form-it/create">{t('list.btn_create')}</Link>
-                </Button>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('list.title_all_form_it')}</h3>
             </div>
 
-            <div className="w-[20%] ml-4">
-                <Label className="mb-2">{t('pending_approval.department')}</Label>
-                <select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
-                    <option value="">
-                        { lang == 'vi' ? 'Tất cả' : 'All' }
-                    </option>
-                    {
-                        departments.map((item: { id: number, name: string }, idx: number) => (
-                            <option key={idx} value={item.id}>{item.name}</option>
-                        ))
-                    }
-                </select>
+            <div className="flex">
+                <div className="w-[20%]">
+                    <Label className="mb-2">{t('list.department')}</Label>
+                    <select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
+                        <option value="">
+                            { lang == 'vi' ? 'Tất cả' : 'All' }
+                        </option>
+                        {
+                            departments.map((item: { id: number, name: string }, idx: number) => (
+                                <option key={idx} value={item.id}>{item.name}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+                <div className="w-[20%] ml-2">
+                    <Label className="mb-2">{t('list.status')}</Label>
+                    <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
+                        <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
+                        {
+                            Object.entries(STATUS_ENUM).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
+                                .map(([key, value]) => (
+                                    <option key={value} value={value}>
+                                    {key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
+                                    </option>
+                                ))
+                        }
+                    </select>
+                </div>
             </div>
 
             <div className="mb-5 pb-3">
                 <div className="mt-2">
-                    <div className="overflow-x-auto max-h-[500px] hidden md:block">
+                    <div className="overflow-x-auto hidden md:block">
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
@@ -108,29 +121,32 @@ export default function AllFormIT () {
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.created_at')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.approved_by')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.status')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.action')}</th>
                                 </tr>
                             </thead>
                         <tbody>
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <tr key={index}>
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                        {Array.from({ length: 8 }).map((_, i) => (
+                                            <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                         ))}
                                     </tr>
                                     ))
                                 ) : isError || itForms.length == 0 ? (
                                     <tr>
-                                        <td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
+                                        <td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
                                             {error?.message ?? tCommon('no_results')}
                                         </td>
                                     </tr>
                                 ) : (
                                     itForms.map((item: ITForm) => {
+                                        const requestStatusId = item?.applicationForm?.requestStatusId
+
                                         return (
                                             <tr key={item.id}>
-                                                <td className="px-4 py-2 border text-left">{item?.code ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-left">
+                                                    <Link to={`/approval/approval-form-it/${item?.id ?? '1'}?mode=view`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                </td>
                                                 <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
                                                     {item?.reason ?? '--'}
                                                 </td>
@@ -139,14 +155,10 @@ export default function AllFormIT () {
                                                 <td className="px-4 py-2 border text-left">{item?.userNameCreated ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-left">{'--'}</td>
-                                                <td className="px-4 py-2 border text-left">
-                                                    <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
-                                                </td>
-                                                <td className="text-center border font-bold text-red-700">
-                                                    <Link to={`/form-it/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                        {t('list.edit')}
-                                                    </Link>
-                                                    <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
+                                                <td className="px-4 py-2 border text-center">
+                                                    <StatusLeaveRequest status={
+                                                        requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
+                                                    }/>
                                                 </td>
                                             </tr>
                                         )
@@ -178,19 +190,6 @@ export default function AllFormIT () {
                                     <div className="mb-1"><strong>{t('list.created_at')}:</strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                                     <div className="mb-1"><strong>{t('list.approved_by')}:</strong> {item?.reason}</div>
                                     <div className="mb-1"><strong>{t('list.status')}:</strong> <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/></div>
-                                    <div className="mb-1">
-                                        {
-                                            item?.applicationForm?.requestStatus?.id != STATUS_ENUM.COMPLETED && item?.applicationForm?.requestStatus?.id != STATUS_ENUM.REJECT ? (
-                                                <>
-                                                    <Link to={`/form-it/edit/${item?.id}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-sm">
-                                                        {t('list.edit')}
-                                                    </Link>
-                                                    <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id)}/>
-                                                </>
-                                            ) : (<>--</>)
-                                        }
-
-                                    </div>
                                 </div>
                             ))
                         )}

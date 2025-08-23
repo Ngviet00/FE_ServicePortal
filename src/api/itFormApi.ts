@@ -10,7 +10,9 @@ import { ISelectedUserAssigned } from './userApi';
 interface GetAll {
     UserCode?: string,
     Page: number
-    PageSize: number
+    PageSize: number,
+    DepartmentId?: number | null,
+    RequestStatusId?: number | null
 }
 
 export interface CreateITFormRequest {
@@ -29,6 +31,7 @@ export interface CreateITFormRequest {
     RequiredCompletionDate?: string;
     TargetCompletionDate?: string;
     ActualCompletionDate?: string;
+    UrlFrontend?: string,
 }
 
 interface UpdateITFormRequest {
@@ -127,10 +130,15 @@ export interface IResolvedTask {
     UserCodeApproval?: string,
     UserNameApproval?: string,
     ITFormId?: string
-    UrlFrontend?: string
+    UrlFrontend?: string,
+    TargetCompletionDate?: string,
+    ActualCompletionDate?: string
 }
 
 const itFormApi = {
+    statistical() {
+        return axiosClient.get('/it-form/statistical-form-it')
+    },
     getAll(params: GetAll) {
         return axiosClient.get('/it-form', {params})
     },

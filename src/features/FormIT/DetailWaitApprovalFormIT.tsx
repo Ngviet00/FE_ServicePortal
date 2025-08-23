@@ -33,6 +33,8 @@ const DetailWaitApprovalFormIT = () => {
     const mode = searchParams.get("mode") == 'approval' ? 'approval' : 'view'
     const [dataItForm, setDataITForm] = useState<any>(null);
     const [selectedUserAssigned, setSelectedUserAssigned] = useState<ISelectedUserAssigned[]>([]);
+    const [targetDate, setTargetDate] = useState<any>(null);
+    const [actualDate, setActualDate] = useState<any>(null);
 
     const approval = useApproval();
     const assignTask = useAssignedTaskITForm()
@@ -79,6 +81,8 @@ const DetailWaitApprovalFormIT = () => {
 
     const isFinalApproval = dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL
     const isAssigned = dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED
+    const isCompleted = dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.COMPLETED
+    const isRejected = dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.REJECT
 
     const handleCheckboxChangeUserAssigned = (event: React.ChangeEvent<HTMLInputElement>, item: {nvMaNV: string, nvHoTen: string, email: string}) => {
         const isChecked = event.target.checked;
@@ -99,6 +103,7 @@ const DetailWaitApprovalFormIT = () => {
         }
 
         try {
+            //final approval, manager approval assigned task to staff
             if (isFinalApproval) {
                 await assignTask.mutateAsync({
                     UserCodeApproval: user?.userCode,
@@ -112,16 +117,20 @@ const DetailWaitApprovalFormIT = () => {
                 navigate("/approval/pending-approval")
             }
             else {
+                //user is assigned task save
                 if (isAssigned) {
                     await resolvedTask.mutateAsync({
                         UserCodeApproval: user?.userCode,
                         UserNameApproval: user?.userName ?? '',
                         ITFormId: id, 
-                        UrlFrontend: window.location.origin
+                        UrlFrontend: window.location.origin,
+                        TargetCompletionDate: targetDate,
+                        ActualCompletionDate: actualDate
                     })
                     navigate("/approval/assigned-tasks")
                 }
                 else {
+                    //status normal, approval for staff
                     await approval.mutateAsync({
                         UserCodeApproval: user?.userCode,
                         UserNameApproval: user?.userName ?? "",
@@ -336,11 +345,11 @@ const DetailWaitApprovalFormIT = () => {
                     <div className="flex justify-end flex-col gap-4 mt-8">
                         <div className='flex-1'>
                             <div className='w-full'>
-                                <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'>{isAssigned || isFinalApproval ? '(Manager IT)' : ''}</span></Label>
+                                <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'>{isAssigned || isFinalApproval || isCompleted ? '(Manager IT)' : ''}</span></Label>
                                 <Textarea 
                                     readOnly={mode == 'view' || isAssigned} 
                                     placeholder={t('create.note')} 
-                                    value={isAssigned ? dataItForm?.noteManagerIT ?? note : note} 
+                                    value={isAssigned || isCompleted ? dataItForm?.noteManagerIT ?? note : note} 
                                     onChange={(e) => setNote(e.target.value)} 
                                     className={`${mode == 'view' || dataItForm?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED ? 'bg-gray-100': ''} border-gray-300`}
                                 />
@@ -389,6 +398,41 @@ const DetailWaitApprovalFormIT = () => {
                                             ) : (<></>)
                                         }
                                         
+                                    </div>
+                                </div>
+                            ) : (<></>)
+                        }
+                        {
+                            isAssigned || isCompleted || isRejected ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="form-group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            {t('create.target_completion_date')}<DotRequireComponent />
+                                        </label>
+                                        <DateTimePicker
+                                            disabled={!isAssigned}
+                                            key={'target_date'}
+                                            enableTime={false}
+                                            dateFormat="Y-m-d"
+                                            initialDateTime={targetDate ?? dataItForm?.targetCompletionDate ?? new Date().toISOString().split('T')[0]}
+                                            onChange={(_selectedDates, dateStr) => setTargetDate(dateStr)}
+                                            className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 ${!isAssigned ? 'bg-gray-100' : ''} p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            {t('create.actual_completion_date')}<DotRequireComponent />
+                                        </label>
+                                        <DateTimePicker
+                                            disabled={!isAssigned}
+                                            key={'actual_date'}
+                                            enableTime={false}
+                                            dateFormat="Y-m-d"
+                                            initialDateTime={actualDate ?? dataItForm?.actualCompletionDate ?? new Date().toISOString().split('T')[0]}
+                                            onChange={(_selectedDates, dateStr) => setActualDate(dateStr)}
+                                            className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 ${!isAssigned ? 'bg-gray-100' : ''} p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                        />
                                     </div>
                                 </div>
                             ) : (<></>)

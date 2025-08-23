@@ -95,7 +95,8 @@ const CreateFormIT = () => {
             OrgPositionId: user?.orgPositionId ?? 0,
             ITCategories: data.itRequest.itCategory,
             RequestDate: data.itRequest.dateRequired, 
-            RequiredCompletionDate: data.itRequest.dateCompleted
+            RequiredCompletionDate: data.itRequest.dateCompleted,
+            UrlFrontend: window.location.origin,
         };
 
         if (isEdit) {

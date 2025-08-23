@@ -31,7 +31,7 @@ export default function Sidebar() {
 	const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN])
 	const hasHRRole = useHasRole([RoleEnum.HR])
 	// const isUnion = useHasRole([RoleEnum.UNION])
-	// const isIT = useHasRole([RoleEnum.IT])
+	const isIT = useHasRole([RoleEnum.IT])
 
 	// const hasPermissionCreateNotification = useHasPermission(['memo_notification.create'])
 	const isMobile = useIsReponsive()
@@ -131,6 +131,10 @@ export default function Sidebar() {
 										if (child.route === "/approval-flow" && !isSuperAdmin) {
 											return null
 										}
+
+										// if (child.route === "/form-it/statistical" && !isIT!) {
+										// 	return null
+										// }
 
 										// if (child.route === '/management-time-keeping') {
 										// 	if (!havePermissionMngTimeKeeping) {

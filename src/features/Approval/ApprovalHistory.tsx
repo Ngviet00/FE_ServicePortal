@@ -1,5 +1,6 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from '@/api/approvalApi';
+import { ITForm } from '@/api/itFormApi';
 import requestTypeApi, { IRequestType } from '@/api/requestTypeApi';
 import PaginationControl from '@/components/PaginationControl/PaginationControl';
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
@@ -12,6 +13,26 @@ import { formatDate } from 'date-fns';
 import React, { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+
+const subKeys = ["leaveRequest", "itForm", "memoNotification"];
+
+function getSubForm(item: any) {
+	const key = subKeys.find(k => item[k] !== null);
+	return key ? item[key] : null;
+}
+
+function getInfo(item: any) {
+	const sub = getSubForm(item);
+	if (!sub) return null;
+
+	return {
+		id: sub.id,
+		code: sub.code,
+		userNameRequestor: sub.userNameRequestor,
+		userNameCreated: sub.userNameCreated,
+		departmentName: sub.departmentName,
+	};
+}
 
 interface HistoryApprovalProcessedResponse {
 	action: string;
@@ -31,20 +52,9 @@ interface HistoryApprovalProcessedResponse {
 		id?: string,
 		code?: string,
 		createdBy?: string,
-	}
-}
+	},
+	itForm: ITForm
 
-function GetCodeByRequestTypeId(item: HistoryApprovalProcessedResponse) {
-	let result = ''
-
-	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.code || ''
-	}
-	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = item?.memoNotification?.code || '';
-	}
-
-	return result
 }
 
 function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
@@ -56,19 +66,8 @@ function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
 	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
 		result = `/approval/view-memo-notify/${item?.memoNotification?.id ?? '1'}`
 	}
-
-	return result
-}
-
-
-function GetUserRequestByRequestTypeId(item: HistoryApprovalProcessedResponse) {
-	let result = ''
-
-	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = item?.leaveRequest?.userNameRequestor ?? ''
-	}
-	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = item?.memoNotification?.createdBy || '';
+	else if (item?.requestType?.id == REQUEST_TYPE.FORM_IT) {
+		result = `/approval/approval-form-it/${item?.itForm?.id ?? '1'}?mode=view`
 	}
 
 	return result
@@ -178,24 +177,29 @@ const ApprovalHistory: React.FC = () => {
 										</td>
 									</tr>
 								) : (
-									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => (
-										<tr key={idx} className="hover:bg-gray-50">
-											<td className="px-4 py-2 border whitespace-nowrap text-center">
-												<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-													{ GetCodeByRequestTypeId(item) }
-												</Link>
-											</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">{GetUserRequestByRequestTypeId(item)}</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">
-												{ item.action }
-											</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">
-												<StatusLeaveRequest status={item?.requestStatusId == 6 ? "In Process" : item?.requestStatusId}/>
-											</td>
-										</tr>
-									))
+									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => {
+										const data = getInfo(item)
+										console.log(data, 3);
+
+										return (
+											<tr key={idx} className="hover:bg-gray-50">
+												<td className="px-4 py-2 border whitespace-nowrap text-center">
+													<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+														{data?.code}
+													</Link>
+												</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">
+													{ item.action }
+												</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">
+													<StatusLeaveRequest status={item?.requestStatusId == 6 ? "In Process" : item?.requestStatusId}/>
+												</td>
+											</tr>
+										)
+									})
 								)
 							}
 						</tbody>
