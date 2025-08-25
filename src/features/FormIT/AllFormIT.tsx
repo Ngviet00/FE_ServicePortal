@@ -10,6 +10,7 @@ import itFormApi, { ITForm } from "@/api/itFormApi"
 import { Label } from "@/components/ui/label"
 import orgUnitApi from "@/api/orgUnitApi"
 import { STATUS_ENUM } from "@/lib"
+import { YearSelect } from "./StatisticalFormIT"
 
 export default function AllFormIT () {
     const { t } = useTranslation('formIT');
@@ -19,25 +20,34 @@ export default function AllFormIT () {
     const [pageSize, setPageSize] = useState(10)
     const [selectedDepartment, setSelectedDepartment] = useState('')
     const [selectedStatus, setSelectedStatus] = useState('')
+    const [selectedYear, setSelectedYear] = useState('')
     const [searchParams] = useSearchParams();
 
     useEffect(() => {
         const statusIdParam = searchParams.get('statusId');
+        const yearParam = searchParams.get('year');
+
         if (statusIdParam !== null) {
             setSelectedStatus(statusIdParam);
         }
+
+        if (yearParam !== null) {
+            setSelectedYear(yearParam)
+        }
+
     }, [searchParams]);
 
     const lang = useTranslation().i18n.language.split('-')[0]
 
     const { data: itForms = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-all-it-form', { page, pageSize, selectedDepartment, selectedStatus }],
+        queryKey: ['get-all-it-form', { page, pageSize, selectedDepartment, selectedStatus, selectedYear }],
         queryFn: async () => {
             const res = await itFormApi.getAll({
                 Page: page,
                 PageSize: pageSize,
                 DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
-                RequestStatusId: selectedStatus == '' ? null : Number(selectedStatus)
+                RequestStatusId: selectedStatus == '' ? null : Number(selectedStatus),
+                Year: selectedYear == '' ? null : Number(selectedYear)
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -70,6 +80,10 @@ export default function AllFormIT () {
 			return res.data.data
 		},
 	});
+
+    const handleYearChange = (year: string) => {
+        setSelectedYear(year);
+    };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -104,6 +118,11 @@ export default function AllFormIT () {
                                 ))
                         }
                     </select>
+                </div>
+
+                <div className="w-[20%] ml-2">
+                    <label className="block mb-0.5 font-semibold text-sm text-gray-700">{t('statistical.time')}</label>
+                    <YearSelect onChange={handleYearChange} defaultYear={selectedYear} className="border p-1 rounded w-full cursor-pointer" />
                 </div>
             </div>
 

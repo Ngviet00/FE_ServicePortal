@@ -1,75 +1,100 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  LineElement,
-  BarElement,
-  ArcElement,
-  PointElement,
+    Chart as ChartJS,
+    Title,
+    Tooltip,
+    Legend,
+    CategoryScale,
+    LinearScale,
+    LineElement,
+    BarElement,
+    ArcElement,
+    PointElement,
+    Filler,
 } from 'chart.js';
 import { CircleCheck, Info, Ticket, ClipboardCheck } from 'lucide-react';
-import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import itFormApi from '@/api/itFormApi';
+import { formatDate } from '@/lib/time';
+import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
+import { STATUS_ENUM } from '@/lib';
 
-ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement);
+ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement, Filler);
 
 const StatisticalFormIT = () => {
     const { t } = useTranslation('formIT')
+    const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString())
 
-    const [dataStatistical, setDataStatistical] = useState<any>(null);
-    
-    useQuery({
-        queryKey: ['get-statistical-form-it'],
+    const { data: statisticalData, isLoading, isError } = useQuery({
+        queryKey: ['get-statistical-form-it', selectedYear],
         queryFn: async () => {
-            const res = await itFormApi.statistical();
-            setDataStatistical(res.data.data);
+            const res = await itFormApi.statistical({year: Number(selectedYear)});
             return res.data.data;
         },
     });
 
-    const lineData = {
-        labels: ['1-2025', '2-2025', '3-2025', '4-2025', '5-2025', '6-2025', '7-2025', '8-2025', '9-2025', '10-2025', '11-2025', '12-2025'],
-        datasets:[
-        {
-            label: 'Yêu cầu',
-            data: dataStatistical?.groupByMonth?.map(item => item.total),
-            borderColor: 'blue',
-            backgroundColor: 'rgba(0, 0, 255, 0.2)',
-            fill: true,
-            tension: 0.4,
-        },
-        ],
-    };
-    const barData = {
-        labels: dataStatistical?.groupByDepartment?.map(item => item.name),
-        datasets: [
-        {
-            label: 'Loại yêu cầu',
-            data: dataStatistical?.groupByDepartment?.map(item => item.total),
-            backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#FF5722']
-        }
-        ],
+    const handleYearChange = (year: string) => {
+        setSelectedYear(year);
     };
 
-    const doughnutData = {
-        labels: dataStatistical?.groupByCategory?.map(item => item.name),
-        datasets: [
-            {
-                data: dataStatistical?.groupByCategory?.map(item => item.total),
-                backgroundColor: ['#FFC107', '#4CAF50', '#2196F3', '#FEA107', '#FF4107', '#196F3'],
-                hoverOffset: 4
-            }
-        ],
-    };
+    const lineData = useMemo(() => {
+        const groupByMonth = statisticalData?.groupByMonth || [];
+        const labels = Array.from({ length: 12 }, (_, i) => `${i + 1}-${selectedYear}`);
+        const data = groupByMonth.map((item: {total: number}) => item.total)
+
+        return {
+            labels: labels,
+            datasets: [
+                {
+                    data: data,
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 0, 255, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                },
+            ],
+        };
+    }, [statisticalData?.groupByMonth, selectedYear]);
+
+    const barData = useMemo(() => {
+        const groupByDepartment = statisticalData?.groupByDepartment || [];
+        return {
+            labels: groupByDepartment.map((item: { name: string }) => item.name),
+            datasets: [
+                {
+                    label: 'Loại yêu cầu',
+                    data: groupByDepartment.map((item: { total: number }) => item.total),
+                    backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#FF5722']
+                }
+            ],
+        };
+    }, [statisticalData]);
+
+    const doughnutData = useMemo(() => {
+        const groupByCategory = statisticalData?.groupByCategory || [];
+        return {
+            labels: groupByCategory.map((item: { name: string }) => item.name),
+            datasets: [
+                {
+                    data: groupByCategory.map((item: { total: number }) => item.total),
+                    backgroundColor: ['#FFC107', '#4CAF50', '#2196F3', '#FEA107', '#FF4107', '#196F3'],
+                    hoverOffset: 4
+                }
+            ],
+        };
+    }, [statisticalData]);
+    
+    if (isLoading) {
+        return <div>Đang tải dữ liệu...</div>;
+    }
+
+    if (isError) {
+        return <div>Đã xảy ra lỗi khi tải dữ liệu thống kê. Vui lòng thử lại sau.</div>;
+    }
 
     return (
         <div className="p-1 pl-1 pt-0 space-y-4">
@@ -79,76 +104,53 @@ const StatisticalFormIT = () => {
 
             <div className='mt-2'>
                 <label className="block mb-2 font-semibold text-sm text-gray-700">{t('statistical.time')}</label>
-                <DateRangePicker
-                    key="1"
-                    onUpdate={({ range }) => handleOnChangeSelectedTimeStatistical(range)}
-                    initialDateFrom={new Date()}
-                    initialDateTo={new Date()}
-                    align="start"
-                    locale="vi-VN"
-                    showCompare={false}
-                />
+                <YearSelect onChange={handleYearChange} defaultYear={selectedYear} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Link to="/form-it/all-form-it">
+                <Link to={`/form-it/all-form-it?year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <Ticket className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.total')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="totalRequests">{dataStatistical?.groupByTotal?.total?.toLocaleString()}</div>
+                        <div className="text-3xl font-bold text-blue-900" id="totalRequests">{statisticalData?.groupByTotal?.total?.toLocaleString()}</div>
                     </div>
                 </Link>
-
-
-                <Link to="/form-it/all-form-it?statusId=2">
+                <Link to={`/form-it/all-form-it?statusId=2&year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <Info className='text-[#1c398e]' size={35}/>
                         <h3 className="text-gray-600 mb-2">{t('statistical.inprocess')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="openRequests">{dataStatistical?.groupByTotal?.inProcess?.toLocaleString()}</div>
+                        <div className="text-3xl font-bold text-blue-900" id="openRequests">{statisticalData?.groupByTotal?.inProcess?.toLocaleString()}</div>
                     </div>
                 </Link>
-
-                <Link to="/form-it/all-form-it?statusId=3">
+                <Link to={`/form-it/all-form-it?statusId=3&year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <CircleCheck className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.completed')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{dataStatistical?.groupByTotal?.complete?.toLocaleString()}</div>
+                        <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.complete?.toLocaleString()}</div>
                     </div>
                 </Link>
-
-                <Link to="/form-it/all-form-it?statusId=1">
+                <Link to={`/form-it/all-form-it?statusId=1&year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <ClipboardCheck className='text-[#1c398e]' size={35}/>
                         <h3 className="text-gray-600 mb-2">{t('statistical.pending')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="csatScore">{dataStatistical?.groupByTotal?.pending?.toLocaleString()}</div>
+                        <div className="text-3xl font-bold text-blue-900" id="csatScore">{statisticalData?.groupByTotal?.pending?.toLocaleString()}</div>
                     </div>
                 </Link>
-
             </div>
 
             <div className="flex w-full gap-x-10 mb-0">
                 <div className="flex-1 flex flex-col items-center bg-[#efefef] p-3 rounded-lg shadow-inner border">
                     <div className='w-full flex justify-between'>
                         <h2 className="mb-5 font-semibold text-lg">{t('statistical.total_request')}</h2>
-                        <div>
-                            <SelectOptionChart/>
-                        </div>
                     </div>
                     <div className="h-72 w-full">
                         <Line data={lineData} style={{ width: '100%', height: '100%' }}
-                            options={{
-                                responsive: true,
-                                maintainAspectRatio: false
-                            }} />
+                            options={{ responsive: true, maintainAspectRatio: false, plugins:{ legend: {display: false}} }} />
                     </div>
                 </div>
-                
                 <div className="flex-1 flex flex-col items-center bg-[#efefef] p-3 rounded-lg shadow-inner border">
                     <div className='w-full flex justify-between'>
                         <h2 className="mb-5 font-semibold text-lg">{t('statistical.total_by_type')}</h2>
-                        <div>
-                            <SelectOptionChart/>
-                        </div>
                     </div>
                     <div className="h-72 w-full flex justify-center">
                         <Doughnut data={doughnutData}/>
@@ -160,18 +162,12 @@ const StatisticalFormIT = () => {
                 <div className="flex-1 flex flex-col items-center bg-[#efefef] p-3 rounded-lg shadow-inner border">
                     <div className='w-full flex justify-start'>
                         <h2 className="mb-5 font-semibold text-lg mr-5">{t('statistical.total_by_dept')}</h2>
-                        <div>
-                            <SelectOptionChart/>
-                        </div>
                     </div>
                     <div className="h-72 w-full">
                         <Bar
                             data={barData}
                             style={{ width: '100%', height: '100%' }}
-                            options={{
-                                responsive: true,
-                                maintainAspectRatio: false
-                            }}
+                            options={{ responsive: true, maintainAspectRatio: false, plugins:{ legend: {display: false}} }}
                         />
                     </div>
                 </div>
@@ -189,37 +185,75 @@ const StatisticalFormIT = () => {
                                 <th className="px-3 py-2">{t('statistical.dept')}</th>
                                 <th className="px-3 py-2">{t('statistical.time_sent')}</th>
                                 <th className="px-3 py-2">{t('statistical.status')}</th>
-                                <th className="px-3 py-2">{t('statistical.priority')}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {
-                                dataStatistical?.groupRecentList.map((item, index) => (
+                            {statisticalData?.groupRecentList.map((item: any, index: any) => {
+                                const requestStatusId = item?.requestStatusId
+
+                                return (
                                     <tr key={index} className="hover:bg-gray-100 cursor-pointer border-b border-[#d3d3d3d9]">
-                                        <td className="px-3 py-2">{item.code}</td>
+                                        <td className="px-3 py-2">
+                                            <Link to={`/approval/approval-form-it/${item.id ?? '1'}?mode=view`} className='text-blue-600 underline'>
+                                                {item.code}
+                                            </Link>
+                                        </td>
                                         <td className="px-3 py-2">{item.reason}</td>
                                         <td className="px-3 py-2">{item.userNameRequestor}</td>
                                         <td className="px-3 py-2">{item.departmentName}</td>
-                                        <td className="px-3 py-2">{item.createdAt}</td>
-                                        <td className="px-3 py-2">{item.requestStatus}</td>
-                                        <td className="px-3 py-2">{item.namePriority}</td>
+                                        <td className="px-3 py-2">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
+                                        <td className="px-3 py-2">
+                                            <StatusLeaveRequest status={
+                                                requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
+                                            }
+                                            />
+                                        </td>
                                     </tr>
-                                ))
-                            }
+                                )
+                            })}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default StatisticalFormIT;
 
-const SelectOptionChart = () => {
-    return (
-        <select name="" id="" className='bg-white p-1 px-5 border border-gray-400 rounded-[3px] hover:cursor-pointer'>
-            <option value="">2025</option>
-        </select>
-    )
+export interface YearSelectProps {
+    onChange?: (selectedYear: string) => void;
+    defaultYear?: string;
+    className?: string
 }
+
+export const YearSelect: React.FC<YearSelectProps> = ({ onChange, defaultYear, className }) => {
+    const startYear = 2020;
+    const currentYear = new Date().getFullYear();
+    const numberOfYears = currentYear - startYear + 1;
+    const years = Array.from({ length: numberOfYears }, (_, i) => startYear + i).reverse();
+
+    const [selectedYear, setSelectedYear] = useState<string>(defaultYear || currentYear.toString());
+
+    useEffect(() => {
+        if (defaultYear !== selectedYear) {
+            setSelectedYear(defaultYear || currentYear.toString());
+        }
+    }, [defaultYear, selectedYear, currentYear]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const year = e.target.value;
+        setSelectedYear(year);
+        if (onChange) {
+            onChange(year);
+        }
+    };
+
+    return (
+        <select value={selectedYear} className={`bg-white p-1 px-5 border rounded-[3px] hover:cursor-pointer ${className}`} onChange={handleChange}>
+            {years.map((year) => (
+                <option key={year} value={year}>{year}</option>
+            ))}
+        </select>
+    );
+};

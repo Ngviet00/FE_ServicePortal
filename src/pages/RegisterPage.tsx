@@ -4,23 +4,28 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff } from "lucide-react";
 import authApi from "@/api/authApi";
 import "./css/Login.css"
 
 export default function RegisterPage() {
     const { t } = useTranslation();
     const [userCode, setUserCode] = useState("")
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (userCode == '') {
+            ShowToast(lang == 'vi' ? 'Vui lòng nhập mã nhân viên' : 'Please enter user code', "error")
+            return
+        }
+
         setLoading(true);
+
         try {
-            const res = await authApi.register({ userCode, password });
+            const res = await authApi.register({ userCode });
             const { user, accessToken, refreshToken } = res.data;
             useAuthStore.getState().setUser(user, accessToken, refreshToken);
             navigate("/")
@@ -31,11 +36,6 @@ export default function RegisterPage() {
         finally {
             setLoading(false);
         }
-    };
-
-    const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newPassword = event.target.value;
-        setPassword(newPassword);
     };
 
     return (
@@ -60,6 +60,7 @@ export default function RegisterPage() {
                         </label>
                         <div className="mt-2">
                             <input
+                                autoFocus
                                 id="employee_code"
                                 name="employee_code"
                                 type="text"
@@ -72,33 +73,6 @@ export default function RegisterPage() {
                         </div>
                     </div>
         
-                    <div className="mb-3">
-                        <div className="flex items-center justify-between">
-                            <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                                {t('register_page.password')}
-                            </label>
-                        </div>
-                        <div className="mt-2 relative">
-                            <input
-                                id="password"
-                                name="password"
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={handlePasswordChange}
-                                required
-                                autoComplete="current-password"
-                                className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
-                            />
-                            <button
-                                type="button"
-                                className="hover:cursor-pointer absolute right-2 inset-y-0 flex items-center text-gray-500 hover:text-gray-700"
-                                onClick={() => setShowPassword((v) => !v)}
-                                >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                        </div>
-                    </div>
-
                     <div>
                         <button
                             disabled={loading}

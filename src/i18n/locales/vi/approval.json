@@ -12,10 +12,11 @@
         "last_approved": "Người duyệt gần nhất",
         "status": "Trạng thái",
         "action": "Hành động",
-        "detail": "Chi tiết"
+        "detail": "Chi tiết",
+        "list_assigned": ""
     },
     "assigned": {
-
+        "title": "Danh sách được giao"
     },
     "history_approval_processed": {
         "title": "Lịch sử duyệt / xử lý",

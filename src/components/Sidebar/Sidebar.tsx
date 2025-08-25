@@ -132,9 +132,9 @@ export default function Sidebar() {
 											return null
 										}
 
-										// if (child.route === "/form-it/statistical" && !isIT!) {
-										// 	return null
-										// }
+										if (child.route === "/form-it/statistical" && !isIT!) {
+											return null
+										}
 
 										// if (child.route === '/management-time-keeping') {
 										// 	if (!havePermissionMngTimeKeeping) {

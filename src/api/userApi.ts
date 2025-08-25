@@ -18,7 +18,8 @@ interface GetUser {
     PageSize?: number;
     Name?: string;
     Sex?: number | null,
-    DepartmentId?: number | null
+    DepartmentId?: number | null,
+    Status?: number | null
 }
 
 interface ResetPasswordRequest {
@@ -46,6 +47,8 @@ export interface GetListUserData {
     nvEmail?: string,
     nvNgaySinh: string,
     nvNgayVao?: string,
+    nvNgayRa?: string,
+    statusUser?: boolean,
     roles: IRole[]
 }
 

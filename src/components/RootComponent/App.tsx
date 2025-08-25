@@ -99,7 +99,7 @@ function App() {
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']
 
 		//form it
-		{ path: "/form-it/statistical", element: <StatisticalFormIT />}, //allowedRoles: [RoleEnum.IT]
+		{ path: "/form-it/statistical", element: <StatisticalFormIT />, allowedRoles: [RoleEnum.IT]},
 		{ path: "/form-it/create", element: <CreateFormIT />},
 		{ path: "/form-it", element: <ListFormIT />},
 		{ path: "/form-it/edit/:id", element: <CreateFormIT />},

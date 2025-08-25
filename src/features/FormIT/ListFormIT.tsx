@@ -70,10 +70,10 @@ export default function ListFormIT () {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-4 py-2 border w-[70px] text-left">{t('list.code')}</th>
-                                    <th className="px-4 py-2 border w-[320px] text-left">{t('list.reason')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.user_requestor')}</th>
+                                    <th className="px-4 py-2 border w-[370px] text-left">{t('list.reason')}</th>
+                                    <th className="px-4 py-2 border w-[120px] text-left">{t('list.user_requestor')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.department')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.user_register')}</th>
+                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_register')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.created_at')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.approved_by')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.status')}</th>
@@ -84,7 +84,7 @@ export default function ListFormIT () {
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <tr key={index}>
-                                        {Array.from({ length: 5 }).map((_, i) => (
+                                        {Array.from({ length: 9 }).map((_, i) => (
                                             <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                         ))}
                                     </tr>
@@ -97,6 +97,8 @@ export default function ListFormIT () {
                                     </tr>
                                 ) : (
                                     itForms.map((item: ITForm) => {
+                                        const requestStatusId = item?.applicationForm?.requestStatusId
+
                                         return (
                                             <tr key={item.id}>
                                                 <td className="px-4 py-2 border text-left">{item?.code ?? '--'}</td>
@@ -109,7 +111,10 @@ export default function ListFormIT () {
                                                 <td className="px-4 py-2 border text-left">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-left">{'--'}</td>
                                                 <td className="px-4 py-2 border text-left">
-                                                    <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
+                                                    <StatusLeaveRequest status={
+                                                        requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
+                                                    }
+                                                />
                                                 </td>
                                                 <td className="text-center border font-bold text-red-700">
                                                     {

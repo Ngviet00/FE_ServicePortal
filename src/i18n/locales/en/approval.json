@@ -15,7 +15,7 @@
         "detail": "Detail"
     },
     "assigned": {
-
+        "title": "Assigned task"
     },
     "history_approval_processed": {
         "title": "History approval/processed",

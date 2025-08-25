@@ -6,8 +6,10 @@ import userApi, { useUpdateUserPermission, useUpdateUserRole } from "@/api/userA
 import roleApi, { IRole } from "@/api/roleApi"
 import { useNavigate, useParams } from "react-router-dom"
 import permissionApi, { IPermission } from "@/api/permissionApi"
+import { useTranslation } from "react-i18next"
 
 export default function RoleAndPermissionUser () {
+    const lang = useTranslation().i18n.language.split('-')[0]
     const navigate = useNavigate();
     const { usercode } = useParams<{ usercode: string }>();
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
@@ -82,21 +84,25 @@ export default function RoleAndPermissionUser () {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
-                <h3 className="font-bold text-2xl m-0 pb-2">Cấu hình vai trò và quyền của người dùng</h3>
+                <h3 className="font-bold text-2xl m-0 pb-2">
+                    {
+                        lang == 'vi' ? 'Cấu hình vai trò và quyền của người dùng' : 'Config user role and permission'
+                    }
+                </h3>
                 <Button onClick={() => navigate("/user")} className="w-full md:w-auto hover:cursor-pointer">
-                    Danh sách người dùng
+                    {lang == 'vi' ? 'Danh sách người dùng' : 'List user'}
                 </Button>
             </div>
 
             <div className="mt-2">
-                Đang chọn: <strong className="font-bold text-red-700 text-xl">{usercode}</strong>
+                {lang == 'vi' ? 'Đang chọn' : 'Select'} : <strong className="font-bold text-red-700 text-xl">{usercode}</strong>
             </div>
 
             <div className="max-w-7xl text-gray-800 font-sans">
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col">
                         <h3 className="flex items-center justify-center border-b border-gray-300 pb-2 font-medium text-gray-700">
-                            <i className="fas fa-user-tag mr-2"></i> Gán vai trò cho người dùng
+                            <i className="fas fa-user-tag mr-2"></i> {lang == 'vi' ? 'Gán vai trò cho người dùng' : 'Assign roles to users'}
                         </h3>
                         <ul className="flex-1 overflow-y-auto max-h-120 list-none p-0 bg-gray-50 rounded-md transition-opacity duration-700 ease-in-out"style={{ opacity: isAllRolesLoading ? 0 : 1 }}>
                             {
@@ -142,7 +148,7 @@ export default function RoleAndPermissionUser () {
 
                     <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col">
                         <h3 className="flex items-center justify-center border-b border-gray-300 pb-2 font-medium text-gray-700">
-                            <i className="fas fa-key mr-2"></i> Gán quyền cho người dùng
+                            <i className="fas fa-key mr-2"></i> {lang == 'vi' ? 'Gán quyền cho người dùng' : 'Assign permissions to users'}
                         </h3>
                         <ul className="flex-1 overflow-y-auto max-h-120 list-none p-0 bg-gray-50 rounded-md transition-opacity duration-700 ease-in-out" style={{ opacity: isAllRolesLoading ? 0 : 1 }}>
                             {
@@ -178,7 +184,7 @@ export default function RoleAndPermissionUser () {
                                     className="mt-4 bg-black hover:opacity-80 hover:cursor-pointer text-white px-4 py-3 rounded-lg shadow-md flex items-center justify-center transition"
                                     onClick={handleSavePermissions}
                                 >
-                                    <i className="fas fa-save mr-2"></i> {updateUserPermission.isPending ? <Spinner className="text-white" size="small"/> : "Lưu"} 
+                                    <i className="fas fa-save mr-2"></i> {updateUserPermission.isPending ? <Spinner className="text-white" size="small"/> : lang == 'vi' ? 'Lưu' : 'Save'} 
                                 </button>
                             ) : (<></>)
                         }

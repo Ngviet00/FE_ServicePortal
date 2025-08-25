@@ -170,7 +170,14 @@
 		"email": "Email",
 		"dob": "Ngày sinh",
 		"date_join_company": "Ngày vào CT",
-		"action": "Hành động"
+		"status_user": "Trạng thái",
+		"active": "Hoạt động",
+		"in_active": "Đã nghỉ việc",
+		"action": "Hành động",
+		"select": "Chọn",
+		"termination_date": "Ngày nghỉ việc",
+		"male": "Nam",
+		"female": "Nữ"
 	},
 	"type_leave_page": {
 		"title": "Loại phép",

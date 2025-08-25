@@ -13,7 +13,6 @@ interface ChangePasswordRequest {
 
 export interface RegisterRequest {
     userCode: string
-    password: string
 }
 
 interface RefreshTokenRequest {

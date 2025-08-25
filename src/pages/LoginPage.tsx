@@ -56,6 +56,7 @@ export default function LoginPage() {
                         </label>
                         <div className="mt-2">
                             <input
+                                autoFocus
                                 id="usercode"
                                 name="usercode"
                                 type="text"

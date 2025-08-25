@@ -171,7 +171,14 @@
 		"email": "Email",
 		"dob": "Dob",
 		"date_join_company": "Date join company",
-		"action": "Action"
+		"status_user": "Status",
+		"active": "Active",
+		"in_active": "In Active",
+		"action": "Action",
+		"select": "Select",
+		"termination_date": "Termination Date",
+		"male": "Male",
+		"female": "Female"
 	},
 	"type_leave_page": {
 		"title": "Type leaves",

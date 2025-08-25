@@ -12,7 +12,8 @@ interface GetAll {
     Page: number
     PageSize: number,
     DepartmentId?: number | null,
-    RequestStatusId?: number | null
+    RequestStatusId?: number | null,
+    Year?: number | null,
 }
 
 export interface CreateITFormRequest {
@@ -135,9 +136,13 @@ export interface IResolvedTask {
     ActualCompletionDate?: string
 }
 
+export interface IStatistical {
+    year?: number
+}
+
 const itFormApi = {
-    statistical() {
-        return axiosClient.get('/it-form/statistical-form-it')
+    statistical(params: IStatistical) {
+        return axiosClient.get('/it-form/statistical-form-it', {params})
     },
     getAll(params: GetAll) {
         return axiosClient.get('/it-form', {params})
