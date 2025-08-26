@@ -34,7 +34,7 @@
         "high": "Cao",
         "note": "Ghi chú",
         "title_approval": "Phê duyệt",
-        "assigned": "Assigned",
+        "assigned": "Assigned to",
         "target_completion_date": "Ngày dự kiến hoàn thành",
         "actual_completion_date": "Ngày hoàn thành thực tế"
     },
@@ -47,12 +47,12 @@
         "department": "Phòng ban",
         "user_register": "Người đăng ký",
         "created_at": "Thời gian tạo",
-        "approved_by": "Thời gian duyệt",
+        "approved_by": "Người duyệt",
         "status": "Trạng thái",
         "action": "Hành động",
         "edit": "Sửa",
-        "title_all_form_it": "Tất cả đơn IT"
-
+        "title_all_form_it": "Tất cả đơn IT",
+        "title_view_form_it": "Chi tiết"
     },
     "setting": {
         

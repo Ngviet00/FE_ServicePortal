@@ -24,7 +24,8 @@
         "user_request": "Requester",
         "approval_at": "Approved at",
         "action": "Action",
-        "result": "Result"
+        "result": "Result",
+        "department": "Department"
     },
     "history_component": {
         "title": "History approval",

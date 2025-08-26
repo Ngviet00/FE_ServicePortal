@@ -194,7 +194,7 @@ const StatisticalFormIT = () => {
                                 return (
                                     <tr key={index} className="hover:bg-gray-100 cursor-pointer border-b border-[#d3d3d3d9]">
                                         <td className="px-3 py-2">
-                                            <Link to={`/approval/approval-form-it/${item.id ?? '1'}?mode=view`} className='text-blue-600 underline'>
+                                            <Link to={`/approval/view-form-it/${item.id ?? '1'}`} className='text-blue-600 underline'>
                                                 {item.code}
                                             </Link>
                                         </td>
@@ -228,7 +228,7 @@ export interface YearSelectProps {
 }
 
 export const YearSelect: React.FC<YearSelectProps> = ({ onChange, defaultYear, className }) => {
-    const startYear = 2020;
+    const startYear = 2025;
     const currentYear = new Date().getFullYear();
     const numberOfYears = currentYear - startYear + 1;
     const years = Array.from({ length: numberOfYears }, (_, i) => startYear + i).reverse();

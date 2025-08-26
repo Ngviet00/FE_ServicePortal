@@ -47,6 +47,7 @@ import ListITCategory from '@/features/ITCategory/ListITCategory';
 import DetailWaitApprovalFormIT from '@/features/FormIT/DetailWaitApprovalFormIT';
 import ViewOnlyFormIT from '@/features/FormIT/ViewOnlyFormIT';
 import AllFormIT from '@/features/FormIT/AllFormIT';
+import AssignedFormIT from '@/features/FormIT/AssignedFormIT';
 
 function App() {
 	const location = useLocation();
@@ -105,9 +106,6 @@ function App() {
 		{ path: "/form-it/edit/:id", element: <CreateFormIT />},
 		{ path: "/form-it/all-form-it", element: <AllFormIT />},
 
-		{ path: "/form-it/view/:id", element: <StatisticalFormIT />},
-		{ path: "/form-it/setting-form-it", element: <StatisticalFormIT />},
-
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},
 		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},
@@ -116,11 +114,11 @@ function App() {
 		{ path: "/approval/approval-memo-notify/:id", element: <DetailMemoNotificationWaitApproval />, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
 		{ path: "/approval/view-memo-notify/:id", element: <ViewOnlyMemoNotification />},
 
-
 		{ path: "/approval/approval-leave-request/:id", element: <DetailWaitApprovalLeaveRq />},
 		{ path: "/approval/view-leave-request/:id", element: <ViewOnlyLeaveRq />},
 
 		{ path: "/approval/approval-form-it/:id", element: <DetailWaitApprovalFormIT />},
+		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
 		{ path: "/approval/view-form-it/:id", element: <ViewOnlyFormIT />},
 	];
   

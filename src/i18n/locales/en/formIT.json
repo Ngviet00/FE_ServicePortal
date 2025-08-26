@@ -51,7 +51,8 @@
         "status": "Status",
         "action": "Action",
         "edit": "Edit",
-        "title_all_form_it": "All form IT"
+        "title_all_form_it": "All form IT",
+        "title_view_form_it": "View detail"
     },
     "setting": {
 

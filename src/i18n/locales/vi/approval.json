@@ -25,7 +25,8 @@
         "user_request": "Người yêu cầu",
         "approval_at": "Ngày duyệt/xử lý",
         "action": "Hành động",
-        "result": "Kết quả"
+        "result": "Kết quả",
+        "department": "Phòng ban"
     },
     "history_component": {
         "title": "Lịch sử phê duyệt",

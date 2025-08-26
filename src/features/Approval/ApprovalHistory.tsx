@@ -6,7 +6,7 @@ import PaginationControl from '@/components/PaginationControl/PaginationControl'
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { REQUEST_TYPE } from '@/lib';
+import { REQUEST_TYPE, STATUS_ENUM } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate } from 'date-fns';
@@ -67,7 +67,7 @@ function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
 		result = `/approval/view-memo-notify/${item?.memoNotification?.id ?? '1'}`
 	}
 	else if (item?.requestType?.id == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/approval-form-it/${item?.itForm?.id ?? '1'}?mode=view`
+		result = `/approval/view-form-it/${item?.itForm?.id ?? '1'}`
 	}
 
 	return result
@@ -152,6 +152,7 @@ const ApprovalHistory: React.FC = () => {
 								<th className="px-4 py-2 border">{t('history_approval_processed.code')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.request_type')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.user_request')}</th>
+								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.department')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.approval_at')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.action')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.result')}</th>
@@ -168,18 +169,21 @@ const ApprovalHistory: React.FC = () => {
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 										</tr>
 									))
 								) : isError || ListHistoryApprovalsProcessed?.length == 0 ? (
 									<tr>
-										<td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
+										<td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
 											{ error?.message ?? tCommon('no_results') } 
 										</td>
 									</tr>
 								) : (
 									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => {
 										const data = getInfo(item)
-										console.log(data, 3);
+										console.log(item, data, 2);
+										const reqStatusId = item?.requestStatusId
+										const reqTypeId = item?.requestType?.id
 
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
@@ -190,12 +194,23 @@ const ApprovalHistory: React.FC = () => {
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.departmentName}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													{ item.action }
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
-													<StatusLeaveRequest status={item?.requestStatusId == 6 ? "In Process" : item?.requestStatusId}/>
+													{
+														reqTypeId == REQUEST_TYPE.FORM_IT ? (
+															<>
+																<StatusLeaveRequest status={
+																	reqStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : reqStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : reqStatusId
+																}/>
+															</>
+														) : (
+															<StatusLeaveRequest status={item?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? "In Process" : item?.requestStatusId}/>
+														)
+													}
 												</td>
 											</tr>
 										)

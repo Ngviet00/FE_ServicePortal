@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { getErrorMessage, ShowToast } from "@/lib";
 import { useAuthStore } from "@/store/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -31,8 +31,9 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
     const { user } = useAuthStore()
     const lang = useTranslation().i18n.language.split('-')[0]
     const navigate = useNavigate()
-    const isEdit = mode == 'edit'
 
+    const isCreate = mode == 'create'
+    const isEdit = mode == 'edit'
 
     //create
     const previousUserCodeValueRef = useRef('')
@@ -88,6 +89,29 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
         },
     });
 
+    useEffect(() => {
+        if (formData) {
+            reset({
+                requester: {
+                    userCode: formData?.userCodeRequestor ?? '',
+                    name: formData?.userNameRequestor ?? '',
+                    email: formData?.email ?? '',
+                    department: formData?.orgUnit?.name ?? '',
+                    departmentId: formData?.orgUnit?.id ?? -1,
+                    orgPositionId: user?.orgPositionId,
+                    position: formData?.position ?? ''
+                },
+                itRequest: {
+                    dateRequired: formData?.requestDate ?? new Date().toISOString().split('T')[0],
+                    dateCompleted: formData?.requiredCompletionDate ?? new Date().toISOString().split('T')[0],
+                    itCategory: formData?.itFormCategories?.map((item: {itCategoryId: number}) => item.itCategoryId) ?? [],
+                    reason: formData?.reason ?? '',
+                    priority: formData?.priorityId ?? 1,
+                }
+            });
+        }
+    }, [formData, reset, user?.orgPositionId]);
+
     const onInternalSubmit = (data: any) => {
         if (onSubmit) {
             onSubmit(data);
@@ -116,6 +140,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
             setValue('requester.name', '')
             setValue('requester.department', '')
             setValue('requester.email', '')
+            setValue('requester.position', '')
             return
         }
 
@@ -170,13 +195,13 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                                 {tCommon('usercode')}<DotRequireComponent />
                             </label>
                             <input
-                                disabled={isEdit}
+                                disabled={mode != 'create'}
                                 {...register('requester.userCode')}
                                 onBlur={handleFindUser}
                                 type="text"
                                 id="requester.userCode"
                                 placeholder={tCommon('usercode')}
-                                className={`${errors.requester?.userCode ? 'border-red-500' : 'border-gray-300'} ${isEdit ? 'bg-gray-100' : ''} mt-1 w-full p-2 rounded-md text-sm border select-none`}
+                                className={`${errors.requester?.userCode ? 'border-red-500' : 'border-gray-300'} ${mode != 'create' ? 'bg-gray-100' : ''} mt-1 w-full p-2 rounded-md text-sm border select-none`}
                             />
                             {errors.requester?.userCode && <p className="text-red-500 text-xs mt-1">{errors.requester.userCode.message}</p>}
                         </div>
@@ -218,11 +243,12 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                                 {t('create.position')}<DotRequireComponent />
                             </label>
                             <input
+                                disabled={mode != 'create' && mode != 'edit'}
                                 {...register('requester.position')}
                                 type="text"
                                 id="requester.position"
                                 placeholder={t('create.position')}
-                                className={`${errors.requester?.position ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
+                                className={`${errors.requester?.position ? 'border-red-500' : 'border-gray-300'} ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''} mt-1 w-full p-2 rounded-md text-sm border`}
                             />
                             {errors.requester?.position && <p className="text-red-500 text-xs mt-1">{errors.requester.position.message}</p>}
                         </div>
@@ -232,11 +258,12 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                                 Email<DotRequireComponent />
                             </label>
                             <input
+                                disabled={mode != 'create' && mode != 'edit'}
                                 {...register('requester.email')}
                                 type="email"
                                 id="requester.email"
                                 placeholder="email@vsvn.com.vn"
-                                className={`${errors.requester?.email ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
+                                className={`${errors.requester?.email ? 'border-red-500' : 'border-gray-300'} ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''} mt-1 w-full p-2 rounded-md text-sm border`}
                             />
                             {errors.requester?.email && <p className="text-red-500 text-xs mt-1">{errors.requester.email.message}</p>}
                         </div>
@@ -255,11 +282,12 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                                 control={control}
                                 render={({ field }) => (
                                     <DateTimePicker
+                                        disabled={mode != 'create' && mode != 'edit'}
                                         enableTime={false}
                                         dateFormat="Y-m-d"
                                         initialDateTime={field.value}
                                         onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                        className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer bg-[#fdfdfd]`}
+                                        className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''}`}
                                     />
                                 )}
                             />
@@ -275,11 +303,12 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                                 control={control}
                                 render={({ field }) => (
                                     <DateTimePicker
+                                        disabled={mode != 'create' && mode != 'edit'}
                                         enableTime={false}
                                         dateFormat="Y-m-d"
                                         initialDateTime={field.value}
                                         onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                        className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer bg-[#fdfdfd]`}
+                                        className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''}`}
                                     />
                                 )}
                             />
@@ -305,7 +334,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                                                 className="w-[48%] flex items-center space-x-2 cursor-pointer select-none"
                                             >
                                                 <input
-                                                    disabled={isEdit}
+                                                    disabled={mode != 'create'}
                                                     type="checkbox"
                                                     value={item.id}
                                                     checked={checked}
@@ -339,11 +368,12 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                             {tCommon('reason')}<DotRequireComponent />
                         </label>
                         <textarea
+                            disabled={mode != 'create' && mode != 'edit'}
                             id="itRequest.reason"
                             {...register('itRequest.reason')}
                             placeholder={tCommon('reason')}
                             rows={4}
-                            className={`${errors.itRequest?.reason ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border`}
+                            className={`${errors.itRequest?.reason ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''}`}
                         ></textarea>
                         {errors.itRequest?.reason && <p className="text-red-500 text-xs mt-1">{errors.itRequest.reason.message}</p>}
                     </div>
@@ -353,9 +383,10 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                             {t('create.priority')}
                         </label>
                         <select
+                            disabled={mode != 'create' && mode != 'edit'}
                             id="itRequest.priority"
                             {...register('itRequest.priority')}
-                            className="mt-1 w-full p-2 rounded-md text-sm border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                            className={`mt-1 w-full p-2 rounded-md text-sm border border-gray-300 ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''}`}
                         >
                             {
                                 priorities?.map((item: IPriority, idx: number) => (
@@ -367,23 +398,26 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                     </div>
                 </div>
             </div>
-
-            <div className='flex gap-4 justify-end'>
-                <Button
-                    type="button"
-                    onClick={onCancel}
-                    className='px-6 py-2 border bg-white border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
-                >
-                    {tCommon('cancel')}
-                </Button>
-                <Button
-                    disabled={isPending}
-                    type='submit'
-                    className='px-6 py-2 bg-black border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
-                >
-                    {isPending ? <Spinner size="small" className='text-white'/> : tCommon('save')}
-                </Button>
-            </div>
+            {
+                isCreate || isEdit ? (
+                    <div className='flex gap-4 justify-end'>
+                        <Button
+                            type="button"
+                            onClick={onCancel}
+                            className='px-6 py-2 border bg-white border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
+                        >
+                            {tCommon('cancel')}
+                        </Button>
+                        <Button
+                            disabled={isPending}
+                            type='submit'
+                            className='px-6 py-2 bg-black border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
+                        >
+                            {isPending ? <Spinner size="small" className='text-white'/> : tCommon('save')}
+                        </Button>
+                    </div>
+                ) : (<></>)
+            }            
         </form>
     )
 }

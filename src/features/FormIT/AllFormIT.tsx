@@ -164,7 +164,7 @@ export default function AllFormIT () {
                                         return (
                                             <tr key={item.id}>
                                                 <td className="px-4 py-2 border text-left">
-                                                    <Link to={`/approval/approval-form-it/${item?.id ?? '1'}?mode=view`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
                                                 </td>
                                                 <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
                                                     {item?.reason ?? '--'}
@@ -173,7 +173,11 @@ export default function AllFormIT () {
                                                 <td className="px-4 py-2 border text-left">{item?.orgUnit?.name ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left">{item?.userNameCreated ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-left">{'--'}</td>
+                                                <td className="px-4 py-2 border text-left">
+                                                    {
+                                                        item?.applicationForm?.historyApplicationForms.length > 0 ? item?.applicationForm?.historyApplicationForms[0]?.userNameApproval : '--'
+                                                    }
+                                                </td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
                                                         requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
