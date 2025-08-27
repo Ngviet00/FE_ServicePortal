@@ -42,6 +42,8 @@ export interface LeaveRequestData {
 }
 
 export interface CreateLeaveRequestForManyPeople {
+    UserCode: string | undefined,
+    UrlFrontEnd: string,
     OrgPositionId: number | undefined,
     Leaves: LeaveRequestData[]
 }
@@ -239,6 +241,20 @@ export function useCreateLeaveRequestForManyPeople() {
     return useMutation({
         mutationFn: async (data: CreateLeaveRequestForManyPeople) => {
             await leaveRequestApi.createLeaveRequestForOther(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useUpdateLeaveRq() {
+    return useMutation({
+        mutationFn: async ({id, data} : { id: string, data: LeaveRequestData } ) => {
+            await leaveRequestApi.update(id, data)
         },
         onSuccess: () => {
             ShowToast("Success");

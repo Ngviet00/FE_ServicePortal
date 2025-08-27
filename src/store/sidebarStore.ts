@@ -60,7 +60,6 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		icon: Ticket,
 		children: [
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
-			{ label: "sidebar.leave_request.create_leave_for_others", route: "/leave/create-leave-for-others" },
 			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
 			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },

@@ -3,7 +3,7 @@
     "sub_title": "Leave request",
     "list_leave": "List leave",
     "usercode": "Usercode",
-    "name": "Fullname",
+    "name": "Name",
     "department": "Department",
     "position": "Position",
     "type_leave": "Type leave",
@@ -16,5 +16,6 @@
     "choose": "Choose",
     "no_date": "No data",
     "delete": "Delete",
-    "not_allow": "You dont have permission register, contact to HR"
+    "not_allow": "You dont have permission register, contact to HR",
+    "receive_email": "Receive email"
 }

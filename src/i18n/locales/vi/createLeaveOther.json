@@ -12,9 +12,10 @@
     "to_date": "Nghỉ đến ngày",
     "reason": "Lý do",
     "add": "+",
-    "confirm": "Gửi",
+    "confirm": "Lưu",
     "choose": "--Chọn--",
     "no_date": "Không có dữ liệu",
     "delete": "Xóa",
-    "not_allow": "Bạn chưa có quyền đăng ký, liên hệ với HR"
+    "not_allow": "Bạn chưa có quyền đăng ký, liên hệ với HR",
+    "receive_email": "Nhận thông báo qua email"
 }

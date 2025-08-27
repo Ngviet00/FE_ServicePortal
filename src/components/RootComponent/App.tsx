@@ -1,6 +1,5 @@
 import { Routes, Route, useLocation  } from 'react-router-dom';
 import { RoleEnum } from '@/lib';
-import LeaveRequestForm from '@/features/Leave/LeaveRequestForm';
 import ListLeaveRequest from '@/features/Leave/ListLeaveRequest';
 import ListRole from '@/features/Role/ListRole';
 import ListUser from '@/features/User/ListUser';
@@ -93,9 +92,8 @@ function App() {
 		
 		//leave + timekeeping
 		{ path: "/leave", element: <ListLeaveRequest/> },
-		{ path: "/leave/create", element: <LeaveRequestForm/> },
-		{ path: "/leave/create-leave-for-others", element: <LeaveRequestFormForOthers/>},
-		{ path: "/leave/edit/:id", element: <LeaveRequestForm/> },
+		{ path: "/leave/create", element: <LeaveRequestFormForOthers/> },
+		{ path: "/leave/edit/:id", element: <LeaveRequestFormForOthers/> },
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']
 

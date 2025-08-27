@@ -181,7 +181,6 @@ const ApprovalHistory: React.FC = () => {
 								) : (
 									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => {
 										const data = getInfo(item)
-										console.log(item, data, 2);
 										const reqStatusId = item?.requestStatusId
 										const reqTypeId = item?.requestType?.id
 
@@ -195,7 +194,7 @@ const ApprovalHistory: React.FC = () => {
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.departmentName}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm:ss") : '--'}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													{ item.action }
 												</td>

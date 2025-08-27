@@ -9,11 +9,12 @@ import { useAuthStore } from "@/store/authStore"
 import { useNavigate, useParams } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import leaveRequestApi, { useRegisterAllLeaveRequest } from "@/api/leaveRequestApi"
-import { formatDate } from "@/lib/time"
 import { useApproval } from "@/api/approvalApi"
 import useHasRole from "@/hooks/useHasRole"
 import { RoleEnum, STATUS_ENUM } from "@/lib"
 import useHasPermission from "@/hooks/useHasPermission"
+import LeaveRqFormComponent from "./Components/LeaveRqFormComponent"
+import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi"
 
 const DetailWaitApprovalLeaveRq = () => {
     const { t:tApproval } = useTranslation('pendingApproval')
@@ -21,26 +22,35 @@ const DetailWaitApprovalLeaveRq = () => {
     const [note, setNote] = useState("")
     const { t } = useTranslation()
     const [statusModalConfirm, setStatusModalConfirm] = useState('')
-    const { id } = useParams<{ id: string }>()
     const { user } = useAuthStore()
     const approval = useApproval()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
     const registerAllLeaveMutation = useRegisterAllLeaveRequest()
+    const { id } = useParams<{ id: string }>()
+    const hasId = !!id;
 
-    const { data: leaveRequest } = useQuery({
-        queryKey: ['get-detail-leave-request'],
+    const { data: formData, isLoading: isFormDataLoading } = useQuery({
+        queryKey: ['leaveRequestForm', id],
         queryFn: async () => {
-            const res = await leaveRequestApi.getById(id!);
+            const res = await leaveRequestApi.getById(id ?? '');
             return res.data.data;
         },
-        enabled: id != null || id != undefined
+        enabled: hasId,
     });
 
+    const initialFormData = hasId ? formData : {};
+    const { data: typeLeaves } = useQuery<ITypeLeave[], Error>({
+        queryKey: ['get-all-type-leave'],
+        queryFn: async () => {
+            const res = await typeLeaveApi.getAll({});
+            return res.data.data;
+        },
+    });
     
     const isHR = useHasRole([RoleEnum.HR])
     const hasPermissionHRMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
-    const isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR = isHR && hasPermissionHRMngLeaveRq && leaveRequest?.applicationForm?.requestStatus?.id == STATUS_ENUM.WAIT_HR
+    const isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR = isHR && hasPermissionHRMngLeaveRq && formData?.applicationForm?.requestStatus?.id == STATUS_ENUM.WAIT_HR
 
     const handleSaveModalConfirm = async (type: string) => {
         const payload = {
@@ -51,7 +61,7 @@ const DetailWaitApprovalLeaveRq = () => {
             Note: note,
             LeaveRequestId: id,
             urlFrontend: window.location.origin,
-            RequestTypeId: leaveRequest?.applicationForm?.requestTypeId
+            RequestTypeId: formData?.applicationForm?.requestTypeId
         }
 
         try {
@@ -71,58 +81,27 @@ const DetailWaitApprovalLeaveRq = () => {
                 navigate("/approval/pending-approval")
                 queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
             }
-
         } catch (err) {
             console.log(err);
         }
     }
 
+    if (hasId && isFormDataLoading) {
+        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
+    }
     
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
-            <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-3">
+            <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0 pb-2">{tApproval('detail_approval_leave_request.title')}</h3>
             </div>
-            <div className="text-left mb-6 border-t border-dashed border-gray-400 pt-2">
-                <p className="my-2 text-xl">
-                    <strong className="text-blue-600">{tApproval('detail_approval_leave_request.code')}:</strong> <span className="font-bold text-gray-600">{leaveRequest?.code}</span>
-                </p>
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.user_code')}:</strong> {leaveRequest?.userCodeRequestor}
-                </p>
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.user_requestor')}:</strong> {leaveRequest?.userNameRequestor}
-                </p>
-
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.department')}:</strong> {leaveRequest?.orgUnit.name}
-                </p>
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.position')}:</strong> {leaveRequest?.position}
-                </p>
-
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.from_date')}:</strong> {formatDate(leaveRequest?.fromDate, 'yyyy-MM-dd HH:mm:ss')}
-                </p>
-
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.to_date')}c:</strong> {formatDate(leaveRequest?.toDate, 'yyyy-MM-dd HH:mm:ss')}
-                </p>
-
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.type_leave')}</strong> {lang == 'vi' ? leaveRequest?.typeLeave.name : leaveRequest?.typeLeave.nameE}
-                </p>
-
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.time_leave')}:</strong> {lang == 'vi' ? leaveRequest?.timeLeave.name : leaveRequest?.timeLeave.nameE}
-                </p>
-
-                <p className="my-2">
-                    <strong>{tApproval('detail_approval_leave_request.reason')}:</strong> {leaveRequest?.reason}
-                </p>
+            <div className="text-left mb-6 border-gray-400 pt-2 w-[100%]">
+                <LeaveRqFormComponent 
+                    mode={'approval'}
+                    formData={initialFormData}
+                    typeLeaves={typeLeaves}
+                />
             </div>
-
-            <HistoryApproval historyApplicationForm={leaveRequest?.applicationForm?.historyApplicationForms[0]}/>
 
             <div>
                 <Label className='mb-1'>{t('note')}</Label>
@@ -143,7 +122,7 @@ const DetailWaitApprovalLeaveRq = () => {
                                 onClick={() => setStatusModalConfirm('approval')}
                                 className="px-4 py-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
                             >
-                                {t('approval')}
+                                {lang == 'vi' ? 'Đăng ký' : 'Register'}
                             </Button>
                         ) : (
                             <>
@@ -165,6 +144,7 @@ const DetailWaitApprovalLeaveRq = () => {
 
                 </div>
             </div>
+            <HistoryApproval historyApplicationForm={formData?.applicationForm?.historyApplicationForms[0]}/>
         </div>
     )
 }
