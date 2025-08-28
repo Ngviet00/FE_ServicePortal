@@ -131,7 +131,8 @@ export enum RoleEnum {
     IT = "IT",
     UNION = "Union",
     USER = "User",
-    GM = "GM"
+    GM = "GM",
+    PURCHASING = "Purchasing"
 }
 
 export const isValidEmail = (email: string): boolean => {

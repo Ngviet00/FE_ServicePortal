@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { RoleEnum } from "@/lib";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
-// import useHasPermission from "@/hooks/useHasPermission";
 import "./style.css"
 import approvalApi from "@/api/approvalApi";
 

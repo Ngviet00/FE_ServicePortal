@@ -85,6 +85,12 @@
 			"list": "Danh sách đơn đã tạo",
 			"setting": "Cài đặt"
 		},
+		"purchase": {
+			"title": "Mua hàng",
+			"statistical": "Thống kê",
+			"create": "Tạo yêu cầu mới",
+			"list": "Danh sách đơn đã tạo"
+		},
 		"approval": {
 			"title": "Phê duyệt",
 			"pending_approval": "Chờ duyệt",

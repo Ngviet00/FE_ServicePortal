@@ -1,4 +1,4 @@
-import { House, LockKeyhole, Ticket, Users, Bell, Computer, ClipboardCheck } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell, Computer, ClipboardCheck, WalletCards } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -74,6 +74,16 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.IT.create", route: "/form-it/create" },
 			{ label: "sidebar.IT.list", route: "/form-it" },
 			{ label: "sidebar.IT.setting", route: "/form-it/setting" },
+		],
+	},
+	{
+		key: "Purchase",
+		label: "sidebar.purchase.title",
+		icon: WalletCards,
+		children: [
+			{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
+			{ label: "sidebar.purchase.create", route: "/purchase/create" },
+			{ label: "sidebar.purchase.list", route: "/purchase" }
 		],
 	},
 	{

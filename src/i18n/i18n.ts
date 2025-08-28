@@ -35,6 +35,9 @@ import viApproval from './locales/vi/approval.json'
 import enAdmin from './locales/en/admin.json'
 import viAdmin from './locales/vi/admin.json'
 
+import enPurchase from './locales/en/purchase.json'
+import viPurchase from './locales/vi/purchase.json'
+
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
@@ -57,6 +60,7 @@ i18n
 	],
     resources: {
 		en: {
+			purchase: enPurchase,
 			admin: enAdmin,
 			pendingApproval: enApproval,
 			requestType: enRequestType,
@@ -70,6 +74,7 @@ i18n
 			changeOrgUnit: enChangeOrgUnit
 		},
 		vi: {
+			purchase: viPurchase,
 			admin: viAdmin,
 			pendingApproval: viApproval,
 			requestType: viRequestType,

@@ -85,6 +85,12 @@
 			"list": "List",
 			"setting": "Setting"
 		},
+		"purchase": {
+			"title": "Purchasing",
+			"statistical": "Statistical",
+			"create": "Create new request",
+			"list": "List"
+		},
 		"approval": {
 			"title": "Approval",
 			"pending_approval": "Pending approval",

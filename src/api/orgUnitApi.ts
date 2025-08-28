@@ -34,20 +34,6 @@ const orgUnitApi = {
     GetDepartmentAndChildrenTeam() {
         return axiosClient.get(`/org-unit/get-department-and-children-team`)
     }
-
-    // GetAllDepartmentAndFirstOrgUnit() {
-    //     return axiosClient.get('/org-unit/get-all-dept-and-first-org-unit')
-    // },
-    // GetAllDeptOfOrgUnit() {
-    //     return axiosClient.get('/org-unit/get-all-dept-of-orgunit')
-    // },
-    // GetOrgUnitTeamAndUserNotSetOrgUnitWithDept(departmentId: number) {
-    //     return axiosClient.get(`/org-unit/get-orgunit-team-and-user-not-set-orgunit-with-dept?departmentId=${departmentId}`)
-    // },
-    // GetOrgUnitUserWithDept(departmentId: number) {
-    //     return axiosClient.get(`/org-unit/get-orgunit-user-by-with-dept?departmentId=${departmentId}`)
-    // },
-
 }
 
 export function useSaveChangeOrgUnitUser() {

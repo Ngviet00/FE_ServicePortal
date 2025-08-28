@@ -47,6 +47,10 @@ import DetailWaitApprovalFormIT from '@/features/FormIT/DetailWaitApprovalFormIT
 import ViewOnlyFormIT from '@/features/FormIT/ViewOnlyFormIT';
 import AllFormIT from '@/features/FormIT/AllFormIT';
 import AssignedFormIT from '@/features/FormIT/AssignedFormIT';
+import StatisticalFormPurchase from '@/features/Purchasing/StatisticalFormPurchase';
+import CreateFormPurchase from '@/features/Purchasing/CreateFormPurchase';
+import ListFormPurchase from '@/features/Purchasing/ListFormPurchase';
+import AllFormPurchase from '@/features/Purchasing/AllFormPurchase';
 
 function App() {
 	const location = useLocation();
@@ -102,7 +106,14 @@ function App() {
 		{ path: "/form-it/create", element: <CreateFormIT />},
 		{ path: "/form-it", element: <ListFormIT />},
 		{ path: "/form-it/edit/:id", element: <CreateFormIT />},
-		{ path: "/form-it/all-form-it", element: <AllFormIT />},
+		{ path: "/form-it/all-form-it", element: <AllFormIT />, allowedRoles: [RoleEnum.IT]},
+
+		//purchasing
+		{ path: "/purchase/statistical", element: <StatisticalFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
+		{ path: "/purchase/create", element: <CreateFormPurchase />},
+		{ path: "/purchase", element: <ListFormPurchase />},
+		{ path: "/purchase/edit/:id", element: <CreateFormPurchase />},
+		{ path: "/purchase/all-form-purchase", element: <AllFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
 
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},

@@ -1,0 +1,60 @@
+{
+    "statistical": {
+        "title": "Statistical",
+        "time": "Time",
+        "total": "Total",
+        "inprocess": "In Process",
+        "completed": "Completed",
+        "pending": "Pending",
+        "total_request": "Total request",
+        "total_by_type": "Total request by type",
+        "total_by_dept": "Total request by department",
+        "recent_request": "Recent request",
+        "content": "Title",
+        "user_sent": "User sent",
+        "dept": "Department",
+        "time_sent": "Time sent",
+        "status": "Status",
+        "priority": "Priority"
+    },
+    "create": {
+        "title": "Create new form IT",
+        "btn_list": "List",
+        "text_info_user_request": "Info user requester",
+        "text_info_request": "Info request",
+        "date_request": "Date request",
+        "date_required_completed": "Date required completed",
+        "category": "Category",
+        "other_category": "Please select another category",
+        "ex_other_category": "Ex: Accounting Software Error",
+        "position": "Position",
+        "priority": "Priority",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "note": "Note",
+        "title_approval": "Approval form IT",
+        "assigned": "Assigned to",
+        "target_completion_date": "Target Completion Date",
+        "actual_completion_date": "Actual Completion Date"
+    },
+    "list": {
+        "title": "List form IT",
+        "btn_create": "Create",
+        "code": "Code",
+        "reason": "Reason",
+        "user_requestor": "Requestor",
+        "department": "Department",
+        "user_register": "User register",
+        "created_at": "Created At",
+        "approved_by": "Approval by",
+        "status": "Status",
+        "action": "Action",
+        "edit": "Edit",
+        "title_all_form_it": "All form IT",
+        "title_view_form_it": "View detail"
+    },
+    "setting": {
+
+    }
+}
