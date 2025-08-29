@@ -2,14 +2,15 @@
 import { Button } from '@/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
-import itFormApi, { CreateITFormRequest, useCreateITForm, useUpdateITForm } from '@/api/itFormApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseRequestForm from './Components/PurchaseRequestForm';
 import costCenterApi from '@/api/costCenterApi';
 import { useTranslation } from 'react-i18next';
+import purchaseApi, { ICreatePurchase, useCreatePurchase, useUpdatePurchase } from '@/api/purchaseApi';
 
 const CreateFormPurchase = () => {
-    const { t } = useTranslation('purchase');
+    const { t } = useTranslation('purchase')
+    const lang = useTranslation().i18n.language.split('-')[0]
     const { user } = useAuthStore()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
@@ -17,9 +18,9 @@ const CreateFormPurchase = () => {
     const isEdit = !!id;
 
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
-        queryKey: ['itForm', id],
+        queryKey: ['purchaseForm', id],
         queryFn: async () => {
-            const res = await itFormApi.getById(id ?? '');
+            const res = await purchaseApi.getById(id ?? '');
             return res.data.data;
         },
         enabled: isEdit,
@@ -29,58 +30,68 @@ const CreateFormPurchase = () => {
         queryKey: ['get-all-cost-center'],
         queryFn: async () => {
             const res = await costCenterApi.getAll()
-            return res.data.data
+
+            const options: { value: string; label: string }[] = res?.data?.data?.map((center: { id: number; code: string }) => ({
+                value: center.id,
+                label: center.code
+            })) || [];
+
+            options.unshift({ value: '', label: '--Chọn--' });
+
+            return options
         }
     });
 
-    const createItForm = useCreateITForm()
-    const updateItForm = useUpdateITForm()
+    const createPurchase = useCreatePurchase()
+    const updatePurchase = useUpdatePurchase()
 
     const handleFormSubmit = async (data: any) => {
-        const payload: CreateITFormRequest = {
-            UserCodeRequestor: data.requester.userCode,
-            UserNameRequestor: data.requester.name,
-            UserCodeCreated: user?.userCode,
-            UserNameCreated: user?.userName ?? '',
-            DepartmentId: data.requester.departmentId,
-            Email: data.requester.email,
-            Position: data.requester.position,
-            Reason: data.itRequest.reason,
-            PriorityId: data.itRequest.priority,
-            OrgPositionId: user?.orgPositionId ?? 0,
-            ITCategories: data.itRequest.itCategory,
-            RequestDate: data.itRequest.dateRequired, 
-            RequiredCompletionDate: data.itRequest.dateCompleted,
-            UrlFrontend: window.location.origin,
-        };
+        const payload = formatPurchaseRequest(data)
 
         if (isEdit) {
-            await updateItForm.mutateAsync({id: id, data: payload})
+            await updatePurchase.mutateAsync({id: id, data: payload})
         }
         else {
-            await createItForm.mutateAsync(payload)
+            await createPurchase.mutateAsync(payload)
         }
 
-        await queryClient.invalidateQueries({ queryKey: ['get-all-it-form'] });
-        await queryClient.invalidateQueries({ queryKey: ['itForm'] });
-        navigate("/form-it")
+        navigate("/purchase")
         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
     }
 
     const mode = isEdit ? 'edit' : 'create';
     const initialFormData = isEdit ? formData : {};
 
+    function formatPurchaseRequest(data: any): ICreatePurchase {
+        return {
+            UserCode: data.usercode,
+            UserName: data.username,
+            DepartmentId: data.departmentId,
+            RequestedDate: data.request_date,
+            UrlFrontend: window.location.origin,
+            OrgPositionId: user?.orgPositionId,
+            CreatePurchaseDetailRequests: data.purchases.map((p: { name_category: any; description: any; quantity: any; unit_measurement: any; required_date: any; cost_center: any; note: any; }) => ({
+                ItemName: p.name_category,
+                ItemDescription: p.description,
+                Quantity: p.quantity,
+                UnitMeasurement: p.unit_measurement,
+                RequiredDate: p.required_date,
+                CostCenterId: p.cost_center,
+                Note: p.note
+            }))
+        };
+    }
+
     if (isEdit && isFormDataLoading) {
-        return <div>Đang tải dữ liệu...</div>;
+        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
     }
 
     return (
         <div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                1
-                {/* <h3 className="font-bold text-xl md:text-2xl m-0">{isEdit ? 'Cập nhật' : t('create.title')}</h3> */}
+                <h3 className="font-bold text-xl md:text-2xl m-0">{isEdit ? 'Cập nhật' : t('create.title')}</h3>
                 <Button onClick={() => navigate("/form-it")} className="w-full md:w-auto hover:cursor-pointer">
-                    {/* {t('create.btn_list')} */}a
+                    {t('create.btn_list')}
                 </Button>
             </div>
 
@@ -91,7 +102,7 @@ const CreateFormPurchase = () => {
                         costCenter={costCenters} 
                         formData={initialFormData}
                         onSubmit={handleFormSubmit}
-                        isPending={createItForm.isPending || updateItForm.isPending}
+                        isPending={createPurchase.isPending || updatePurchase.isPending}
                     />
                 </div>
             </div>

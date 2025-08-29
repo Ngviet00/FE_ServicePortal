@@ -73,6 +73,10 @@ h1 {
     overflow: hidden;
 }
 
+.css-1u9des2-indicatorSeparator, .css-894a34-indicatorSeparator {
+  display: none
+}
+
 .ql-toolbar.ql-snow {
     margin-bottom: 0px !important;
 }

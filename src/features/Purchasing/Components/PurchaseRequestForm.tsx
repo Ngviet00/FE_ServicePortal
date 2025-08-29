@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/store/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -11,12 +11,13 @@ import { z } from 'zod';
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import { Plus, Trash2 } from "lucide-react";
-
+import Select from 'react-select'
+import { NumericInput } from "@/components/NumericInput";
 interface PurchaseRequestFormProps {
     mode: 'create' | 'edit' | 'view' | 'approval' | 'manager_it_approval' | 'assigned' 
     formData?: any
     onSubmit?: (data: any) => void,
-    costCenter?: { id: number, code: string, description: string }[],
+    costCenter?: { value: string, label: string }[],
     isPending?: boolean;
 }
 
@@ -24,9 +25,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     const { t } = useTranslation('purchase')
     const { t: tCommon  } = useTranslation('common')
     const { user } = useAuthStore()
-    const lang = useTranslation().i18n.language.split('-')[0]
+    // const lang = useTranslation().i18n.language.split('-')[0]
     const navigate = useNavigate()
-    const [requestDate, setRequestDate] = useState(new Date().toISOString().split('T')[0])
 
     const isCreate = mode == 'create'
     const isEdit = mode == 'edit'
@@ -42,6 +42,11 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     });
      
     const purchaseSchema = z.object({
+        usercode: z.string().nonempty({ message: "Bắt buộc." }),
+        username: z.string().nonempty({ message: "Bắt buộc." }),
+        departmentName: z.string().optional(),
+        departmentId: z.coerce.number(),
+        request_date: z.string().nonempty({ message: "Bắt buộc." }),
         purchases: z.array(purchaseRequestSchema)
     });
     
@@ -62,11 +67,16 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     const form = useForm<PurchaseForm>({
         resolver: zodResolver(purchaseSchema),
         defaultValues: {
+            usercode: user?.userCode ?? '',
+            username: user?.userName ?? '',
+            departmentId: user?.departmentId ?? -1,
+            departmentName: user?.departmentName ?? '',
+            request_date: new Date().toISOString().split('T')[0],
             purchases: [{ ...defaultSinglePurchaseRequest }],
         },
     });
 
-    const { control, handleSubmit, setValue, getValues, reset } = form;
+    const { register, control, handleSubmit, reset } = form;
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -74,27 +84,27 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     });
 
     useEffect(() => {
-        if (formData) {
-            // reset({
-            //     requester: {
-            //         userCode: formData?.userCodeRequestor ?? '',
-            //         name: formData?.userNameRequestor ?? '',
-            //         email: formData?.email ?? '',
-            //         department: formData?.orgUnit?.name ?? '',
-            //         departmentId: formData?.orgUnit?.id ?? -1,
-            //         orgPositionId: user?.orgPositionId,
-            //         position: formData?.position ?? ''
-            //     },
-            //     itRequest: {
-            //         dateRequired: formData?.requestDate ?? new Date().toISOString().split('T')[0],
-            //         dateCompleted: formData?.requiredCompletionDate ?? new Date().toISOString().split('T')[0],
-            //         itCategory: formData?.itFormCategories?.map((item: {itCategoryId: number}) => item.itCategoryId) ?? [],
-            //         reason: formData?.reason ?? '',
-            //         priority: formData?.priorityId ?? 1,
-            //     }
-            // });
+        if (formData && isEdit) {
+            reset({
+                usercode: formData.userCode,
+                username: formData.userName,
+                departmentId: formData.departmentId,
+                departmentName: formData.orgUnit?.name ?? '',
+                request_date: formData.requestedDate?.split('T')[0] ?? '',
+                purchases: formData.purchaseDetails?.map((pd: { itemName: any; itemDescription: any; quantity: { toString: () => any; }; unitMeasurement: any; requiredDate: string; costCenterId: { toString: () => any; }; note: any; }) => ({
+                    name_category: pd.itemName ?? '',
+                    description: pd.itemDescription ?? '',
+                    quantity: pd.quantity?.toString() ?? '',
+                    unit_measurement: pd.unitMeasurement ?? '',
+                    required_date: pd.requiredDate
+                    ? pd.requiredDate.split('T')[0]
+                    : new Date().toISOString().slice(0, 10),
+                    cost_center: pd.costCenterId?.toString() ?? '',
+                    note: pd.note ?? '',
+                })) ?? [defaultSinglePurchaseRequest],
+            });
         }
-    }, [formData, reset, user?.orgPositionId]);
+    }, [defaultSinglePurchaseRequest, formData, isEdit, reset]);
 
     const onInternalSubmit = (data: any) => {
         if (onSubmit) {
@@ -121,10 +131,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                 {tCommon('usercode')}<DotRequireComponent />
                             </label>
                             <input
+                                {...register('usercode')}
                                 disabled
                                 type="text"
                                 id="usercode"
-                                value={user?.userCode}
                                 placeholder={tCommon('usercode')}
                                 className={`border-gray-300 bg-gray-100 mt-1 w-full p-2 rounded-md text-sm border`}
                             />
@@ -135,7 +145,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                 {tCommon('name')}<DotRequireComponent />
                             </label>
                             <input
-                                value={user?.userName ?? ''}
+                                {...register('username')}
                                 disabled
                                 type="text"
                                 id="username"
@@ -149,8 +159,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                 {tCommon('department')}<DotRequireComponent />
                             </label>
                             <input
+                                {...register('departmentName')}
                                 disabled
-                                value={user?.departmentName}
                                 type="text"
                                 id="department"
                                 placeholder={tCommon('department')}
@@ -159,18 +169,24 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                         </div>
                         <div className="form-group">
                             <label htmlFor="requester.department" className="block text-sm font-medium text-gray-700 mb-1">
-                                {tCommon('Ngày yêu cầu')}<DotRequireComponent />
+                                {t('create.request_date')}<DotRequireComponent />
                             </label>
-                            <DateTimePicker
-                                enableTime={false}
-                                dateFormat="Y-m-d"
-                                initialDateTime={requestDate}
-                                onChange={(_selectedDates, dateStr) => setRequestDate(dateStr)}
-                                className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                            <Controller
+                                name="request_date"
+                                control={control}
+                                render={({ field }) => (
+                                    <DateTimePicker
+                                        enableTime={false}
+                                        dateFormat="Y-m-d"
+                                        initialDateTime={field.value}
+                                        onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
+                                        className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''}`}
+                                    />
+                                )}
                             />
                         </div>
                     </div>
-                    <h2 className="font-semibold text-2xl">Danh sách mục mua</h2>
+                    <h2 className="font-semibold text-xl text-[#007cc0]">{t('create.text_title_category_buy')}</h2>
                     {
                         fields.map((item, index) => {
                             const errors = form.formState.errors.purchases?.[index];
@@ -181,10 +197,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                     <div>
                                         <div key={index} className="flex justify-start mb-2">
                                             <div className="w-[22%] mr-2">
-                                                <label className="block mb-1">{ t('Tên danh mục') } <DotRequireComponent /></label>
+                                                <label className="block mb-1">{t('create.name_category')} <DotRequireComponent /></label>
                                                 <input
                                                     {...control.register(`purchases.${index}.name_category`)}
-                                                    placeholder={ t('name') }
+                                                    placeholder={ t('create.name_category') }
                                                     className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.name_category ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.name_category && (
@@ -192,10 +208,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                 )}
                                             </div>
                                             <div className="w-[22%] mr-2">
-                                                <label className="block mb-1">{ t('Đặc điểm') }</label>
+                                                <label className="block mb-1">{t('create.description')}</label>
                                                 <input
                                                     {...control.register(`purchases.${index}.description`)}
-                                                    placeholder={ t('name') }
+                                                    placeholder={ t('create.description') }
                                                     className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.description ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.description && (
@@ -203,21 +219,21 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                 )}
                                             </div>
                                             <div className="w-[5%] mr-2">
-                                                <label className="block mb-1">{ t('Số lượng') } <DotRequireComponent /></label>
-                                                <input
-                                                    {...control.register(`purchases.${index}.quantity`)}
-                                                    placeholder={ t('name') }
-                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.quantity ? "border-red-500 bg-red-50" : "border-gray-300"}`}
+                                                <label className="block mb-1">{t('create.qty')} <DotRequireComponent /></label>
+                                                <NumericInput
+                                                    name={`purchases.${index}.quantity`}
+                                                    control={control}
+                                                    placeholder="1, 2,.."
                                                 />
                                                 {errors?.quantity && (
                                                     <p className="text-sm text-red-500 mt-1">{errors.quantity.message}</p>
                                                 )}
                                             </div>
                                             <div className="w-[8%] mr-2">
-                                                <label className="block mb-1">{ t('Đơn vị') } <DotRequireComponent /></label>
+                                                <label className="block mb-1">{t('create.unit_measurement')} <DotRequireComponent /></label>
                                                 <input
                                                     {...control.register(`purchases.${index}.unit_measurement`)}
-                                                    placeholder={ t('name') }
+                                                    placeholder='pcs, ea,..'
                                                     className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.unit_measurement ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.unit_measurement && (
@@ -225,7 +241,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                 )}
                                             </div>
                                             <div className="w-[7%] mr-2">
-                                                <label className="block mb-1">{ t('Ngày nhu cầu') }</label>
+                                                <label className="block mb-1">{t('create.required_date')}</label>
                                                 <Controller
                                                     name={`purchases.${index}.required_date`}
                                                     control={control}
@@ -244,27 +260,44 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                 )}
                                             </div>
                                             <div className="mr-2">
-                                                <label className="block mb-1">{ t('Trung tâm chi phí') } <DotRequireComponent /></label>
-                                                    <select
-                                                        id="abc"
-                                                        className={`dark:bg-[#454545] border ${errors?.cost_center ? 'border-red-500' : 'border-gray-300'}  p-2 rounded-[5px] w-full text-sm`}
-                                                    >
-                                                        <option value="">--Chọn--</option>
-                                                        {
-                                                            costCenter?.map((item: { id: number, code: string, description: string }) => (
-                                                                <option key={item.id} value={item.id}>{item.code}__{item.description}</option>
-                                                            ))
-                                                        }
-                                                    </select>
-                                                {errors?.cost_center && (
-                                                    <p className="text-sm text-red-500 mt-1">{errors.cost_center.message}</p>
-                                                )}
+                                                <label className="block mb-1">{t('create.cost_center')} <DotRequireComponent /></label>
+                                                <Controller
+                                                    name={`purchases.${index}.cost_center`}
+                                                    control={control}
+                                                    render={({ field, fieldState }) => (
+                                                        <>
+                                                            <Select
+                                                                {...field}
+                                                                options={costCenter}
+                                                                className="cursor-pointer"
+                                                                value={costCenter?.find(option => option.value == field.value) || null}
+                                                                onChange={(selectedOption) => {field.onChange(selectedOption?.value?.toString())}}
+                                                                styles={{
+                                                                    control: (base) => ({
+                                                                        ...base,
+                                                                        background: fieldState.error ? "#fef2f2" : "",
+                                                                        borderColor: fieldState.error ? "red" : "#d1d5dc",
+                                                                        boxShadow: "none",
+                                                                        "&:hover": {
+                                                                            borderColor: fieldState.error ? "red" : "#d1d5dc",
+                                                                        },
+                                                                    }),
+                                                                }}
+                                                            />
+                                                            {fieldState.error && (
+                                                                <p className="text-sm text-red-500 mt-1">
+                                                                {fieldState.error.message}
+                                                                </p>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                />
                                             </div>
                                             <div className="w-[24%]">
-                                                <label className="block mb-1">{ t('Ghi chú') }</label>
+                                                <label className="block mb-1">{t('create.note')}</label>
                                                 <input
                                                     {...control.register(`purchases.${index}.note`)}
-                                                    placeholder={ t('name') }
+                                                    placeholder={ t('create.note') }
                                                     className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.note ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.note && (

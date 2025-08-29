@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Vietnamese } from 'flatpickr/dist/l10n/vn';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css'
+import { useTranslation } from 'react-i18next';
 
 interface DateTimePickerProps {
     disabled?: boolean,
@@ -13,6 +14,7 @@ interface DateTimePickerProps {
 }
 
 const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enableTime = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange }) => {
+    const lang = useTranslation().i18n.language.split('-')[0]
     const inputRef = useRef<HTMLInputElement>(null);
     const fpInstance = useRef<flatpickr.Instance | null>(null);
 
@@ -26,7 +28,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enabl
                 noCalendar: false, 
                 dateFormat: dateFormat,
                 time_24hr: true,
-                locale: Vietnamese,
+                locale: lang == 'vi' ? Vietnamese : 'default',
                 defaultDate: initialDateTime,
                 onChange: (selectedDates, dateStr, instance) => {
                     setSelectedDateTime(dateStr);
