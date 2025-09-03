@@ -24,6 +24,7 @@ interface ApprovalRequest {
     MemoNotificationId?: string,
     LeaveRequestId?: string,
     ITFormId?: string,
+    PurchaseId?: string,
     Status?: boolean,
     Note?: string,
     urlFrontend?: string,

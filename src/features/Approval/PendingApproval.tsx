@@ -3,6 +3,7 @@ import approvalApi from "@/api/approvalApi";
 import { ITForm } from "@/api/itFormApi";
 import { useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi";
 import orgUnitApi from "@/api/orgUnitApi";
+import { IPurchase } from "@/api/purchaseApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
@@ -19,7 +20,7 @@ import { ChangeEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-const subKeys = ["leaveRequest", "itForm", "memoNotification"];
+const subKeys = ["leaveRequest", "itForm", "memoNotification", 'purchase'];
 
 function getSubForm(item: any) {
 	const key = subKeys.find(k => item[k] !== null);
@@ -63,7 +64,8 @@ interface PendingApprovalResponse {
 		code?: string,
 		createdBy?: string,
 	},
-	itForm: ITForm
+	itForm: ITForm,
+	purchase: IPurchase
 }
 
 function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
@@ -77,6 +79,9 @@ function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 	}
 	else if (item.requestTypeId == REQUEST_TYPE.FORM_IT) {
 		result = `/approval/approval-form-it/${item?.itForm?.id ?? '1'}`
+	}
+	else if (item.requestTypeId == REQUEST_TYPE.PURCHASE) {
+		result = `/approval/approval-purchase/${item?.purchase?.id ?? '1'}`
 	}
 
 	return result

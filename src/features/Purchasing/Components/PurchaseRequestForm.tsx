@@ -14,7 +14,7 @@ import { Plus, Trash2 } from "lucide-react";
 import Select from 'react-select'
 import { NumericInput } from "@/components/NumericInput";
 interface PurchaseRequestFormProps {
-    mode: 'create' | 'edit' | 'view' | 'approval' | 'manager_it_approval' | 'assigned' 
+    mode: 'create' | 'edit' | 'view' | 'approval' | 'manager_purchase_approval' | 'assigned' 
     formData?: any
     onSubmit?: (data: any) => void,
     costCenter?: { value: string, label: string }[],
@@ -25,13 +25,15 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     const { t } = useTranslation('purchase')
     const { t: tCommon  } = useTranslation('common')
     const { user } = useAuthStore()
-    // const lang = useTranslation().i18n.language.split('-')[0]
     const navigate = useNavigate()
 
-    const isCreate = mode == 'create'
-    const isEdit = mode == 'edit'
+    // const isCreate = mode == 'create'
+    // const isEdit = mode == 'edit'
+
+    const isCreateOrEdit = mode == 'create' || mode == 'edit'
 
     const purchaseRequestSchema = z.object({
+        id: z.string().nullable().optional(),
         name_category: z.string().nonempty({ message: "Bắt buộc." }),
         description: z.string().optional(),
         quantity: z.string().nonempty({ message: "Bắt buộc." }),
@@ -54,6 +56,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
 
     const defaultSinglePurchaseRequest = useMemo(() => {
         return {
+            id: null,
             name_category: '',
             description: '',
             quantity: '',
@@ -84,14 +87,15 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     });
 
     useEffect(() => {
-        if (formData && isEdit) {
+        if (formData && mode != 'create') {
             reset({
                 usercode: formData.userCode,
                 username: formData.userName,
                 departmentId: formData.departmentId,
                 departmentName: formData.orgUnit?.name ?? '',
                 request_date: formData.requestedDate?.split('T')[0] ?? '',
-                purchases: formData.purchaseDetails?.map((pd: { itemName: any; itemDescription: any; quantity: { toString: () => any; }; unitMeasurement: any; requiredDate: string; costCenterId: { toString: () => any; }; note: any; }) => ({
+                purchases: formData.purchaseDetails?.map((pd: { id: any, itemName: any; itemDescription: any; quantity: { toString: () => any; }; unitMeasurement: any; requiredDate: string; costCenterId: { toString: () => any; }; note: any; }) => ({
+                    id: pd.id,
                     name_category: pd.itemName ?? '',
                     description: pd.itemDescription ?? '',
                     quantity: pd.quantity?.toString() ?? '',
@@ -104,7 +108,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                 })) ?? [defaultSinglePurchaseRequest],
             });
         }
-    }, [defaultSinglePurchaseRequest, formData, isEdit, reset]);
+    }, [defaultSinglePurchaseRequest, formData, mode, reset]);
 
     const onInternalSubmit = (data: any) => {
         if (onSubmit) {
@@ -113,8 +117,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     };
 
     const onCancel = () => {
-        if (isEdit) {
-            navigate("/form-it")
+        if (mode == 'edit') {
+            navigate("/purchase")
         }
         else {
             reset()
@@ -176,6 +180,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                 control={control}
                                 render={({ field }) => (
                                     <DateTimePicker
+                                        disabled={mode != 'create' && mode != 'edit'}
                                         enableTime={false}
                                         dateFormat="Y-m-d"
                                         initialDateTime={field.value}
@@ -199,9 +204,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             <div className="w-[22%] mr-2">
                                                 <label className="block mb-1">{t('create.name_category')} <DotRequireComponent /></label>
                                                 <input
+                                                    disabled={mode != 'create' && mode != 'edit'}
                                                     {...control.register(`purchases.${index}.name_category`)}
                                                     placeholder={ t('create.name_category') }
-                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.name_category ? "border-red-500 bg-red-50" : "border-gray-300"}`}
+                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${!isCreateOrEdit ? 'bg-gray-100' : ''} ${errors?.name_category ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.name_category && (
                                                     <p className="text-sm text-red-500 mt-1">{errors.name_category.message}</p>
@@ -210,9 +216,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             <div className="w-[22%] mr-2">
                                                 <label className="block mb-1">{t('create.description')}</label>
                                                 <input
+                                                    disabled={mode != 'create' && mode != 'edit'}
                                                     {...control.register(`purchases.${index}.description`)}
                                                     placeholder={ t('create.description') }
-                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.description ? "border-red-500 bg-red-50" : "border-gray-300"}`}
+                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${!isCreateOrEdit ? 'bg-gray-100' : ''} ${errors?.description ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.description && (
                                                     <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
@@ -221,6 +228,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             <div className="w-[5%] mr-2">
                                                 <label className="block mb-1">{t('create.qty')} <DotRequireComponent /></label>
                                                 <NumericInput
+                                                    className={`pointer-events-none ${!isCreateOrEdit ? 'bg-gray-100' : ''}`}
                                                     name={`purchases.${index}.quantity`}
                                                     control={control}
                                                     placeholder="1, 2,.."
@@ -232,9 +240,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             <div className="w-[8%] mr-2">
                                                 <label className="block mb-1">{t('create.unit_measurement')} <DotRequireComponent /></label>
                                                 <input
+                                                    disabled={mode != 'create' && mode != 'edit'}
                                                     {...control.register(`purchases.${index}.unit_measurement`)}
                                                     placeholder='pcs, ea,..'
-                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.unit_measurement ? "border-red-500 bg-red-50" : "border-gray-300"}`}
+                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${!isCreateOrEdit ? 'bg-gray-100' : ''} ${errors?.unit_measurement ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.unit_measurement && (
                                                     <p className="text-sm text-red-500 mt-1">{errors.unit_measurement.message}</p>
@@ -247,11 +256,12 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                     control={control}
                                                     render={({ field }) => (
                                                         <DateTimePicker
+                                                            disabled={mode != 'create' && mode != 'edit'}
                                                             enableTime={false}
                                                             dateFormat="Y-m-d"
                                                             initialDateTime={field.value}
                                                             onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                            className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                                            className={`dark:bg-[#454545] w-full shadow-xs border ${!isCreateOrEdit ? 'bg-gray-100' : ''} border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                                                         />
                                                     )}
                                                 />
@@ -267,9 +277,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                     render={({ field, fieldState }) => (
                                                         <>
                                                             <Select
+                                                                isDisabled={!isCreateOrEdit}
                                                                 {...field}
                                                                 options={costCenter}
-                                                                className="cursor-pointer"
+                                                                className={`cursor-pointer ${!isCreateOrEdit ? 'bg-gray-100' : ''}`}
                                                                 value={costCenter?.find(option => option.value == field.value) || null}
                                                                 onChange={(selectedOption) => {field.onChange(selectedOption?.value?.toString())}}
                                                                 styles={{
@@ -296,9 +307,10 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             <div className="w-[24%]">
                                                 <label className="block mb-1">{t('create.note')}</label>
                                                 <input
+                                                    disabled={!isCreateOrEdit}
                                                     {...control.register(`purchases.${index}.note`)}
                                                     placeholder={ t('create.note') }
-                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.note ? "border-red-500 bg-red-50" : "border-gray-300"}`}
+                                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${!isCreateOrEdit ? 'bg-gray-100' : ''} ${errors?.note ? "border-red-500 bg-red-50" : "border-gray-300"}`}
                                                 />
                                                 {errors?.note && (
                                                     <p className="text-sm text-red-500 mt-1">{errors.note.message}</p>
@@ -306,50 +318,55 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div className={`flex justify-end`} >
-                                        {fields.length > 1 && (
-                                            <div className={`flex`}>
-                                                <button
-                                                    type="button"
-                                                    className="bg-red-500 text-white rounded px-2 hover:cursor-pointer hover:bg-red-700"
-                                                    onClick={() => remove(index)}
-                                                >
-                                                    <Trash2 size={20} className="h-[30px]"/>
-                                                </button>
+                                    {
+                                        isCreateOrEdit ? (
+                                            <div className={`flex justify-end`} >
+                                                {fields.length > 1 && (
+                                                    <div className={`flex`}>
+                                                        <button
+                                                            type="button"
+                                                            className="bg-red-500 text-white rounded px-2 hover:cursor-pointer hover:bg-red-700"
+                                                            onClick={() => remove(index)}
+                                                        >
+                                                            <Trash2 size={20} className="h-[30px]"/>
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
+                                        ) : (<></>)
+                                    }
                                 </div>
                             )
                         })
                     }
                 </div>
             </div>
-
-            <div className="mt-5">
-                <button type="button" className="dark:bg-black bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400" onClick={() => append({...defaultSinglePurchaseRequest})}>
-                    <Plus size={16}/>
-                </button>
-            </div>
             {
-                isCreate || isEdit ? (
-                    <div className='flex gap-4 justify-end'>
-                        <Button
-                            type="button"
-                            onClick={onCancel}
-                            className='px-6 py-2 border bg-white border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
-                        >
-                            {tCommon('cancel')}
-                        </Button>
-                        <Button
-                            disabled={isPending}
-                            type='submit'
-                            className='px-6 py-2 bg-black border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
-                        >
-                            {isPending ? <Spinner size="small" className='text-white'/> : tCommon('save')}
-                        </Button>
-                    </div>
+                isCreateOrEdit ? (
+                    <>
+                        <div className="mt-5">
+                            <button type="button" className="dark:bg-black bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400" onClick={() => append({...defaultSinglePurchaseRequest})}>
+                                <Plus size={16}/>
+                            </button>
+                        </div>
+                        <div className='flex gap-4 justify-end'>
+                            <Button
+                                type="button"
+                                onClick={onCancel}
+                                className='px-6 py-2 border bg-white border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer'
+                            >
+                                {tCommon('cancel')}
+                            </Button>
+                            <Button
+                                disabled={isPending}
+                                type='submit'
+                                className='px-6 py-2 bg-black border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
+                            >
+                                {isPending ? <Spinner size="small" className='text-white'/> : tCommon('save')}
+                            </Button>
+                        </div>
+                    </>
+                    
                 ) : (<></>)
             }            
         </form>

@@ -70,7 +70,8 @@ const CreateFormPurchase = () => {
             RequestedDate: data.request_date,
             UrlFrontend: window.location.origin,
             OrgPositionId: user?.orgPositionId,
-            CreatePurchaseDetailRequests: data.purchases.map((p: { name_category: any; description: any; quantity: any; unit_measurement: any; required_date: any; cost_center: any; note: any; }) => ({
+            CreatePurchaseDetailRequests: data.purchases.map((p: { id: any, name_category: any; description: any; quantity: any; unit_measurement: any; required_date: any; cost_center: any; note: any; }) => ({
+                id: p.id,
                 ItemName: p.name_category,
                 ItemDescription: p.description,
                 Quantity: p.quantity,
@@ -90,7 +91,7 @@ const CreateFormPurchase = () => {
         <div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{isEdit ? 'Cập nhật' : t('create.title')}</h3>
-                <Button onClick={() => navigate("/form-it")} className="w-full md:w-auto hover:cursor-pointer">
+                <Button onClick={() => navigate("/purchase")} className="w-full md:w-auto hover:cursor-pointer">
                     {t('create.btn_list')}
                 </Button>
             </div>

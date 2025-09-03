@@ -31,10 +31,9 @@
         "note": "Note"
     },
     "list": {
-        "title": "List form IT",
+        "title": "List purchase",
         "btn_create": "Create",
         "code": "Code",
-        "reason": "Reason",
         "user_requestor": "Requestor",
         "department": "Department",
         "user_register": "User register",
@@ -42,9 +41,7 @@
         "approved_by": "Approval by",
         "status": "Status",
         "action": "Action",
-        "edit": "Edit",
-        "title_all_form_it": "All form IT",
-        "title_view_form_it": "View detail"
+        "edit": "Edit"
     },
     "setting": {
 

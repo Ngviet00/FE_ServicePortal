@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from '@/api/approvalApi';
 import { ITForm } from '@/api/itFormApi';
+import { IPurchase } from '@/api/purchaseApi';
 import requestTypeApi, { IRequestType } from '@/api/requestTypeApi';
 import PaginationControl from '@/components/PaginationControl/PaginationControl';
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
@@ -14,7 +15,7 @@ import React, { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-const subKeys = ["leaveRequest", "itForm", "memoNotification"];
+const subKeys = ["leaveRequest", "itForm", "memoNotification", 'purchase'];
 
 function getSubForm(item: any) {
 	const key = subKeys.find(k => item[k] !== null);
@@ -53,7 +54,8 @@ interface HistoryApprovalProcessedResponse {
 		code?: string,
 		createdBy?: string,
 	},
-	itForm: ITForm
+	itForm?: ITForm,
+	purchase?: IPurchase
 
 }
 
@@ -68,6 +70,9 @@ function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
 	}
 	else if (item?.requestType?.id == REQUEST_TYPE.FORM_IT) {
 		result = `/approval/view-form-it/${item?.itForm?.id ?? '1'}`
+	}
+	else if (item?.requestType?.id == REQUEST_TYPE.PURCHASE) {
+		result = `/approval/view-purchase/${item?.purchase?.id ?? '1'}`
 	}
 
 	return result

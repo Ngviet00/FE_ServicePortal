@@ -19,7 +19,7 @@
     },
     "create": {
         "title": "Đơn xin mua",
-        "btn_list": "List",
+        "btn_list": "Danh sách đã tạo",
         "request_date": "Ngày yêu cầu",
         "text_title_category_buy": "Danh sách mục mua",
         "name_category": "Tên danh mục",
@@ -31,20 +31,18 @@
         "note": "Ghi chú"
     },
     "list": {
-        "title": "List form IT",
-        "btn_create": "Create",
-        "code": "Code",
-        "reason": "Reason",
-        "user_requestor": "Requestor",
-        "department": "Department",
-        "user_register": "User register",
-        "created_at": "Created At",
-        "approved_by": "Approval by",
-        "status": "Status",
-        "action": "Action",
-        "edit": "Edit",
-        "title_all_form_it": "All form IT",
-        "title_view_form_it": "View detail"
+        "title": "Danh sách đăng ký mua",
+        "btn_create": "Tạo mới",
+        "code": "Mã đơn",
+        "reason": "Lý do",
+        "user_requestor": "Người yêu cầu",
+        "department": "Phòng ban",
+        "user_register": "Người đăng ký",
+        "created_at": "Thời gian tạo",
+        "approved_by": "Người duyệt",
+        "status": "Trạng thái",
+        "action": "Hành động",
+        "edit": "Sửa"
     },
     "setting": {
 

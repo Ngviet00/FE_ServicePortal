@@ -51,6 +51,9 @@ import StatisticalFormPurchase from '@/features/Purchasing/StatisticalFormPurcha
 import CreateFormPurchase from '@/features/Purchasing/CreateFormPurchase';
 import ListFormPurchase from '@/features/Purchasing/ListFormPurchase';
 import AllFormPurchase from '@/features/Purchasing/AllFormPurchase';
+import DetailWaitApprovalFormPurchase from '@/features/Purchasing/DetailWaitApprovalFormPurchase';
+import AssignedFormPurchase from '@/features/Purchasing/AssignedFormPurchase';
+import ViewOnlyFormPurchase from '@/features/Purchasing/ViewOnlyFormPurchase';
 
 function App() {
 	const location = useLocation();
@@ -129,6 +132,10 @@ function App() {
 		{ path: "/approval/approval-form-it/:id", element: <DetailWaitApprovalFormIT />},
 		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
 		{ path: "/approval/view-form-it/:id", element: <ViewOnlyFormIT />},
+
+		{ path: "/approval/approval-purchase/:id", element: <DetailWaitApprovalFormPurchase />},
+		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
+		{ path: "/approval/view-purchase/:id", element: <ViewOnlyFormPurchase />},
 	];
   
 	return (

@@ -111,7 +111,7 @@ export default function ListFormIT () {
                                                 <td className="px-4 py-2 border text-left">{item?.orgUnit?.name ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left">{item?.userNameCreated ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-left">{'--'}</td>
+                                                <td className="px-4 py-2 border text-left">{item?.applicationForm?.historyApplicationForms[0]?.userNameApproval ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left">
                                                     <StatusLeaveRequest status={
                                                         requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId

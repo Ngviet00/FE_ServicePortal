@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ModalConfirm from '@/components/ModalConfirm';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import userApi, { ISelectedUserAssigned } from '@/api/userApi';
+import { ISelectedUserAssigned } from '@/api/userApi';
 import { useApproval } from '@/api/approvalApi';
 import { Spinner } from '@/components/ui/spinner';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
@@ -67,7 +66,7 @@ const DetailWaitApprovalFormIT = () => {
     const { data: ItMembers = [] } = useQuery({
         queryKey: ['get-all-it-member'],
         queryFn: async () => {
-            const res = await userApi.GetMultipleUserViclockByOrgPositionId(8)
+            const res = await itFormApi.getMemberITAssigned()
             return res.data.data
         },
         enabled: isManagerITapproval

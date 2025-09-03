@@ -122,7 +122,8 @@ export interface IAssignedTask {
     UserNameApproval?: string,
     NoteManager?: string,
     OrgPositionId?: number
-    ITFormId?: string
+    ITFormId?: string,
+    PurchaseId?: string,
     UrlFrontend?: string
     UserAssignedTasks?: ISelectedUserAssigned[];
 }
@@ -130,7 +131,8 @@ export interface IAssignedTask {
 export interface IResolvedTask {
     UserCodeApproval?: string,
     UserNameApproval?: string,
-    ITFormId?: string
+    ITFormId?: string,
+    PurchaseId?: string,
     UrlFrontend?: string,
     TargetCompletionDate?: string,
     ActualCompletionDate?: string
@@ -168,6 +170,9 @@ const itFormApi = {
     },
     resolvedTask(data: IResolvedTask) {
         return axiosClient.post('/it-form/resolved-task', data)
+    },
+    getMemberITAssigned() {
+        return axiosClient.get('/it-form/get-member-it-assigned')
     }
 }
 

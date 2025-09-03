@@ -2,28 +2,31 @@ import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, ShowToast } from '@/lib';
 import { OrgUnit } from './orgUnitApi';
-import { ApplicationForm } from './itFormApi';
+import { ApplicationForm, IAssignedTask, IResolvedTask } from './itFormApi';
 
-interface GetAllParams {
-    page: number;
-    pageSize: number;
-    name?: string;
+interface GetAll {
+    UserCode?: string,
+    Page: number
+    PageSize: number,
+    DepartmentId?: number | null,
+    RequestStatusId?: number | null,
+    Year?: number | null,
 }
 
 export interface IPurchase {
-    Id?: string;
-    ApplicationFormId?: string;
-    Code?: string;
-    UserCode?: string;
-    UserName?: string;
-    DepartmentId?: number;
-    RequestedDate?: string | Date;
-    CreatedAt?: string | Date;
-    UpdatedAt?: string | Date;
-    DeletedAt?: string | Date;
-    ApplicationForm?: ApplicationForm;
-    PurchaseDetails?: IPurchaseDetail[];
-    OrgUnit?: OrgUnit;
+    id?: string;
+    applicationFormId?: string;
+    code?: string;
+    userCode?: string;
+    userName?: string;
+    departmentId?: number;
+    requestedDate?: string | Date;
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
+    deletedAt?: string | Date;
+    applicationForm?: ApplicationForm;
+    purchaseDetails?: IPurchaseDetail[];
+    orgUnit?: OrgUnit;
 };
 
 export interface ICreatePurchase {
@@ -57,7 +60,7 @@ export interface IPurchaseDetail {
 }
 
 const purchaseApi = {
-    getAll(params: GetAllParams) {
+    getAll(params: GetAll) {
         return axiosClient.get('/purchase', {params})
     },
     getById(id: string) {
@@ -72,8 +75,14 @@ const purchaseApi = {
     delete(id: string) {
         return axiosClient.delete(`/purchase/${id}`)
     },
-    deletePurchaseItemDetail(id: string) {
-        return axiosClient.delete(`/delete-purchase-item/${id}`)
+    assignedTask(data: IAssignedTask) {
+        return axiosClient.post('/purchase/assigned-task', data)
+    },
+    resolvedTask(data: IResolvedTask) {
+        return axiosClient.post('/purchase/resolved-task', data)
+    },
+    getMemberPurchaseAssigned() {
+        return axiosClient.get('/purchase/get-member-purchase-assigned')
     }
 }
 
@@ -119,10 +128,24 @@ export function useDeletePurchase() {
     })
 }
 
-export function useDeletePurchaseItemDetail() {
+export function useAssignedTaskPurchaseForm() {
     return useMutation({
-        mutationFn: async (id: string) => {
-            await purchaseApi.deletePurchaseItemDetail(id)
+        mutationFn: async (data: IAssignedTask) => {
+            await purchaseApi.assignedTask(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useResolvedTaskPurchaseForm() {
+    return useMutation({
+        mutationFn: async (data: IResolvedTask) => {
+            await purchaseApi.resolvedTask(data)
         },
         onSuccess: () => {
             ShowToast("Success");
