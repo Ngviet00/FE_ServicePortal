@@ -28,7 +28,8 @@
         "unit_measurement": "Unit",
         "required_date": "Required date",
         "cost_center": "Cost center",
-        "note": "Note"
+        "note": "Note",
+        "assigned": "Assigned to"
     },
     "list": {
         "title": "List purchase",

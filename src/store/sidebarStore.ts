@@ -73,7 +73,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
 			{ label: "sidebar.IT.create", route: "/form-it/create" },
 			{ label: "sidebar.IT.list", route: "/form-it" },
-			{ label: "sidebar.IT.setting", route: "/form-it/setting" },
+			// { label: "sidebar.IT.setting", route: "/form-it/setting" },
 		],
 	},
 	{

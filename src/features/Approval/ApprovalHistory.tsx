@@ -14,6 +14,7 @@ import { formatDate } from 'date-fns';
 import React, { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import orgUnitApi from '@/api/orgUnitApi';
 
 const subKeys = ["leaveRequest", "itForm", "memoNotification", 'purchase'];
 
@@ -87,6 +88,8 @@ const ApprovalHistory: React.FC = () => {
 	const [pageSize, setPageSize] = useState(10)
 	const [totalPage, setTotalPage] = useState(0)
 	const { user } = useAuthStore()
+	const [selectedDepartment, setSelectedDepartment] = useState('')
+	const [selectedStatus, setSelectedStatus] = useState('')
 
 	const { data: requestTypes = []} = useQuery({
         queryKey: ['get-all-request-type'],
@@ -105,13 +108,15 @@ const ApprovalHistory: React.FC = () => {
 	}
 
 	const { data: ListHistoryApprovalsProcessed = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-list-history-approval-processed', page, pageSize, requestType],
+        queryKey: ['get-list-history-approval-processed', page, pageSize, requestType, selectedStatus, selectedDepartment],
         queryFn: async () => {
             const res = await approvalApi.GetListHistoryApprovalOrProcessed({
                 Page: page,
                 PageSize: pageSize,
 				UserCode: user?.userCode,
 				RequestTypeId: requestType == '' ? null : Number(requestType),
+				DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
+				Status: selectedStatus == '' ? null : Number(selectedStatus),
             });
 			setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -126,6 +131,24 @@ const ApprovalHistory: React.FC = () => {
         setPage(1)
         setPageSize(size)
     }
+
+	const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
+        setPage(1)
+        setSelectedDepartment(e.target.value)
+    }
+
+	const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
+        setPage(1)
+        setSelectedStatus(e.target.value)
+    }
+
+	const { data: departments = [] } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		}
+	});
 		
 	return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
@@ -133,10 +156,10 @@ const ApprovalHistory: React.FC = () => {
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('history_approval_processed.title')}</h3>
             </div>
 
-			<div className="mt-2 flex">
-				<div>
+			<div className="flex mt-3 mb-5">
+				<div className='w-[12%]'>
 					<Label className="mb-2">{t('history_approval_processed.request_type')}</Label>
-					<select className="border p-1 rounded w-full md:w-auto cursor-pointer" value={requestType} onChange={(e) => handleOnChangeRequestType(e)}>
+					<select className="border p-1 rounded w-full cursor-pointer" value={requestType} onChange={(e) => handleOnChangeRequestType(e)}>
 						<option value="">
 							{ lang == 'vi' ? 'Tất cả' : 'All' }
 						</option>
@@ -144,6 +167,34 @@ const ApprovalHistory: React.FC = () => {
 							requestTypes.map((item: IRequestType, idx: number) => (
 								<option key={idx} value={item.id}>{lang == 'vi' ? item.name : item.nameE}</option>
 							))
+						}
+					</select>
+				</div>
+
+				<div className="w-[12%] mx-5">
+					<Label className="mb-2">{t('history_approval_processed.department')}</Label>
+					<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
+						<option value="">
+							{ lang == 'vi' ? 'Tất cả' : 'All' }
+						</option>
+						{
+							departments.map((item: { id: number, name: string }, idx: number) => (
+								<option key={idx} value={item.id}>{item.name}</option>
+							))
+						}
+					</select>
+				</div>
+				<div className="w-[12%]">
+					<Label className="mb-2">{t('history_approval_processed.status')}</Label>
+					<select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
+						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
+						{
+							Object.entries(STATUS_ENUM).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
+								.map(([key, value]) => (
+									<option key={value} value={value}>
+										{key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
+									</option>
+								))
 						}
 					</select>
 				</div>

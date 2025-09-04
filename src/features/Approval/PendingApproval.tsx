@@ -240,7 +240,7 @@ export default function PendingApproval() {
             </div>
 
 			<div className="mt-2 flex">
-				<div className="w-[20%]">
+				<div className="w-[12%]">
 					<Label className="mb-2">{t('pending_approval.request_type')}</Label>
 					<select value={requestType} onChange={(e) => handleOnChangeRequestType(e)} className="border p-1 rounded w-full cursor-pointer">
 						<option value="">
@@ -249,6 +249,20 @@ export default function PendingApproval() {
 						{
 							requestTypes.map((item: IRequestType, idx: number) => (
 								<option key={idx} value={item.id}>{lang == 'vi' ? item.name : item.nameE}</option>
+							))
+						}
+					</select>
+				</div>
+
+				<div className="w-[12%] mx-5">
+					<Label className="mb-2">{t('history_approval_processed.department')}</Label>
+					<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
+						<option value="">
+							{ lang == 'vi' ? 'Tất cả' : 'All' }
+						</option>
+						{
+							departments.map((item: { id: number, name: string }, idx: number) => (
+								<option key={idx} value={item.id}>{item.name}</option>
 							))
 						}
 					</select>

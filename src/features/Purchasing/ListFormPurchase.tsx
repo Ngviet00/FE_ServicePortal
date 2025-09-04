@@ -100,7 +100,7 @@ export default function ListFormPurchase () {
                                         return (
                                             <tr key={item.id}>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
                                                 </td>
                                                 <td className="px-4 py-2 border text-center">{item?.userName ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>

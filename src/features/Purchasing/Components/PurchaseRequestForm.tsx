@@ -27,9 +27,6 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     const { user } = useAuthStore()
     const navigate = useNavigate()
 
-    // const isCreate = mode == 'create'
-    // const isEdit = mode == 'edit'
-
     const isCreateOrEdit = mode == 'create' || mode == 'edit'
 
     const purchaseRequestSchema = z.object({
@@ -228,7 +225,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             <div className="w-[5%] mr-2">
                                                 <label className="block mb-1">{t('create.qty')} <DotRequireComponent /></label>
                                                 <NumericInput
-                                                    className={`pointer-events-none ${!isCreateOrEdit ? 'bg-gray-100' : ''}`}
+                                                    className={`${!isCreateOrEdit ? 'bg-gray-100 pointer-events-none ' : ''}`}
                                                     name={`purchases.${index}.quantity`}
                                                     control={control}
                                                     placeholder="1, 2,.."

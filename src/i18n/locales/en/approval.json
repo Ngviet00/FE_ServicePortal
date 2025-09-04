@@ -25,7 +25,8 @@
         "approval_at": "Approved at",
         "action": "Action",
         "result": "Result",
-        "department": "Department"
+        "department": "Department",
+        "status": "Status"
     },
     "history_component": {
         "title": "History approval",

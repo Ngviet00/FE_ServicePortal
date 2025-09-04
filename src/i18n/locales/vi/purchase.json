@@ -28,7 +28,8 @@
         "unit_measurement": "Đơn vị tính",
         "required_date": "Ngày nhu cầu",
         "cost_center": "Trung tâm chi phí",
-        "note": "Ghi chú"
+        "note": "Ghi chú",
+        "assigned": "Assigned to"
     },
     "list": {
         "title": "Danh sách đăng ký mua",

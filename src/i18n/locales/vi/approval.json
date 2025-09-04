@@ -26,7 +26,8 @@
         "approval_at": "Ngày duyệt/xử lý",
         "action": "Hành động",
         "result": "Kết quả",
-        "department": "Phòng ban"
+        "department": "Phòng ban",
+        "status": "Trạng thái"
     },
     "history_component": {
         "title": "Lịch sử phê duyệt",

@@ -35,6 +35,8 @@ export interface ListHistoryApprovalOrProcessedRequest {
     UserCode?: string,
     Page?: number,
     PageSize?: number,
+    DepartmentId?: number | null,
+    Status?: number | null
 }
 
 export interface HistoryApproval {
@@ -49,6 +51,8 @@ export interface IListAssigned {
     UserCode?: string,
     Page?: number,
     PageSize?: number,
+    DepartmentId?: number | null,
+    RequestTypeId?: number | null
 }
 
 const approvalApi = {

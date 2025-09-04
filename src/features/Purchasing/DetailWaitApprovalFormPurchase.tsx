@@ -150,7 +150,7 @@ const DetailWaitApprovalFormPurchase = () => {
                 </div>
                 <div className='mt-8 border-t border-dashed border-gray-300 pt-5'>
                     <div className='w-full'>
-                        <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'>{isManagerPurchaseApproval ? '(Manager Purchase)' : ''}</span></Label>
+                        <Label className='mb-1'>{t('create.note')}</Label>
                         <Textarea 
                             placeholder={t('create.note')} 
                             value={note} 
