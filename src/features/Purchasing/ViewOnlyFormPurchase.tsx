@@ -8,6 +8,7 @@ import { useApproval } from '@/api/approvalApi';
 import costCenterApi from '@/api/costCenterApi';
 import purchaseApi, { useAssignedTaskPurchaseForm } from '@/api/purchaseApi';
 import { Label } from '@/components/ui/label';
+import orgUnitApi from '@/api/orgUnitApi';
 
 const ViewOnlyFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -17,6 +18,14 @@ const ViewOnlyFormPurchase = () => {
     const isHasId = !!id;
     const approval = useApproval()
     const assignedTaskPurchase = useAssignedTaskPurchaseForm()
+
+    const { data: departments = [] } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		}
+	});
 
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['purchaseForm', id],
@@ -70,6 +79,7 @@ const ViewOnlyFormPurchase = () => {
                         mode={mode}
                         costCenter={costCenters} 
                         formData={initialFormData}
+                        departments={departments}
                         isPending={assignedTaskPurchase.isPending || approval.isPending}
                     />
                 </div>

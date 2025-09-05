@@ -18,12 +18,14 @@ interface PurchaseRequestFormProps {
     formData?: any
     onSubmit?: (data: any) => void,
     costCenter?: { value: string, label: string }[],
+    departments?: { id: number, name: string, nameE: string }[],
     isPending?: boolean;
 }
 
-const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formData, onSubmit, costCenter, isPending }) => {
+const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formData, onSubmit, costCenter, departments, isPending }) => {
     const { t } = useTranslation('purchase')
     const { t: tCommon  } = useTranslation('common')
+    const lang = useTranslation().i18n.language.split('-')[0]
     const { user } = useAuthStore()
     const navigate = useNavigate()
 
@@ -44,7 +46,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
         usercode: z.string().nonempty({ message: "Bắt buộc." }),
         username: z.string().nonempty({ message: "Bắt buộc." }),
         departmentName: z.string().optional(),
-        departmentId: z.coerce.number(),
+        departmentId: z.string().nonempty({ message: "Bắt buộc." }),
         request_date: z.string().nonempty({ message: "Bắt buộc." }),
         purchases: z.array(purchaseRequestSchema)
     });
@@ -69,7 +71,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
         defaultValues: {
             usercode: user?.userCode ?? '',
             username: user?.userName ?? '',
-            departmentId: user?.departmentId ?? -1,
+            departmentId: '',
             departmentName: user?.departmentName ?? '',
             request_date: new Date().toISOString().split('T')[0],
             purchases: [{ ...defaultSinglePurchaseRequest }],
@@ -86,13 +88,13 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     useEffect(() => {
         if (formData && mode != 'create') {
             reset({
-                usercode: formData.userCode,
-                username: formData.userName,
-                departmentId: formData.departmentId,
+                usercode: formData.applicationForm?.userCodeRequestor ?? '',
+                username: formData.applicationForm?.userNameRequestor ?? '',
+                departmentId: formData.departmentId.toString() ?? -1,
                 departmentName: formData.orgUnit?.name ?? '',
                 request_date: formData.requestedDate?.split('T')[0] ?? '',
                 purchases: formData.purchaseDetails?.map((pd: { id: any, itemName: any; itemDescription: any; quantity: { toString: () => any; }; unitMeasurement: any; requiredDate: string; costCenterId: { toString: () => any; }; note: any; }) => ({
-                    id: pd.id,
+                    id: pd.id ?? null,
                     name_category: pd.itemName ?? '',
                     description: pd.itemDescription ?? '',
                     quantity: pd.quantity?.toString() ?? '',
@@ -105,7 +107,17 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                 })) ?? [defaultSinglePurchaseRequest],
             });
         }
-    }, [defaultSinglePurchaseRequest, formData, mode, reset]);
+        if (mode === "create") {
+            reset({
+                usercode: user?.userCode ?? "",
+                username: user?.userName ?? "",
+                departmentId: '',
+                departmentName: user?.departmentName ?? "",
+                request_date: new Date().toISOString().split("T")[0],
+                purchases: [{ ...defaultSinglePurchaseRequest }],
+            });
+        }
+    }, [defaultSinglePurchaseRequest, formData, mode, reset, user]);
 
     const onInternalSubmit = (data: any) => {
         if (onSubmit) {
@@ -156,17 +168,26 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="requester.department" className="block text-sm font-medium text-gray-700">
-                                {tCommon('department')}<DotRequireComponent />
+                            <label htmlFor="requester.department" className="mb-1 block text-sm font-medium text-gray-700">
+                                {lang == 'vi' ? 'Phòng ban yêu cầu' : 'Department request'}<DotRequireComponent />
                             </label>
-                            <input
-                                {...register('departmentName')}
-                                disabled
-                                type="text"
-                                id="department"
-                                placeholder={tCommon('department')}
-                                className={`border-gray-300 mt-1 w-full p-2 rounded-md text-sm border bg-gray-100`}
-                            />
+                            
+                            <select
+                                {...register('departmentId')}
+                                disabled={mode != 'create'}
+                                className={`border w-full cursor-pointer rounded-[5px] ${mode != 'create' ? 'bg-gray-100': ''} ${form?.formState?.errors?.departmentId ? 'border-red-500' : 'border-gray-300'}`} style={{padding: '6.7px'}}>
+                                <option value="">
+                                    { lang == 'vi' ? '--Chọn--' : '--Select--' }
+                                </option>
+                                {
+                                    departments?.map((item: { id: number, name: string }, idx: number) => (
+                                        <option key={idx} value={item.id}>{item.name}</option>
+                                    ))
+                                }
+                            </select>
+                            {form?.formState?.errors?.departmentId && (
+                                <p className="text-sm text-red-500 mt-1">{form?.formState?.errors?.departmentId?.message}</p>
+                            )}
                         </div>
                         <div className="form-group">
                             <label htmlFor="requester.department" className="block text-sm font-medium text-gray-700 mb-1">

@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
-import { getErrorMessage, ShowToast } from '@/lib';
+import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
 import { OrgUnit } from './orgUnitApi';
-import { ApplicationForm, IAssignedTask, IResolvedTask } from './itFormApi';
+import { IAssignedTask, IResolvedTask } from './itFormApi';
 
 interface GetAll {
     UserCode?: string,
@@ -24,7 +24,7 @@ export interface IPurchase {
     createdAt?: string | Date;
     updatedAt?: string | Date;
     deletedAt?: string | Date;
-    applicationForm?: ApplicationForm;
+    applicationForm?: IApplicationForm;
     purchaseDetails?: IPurchaseDetail[];
     orgUnit?: OrgUnit;
 };

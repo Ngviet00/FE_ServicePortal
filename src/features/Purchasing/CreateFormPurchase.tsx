@@ -7,6 +7,7 @@ import PurchaseRequestForm from './Components/PurchaseRequestForm';
 import costCenterApi from '@/api/costCenterApi';
 import { useTranslation } from 'react-i18next';
 import purchaseApi, { ICreatePurchase, useCreatePurchase, useUpdatePurchase } from '@/api/purchaseApi';
+import orgUnitApi from '@/api/orgUnitApi';
 
 const CreateFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -16,6 +17,14 @@ const CreateFormPurchase = () => {
     const queryClient = useQueryClient()
     const { id } = useParams<{ id: string }>();
     const isEdit = !!id;
+
+    const { data: departments = [] } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		}
+	});
 
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['purchaseForm', id],
@@ -100,7 +109,8 @@ const CreateFormPurchase = () => {
                 <div className="w-full bg-white rounded-xl pl-0">
                     <PurchaseRequestForm
                         mode={mode}
-                        costCenter={costCenters} 
+                        costCenter={costCenters}
+                        departments={departments}
                         formData={initialFormData}
                         onSubmit={handleFormSubmit}
                         isPending={createPurchase.isPending || updatePurchase.isPending}

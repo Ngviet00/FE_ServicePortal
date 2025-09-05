@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from "@/api/approvalApi";
-import { ITForm } from "@/api/itFormApi";
+import { HistoryApplicationForm, IRequestStatus } from "@/api/itFormApi";
 import { useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi";
-import orgUnitApi from "@/api/orgUnitApi";
-import { IPurchase } from "@/api/purchaseApi";
+import orgUnitApi, { OrgUnit } from "@/api/orgUnitApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
@@ -41,47 +40,34 @@ function getInfo(item: any) {
 }
 
 interface PendingApprovalResponse {
-	id: string;
-	requestTypeId: number;
-	currentOrgUnitId: number
-	createdAt: string | Date 
-	requestType?: {
-		id: number,
-		name: string,
-		nameE: string,
-	},
-	historyApplicationForm?: {
-		userNameApproval?: string
-	},
-	leaveRequest?: {
-		id?: string,
-		code?: string,
-		userNameRequestor?: string,
-		createdBy?: string
-	},
-	memoNotification?: {
-		id?: string,
-		code?: string,
-		createdBy?: string,
-	},
-	itForm: ITForm,
-	purchase: IPurchase
+	id?: string;
+	code?: string
+	createdAt?: string | Date 
+	userCodeRequestor?: string,
+	userNameCreated?: string,
+	userNameRequestor?: string,
+	orgPositionId?: number
+	requestType?: IRequestType
+	requestStatus?: IRequestStatus
+	historyApplicationForm?: HistoryApplicationForm,
+	orgUnit?: OrgUnit
 }
 
 function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 	let result = ''
+	const requestTypeId = item?.requestType?.id
 
-	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/approval-leave-request/${item?.leaveRequest?.id ?? '-1'}`
+	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = `/approval/approval-leave-request/${requestTypeId ?? '-1'}`
 	}
-	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/approval-memo-notify/${item?.memoNotification?.id ?? '1'}`
+	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/approval/approval-memo-notify/${requestTypeId ?? '1'}`
 	}
-	else if (item.requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/approval-form-it/${item?.itForm?.id ?? '1'}`
+	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
+		result = `/approval/approval-form-it/${requestTypeId ?? '1'}`
 	}
-	else if (item.requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/approval/approval-purchase/${item?.purchase?.id ?? '1'}`
+	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
+		result = `/approval/approval-purchase/${requestTypeId ?? '1'}`
 	}
 
 	return result
@@ -270,7 +256,7 @@ export default function PendingApproval() {
 
 				{
 					hasPermissionHrMngLeaveRq && (
-						<div className="w-[20%] ml-4">
+						<div className="w-[20%]">
 							<Label className="mb-2">{t('pending_approval.department')}</Label>
 							<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
 								<option value="">
@@ -343,12 +329,12 @@ export default function PendingApproval() {
 													<tr key={idx} className="hover:bg-gray-50">
 														<td className="px-4 py-2 border whitespace-nowrap text-center">
 															{
-																item.requestTypeId == 1 && (
+																item?.requestType?.id == 1 && (
 																	<input
 																		type="checkbox" 
 																		className="hover:cursor-pointer scale-[1.3]"
-																		checked={selectedIds.includes(item?.leaveRequest?.id ?? "")}
-																		onChange={(event) => handleRowCheckboxChange(item?.leaveRequest?.id ?? "", event.target.checked)}
+																		checked={selectedIds.includes(item?.id ?? "")}
+																		onChange={(event) => handleRowCheckboxChange(item?.id ?? "", event.target.checked)}
 																	/>
 																)
 															}
@@ -421,20 +407,19 @@ export default function PendingApproval() {
 											</tr>
 										) : (
 											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => {
-												const data = getInfo(item)
 
 												return (
 													<tr key={idx} className="hover:bg-gray-50">
 														<td className="px-4 py-2 border whitespace-nowrap text-left">
 															<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-																{data?.code}
+																{item?.code}
 															</Link>
 														</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.departmentName}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name}</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameCreated}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreated}</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
 														<td className="px-4 py-2 border text-center">
 															<StatusLeaveRequest status="Pending"/>

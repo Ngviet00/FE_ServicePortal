@@ -246,8 +246,8 @@ export default function ListLeaveRequest () {
                                         
                                         return (
                                             <TableRow key={item.id}>
-                                                <TableCell className="text-left border">{item?.userCodeRequestor}</TableCell>
-                                                <TableCell className="text-left border">{item?.userNameRequestor}</TableCell>
+                                                <TableCell className="text-left border">{item?.applicationForm?.userCodeRequestor}</TableCell>
+                                                <TableCell className="text-left border">{item?.applicationForm?.userNameRequestor}</TableCell>
                                                 <TableCell className="text-left border">{item?.orgUnit?.name}</TableCell>
                                                 <TableCell className="text-left border">{item.position}</TableCell>
                                                 <TableCell className="text-left border">{ formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
@@ -255,7 +255,7 @@ export default function ListLeaveRequest () {
                                                 <TableCell className="text-left border">{lang == 'vi' ? item?.typeLeave?.name : item?.typeLeave?.nameE}</TableCell>
                                                 <TableCell className="text-left border">{lang == 'vi' ? item?.timeLeave?.name : item?.timeLeave?.nameE}</TableCell>
                                                 <TableCell className="text-center border">{item.reason}</TableCell>
-                                                <TableCell className="text-center font-bold text-red-700 border">{item.createdBy}</TableCell>
+                                                <TableCell className="text-center font-bold text-red-700 border">{item.applicationForm?.userNameCreated}</TableCell>
                                                 {
                                                     filterStatus == 1 ? (
                                                         <>
@@ -265,7 +265,7 @@ export default function ListLeaveRequest () {
 
                                                             <TableCell className="text-left border">
                                                                 <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                    Edit
+                                                                    {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                                 </Link>
                                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
                                                             </TableCell>
@@ -355,15 +355,15 @@ export default function ListLeaveRequest () {
                                     </div>
                                 ))
                             ) : isError || leaveRequests.length === 0 ? (
-                                <div className="pt-2 pl-4 text-red-700 border text-center font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
+                                <div className="pt-2 pl-4 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
                                 leaveRequests.map((item: LeaveRequestData) => {
                                     const latestHistoryApproval = item?.applicationForm?.historyApplicationForms?.[0]
 
                                     return (
                                         <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                            <div className="mb-1 font-bold">{item.userNameRequestor} ({item.userCodeRequestor})</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
+                                            <div className="mb-1 font-bold">{item?.applicationForm?.userNameRequestor} ({item?.applicationForm?.userCodeRequestor})</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item?.orgUnit?.name}</div>
                                             <div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
                                             <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                                             <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
@@ -378,7 +378,7 @@ export default function ListLeaveRequest () {
                                                         <div className="mb-1"><strong>{t('list_leave_request.status')}: </strong><StatusLeaveRequest status="PENDING" /></div>
                                                         <div className="mb-1">
                                                                 <Link to={`/leave/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                    Edit
+                                                                    {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                                 </Link>
                                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? "")} />
                                                         </div>

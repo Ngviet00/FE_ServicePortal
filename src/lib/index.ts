@@ -1,3 +1,8 @@
+import { HistoryApplicationForm, IAssignedTask, IRequestStatus } from "@/api/itFormApi";
+// import { IMemoNotify } from "@/api/memoNotificationApi";
+import { IOrgPosition } from "@/api/orgPositionApi";
+import { OrgUnit } from "@/api/orgUnitApi";
+import { IRequestType } from "@/api/requestTypeApi";
 import { useEffect, useState } from "react";
 import { toast, Zoom } from "react-toastify";
 
@@ -171,4 +176,38 @@ export enum PRIORITY {
     LOW = 1,
     MEDIUM = 2,
     HIGH = 3,
+}
+
+export interface IApplicationForm {
+    id: string;
+    code?: string;
+
+    userCodeRequestor?: string;
+    userNameRequestor?: string;
+    userCodeCreated?: string;
+    userNameCreated?: string;
+
+    requestTypeId?: number;
+    requestStatusId?: number;
+    orgPositionId?: number;
+    departmentId?: number;
+
+    step?: number;
+    metaData?: string;
+
+    createdAt?: string;
+    updatedAt?: string;
+    deletedAt?: string;
+
+    requestType?: IRequestType;
+    requestStatus?: IRequestStatus;
+    // leave?: LeaveRequest;
+    // memoNotification?: IMemoNotify;
+    orgPosition?: IOrgPosition;
+    orgUnit?: OrgUnit;
+    // itForm?: ITForm;
+    // purchase?: IPurchase;
+
+    assignedTasks: IAssignedTask[];
+    historyApplicationForms: HistoryApplicationForm[];
 }

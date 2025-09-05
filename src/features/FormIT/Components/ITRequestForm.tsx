@@ -71,8 +71,8 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
         resolver: zodResolver(ITRequestFormSchema),
         defaultValues: {
             requester: {
-                userCode: formData?.userCodeRequestor ?? '',
-                name: formData?.userNameRequestor ?? '',
+                userCode: formData?.applicationForm?.userCodeRequestor ?? '',
+                name: formData?.applicationForm?.userNameRequestor ?? '',
                 email: formData?.email ?? '',
                 department: formData?.orgUnit?.name ?? '',
                 departmentId: formData?.orgUnit?.id ?? -1,
@@ -93,8 +93,8 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
         if (formData) {
             reset({
                 requester: {
-                    userCode: formData?.userCodeRequestor ?? '',
-                    name: formData?.userNameRequestor ?? '',
+                    userCode: formData?.applicationForm?.userCodeRequestor ?? '',
+                    name: formData?.applicationForm?.userNameRequestor ?? '',
                     email: formData?.email ?? '',
                     department: formData?.orgUnit?.name ?? '',
                     departmentId: formData?.orgUnit?.id ?? -1,

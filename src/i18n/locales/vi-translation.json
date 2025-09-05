@@ -297,6 +297,8 @@
 	},
 	"memo_notification": {
 		"list": {
+			"edit": "Sửa",
+			"code": "Mã đơn",
 			"approved_by": "Người đã duyệt",
 			"approved_at": "Thời gian duyệt",
 			"approval_status": "Trạng thái phê duyệt",

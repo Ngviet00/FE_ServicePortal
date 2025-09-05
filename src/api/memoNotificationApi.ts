@@ -1,3 +1,4 @@
+import { IApplicationForm } from './../lib/index';
 import { useMutation } from '@tanstack/react-query';
 import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
@@ -21,7 +22,7 @@ interface GetHistoryMemoNotifyWaitApproval {
     PageSize: number
 }
 
-interface HistoryApproval {
+export interface HistoryApproval {
     action?: string,
     note?: string,
     createdAt?: string | Date,
@@ -46,10 +47,8 @@ export interface IMemoNotify {
     applyAllDepartment: boolean,
     attachments: File[],
     memoNotificationDepartments?: IMemoNotifyDepartment[],
-    applicationForm?: {
-        requestStatusId?: number,
-        historyApplicationForms?: [] | HistoryApproval[] | undefined
-    }
+    
+    applicationForm?: IApplicationForm
 };
 
 export interface IMemoNotifyDepartment {

@@ -298,6 +298,8 @@
 	},
 	"memo_notification": {
 		"list": {
+			"edit": "Edit",
+			"code": "Code",
 			"approved_by": "Approved By",
 			"approved_at": "Approved At",
 			"approval_status": "Approval Status",

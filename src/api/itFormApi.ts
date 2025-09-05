@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { getErrorMessage, ShowToast } from '@/lib';
+import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
 import { OrgUnit } from './orgUnitApi';
 import { IPriority } from './priorityApi';
@@ -81,7 +81,7 @@ export interface ITForm {
     deletedAt: string | null;
     orgUnit: OrgUnit;
     priority: IPriority;
-    applicationForm: ApplicationForm;
+    applicationForm: IApplicationForm;
     itFormCategories: ITFormCategory[];
 }
 
@@ -91,7 +91,7 @@ export interface IRequestStatus {
     nameE: string;
 }
 
-interface HistoryApplicationForm { 
+export interface HistoryApplicationForm { 
     id: string; 
     applicationFormId: string | null;
     userNameApproval: string | null;

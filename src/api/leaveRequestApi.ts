@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
-import { getErrorMessage, ShowToast } from '@/lib';
-import { HistoryApproval } from './approvalApi';
+import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
 
 export interface LeaveRequestData {
     id?: string | null,
@@ -33,12 +32,7 @@ export interface LeaveRequestData {
     orgUnit?: {
         name: string
     },
-    applicationForm?: {
-        currentPositionId: number | null,
-        status: string | null,
-        createdAt: string | null,
-        historyApplicationForms?: HistoryApproval[]
-    }
+    applicationForm?: IApplicationForm
 }
 
 export interface CreateLeaveRequestForManyPeople {

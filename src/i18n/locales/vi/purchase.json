@@ -37,7 +37,7 @@
         "code": "Mã đơn",
         "reason": "Lý do",
         "user_requestor": "Người yêu cầu",
-        "department": "Phòng ban",
+        "department": "Phòng ban yêu cầu",
         "user_register": "Người đăng ký",
         "created_at": "Thời gian tạo",
         "approved_by": "Người duyệt",

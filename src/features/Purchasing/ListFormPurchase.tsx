@@ -73,7 +73,6 @@ export default function ListFormPurchase () {
                                     <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_requestor')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-center">{t('list.department')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-center">{t('list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.approved_by')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-center">{t('list.status')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-center">{t('list.action')}</th>
                                 </tr>
@@ -82,14 +81,14 @@ export default function ListFormPurchase () {
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <tr key={index}>
-                                        {Array.from({ length: 7 }).map((_, i) => (
+                                        {Array.from({ length: 6 }).map((_, i) => (
                                             <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                         ))}
                                     </tr>
                                     ))
                                 ) : isError || purchases.length == 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
+                                        <td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
                                             {error?.message ?? tCommon('no_results')}
                                         </td>
                                     </tr>
@@ -100,12 +99,11 @@ export default function ListFormPurchase () {
                                         return (
                                             <tr key={item.id}>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{item?.userName ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameRequestor ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.historyApplicationForms[0]?.userNameApproval ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
                                                         requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
@@ -146,8 +144,8 @@ export default function ListFormPurchase () {
                         ) : (
                             purchases.map((item: IPurchase) => (
                                 <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                    <div className="mb-1"><strong>{t('list.code')}:</strong> {item?.code}</div>
-                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.userName ?? '--'}</div>
+                                    <div className="mb-1"><strong>{t('list.code')}:</strong> {item?.applicationForm?.code}</div>
+                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.applicationForm?.userNameRequestor ?? '--'}</div>
                                     <div className="mb-1"><strong>{t('list.department')}:</strong> {item?.orgUnit?.name}</div>
                                     <div className="mb-1"><strong>{t('list.created_at')}:</strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                                     <div className="mb-1"><strong>{t('list.status')}:</strong> <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/></div>

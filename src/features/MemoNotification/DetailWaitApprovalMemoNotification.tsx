@@ -17,6 +17,7 @@ import memoNotificationApi from '@/api/memoNotificationApi';
 
 const DetailWaitApprovalMemoNotification: React.FC = () => {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [uploadedFiles, setUploadedFiles] = useState<{ id: string, fileName: string; contentType: string }[]>([]);
     const { id } = useParams<{ id: string }>();
     const { user } = useAuthStore()
@@ -87,20 +88,20 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
                 <h2 className="text-[24px] sm:text-[30px] font-bold mb-1">{memo.title}</h2>
                 <div className="text-sm text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className='dark:text-white'>
-                        Created by: <span className="font-bold text-black dark:text-white">{memo.createdBy}</span>
+                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo.createdBy}</span>
                     </span>
                     <span className='dark:text-white'>•</span>
                     <span className='dark:text-white'>
-                        Created At:{" "}
+                        {t('memo_notification.list.created_at')}:{" "}
                         <span className="font-bold text-black dark:text-white">
                             {formatDate(memo.createdAt, "yyyy/MM/dd HH:mm:ss")}
                         </span>
                     </span>
                     <span className='dark:text-white'>•</span>
                     <span className='dark:text-white'>
-                        Department apply: {" "}
+                        {t('memo_notification.list.department_apply')}: {" "}
                         <span className="font-bold text-black dark:text-white">
-                            { memo.applyAllDepartment == true ? "Tất cả bộ phận" : memo?.memoNotificationDepartments?.map((item: { orgUnit: { name: any; }; }) => item?.orgUnit?.name)?.join(', ') }
+                            { memo.applyAllDepartment == true ? lang == 'vi' ? 'Tất cả bộ phận' : 'All department' : memo?.memoNotificationDepartments?.map((item: { orgUnit: { name: any; }; }) => item?.orgUnit?.name)?.join(', ') }
                         </span>
                     </span>
                 </div>

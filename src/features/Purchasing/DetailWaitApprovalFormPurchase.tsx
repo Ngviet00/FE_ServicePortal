@@ -16,6 +16,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { ISelectedUserAssigned } from '@/api/userApi';
 import { useApproval } from '@/api/approvalApi';
 import DotRequireComponent from '@/components/DotRequireComponent';
+import orgUnitApi from '@/api/orgUnitApi';
 
 const DetailWaitApprovalFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -31,6 +32,14 @@ const DetailWaitApprovalFormPurchase = () => {
     const isHasId = !!id;
     const approval = useApproval()
     const assignedTaskPurchase = useAssignedTaskPurchaseForm()
+    
+    const { data: departments = [] } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		}
+	});
 
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['purchaseForm', id],
@@ -143,7 +152,8 @@ const DetailWaitApprovalFormPurchase = () => {
                 <div className="w-full bg-white rounded-xl pl-0">
                     <PurchaseRequestForm
                         mode={mode}
-                        costCenter={costCenters} 
+                        costCenter={costCenters}
+                        departments={departments}
                         formData={initialFormData}
                         isPending={assignedTaskPurchase.isPending || approval.isPending}
                     />

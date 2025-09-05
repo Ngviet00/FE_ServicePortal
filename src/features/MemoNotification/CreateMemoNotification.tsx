@@ -250,7 +250,7 @@ export default function CreateMemoNotification () {
                                 const selectedOptions = options.filter((opt: {value: number}) => field.value?.includes(opt.value));
                                 return (
                                     <FormItem className="mt-5">
-                                        <FormLabel>Phòng ban áp dụng <DotRequireComponent /></FormLabel>
+                                        <FormLabel>{t('memo_notification.list.department_apply')} <DotRequireComponent /></FormLabel>
                                         <FormControl>
                                             <div className={fieldState.invalid ? "border border-red-500 rounded-[5px]" : ""}>
                                                 <MultiSelect

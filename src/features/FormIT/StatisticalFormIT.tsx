@@ -27,6 +27,7 @@ ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement
 
 const StatisticalFormIT = () => {
     const { t } = useTranslation('formIT')
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString())
 
     const { data: statisticalData, isLoading, isError } = useQuery({
@@ -89,11 +90,11 @@ const StatisticalFormIT = () => {
     }, [statisticalData]);
     
     if (isLoading) {
-        return <div>Đang tải dữ liệu...</div>;
+        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
     }
 
     if (isError) {
-        return <div>Đã xảy ra lỗi khi tải dữ liệu thống kê. Vui lòng thử lại sau.</div>;
+        return <div className='text-red-500'>{lang == 'vi' ? 'Lỗi dữ liệu thống kê, thử lại sau' : 'Statistic data error, please try again.'}</div>;
     }
 
     return (
