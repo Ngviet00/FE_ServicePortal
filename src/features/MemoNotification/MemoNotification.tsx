@@ -93,7 +93,7 @@ export default function MemoNotification () {
                                 <td data-label={t('memo_notification.list.action')} className="px-4 py-4 border"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                             </tr>
                         ) : isError || MemoNotify.length === 0 ? (
-                            <tr>
+                            <tr className="text-red-700 border text-center font-medium dark:text-white">
                                 <td className={`${isError ? "text-red-700" : "text-black"} h-[35px] font-medium text-center`} colSpan={9}>
                                     {error?.message ?? "No results"}
                                 </td>

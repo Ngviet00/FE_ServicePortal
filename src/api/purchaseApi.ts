@@ -59,7 +59,14 @@ export interface IPurchaseDetail {
     DeletedAt?: string
 }
 
+export interface IStatisticalPurchase {
+    year?: number
+}
+
 const purchaseApi = {
+    statistical(params: IStatisticalPurchase) {
+        return axiosClient.get('/purchase/statistical-purchase', {params})
+    },
     getAll(params: GetAll) {
         return axiosClient.get('/purchase', {params})
     },

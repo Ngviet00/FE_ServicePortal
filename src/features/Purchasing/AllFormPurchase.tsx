@@ -6,14 +6,14 @@ import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveR
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import itFormApi, { ITForm } from "@/api/itFormApi"
 import { Label } from "@/components/ui/label"
 import orgUnitApi from "@/api/orgUnitApi"
 import { STATUS_ENUM } from "@/lib"
 import { YearSelect } from "./StatisticalFormPurchase"
+import purchaseApi, { IPurchase } from "@/api/purchaseApi"
 
 export default function AllFormPurchase () {
-    const { t } = useTranslation('formIT');
+    const { t } = useTranslation('purchase');
     const { t:tCommon} = useTranslation('common');
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
@@ -39,10 +39,10 @@ export default function AllFormPurchase () {
 
     const lang = useTranslation().i18n.language.split('-')[0]
 
-    const { data: itForms = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-all-it-form', { page, pageSize, selectedDepartment, selectedStatus, selectedYear }],
+    const { data: purchases = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-all-purchase', { page, pageSize, selectedDepartment, selectedStatus, selectedYear }],
         queryFn: async () => {
-            const res = await itFormApi.getAll({
+            const res = await purchaseApi.getAll({
                 Page: page,
                 PageSize: pageSize,
                 DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
@@ -88,7 +88,7 @@ export default function AllFormPurchase () {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{t('list.title_all_form_it')}</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{t('list.title')}</h3>
             </div>
 
             <div className="flex">
@@ -132,56 +132,45 @@ export default function AllFormPurchase () {
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-4 py-2 border w-[70px] text-left">{t('list.code')}</th>
-                                    <th className="px-4 py-2 border w-[320px] text-left">{t('list.reason')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.user_requestor')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.department')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.user_register')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.approved_by')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.status')}</th>
+                                    <th className="px-4 py-2 border w-[70px] text-center">{t('list.code')}</th>
+                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_requestor')}</th>
+                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.department')}</th>
+                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.created_at')}</th>
+                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.status')}</th>
                                 </tr>
                             </thead>
                         <tbody>
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <tr key={index}>
-                                        {Array.from({ length: 8 }).map((_, i) => (
-                                            <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                        {Array.from({ length: 5 }).map((_, i) => (
+                                            <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                         ))}
                                     </tr>
                                     ))
-                                ) : isError || itForms.length == 0 ? (
+                                ) : isError || purchases.length == 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
+                                        <td colSpan={5} className="px-4 py-2 text-center font-bold text-red-700">
                                             {error?.message ?? tCommon('no_results')}
                                         </td>
                                     </tr>
                                 ) : (
-                                    itForms.map((item: ITForm) => {
+                                    purchases.map((item: IPurchase) => {
                                         const requestStatusId = item?.applicationForm?.requestStatusId
 
                                         return (
                                             <tr key={item.id}>
-                                                <td className="px-4 py-2 border text-left">
-                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                <td className="px-4 py-2 border text-center">
+                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
-                                                    {item?.reason ?? '--'}
-                                                </td>
-                                                <td className="px-4 py-2 border text-left">{item?.userNameRequestor ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{item?.orgUnit?.name ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{item?.userNameCreated ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-left">
-                                                    {
-                                                        item?.applicationForm?.historyApplicationForms.length > 0 ? item?.applicationForm?.historyApplicationForms[0]?.userNameApproval : '--'
-                                                    }
-                                                </td>
+                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameRequestor ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
                                                         requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
-                                                    }/>
+                                                    }
+                                                />
                                                 </td>
                                             </tr>
                                         )
@@ -195,23 +184,20 @@ export default function AllFormPurchase () {
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
                                 <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
-                                {Array.from({ length: 6 }).map((_, i) => (
+                                {Array.from({ length: 5 }).map((_, i) => (
                                     <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                 ))}
                                 </div>
                             ))
-                        ) : isError || itForms.length === 0 ? (
+                        ) : isError || purchases.length === 0 ? (
                             <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
                         ) : (
-                            itForms.map((item: ITForm) => (
+                            purchases.map((item: IPurchase) => (
                                 <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                    <div className="mb-1"><strong>{t('list.code')}:</strong> {item?.code}</div>
-                                    <div className="mb-1"><strong>{t('list.reason')}:</strong> {item?.reason}</div>
-                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.userNameRequestor ?? '--'}</div>
+                                    <div className="mb-1"><strong>{t('list.code')}:</strong> {item?.applicationForm?.code}</div>
+                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.applicationForm?.userNameRequestor ?? '--'}</div>
                                     <div className="mb-1"><strong>{t('list.department')}:</strong> {item?.orgUnit?.name}</div>
-                                    <div className="mb-1"><strong>{t('list.user_register')}:</strong>{item?.userNameCreated}</div>
                                     <div className="mb-1"><strong>{t('list.created_at')}:</strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                    <div className="mb-1"><strong>{t('list.approved_by')}:</strong> {item?.reason}</div>
                                     <div className="mb-1"><strong>{t('list.status')}:</strong> <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/></div>
                                 </div>
                             ))
@@ -220,7 +206,7 @@ export default function AllFormPurchase () {
                 </div>
             </div>
             {
-                itForms.length > 0 ? (<PaginationControl
+                purchases.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}

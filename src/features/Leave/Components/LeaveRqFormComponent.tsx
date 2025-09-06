@@ -61,9 +61,9 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
 
     const defaultSingleLeaveRequest = useMemo(() => {
         return {
-            user_code: formData?.userCodeRequestor ?? "",
+            user_code: formData?.applicationForm?.userCodeRequestor ?? "",
             user_code_register: user?.userCode ?? "",
-            name: formData?.userNameRequestor ?? '',
+            name: formData?.applicationForm?.userNameRequestor ?? '',
             department: formData?.orgUnit?.name ?? '',
             departmentId: formData?.orgUnit?.id ?? -1,
             position: formData?.position ?? '',

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { ITForm } from "@/api/itFormApi";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { REQUEST_TYPE } from "@/lib";
@@ -11,73 +9,26 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import approvalApi from "@/api/approvalApi";
-import { IPurchase } from "@/api/purchaseApi";
 import { Label } from "@/components/ui/label";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import orgUnitApi from "@/api/orgUnitApi";
-
-const subKeys = ["leaveRequest", "itForm", "memoNotification", 'purchase'];
-
-function getSubForm(item: any) {
-	const key = subKeys.find(k => item[k] !== null);
-	return key ? item[key] : null;
-}
-
-function getInfo(item: any) {
-	const sub = getSubForm(item);
-	if (!sub) return null;
-
-	return {
-		id: sub.id,
-		code: sub.code,
-		userNameRequestor: sub.userNameRequestor,
-		userNameCreated: sub.userNameCreated,
-		departmentName: sub.departmentName,
-	};
-}
-
-interface PendingApprovalResponse {
-	id: string;
-	requestTypeId: number;
-	currentOrgUnitId: number
-	createdAt: string | Date 
-	requestType?: {
-		id: number,
-		name: string,
-		nameE: string,
-	},
-	historyApplicationForm?: {
-		userNameApproval?: string
-	},
-	leaveRequest?: {
-		id?: string,
-		code?: string,
-		userNameRequestor?: string,
-		createdBy?: string
-	},
-	memoNotification?: {
-		id?: string,
-		code?: string,
-		createdBy?: string,
-	},
-	itForm: ITForm,
-	purchase: IPurchase
-}
+import { PendingApprovalResponse } from "./PendingApproval";
 
 function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 	let result = ''
+	const requestTypeId = item?.requestType?.id
 
-	if (item.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/approval-leave-request/${item?.leaveRequest?.id ?? '-1'}`
+	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = `/approval/approval-leave-request/${item?.id ?? '-1'}`
 	}
-	else if (item.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/approval-memo-notify/${item?.memoNotification?.id ?? '1'}`
+	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/approval/approval-memo-notify/${item?.id ?? '1'}`
 	}
-	else if (item.requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/assigned-form-it/${item?.itForm?.id ?? '1'}`
+	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
+		result = `/approval/assigned-form-it/${item?.id ?? '1'}`
 	}
-	else if (item.requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/approval/assigned-purchase/${item?.purchase?.id ?? '1'}`
+	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
+		result = `/approval/assigned-purchase/${item?.id ?? '1'}`
 	}
 
 	return result
@@ -223,20 +174,19 @@ export default function AssignedTasks() {
 									</tr>
 								) : (
 									ListAssignedTask.map((item: PendingApprovalResponse, idx: number) => {
-										const data = getInfo(item)
 
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
 												<td className="px-4 py-2 border whitespace-nowrap text-left">
 													<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-														{data?.code}
+														{item?.code}
 													</Link>
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.departmentName}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameCreated}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreated}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
 												<td className="px-4 py-2 border text-center">
 													<StatusLeaveRequest status="Pending"/>

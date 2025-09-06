@@ -39,8 +39,7 @@ const DetailWaitApprovalFormIT = () => {
         queryFn: async () => {
             const res = await itFormApi.getById(id ?? '');
             return res.data.data;
-        },
-        enabled: isHasId,
+        }
     });
 
     const mode = isHasId && formData?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_it_approval' : 'approval'

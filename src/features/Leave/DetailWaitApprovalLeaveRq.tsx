@@ -59,7 +59,7 @@ const DetailWaitApprovalLeaveRq = () => {
             OrgPositionId: user?.orgPositionId,
             Status: type == 'approval' ? true : false,
             Note: note,
-            LeaveRequestId: id,
+            LeaveRequestId: formData?.id,
             urlFrontend: window.location.origin,
             RequestTypeId: formData?.applicationForm?.requestTypeId
         }
@@ -69,7 +69,7 @@ const DetailWaitApprovalLeaveRq = () => {
                 await registerAllLeaveMutation.mutateAsync({
                     UserCode: user?.userCode,
                     UserName: user?.userName ?? "",
-                    leaveRequestIds: [id ?? ""]
+                    leaveRequestIds: [formData?.id ?? ""]
                 })
                 setStatusModalConfirm('')
                 navigate("/approval/pending-approval")

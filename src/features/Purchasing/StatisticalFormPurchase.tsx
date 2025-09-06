@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     Title,
@@ -18,21 +18,22 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import itFormApi from '@/api/itFormApi';
 import { formatDate } from '@/lib/time';
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
 import { STATUS_ENUM } from '@/lib';
+import purchaseApi from '@/api/purchaseApi';
 
 ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement, Filler);
 
 const StatisticalFormPurchase = () => {
-    const { t } = useTranslation('formIT')
+    const { t } = useTranslation('purchase')
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString())
 
     const { data: statisticalData, isLoading, isError } = useQuery({
-        queryKey: ['get-statistical-form-it', selectedYear],
+        queryKey: ['get-statistical-purchase', selectedYear],
         queryFn: async () => {
-            const res = await itFormApi.statistical({year: Number(selectedYear)});
+            const res = await purchaseApi.statistical({year: Number(selectedYear)});
             return res.data.data;
         },
     });
@@ -73,27 +74,13 @@ const StatisticalFormPurchase = () => {
             ],
         };
     }, [statisticalData]);
-
-    const doughnutData = useMemo(() => {
-        const groupByCategory = statisticalData?.groupByCategory || [];
-        return {
-            labels: groupByCategory.map((item: { name: string }) => item.name),
-            datasets: [
-                {
-                    data: groupByCategory.map((item: { total: number }) => item.total),
-                    backgroundColor: ['#FFC107', '#4CAF50', '#2196F3', '#FEA107', '#FF4107', '#196F3'],
-                    hoverOffset: 4
-                }
-            ],
-        };
-    }, [statisticalData]);
     
     if (isLoading) {
-        return <div>Đang tải dữ liệu...</div>;
+        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
     }
 
     if (isError) {
-        return <div>Đã xảy ra lỗi khi tải dữ liệu thống kê. Vui lòng thử lại sau.</div>;
+        return <div className='text-red-500'>{lang == 'vi' ? 'Lỗi dữ liệu thống kê, thử lại sau' : 'Statistic data error, please try again.'}</div>;
     }
 
     return (
@@ -108,28 +95,28 @@ const StatisticalFormPurchase = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Link to={`/form-it/all-form-it?year=${selectedYear}`}>
+                <Link to={`/purchase/all-form-purchase?year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <Ticket className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.total')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="totalRequests">{statisticalData?.groupByTotal?.total?.toLocaleString()}</div>
                     </div>
                 </Link>
-                <Link to={`/form-it/all-form-it?statusId=2&year=${selectedYear}`}>
+                <Link to={`/purchase/all-form-purchase?statusId=2&year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <Info className='text-[#1c398e]' size={35}/>
                         <h3 className="text-gray-600 mb-2">{t('statistical.inprocess')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="openRequests">{statisticalData?.groupByTotal?.inProcess?.toLocaleString()}</div>
                     </div>
                 </Link>
-                <Link to={`/form-it/all-form-it?statusId=3&year=${selectedYear}`}>
+                <Link to={`/purchase/all-form-purchase?statusId=3&year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <CircleCheck className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.completed')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.complete?.toLocaleString()}</div>
                     </div>
                 </Link>
-                <Link to={`/form-it/all-form-it?statusId=1&year=${selectedYear}`}>
+                <Link to={`/purchase/all-form-purchase?statusId=1&year=${selectedYear}`}>
                     <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
                         <ClipboardCheck className='text-[#1c398e]' size={35}/>
                         <h3 className="text-gray-600 mb-2">{t('statistical.pending')}</h3>
@@ -153,17 +140,6 @@ const StatisticalFormPurchase = () => {
                         <h2 className="mb-5 font-semibold text-lg">{t('statistical.total_by_type')}</h2>
                     </div>
                     <div className="h-72 w-full flex justify-center">
-                        <Doughnut data={doughnutData}/>
-                    </div>
-                </div>
-            </div>
-
-            <div className='mt-8'>
-                <div className="flex-1 flex flex-col items-center bg-[#efefef] p-3 rounded-lg shadow-inner border">
-                    <div className='w-full flex justify-start'>
-                        <h2 className="mb-5 font-semibold text-lg mr-5">{t('statistical.total_by_dept')}</h2>
-                    </div>
-                    <div className="h-72 w-full">
                         <Bar
                             data={barData}
                             style={{ width: '100%', height: '100%' }}
@@ -180,7 +156,6 @@ const StatisticalFormPurchase = () => {
                         <thead>
                             <tr>
                                 <th className="px-3 py-2">ID</th>
-                                <th className="px-3 py-2">{t('statistical.content')}</th>
                                 <th className="px-3 py-2">{t('statistical.user_sent')}</th>
                                 <th className="px-3 py-2">{t('statistical.dept')}</th>
                                 <th className="px-3 py-2">{t('statistical.time_sent')}</th>
@@ -194,11 +169,10 @@ const StatisticalFormPurchase = () => {
                                 return (
                                     <tr key={index} className="hover:bg-gray-100 cursor-pointer border-b border-[#d3d3d3d9]">
                                         <td className="px-3 py-2">
-                                            <Link to={`/approval/view-form-it/${item.id ?? '1'}`} className='text-blue-600 underline'>
+                                            <Link to={`/approval/view-purchase/${item.id ?? '1'}`} className='text-blue-600 underline'>
                                                 {item.code}
                                             </Link>
                                         </td>
-                                        <td className="px-3 py-2">{item.reason}</td>
                                         <td className="px-3 py-2">{item.userNameRequestor}</td>
                                         <td className="px-3 py-2">{item.departmentName}</td>
                                         <td className="px-3 py-2">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>

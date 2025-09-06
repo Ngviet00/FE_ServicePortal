@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from '@/api/approvalApi';
-import { ITForm } from '@/api/itFormApi';
-import { IPurchase } from '@/api/purchaseApi';
+import { IRequestStatus } from '@/api/itFormApi';
 import requestTypeApi, { IRequestType } from '@/api/requestTypeApi';
 import PaginationControl from '@/components/PaginationControl/PaginationControl';
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
@@ -14,66 +12,34 @@ import { formatDate } from 'date-fns';
 import React, { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import orgUnitApi from '@/api/orgUnitApi';
-
-const subKeys = ["leaveRequest", "itForm", "memoNotification", 'purchase'];
-
-function getSubForm(item: any) {
-	const key = subKeys.find(k => item[k] !== null);
-	return key ? item[key] : null;
-}
-
-function getInfo(item: any) {
-	const sub = getSubForm(item);
-	if (!sub) return null;
-
-	return {
-		id: sub.id,
-		code: sub.code,
-		userNameRequestor: sub.userNameRequestor,
-		userNameCreated: sub.userNameCreated,
-		departmentName: sub.departmentName,
-	};
-}
+import orgUnitApi, { OrgUnit } from '@/api/orgUnitApi';
 
 interface HistoryApprovalProcessedResponse {
-	action: string;
-	createdAt: string | Date,
-	requestStatusId?: number,
-	requestType?: {
-		id: number,
-		name: string,
-		nameE: string,
-	},
-	leaveRequest?: {
-		id?: string,
-		code?: string,
-		userNameRequestor?: string
-	},
-	memoNotification?: {
-		id?: string,
-		code?: string,
-		createdBy?: string,
-	},
-	itForm?: ITForm,
-	purchase?: IPurchase
-
+	id?: string,
+	code?: string,
+	action?: string,
+	approvedAt?: string,
+	requestType?: IRequestType,
+	requestStatus?: IRequestStatus,
+	orgUnit?: OrgUnit,
+	userCodeRequestor?: string
+	userNameRequestor?: string
 }
 
 function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
 	let result = ''
 
 	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/view-leave-request/${item?.leaveRequest?.id ?? '-1'}`
+		result = `/approval/view-leave-request/${item?.id ?? '-1'}`
 	}
 	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/view-memo-notify/${item?.memoNotification?.id ?? '1'}`
+		result = `/approval/view-memo-notify/${item?.id ?? '1'}`
 	}
 	else if (item?.requestType?.id == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/view-form-it/${item?.itForm?.id ?? '1'}`
+		result = `/approval/view-form-it/${item?.id ?? '1'}`
 	}
 	else if (item?.requestType?.id == REQUEST_TYPE.PURCHASE) {
-		result = `/approval/view-purchase/${item?.purchase?.id ?? '1'}`
+		result = `/approval/view-purchase/${item?.id ?? '1'}`
 	}
 
 	return result
@@ -236,21 +202,20 @@ const ApprovalHistory: React.FC = () => {
 									</tr>
 								) : (
 									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => {
-										const data = getInfo(item)
-										const reqStatusId = item?.requestStatusId
+										const reqStatusId = item?.requestStatus?.id
 										const reqTypeId = item?.requestType?.id
 
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-														{data?.code}
+														{item?.code}
 													</Link>
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.userNameRequestor}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{data?.departmentName}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm:ss") : '--'}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.approvedAt ? formatDate(item?.approvedAt, "yyyy/MM/dd HH:mm:ss") : '--'}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													{ item.action }
 												</td>
@@ -263,7 +228,7 @@ const ApprovalHistory: React.FC = () => {
 																}/>
 															</>
 														) : (
-															<StatusLeaveRequest status={item?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? "In Process" : item?.requestStatusId}/>
+															<StatusLeaveRequest status={reqStatusId == STATUS_ENUM.FINAL_APPROVAL ? "In Process" : reqStatusId}/>
 														)
 													}
 												</td>
