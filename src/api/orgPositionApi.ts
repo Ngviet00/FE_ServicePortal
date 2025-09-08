@@ -10,12 +10,13 @@ export interface IOrgPosition {
     orgUnit: OrgUnit | null;
 }
 
+interface IGetOrgPositionsByDepartmentId {
+    departmentId?: number | null
+}
+
 const positionApi = {
-    getAll() {
-        return axiosClient.get('/org-position/get-all')
-    },
-    GetOrgPositionsByDepartmentId(departmentId: number) {
-        return axiosClient.get(`/org-position/get-org-positions-by-department-id?departmentId=${departmentId}`)
+    GetOrgPositionsByDepartmentId(params: IGetOrgPositionsByDepartmentId) {
+        return axiosClient.get(`/org-position/get-org-positions-by-department-id`, {params})
     }
 }
 

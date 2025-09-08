@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from "@/api/approvalApi";
 import { HistoryApplicationForm, IRequestStatus } from "@/api/itFormApi";
 import { useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi";
@@ -114,8 +113,8 @@ export default function PendingApproval() {
     });
 
 	const currentPageIds = ListWaitApprovals
-		.filter((item: { requestTypeId: number; }) => item.requestTypeId === 1)
-		.map((item: { leaveRequest: { id: any; }; }) => item.leaveRequest.id);
+		.filter((item: { requestType: { id: number, name: string } }) => item.requestType.id == 1)
+		.map((item: { id: number, name: string }) => item.id);
 
 	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
 		setRequestType(e.target.value)

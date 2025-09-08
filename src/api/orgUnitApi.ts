@@ -33,7 +33,19 @@ const orgUnitApi = {
 
     GetDepartmentAndChildrenTeam() {
         return axiosClient.get(`/org-unit/get-department-and-children-team`)
-    }
+    },
+
+    GetAll() {
+        return axiosClient.get(`/org-unit/get-all`)
+    },
+
+    GetAllTeam(departmentId?: number) {
+        return axiosClient.get(`/org-unit/get-all-team?departmentId=${departmentId}`)
+    },
+
+    GetAllWithOutTeam() {
+        return axiosClient.get(`/org-unit/get-all-without-team`)
+    },
 }
 
 export function useSaveChangeOrgUnitUser() {

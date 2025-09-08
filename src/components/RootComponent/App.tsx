@@ -37,7 +37,7 @@ import ApprovalHistory from '@/features/Approval/ApprovalHistory';
 import ListPermission from '@/features/Permission/ListPermission';
 import ListRequestType from '@/features/RequestType/ListRequestType';
 import ApprovalFlow from '@/pages/ApprovalFlow';
-import SettingOrgUnit from '@/pages/SettingOrgUnit';
+import SettingOrgUnit from '@/features/OrgUnit/SettingOrgUnit';
 import ViewOnlyMemoNotification from '@/features/MemoNotification/ViewOnlyMemoNotification';
 import DetailWaitApprovalLeaveRq from '@/features/Leave/DetailWaitApprovalLeaveRq';
 import ViewOnlyLeaveRq from '@/features/Leave/ViewOnlyLeaveRq';

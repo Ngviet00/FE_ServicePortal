@@ -104,7 +104,9 @@ function ChangeOrgUnit() {
                             key={keyChooseNewOrgUnit}
                             data={departments}
                             loadChildren={async (node) => {
-                                const children = await positionApi.GetOrgPositionsByDepartmentId(parseInt(node.id))
+                                const children = await positionApi.GetOrgPositionsByDepartmentId({
+                                    departmentId: parseInt(node.id)
+                                })
                                 const result = children?.data?.data?.map((item: { id: { toString: () => never; }; name: never; }) => ({
                                     id: item.id.toString(),
                                     label: item.name,
