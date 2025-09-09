@@ -11,10 +11,22 @@ export interface OrgUnit {
     id: number | null,
     name: string | null,
     parentOrgUnitId: number | null,
-    unitId: number | null
+    unitId: number,
+    parentOrgUnit?: OrgUnit,
+    unit?: {
+        id: number,
+        name: string
+    }
+}
+
+export interface IGetAllTeam {
+    departmentId?: number | null
 }
 
 const orgUnitApi = {
+    CreateOrUpdate(data: OrgUnit) {
+        return axiosClient.post('/org-unit/save-or-update', data)
+    },
     GetAllDepartment() {
         return axiosClient.get('/org-unit/get-all-departments')
     },
@@ -39,13 +51,16 @@ const orgUnitApi = {
         return axiosClient.get(`/org-unit/get-all`)
     },
 
-    GetAllTeam(departmentId?: number) {
-        return axiosClient.get(`/org-unit/get-all-team?departmentId=${departmentId}`)
+    GetAllTeam(params: IGetAllTeam) {
+        return axiosClient.get(`/org-unit/get-all-team?`, {params})
     },
 
     GetAllWithOutTeam() {
         return axiosClient.get(`/org-unit/get-all-without-team`)
     },
+    Delete(id: number | null | undefined) {
+        return axiosClient.delete(`/org-unit/${id}`)
+    }
 }
 
 export function useSaveChangeOrgUnitUser() {

@@ -71,6 +71,7 @@
 			"list": "Danh sách thông báo đã tạo"
 		},
 		"leave_request": {
+			"statistical": "Thống kê",
 			"title": "Nghỉ phép, chấm công",
 			"create_leave": "Xin nghỉ phép",
 			"create_leave_for_others" : "Xin nghỉ phép thay người khác",

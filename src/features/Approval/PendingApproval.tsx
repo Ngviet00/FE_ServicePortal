@@ -233,7 +233,7 @@ export default function PendingApproval() {
 					</select>
 				</div>
 
-				{
+				{/* {
 					hasPermissionHrMngLeaveRq && (
 						<div className="w-[20%]">
 							<Label className="mb-2">{t('pending_approval.department')}</Label>
@@ -249,7 +249,7 @@ export default function PendingApproval() {
 							</select>
 						</div>
 					)
-				}
+				} */}
 			</div>
 
 			<div>

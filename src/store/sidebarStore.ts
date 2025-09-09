@@ -59,6 +59,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		label: "sidebar.leave_request.title",
 		icon: Ticket,
 		children: [
+			{ label: "sidebar.leave_request.statistical", route: "/leave/statistical" },
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
 			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
 			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },

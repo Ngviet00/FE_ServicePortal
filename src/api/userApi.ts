@@ -86,7 +86,7 @@ const userApi = {
         return axiosClient.get(`/user/get-by-code/${code}`)
     },
     update(userCode: string | undefined, data: UpdatePersonalInfo){
-        return axiosClient.put(`/user/update/${userCode}`, data)
+        return axiosClient.put(`/user/${userCode}`, data)
     },
     delete(id: string) {
         return axiosClient.delete(`/user/delete/${id}`)

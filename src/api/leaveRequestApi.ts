@@ -93,6 +93,9 @@ interface HrRegisterAllLeave {
 }
 
 const leaveRequestApi = {
+    statistical(params: { year?: number}) {
+        return axiosClient.get('/leave-request/statistical-leave-request', {params})
+    },
     getAll(params: GetLeaveRequest) {
         return axiosClient.get('/leave-request', {params})
     },

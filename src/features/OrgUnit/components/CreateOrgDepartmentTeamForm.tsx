@@ -19,65 +19,61 @@ import {
 } from "@/components/ui/form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { getErrorMessage, ShowToast } from "@/lib"
+import { getErrorMessage, ShowToast, UNIT_ENUM } from "@/lib"
 import { useTranslation } from "react-i18next"
-import positionApi, { IOrgPosition } from "@/api/orgPositionApi"
+import orgUnitApi, { OrgUnit } from "@/api/orgUnitApi"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 type Props = {
-    orgPosition?: IOrgPosition,
-    listOrgPositionParent?: IOrgPosition[]
+    orgUnit?: OrgUnit,
+    listDepartmentWithOutTeam?: OrgUnit[]
     onAction?: () => void;
 };
 
-export default function CreateOrgPositionForm({ orgPosition, listOrgPositionParent, onAction }: Props) {
+export default function CreateOrgDepartmentTeamForm({ orgUnit, listDepartmentWithOutTeam, onAction }: Props) {
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
     const lang = useTranslation().i18n.language.split('-')[0]
 
     const createUserSchema = z.object({
         id: z.coerce.number().nullable().optional(),
-        positionCode: z.string().min(1, { message: lang == 'vi' ? 'Bắt buộc' : 'Required' }),
         name: z.string().min(1, { message: lang == 'vi' ? 'Bắt buộc' : 'Required' }),
-        orgUnitId: z.coerce.number().nullable().optional(),
-        parentOrgPositionId: z.coerce.number().nullable().optional(),
+        parentOrgUnitId: z.union([z.string(), z.number()]).nullable(),
+        unitId: z.number({ required_error: "Vui lòng chọn đơn vị" }),
     })
 
     type CreateUserFormValues = z.infer<typeof createUserSchema>
-    
+
     const form = useForm<CreateUserFormValues>({
         resolver: zodResolver(createUserSchema),
         defaultValues: {
             id: null,
             name: "",
-            positionCode: "",
-            orgUnitId: null,
-            parentOrgPositionId: null
+            parentOrgUnitId: null,
+            // unitId: null
         },
     })
 
     useEffect(() => {
-        if (orgPosition && open) {
-            form.reset({ 
-                id: orgPosition.id,
-                name: orgPosition.name ?? '', 
-                positionCode: orgPosition.positionCode ?? '',
-                orgUnitId: orgPosition.orgUnitId,
-                parentOrgPositionId: orgPosition.parentOrgPositionId
+        if (orgUnit && open) {
+            form.reset({
+                id: orgUnit.id,
+                name: orgUnit?.name ?? '',
+                parentOrgUnitId: orgUnit?.parentOrgUnitId ?? null,
+                unitId: orgUnit?.unitId ?? null
             });
         }
-    }, [orgPosition, open, form]);
+    }, [orgUnit, open, form]);
 
     const onSubmit = async (values: CreateUserFormValues) => {
         try {
             const payload = {
                 id: values?.id ?? null,
                 name: values?.name ?? '',
-                positionCode: values?.positionCode ?? '',
-                orgUnitId: values.orgUnitId,
-                parentOrgPositionId: values.parentOrgPositionId
+                parentOrgUnitId: values?.parentOrgUnitId ? Number(values.parentOrgUnitId) : null,
+                unitId: values?.unitId ?? null
             }
-            await positionApi.SaveOrUpdate(payload);
+            await orgUnitApi.CreateOrUpdate(payload)
             onAction?.();
             setOpen(false);
             form.reset();
@@ -91,7 +87,7 @@ export default function CreateOrgPositionForm({ orgPosition, listOrgPositionPare
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {
-                    orgPosition?.id ? (
+                    orgUnit?.id ? (
                         <button className="hover:cursor-pointer ml-3 rounded-[3px] px-[5px] py-[2px] bg-[#555555] text-white">
                             Sửa
                         </button>
@@ -103,13 +99,13 @@ export default function CreateOrgPositionForm({ orgPosition, listOrgPositionPare
                 }
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
-                <DialogHeader>
-                    <DialogTitle>{orgPosition?.id ? t('list_role_page.btn_update_role') : t('list_role_page.btn_create_role')}</DialogTitle>
+            <DialogContent className="sm:max-w-[650px] sm:min-h-[350px] flex flex-col" aria-describedby={undefined} data-aria-hidden={false}>
+                <DialogHeader className="flex-none">
+                    <DialogTitle>{orgUnit?.id ? t('list_role_page.btn_update_role') : t('list_role_page.btn_create_role')}</DialogTitle>
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-md">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
                         <FormField
                             control={form.control}
                             name="name"
@@ -126,24 +122,10 @@ export default function CreateOrgPositionForm({ orgPosition, listOrgPositionPare
 
                         <FormField
                             control={form.control}
-                            name="positionCode"
+                            name="parentOrgUnitId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <Label htmlFor="name">Code</Label>
-                                    <FormControl>
-                                        <Input id="code" placeholder="..." {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}  
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="parentOrgPositionId"
-                            render={({ field }) => (
-                                <FormItem>
-                                <Label>Vị trí cha</Label>
+                                <Label>Phòng ban cha</Label>
                                 <FormControl>
                                     <Select
                                         onValueChange={field.onChange}
@@ -153,10 +135,10 @@ export default function CreateOrgPositionForm({ orgPosition, listOrgPositionPare
                                         <SelectValue placeholder="Chọn" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {listOrgPositionParent?.map((opt: IOrgPosition) => (
-                                            <SelectItem key={opt.id} value={String(opt.id)}>
-                                                {opt.name}
-                                            </SelectItem>
+                                        {listDepartmentWithOutTeam?.map((opt: OrgUnit) => (
+                                        <SelectItem key={opt.id} value={String(opt.id)}>
+                                            {opt.name}
+                                        </SelectItem>
                                         ))}
                                     </SelectContent>
                                     </Select>
@@ -168,35 +150,36 @@ export default function CreateOrgPositionForm({ orgPosition, listOrgPositionPare
 
                         <FormField
                             control={form.control}
-                            name="parentOrgPositionId"
+                            name="unitId"
                             render={({ field }) => (
                                 <FormItem>
-                                <Label>Vị trí làm việc</Label>
-                                <FormControl>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value ? String(field.value) : ""}   // luôn convert về string
-                                    >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Chọn" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {listOrgPositionParent?.map((opt: IOrgPosition) => (
-                                            <SelectItem key={opt.id} value={String(opt.id)}>
-                                                {opt.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                    </Select>
-                                </FormControl>
-                                <FormMessage />
+                                    <Label>Loại đơn vị</Label>
+                                    <FormControl>
+                                        <div className="flex gap-4">
+                                            {Object.entries(UNIT_ENUM)
+                                                .filter(([, value]) => typeof value === "number")
+                                                .map(([key, value]) => (
+                                                <label key={value} className="flex items-center space-x-2 cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        value={value}
+                                                        checked={field.value === value}
+                                                        onChange={() => field.onChange(value)}
+                                                        className="cursor-pointer"
+                                                    />
+                                                    <span>{key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                         
                         <div className="flex justify-end">
                             <Button type="submit" className="hover:cursor-pointer">
-                                Submit
+                                {t('list_role_page.submit')}
                             </Button>
                         </div>
                     </form>

@@ -178,36 +178,33 @@ export enum PRIORITY {
     HIGH = 3,
 }
 
+export enum UNIT_ENUM {
+    COMPANY = 1,
+    MNG_DEPARTMENT = 2,
+    DEPARTMENT = 3,
+    TEAM = 4
+}
+
 export interface IApplicationForm {
     id: string;
     code?: string;
-
     userCodeRequestor?: string;
     userNameRequestor?: string;
     userCodeCreated?: string;
     userNameCreated?: string;
-
     requestTypeId?: number;
     requestStatusId?: number;
     orgPositionId?: number;
     departmentId?: number;
-
     step?: number;
     metaData?: string;
-
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string;
-
     requestType?: IRequestType;
     requestStatus?: IRequestStatus;
-    // leave?: LeaveRequest;
-    // memoNotification?: IMemoNotify;
     orgPosition?: IOrgPosition;
     orgUnit?: OrgUnit;
-    // itForm?: ITForm;
-    // purchase?: IPurchase;
-
     assignedTasks: IAssignedTask[];
     historyApplicationForms: HistoryApplicationForm[];
 }

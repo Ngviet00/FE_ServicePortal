@@ -103,7 +103,7 @@ export default function MemoNotification () {
                                 return (
                                     <tr key={idx} className="pl-0 pt-0 memo-row bg-white border dark:bg-[#1e1e1e69]">
                                         <td data-label={t('memo_notification.list.code')} className="border text-black p-4 break-words whitespace-normal dark:text-white">
-                                            <Link to={`/approval/view-memo-notify/${item.id}`} className="underline text-blue-600">{ item?.title }</Link>
+                                            <Link to={`/approval/view-memo-notify/${item.id}`} className="underline text-blue-600">{ item?.applicationForm?.code }</Link>
                                         </td>
                                         <td data-label={t('memo_notification.list.title')} className="border text-black px-4 py-4 dark:text-white break-words whitespace-normal clamp-content border-b-0 border-l-0 border-r-0 border-t-0" dangerouslySetInnerHTML={{ __html: item?.content ?? '' }}/>
                                         <td data-label={t('memo_notification.list.department_apply')} className="border text-black px-4 py-4 break-words whitespace-normal dark:text-white">

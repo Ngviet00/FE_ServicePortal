@@ -71,6 +71,7 @@
 			"list": "Created notifications"
 		},
 		"leave_request": {
+			"statistical": "Statistical",
 			"title": "Leave, timekeeping",
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
