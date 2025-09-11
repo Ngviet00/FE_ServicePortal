@@ -85,6 +85,11 @@ h1 {
     height: 300px;
 }
 
+.htInvalid {
+    background-color: #fca5a5 !important; /* đỏ nhạt */
+    color: #000 !important;
+}
+
 /* Chrome, Edge, Safari */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {

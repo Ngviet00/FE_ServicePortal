@@ -43,6 +43,14 @@ const orgUnitApi = {
         return axiosClient.post('/org-unit/save-change-org-unit-user', data)
     },
 
+    SaveChangeOrgUnitManyUser(formData: FormData) {
+        return axiosClient.post('/org-unit/save-change-org-unit-many-user', formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+    },
+
     GetDepartmentAndChildrenTeam() {
         return axiosClient.get(`/org-unit/get-department-and-children-team`)
     },

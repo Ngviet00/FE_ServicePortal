@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { ShowToast } from "@/lib";
+import { getErrorMessage, ShowToast } from "@/lib";
 import { useTranslation } from "react-i18next";
 import { TreeCheckboxChooseUserChangeOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckboxChooseUserChangeOrgUnit";
 import { TreeCheckBoxChooseNewOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckBoxChooseNewOrgUnit";
 import orgUnitApi, { useSaveChangeOrgUnitUser } from "@/api/orgUnitApi";
 import positionApi from "@/api/orgPositionApi";
+import ExcelUploader from "@/components/ExcelUploader";
 
 function ChangeOrgUnit() {
     const { t } = useTranslation('changeOrgUnit');
@@ -74,10 +75,33 @@ function ChangeOrgUnit() {
         setKeyChooseUserChangeOrgUnit(prevKey => prevKey + 1);
     }
 
+    const handleSubmit = async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            await orgUnitApi.SaveChangeOrgUnitManyUser(formData)
+            ShowToast("Success", "success")
+            return true
+
+        } catch (err) {
+            ShowToast(getErrorMessage(err), "error")
+            return false
+        }
+    };
+
     return (
         <div className="p-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('title')}</h3>
+            </div>
+
+            <div>
+                <ExcelUploader
+                    templateFileUrl={`/template_excel/template_thay_doi_vi_tri.xlsx`}
+                    onSubmit={handleSubmit}
+                    triggerLabel="Import Excel"
+                />
             </div>
 
             <div className="flex mt-5">

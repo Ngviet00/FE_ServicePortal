@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useAuthStore } from "@/store/authStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -223,140 +222,149 @@ export default function MngTimekeeping () {
                     })
                 }
             </div>
-            
-            <div className="mb-5 relative overflow-x-auto shadow-md sm:rounded-lg pb-3">
-                <div className="min-w-[1200px]">
-                    <Table>
-                        <TableHeader className="sticky top-0 bg-gray-50 dark:bg-black z-20">
-                            <TableRow className="border-b bg-[#f3f4f6] dark:bg-black dark:text-white">
-                                <TableHead className="w-[0px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.usercode')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.name')}</TableHead>
-                                <TableHead className="w-[100px] text-center border-r text-black dark:text-white">{t('mng_time_keeping.dept')}</TableHead>
-                                {
-                                    daysHeader.map(({ dayStr }) => {
-                                        const fullDayStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
-                                        const bgSunday = new Date(fullDayStr).getDay() == 0 ? statusColors['CN' as AttendanceStatus] : ''
-                                        const colorSunday = new Date(fullDayStr).getDay() == 0 ? '#FFFFFF' : ''
 
-                                        return (
-                                            <TableHead
-                                                key={dayStr}
-                                                style={{ backgroundColor: bgSunday || '', color: colorSunday}}
-                                                className={`w-[5px] dark:text-white text-center text-black border-r`}
-                                            >
-                                                {dayStr}
-                                            </TableHead>
-                                        )
-                                    })
-                                }
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {
-                            isLoading ? (
-                                Array.from({ length: 5 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell className="w-[0px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></TableCell>
-                                        <TableCell className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></TableCell>
-                                        {
-                                            daysHeader.map(({ dayStr }) => (
-                                                <TableCell key={dayStr} className="w-[100px] text-center"><div className="flex justify-center"><Skeleton className="h-3 w-[17px] bg-gray-300" /></div></TableCell>
-                                            ))
-                                        }
-                                    </TableRow>
-                                ))
-                            ) : isError || dataAttendances?.length == 0 ? (
-                                <TableRow>
-                                    <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center`} colSpan={daysInMonth + 3}>{error?.message ?? "No results"}</TableCell>
-                                </TableRow>
-                            ) :
-                            (
-                                dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
-                                    <TableRow key={idx} className="border-b dark:border-[#9b9b9b]">
-                                        <TableCell className="text-left border-r">{item.UserCode}</TableCell>
-                                        <TableCell className="text-left border-r">{item.Name}</TableCell>
-                                        <TableCell className="text-left border-r">{item.Department}</TableCell>
-                                        {
-                                            daysHeader.map(({ dayStr }, colIdx: number) => {
-                                                let bgColor = '#FFFFFF'
-                                                let textColor = '#000000'
-                                                const dayNumber = parseInt(dayStr, 10);
-                                                 
-                                                let result = (item as any)[`ATT${dayNumber}`]?.toString() || '';
-                                                const den = (item as any)[`Den${dayNumber}`]?.toString() || '';
-                                                const ve = (item as any)[`Ve${dayNumber}`]?.toString() || ''
-                                                const wh = (item as any)[`WH${dayNumber}`]?.toString() || '';
-                                                const ot = (item as any)[`OT${dayNumber}`]?.toString() || '';
-                                                const fullDate = `${year}-${month.toString().padStart(2, '0')}-${dayStr}`
-                                                const isSunday = new Date(fullDate).getDay() === 0;
-                                                
-                                                if (result == 'X') {
-                                                    if (isSunday) {
-                                                        result = 'CN_X'
-                                                    }
-                                                    else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
-                                                        result = 'X'
-                                                    }
-                                                    else if (parseFloat(wh) < 8) {
-                                                        const calculateTime = calculateRoundedTime(8 - parseFloat(wh))
-                                                        result = calculateTime == '1' ? 'X' : calculateTime 
-                                                    }
-                                                }
-                                                else if (result == 'SH') {
-                                                    bgColor = '#3AFD13'
-                                                }
-                                                else if (result == 'CN') {
-                                                    if (den != '' && ve != '' && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
-                                                        result = 'CN_X'
-                                                        bgColor = '#FFFFFF'
-                                                        textColor = '#000000'
-                                                    }
-                                                    else {
-                                                        bgColor = '#858585'
-                                                    }
-                                                }
-                                                else if (result == 'ABS' || result == 'MISS') {
-                                                    bgColor = '#FD5C5E'
-                                                }
-                                                else if (result != 'X') {
-                                                    bgColor = '#ffe378'
-                                                }
-                                                
-                                                return (
-                                                    <TableCell
-                                                        onClick={() => {
-                                                            const invalidResults = ['X', 'CN_X', 'NM'];
-                                                            if (!invalidResults.includes(result)) {
-                                                                setSelectedData({
-                                                                    Name: item.Name,
-                                                                    UserCode: item.UserCode,
-                                                                    CurrentDate: fullDate,
-                                                                    Result: result,
-                                                                    Den: den,
-                                                                    Ve: ve,
-                                                                    RowIndex: idx,
-                                                                    ColIndex: colIdx
-                                                                })
-                                                                setOpenModalUpdateTimeKeeping(true)
-                                                            }
-                                                        }}
-                                                        key={dayStr}
-                                                        style={{backgroundColor: bgColor, color: textColor}}  
-                                                        className={`p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer`}
-                                                    >
-                                                        <div className="flex justify-center text-xs">
-                                                            {result}
-                                                        </div>
-                                                    </TableCell>
-                                                )
-                                            })
-                                        }
-                                    </TableRow>
-                                )))
-                            }
-                        </TableBody>
-                    </Table>
+            <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
+                <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
+                    <table className="min-w-[1200px] border-collapse">
+                        <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-black">
+                            <tr className="border-b bg-[#f3f4f6] dark:bg-black dark:text-white">
+                            <th className="w-[130px] text-center border-r p-2">{t("mng_time_keeping.usercode")}</th>
+                            <th className="w-[180px] text-center border-r">{t("mng_time_keeping.name")}</th>
+                            <th className="w-[130px] text-center border-r">{t("mng_time_keeping.dept")}</th>
+                            {daysHeader.map(({ dayStr }) => {
+                                const fullDayStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
+                                const bgSunday =
+                                new Date(fullDayStr).getDay() == 0 ? statusColors["CN" as AttendanceStatus] : "";
+                                const colorSunday = new Date(fullDayStr).getDay() == 0 ? "#FFFFFF" : "";
+
+                                return (
+                                <th
+                                    key={dayStr}
+                                    style={{ backgroundColor: bgSunday || "", color: colorSunday }}
+                                    className="w-[36px] text-center border-r text-sm"
+                                >
+                                    {dayStr}
+                                </th>
+                                );
+                            })}
+                            </tr>
+                        </thead>
+                    <tbody>
+                        {isLoading &&
+                        Array.from({ length: 5 }).map((_, index) => (
+                            <tr key={index}>
+                                <td className="w-[130px] text-center p-2">
+                                    <div className="flex justify-center">
+                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                    </div>
+                                </td>
+                                <td className="w-[180px] text-center">
+                                    <div className="flex justify-center">
+                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                    </div>
+                                </td>
+                                <td className="w-[130px] text-center">
+                                    <div className="flex justify-center">
+                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                    </div>
+                                </td>
+                                {daysHeader.map(({ dayStr }) => (
+                                    <td key={dayStr} className="w-[36px] text-center">
+                                    <div className="flex justify-center">
+                                        <Skeleton className="h-3 w-[17px] bg-gray-300" />
+                                    </div>
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+
+                        {(isError || !dataAttendances || dataAttendances.length === 0) && (
+                            <tr>
+                                <td
+                                    colSpan={daysInMonth + 3}
+                                    className={`${
+                                        isError ? "text-red-700" : "text-black dark:text-gray-300"
+                                    } font-medium text-center align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a]`}
+                                    >
+                                    {error?.message ?? "No results"}
+                                </td>
+                            </tr>
+                        )}
+
+                        {!isLoading && !isError &&
+                            dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
+                                <tr key={idx} className="border-b dark:border-[#9b9b9b]">
+                                <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">{item.UserCode}</td>
+                                <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
+                                <td className="text-left border-r pl-2 text-sm w-[130px]">{item.Department}</td>
+                                {daysHeader.map(({ dayStr }, colIdx: number) => {
+                                    let bgColor = "#FFFFFF";
+                                    let textColor = "#000000";
+                                    const dayNumber = parseInt(dayStr, 10);
+
+                                    let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
+                                    const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
+                                    const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
+                                    const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
+                                    const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
+                                    const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
+                                    const isSunday = new Date(fullDate).getDay() === 0;
+
+                                    if (result == "X") {
+                                    if (isSunday) {
+                                        result = "CN_X";
+                                    } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
+                                        result = "X";
+                                    } else if (parseFloat(wh) < 8) {
+                                        const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
+                                        result = calculateTime == "1" ? "X" : calculateTime;
+                                    }
+                                    } else if (result == "SH") {
+                                        bgColor = "#3AFD13";
+                                    } else if (result == "CN") {
+                                    if (den != "" && ve != "" && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
+                                        result = "CN_X";
+                                        bgColor = "#FFFFFF";
+                                        textColor = "#000000";
+                                    } else {
+                                        bgColor = "#858585";
+                                    }
+                                    } else if (result == "ABS" || result == "MISS") {
+                                        bgColor = "#FD5C5E";
+                                    } else if (result != "X") {
+                                        bgColor = "#ffe378";
+                                    }
+
+                                    return (
+                                        <td
+                                            key={dayStr}
+                                            style={{ backgroundColor: bgColor, color: textColor }}
+                                            className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
+                                            onClick={() => {
+                                            const invalidResults = ["X", "CN_X", "NM"];
+                                            if (!invalidResults.includes(result)) {
+                                                setSelectedData({
+                                                    Name: item.Name,
+                                                    UserCode: item.UserCode,
+                                                    CurrentDate: fullDate,
+                                                    Result: result,
+                                                    Den: den,
+                                                    Ve: ve,
+                                                    RowIndex: idx,
+                                                    ColIndex: colIdx,
+                                                });
+                                                setOpenModalUpdateTimeKeeping(true);
+                                            }
+                                            }}
+                                        >
+                                            <div className="flex justify-center text-xs">{result}</div>
+                                        </td>
+                                    );
+                                })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

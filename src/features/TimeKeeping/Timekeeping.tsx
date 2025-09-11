@@ -157,25 +157,25 @@ export default function Timekeeping () {
                 <span>{t('time_keeping.night_ot')}: <span className="font-bold text-red-800">{(otNight/60).toFixed(1)}</span></span>
             </div>
             <div className="mt-5">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm border border-gray-200">
-                        <thead className="bg-gray-100">
+                <div className="overflow-auto max-h-[600px] border rounded">
+                    <table className="min-w-full text-sm border-collapse">
+                        <thead className="bg-gray-100 sticky top-0 z-20">
                             <tr>
-                                <th className="sticky top-0 z-20 p-1 border w-[115px]">{t('time_keeping.usercode')}</th>
-                                <th className="sticky top-0 z-20 p-1 border w-[170px]">{t('time_keeping.username')}</th>
-                                <th className="p-1 border w-[100px]">{t('time_keeping.date')}</th>
-                                <th className="p-1 border w-[50px]">{t('time_keeping.day')}</th>
-                                <th className="p-1 border w-[60px]">{t('time_keeping.shift')}</th>
-                                <th className="p-1 border w-[80px]">{t('time_keeping.from')}</th>
-                                <th className="p-1 border w-[80px]">{t('time_keeping.to')}</th>
-                                <th className="p-1 border w-[130px]">{t('time_keeping.day_time_work')}</th>
-                                <th className="p-1 border w-[140px]">{t('time_keeping.night_time_work')}</th>
-                                <th className="p-1 border w-[150px]">{t('time_keeping.day_ot_work')}</th>
-                                <th className="p-1 border w-[160px]">{t('time_keeping.night_ot_work')}</th>
-                                <th className="p-1 border w-[100px]">{t('time_keeping.late')}</th>
-                                <th className="p-1 border w-[100px]">{t('time_keeping.early')}</th>
-                                <th className="p-1 border w-[100px]">{t('time_keeping.go_out')}</th>
-                                <th className="p-1 border w-[100px]">{t('time_keeping.note')}</th>
+                                <th className="sticky top-0 z-20 border-x p-1 w-[115px]">{t('time_keeping.usercode')}</th>
+                                <th className="sticky top-0 border-x z-20 p-1 w-[170px]">{t('time_keeping.username')}</th>
+                                <th className="p-1 border-x w-[100px]">{t('time_keeping.date')}</th>
+                                <th className="p-1 border-x w-[50px]">{t('time_keeping.day')}</th>
+                                <th className="p-1 border-x w-[60px]">{t('time_keeping.shift')}</th>
+                                <th className="p-1 border-x w-[80px]">{t('time_keeping.from')}</th>
+                                <th className="p-1 border-x w-[80px]">{t('time_keeping.to')}</th>
+                                <th className="p-1 border-x w-[130px]">{t('time_keeping.day_time_work')}</th>
+                                <th className="p-1 border-x w-[140px]">{t('time_keeping.night_time_work')}</th>
+                                <th className="p-1 border-x w-[150px]">{t('time_keeping.day_ot_work')}</th>
+                                <th className="p-1 border-x w-[160px]">{t('time_keeping.night_ot_work')}</th>
+                                <th className="p-1 border-x w-[100px]">{t('time_keeping.late')}</th>
+                                <th className="p-1 border-x w-[100px]">{t('time_keeping.early')}</th>
+                                <th className="p-1 border-x w-[100px]">{t('time_keeping.go_out')}</th>
+                                <th className="p-1 border-x  w-[100px]">{t('time_keeping.note')}</th>
                             </tr>
                         </thead>
                         <tbody>
