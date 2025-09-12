@@ -100,7 +100,6 @@ function ChangeOrgUnit() {
                 <ExcelUploader
                     templateFileUrl={`/template_excel/template_thay_doi_vi_tri.xlsx`}
                     onSubmit={handleSubmit}
-                    triggerLabel="Import Excel"
                 />
             </div>
 
