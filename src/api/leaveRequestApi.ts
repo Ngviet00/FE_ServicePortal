@@ -35,11 +35,25 @@ export interface LeaveRequestData {
     applicationForm?: IApplicationForm
 }
 
-export interface CreateLeaveRequestForManyPeople {
-    UserCode: string | undefined,
-    UrlFrontEnd: string,
-    OrgPositionId: number | undefined,
-    Leaves: LeaveRequestData[]
+export interface CreateLeaveRequest {
+    EmailCreated?: string | undefined,
+    OrgPositionId?: number | undefined,
+    UserCodeCreated?: string | undefined,
+    CreatedBy?: string,
+    CreateLeaveRequestDto?: CreateLeaveRequestDetail,
+    ImportByExcel?: FormData
+}
+
+export interface CreateLeaveRequestDetail {
+    UserCode: string,
+    UserName: string,
+    DepartmentId: number,
+    Position: string,
+    FromDate: string
+    ToDate: string
+    TypeLeaveId: number
+    TimeLeaveId: number
+    Reason: string
 }
 
 export interface HistoryLeaveRequestApproval {
@@ -93,6 +107,17 @@ interface HrRegisterAllLeave {
 }
 
 const leaveRequestApi = {
+
+    create(formData: FormData) {
+        return axiosClient.post('/leave-request', formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+    },
+
+
+
     statistical(params: { year?: number}) {
         return axiosClient.get('/leave-request/statistical-leave-request', {params})
     },
@@ -102,9 +127,7 @@ const leaveRequestApi = {
     getById(id: string) {
         return axiosClient.get(`/leave-request/${id}`)
     },
-    create(data: LeaveRequestData) {
-        return axiosClient.post('/leave-request', data)
-    },
+
     update(id: string, data: LeaveRequestData){
         return axiosClient.put(`/leave-request/${id}`, data)
     },
@@ -113,9 +136,6 @@ const leaveRequestApi = {
     },
     registerAllLeaveRequest(data: HrRegisterAllLeave) {
         return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
-    },
-    createLeaveRequestForOther(data: CreateLeaveRequestForManyPeople) {
-        return axiosClient.post('/leave-request/create-leave-for-others', data)
     },
     GetUserCodeHavePermissionCreateMultipleLeaveRequest() {
         return axiosClient.get('/leave-request/get-usercode-have-permission-create-multiple-leave-request')
@@ -234,10 +254,10 @@ export function useRegisterAllLeaveRequest() {
     })
 }
 
-export function useCreateLeaveRequestForManyPeople() {
+export function useCreateLeaveRequest() {
     return useMutation({
-        mutationFn: async (data: CreateLeaveRequestForManyPeople) => {
-            await leaveRequestApi.createLeaveRequestForOther(data)
+        mutationFn: async (data: FormData) => {
+            await leaveRequestApi.create(data)
         },
         onSuccess: () => {
             ShowToast("Success");

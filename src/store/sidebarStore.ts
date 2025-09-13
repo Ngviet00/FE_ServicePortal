@@ -45,48 +45,49 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.change_org_unit_id_user", route: "/change-org-unit" },
 		],
 	},
-	{
-		key: "MemoNotification",
-		label: "sidebar.notification.title",
-		icon: Bell,
-		children: [
-			{ label: "sidebar.notification.create", route: "/memo-notify/create" },
-			{ label: "sidebar.notification.list", route: "/memo-notify" },
-		],
-	},
+	// {
+	// 	key: "MemoNotification",
+	// 	label: "sidebar.notification.title",
+	// 	icon: Bell,
+	// 	children: [
+	// 		{ label: "sidebar.notification.create", route: "/memo-notify/create" },
+	// 		{ label: "sidebar.notification.list", route: "/memo-notify" },
+	// 	],
+	// },
 	{
 		key: "leave_request",
 		label: "sidebar.leave_request.title",
 		icon: Ticket,
 		children: [
-			{ label: "sidebar.leave_request.statistical", route: "/leave/statistical" },
+			// { label: "sidebar.leave_request.statistical", route: "/leave/statistical" },
+			// { label: "Tăng ca", route: "/ot/create" },
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
-			{ label: "sidebar.leave_request.list_leave", route: "/leave" },
+			// { label: "sidebar.leave_request.list_leave", route: "/leave" },
 			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 		],
 	},
-	{
-		key: "IT",
-		label: "sidebar.IT.title",
-		icon: Computer,
-		children: [
-			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
-			{ label: "sidebar.IT.create", route: "/form-it/create" },
-			{ label: "sidebar.IT.list", route: "/form-it" },
-			// { label: "sidebar.IT.setting", route: "/form-it/setting" },
-		],
-	},
-	{
-		key: "Purchase",
-		label: "sidebar.purchase.title",
-		icon: WalletCards,
-		children: [
-			{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
-			{ label: "sidebar.purchase.create", route: "/purchase/create" },
-			{ label: "sidebar.purchase.list", route: "/purchase" }
-		],
-	},
+	// {
+	// 	key: "IT",
+	// 	label: "sidebar.IT.title",
+	// 	icon: Computer,
+	// 	children: [
+	// 		{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
+	// 		{ label: "sidebar.IT.create", route: "/form-it/create" },
+	// 		{ label: "sidebar.IT.list", route: "/form-it" },
+	// 		// { label: "sidebar.IT.setting", route: "/form-it/setting" },
+	// 	],
+	// },
+	// {
+	// 	key: "Purchase",
+	// 	label: "sidebar.purchase.title",
+	// 	icon: WalletCards,
+	// 	children: [
+	// 		{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
+	// 		{ label: "sidebar.purchase.create", route: "/purchase/create" },
+	// 		{ label: "sidebar.purchase.list", route: "/purchase" }
+	// 	],
+	// },
 	{
 		key: "approval",
 		label: "sidebar.approval.title",

@@ -104,6 +104,16 @@ export default function ExcelUploader({
         <div className="flex flex-col space-y-4">
             <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-lg font-semibold">{t.title}:</h3> <br />
+                <label className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md shadow-sm transition text-sm cursor-pointer">
+                    {t.choose}
+                    <input
+                        ref={fileInputRef}
+                        accept={accept}
+                        type="file"
+                        onChange={handleFileChange} 
+                        className="hidden"
+                    />
+                </label>
                 {
                     showTemplateButton && (
                          <a
@@ -115,16 +125,6 @@ export default function ExcelUploader({
                         </a>
                     )
                 }
-                <label className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md shadow-sm transition text-sm cursor-pointer">
-                    {t.choose}
-                    <input
-                        ref={fileInputRef}
-                        accept={accept}
-                        type="file"
-                        onChange={handleFileChange} 
-                        className="hidden"
-                    />
-                </label>
             </div>  
 
             {file && (

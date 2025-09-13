@@ -72,9 +72,9 @@
 		},
 		"leave_request": {
 			"statistical": "Thống kê",
-			"title": "Nghỉ phép, chấm công",
-			"create_leave": "Xin nghỉ phép",
-			"create_leave_for_others" : "Xin nghỉ phép thay người khác",
+			"title": "Nhân sự",
+			"create_leave": "Nghỉ phép, đi trễ về sớm",
+			"create_leave_for_others" : "Tăng ca",
 			"list_leave": "Danh sách nghỉ phép đã tạo",
 			"time_keeping": "Chấm công",
 			"mng_time_keeping": "Quản lý chấm công"
