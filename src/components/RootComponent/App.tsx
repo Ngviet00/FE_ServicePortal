@@ -56,6 +56,7 @@ import AssignedFormPurchase from '@/features/Purchasing/AssignedFormPurchase';
 import ViewOnlyFormPurchase from '@/features/Purchasing/ViewOnlyFormPurchase';
 import StatisticalLeaveRqForm from '@/features/Leave/StatisticalLeaveRqForm';
 import AllFormLeaveRequest from '@/features/Leave/AllFormLeaveRequest';
+import ListLeaveRequestRegistered from '@/features/Leave/ListLeaveRequestRegistered';
 
 function App() {
 	const location = useLocation();
@@ -101,11 +102,13 @@ function App() {
 		
 		//leave + timekeeping
 		{ path: "/leave", element: <ListLeaveRequest/> },
-		{ path: "/leave/statistical", element: <StatisticalLeaveRqForm />},
 		{ path: "/leave/create", element: <LeaveRequestFormForOthers/> },
 		{ path: "/leave/edit/:id", element: <LeaveRequestFormForOthers/> },
+		{ path: "/leave/leave-registered", element: <ListLeaveRequestRegistered/> },
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']
+
+		{ path: "/leave/statistical", element: <StatisticalLeaveRqForm />},
 		{ path: "/leave/all-form-leave-request", element: <AllFormLeaveRequest />},
 
 		//form it

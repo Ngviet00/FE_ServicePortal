@@ -147,24 +147,39 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
 
     useEffect(() => {
         if (isEdit && formData) {
-            const formatFromDate = (formData?.fromDate.split('T')[0] + ' ' + formData.fromDate.split('T')[1].substring(0, 5))
-            const formatToDate = formData?.toDate.split('T')[0] + ' ' + formData.toDate.split('T')[1].substring(0, 5)
+            const mappedLeaveRequests = formData.map(item => ({
+                user_code: item.userCode ?? "",
+                user_code_register: user?.userCode ?? "",
+                name: item.userName ?? "",
+                department: item.orgUnit?.name ?? "",
+                departmentId: item.departmentId ?? -1,
+                position: item.position ?? "",
+                from_date: item.fromDate ? item.fromDate.replace('T', ' ').slice(0,16) : `${new Date().toISOString().slice(0, 10)} 08:00`,
+                to_date: item.toDate ? item.toDate.replace('T', ' ').slice(0,16) : `${new Date().toISOString().slice(0, 10)} 17:00`,
+                type_leave: item.typeLeaveId?.toString() ?? "",
+                time_leave: item.timeLeaveId?.toString() ?? "",
+                reason: item.reason ?? "",
+            }));
 
-            reset({
-                leaveRequests: [{
-                    user_code: formData?.applicationForm?.userCodeRequestor ?? "",
-                    user_code_register: user?.userCode ?? "",
-                    name: formData?.applicationForm?.userNameRequestor ?? '',
-                    department: formData?.orgUnit?.name ?? '',
-                    departmentId: formData?.orgUnit?.id ?? -1,
-                    position: formData?.position ?? '',
-                    from_date: formatFromDate ?? `${new Date().toISOString().slice(0, 10)} 08:00`,
-                    to_date: formatToDate ?? `${new Date().toISOString().slice(0, 10)} 17:00`,
-                    type_leave: formData?.typeLeave?.id?.toString(),
-                    time_leave: formData?.timeLeave?.id?.toString(),
-                    reason: formData?.reason ?? '',
-                }],
-            });
+            reset({ leaveRequests: mappedLeaveRequests });
+            // const formatFromDate = (formData?.fromDate.split('T')[0] + ' ' + formData.fromDate.split('T')[1].substring(0, 5))
+            // const formatToDate = formData?.toDate.split('T')[0] + ' ' + formData.toDate.split('T')[1].substring(0, 5)
+
+            // reset({
+            //     leaveRequests: [{
+            //         user_code: formData?.applicationForm?.userCodeRequestor ?? "",
+            //         user_code_register: user?.userCode ?? "",
+            //         name: formData?.applicationForm?.userNameRequestor ?? '',
+            //         department: formData?.orgUnit?.name ?? '',
+            //         departmentId: formData?.orgUnit?.id ?? -1,
+            //         position: formData?.position ?? '',
+            //         from_date: formatFromDate ?? `${new Date().toISOString().slice(0, 10)} 08:00`,
+            //         to_date: formatToDate ?? `${new Date().toISOString().slice(0, 10)} 17:00`,
+            //         type_leave: formData?.typeLeave?.id?.toString(),
+            //         time_leave: formData?.timeLeave?.id?.toString(),
+            //         reason: formData?.reason ?? '',
+            //     }],
+            // });
         }
         else if (isCreate) {
             reset({
@@ -365,7 +380,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
                                 append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", })
                             }
                         >
-                            { t('add') }
+                            +
                     </button>
                     )
                 }

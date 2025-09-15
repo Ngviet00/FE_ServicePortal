@@ -2,6 +2,36 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
 
+export interface GetMyLeaveRequest {
+    leaveRequestId?: string;
+    userCode?: string;
+    userName?: string;
+    departmentName?: string;
+    position?: string;
+    typeLeaveName?: string;
+    typeLeaveNameE?: string;
+    timeLeaveName?: string;
+    timeLeaveNameE?: string;
+    fromDate?: string;
+    toDate?: string;
+    reason?: string;
+    createdAt?: string;
+    createdBy?: string;
+    requestStatusId?: number;
+    requestStatusName?: string;
+    requestStatusNameE?: string;
+    userCodeCreatedBy?: string;
+    code?: string;
+}
+
+export interface GetMyLeaveRequestRegistered {
+    UserCode?: string,
+    Page: number;
+    PageSize: number;
+    Status?: number | null
+}
+
+
 export interface LeaveRequestData {
     id?: string | null,
     orgPositionId?: number,
@@ -95,7 +125,7 @@ interface GetLeaveRequest {
     Page: number;
     PageSize: number;
     Year?: number
-    Status?: number
+    Status?: number | null
     Keysearch?: string,
     Date?: string
 }
@@ -107,9 +137,30 @@ interface HrRegisterAllLeave {
 }
 
 const leaveRequestApi = {
-
     create(formData: FormData) {
         return axiosClient.post('/leave-request', formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+    },
+    getAll(params: GetLeaveRequest) {
+        return axiosClient.get('/leave-request/get-my-leave-request-application', {params})
+    },
+    getLeaveRequestRegistered(params: GetMyLeaveRequestRegistered) {
+        return axiosClient.get('/leave-request/get-my-leave-request-registered', {params})
+    },
+    delete(id: string) {
+        return axiosClient.delete(`/leave-request/${id}`)
+    },
+    deleteApplicationFormLeave(applicationFormId: string) {
+        return axiosClient.delete(`/leave-request/delete-application-form-leave/${applicationFormId}`)
+    },
+    GetListLeaveToUpdate(id: string) {
+        return axiosClient.get(`/leave-request/get-list-leave-to-update/${id}`)
+    },
+    update(id: string, data: FormData){
+        return axiosClient.put(`/leave-request/${id}`, data, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -118,22 +169,18 @@ const leaveRequestApi = {
 
 
 
+
+
     statistical(params: { year?: number}) {
         return axiosClient.get('/leave-request/statistical-leave-request', {params})
     },
-    getAll(params: GetLeaveRequest) {
-        return axiosClient.get('/leave-request', {params})
-    },
+
     getById(id: string) {
         return axiosClient.get(`/leave-request/${id}`)
     },
 
-    update(id: string, data: LeaveRequestData){
-        return axiosClient.put(`/leave-request/${id}`, data)
-    },
-    delete(id: string) {
-        return axiosClient.delete(`/leave-request/${id}`)
-    },
+
+
     registerAllLeaveRequest(data: HrRegisterAllLeave) {
         return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
     },
@@ -270,7 +317,7 @@ export function useCreateLeaveRequest() {
 
 export function useUpdateLeaveRq() {
     return useMutation({
-        mutationFn: async ({id, data} : { id: string, data: LeaveRequestData } ) => {
+        mutationFn: async ({id, data} : { id: string, data: FormData } ) => {
             await leaveRequestApi.update(id, data)
         },
         onSuccess: () => {

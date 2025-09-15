@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChangeEvent, useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
@@ -12,7 +11,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
-import leaveRequestApi, { GetMyLeaveRequest } from "@/api/leaveRequestApi"
+import leaveRequestApi from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
 import { getErrorMessage, ShowToast } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
@@ -20,8 +19,19 @@ import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
+import { IRequestStatus } from "@/api/itFormApi"
+import { IRequestType } from "@/api/requestTypeApi"
 
-export default function ListLeaveRequest () {
+interface GetMyLeaveRequestRegistered {
+    id?: string,
+    code?: string,
+    createdBy?: string,
+    createdAt?: string,
+    requestStatus?: IRequestStatus,
+    requestType?: IRequestType
+}
+
+export default function ListLeaveRequestRegistered () {
     const { t } = useTranslation();
     const lang = useTranslation().i18n.language.split('-')[0];
     const [totalPage, setTotalPage] = useState(0)
@@ -31,10 +41,10 @@ export default function ListLeaveRequest () {
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
     
-    const { data: leaveRequests = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-leave-requests', { page, pageSize, status: status }],
+    const { data: leaveRequestRegistered = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-leave-requests-registered', { page, pageSize, status: status }],
         queryFn: async () => {
-            const res = await leaveRequestApi.getAll({
+            const res = await leaveRequestApi.getLeaveRequestRegistered({
                 UserCode: user?.userCode ?? "",
                 Page: page,
                 PageSize: pageSize,
@@ -62,13 +72,13 @@ export default function ListLeaveRequest () {
         if (shouldGoBack && page > 1) {
             setPage(prev => prev - 1);
         } else {
-            queryClient.invalidateQueries({ queryKey: ['get-leave-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['get-leave-requests-registered'] });
         }
     }
 
     const mutation = useMutation({
         mutationFn: async (id: string) => {
-            await leaveRequestApi.delete(id);
+            await leaveRequestApi.deleteApplicationFormLeave(id);
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -79,7 +89,7 @@ export default function ListLeaveRequest () {
     });
 
     const handleDelete = async (id: string) => {
-        const shouldGoBack = leaveRequests.length === 1;
+        const shouldGoBack = leaveRequestRegistered.length === 1;
         await mutation.mutateAsync(id);
         handleSuccessDelete(shouldGoBack);
     };
@@ -88,25 +98,20 @@ export default function ListLeaveRequest () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
                 <h3 className="font-bold text-xl md:text-2xl m-0">
-                    Xin nghỉ phép của tôi
+                    Đơn đã đăng ký nghỉ phép
                 </h3>
-                <Button asChild className="w-full md:w-auto">
-                    <Link to="/leave/leave-registered">
-                        Danh sách đơn nghỉ phép đã đăng ký
-                    </Link>
-                </Button>
             </div>
 
             <div className="mb-5 pb-3">
                 <div className="mb-2">
                     <Label className="mb-2">{t('list_leave_request.status')}</Label>
-					<select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
-						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
+                    <select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
+                        <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
                         <option value="2">{ lang == 'vi' ? 'Đang xử lý' : 'In Process' }</option>
                         <option value="3">{ lang == 'vi' ? 'Hoàn thành' : 'Completed' }</option>
                         <option value="5">{ lang == 'vi' ? 'Từ chối' : 'Rejected' }</option>
-					</select>
+                    </select>
                 </div>
 
                 <div className="mt-2">
@@ -115,18 +120,10 @@ export default function ListLeaveRequest () {
                             <TableHeader>
                                 <TableRow className="bg-[#f3f4f6] border">
                                     <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('list_leave_request.usercode')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.name')}</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{t('list_leave_request.department')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('list_leave_request.position')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.from')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.to')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('list_leave_request.type_leave')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('list_leave_request.time_leave')}</TableHead>
-                                    <TableHead className="w-[200px] text-center border">{t('list_leave_request.reason')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.write_leave_name')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.created_at')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.status')}</TableHead>
+                                    <TableHead className="w-[100px] text-center border">Loại đơn</TableHead>
+                                    <TableHead className="w-[100px] text-center border">Người tạo</TableHead>
+                                    <TableHead className="w-[150px] text-center border">Thời gian tạo</TableHead>
+                                    <TableHead className="w-[130px] text-center border">Trạng thái đơn</TableHead>
                                     <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Hành động' : 'Action'} </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -134,8 +131,8 @@ export default function ListLeaveRequest () {
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <TableRow key={index}>
-                                        {Array.from({ length: 14 }).map((_, i) => (
-                                            <TableCell key={i}>
+                                        {Array.from({ length: 6 }).map((_, i) => (
+                                            <TableCell key={i} className="border">
                                                 <div className="flex justify-center">
                                                     <Skeleton className="h-4 w-[100px] bg-gray-300" />
                                                 </div>
@@ -143,43 +140,35 @@ export default function ListLeaveRequest () {
                                         ))}
                                         </TableRow>
                                     ))
-                                ) : isError || leaveRequests.length === 0 ? (
+                                ) :  isError || leaveRequestRegistered.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={14} className="text-red-700 border text-center font-medium dark:text-white">
+                                        <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
                                             {error?.message ?? t('list_leave_request.no_result')}
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    leaveRequests.map((item: GetMyLeaveRequest) => {
+                                    leaveRequestRegistered.map((item: GetMyLeaveRequestRegistered) => {
                                         return (
-                                            <TableRow key={item.leaveRequestId}>
+                                            <TableRow key={item.id}>
                                                 <TableCell className="text-center border">
                                                     <Link to={``} className="text-blue-600 underline hover:cursor-not-allowed">{item?.code}</Link>
                                                 </TableCell>
-                                                <TableCell className="text-center border">{item?.userCode}</TableCell>
-                                                <TableCell className="text-center border">{item?.userName}</TableCell>
-                                                <TableCell className="text-center border">{item?.departmentName}</TableCell>
-                                                <TableCell className="text-center border">{item.position}</TableCell>
-                                                <TableCell className="text-center border">{ formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-center border">{ formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-left border">{lang == 'vi' ? item?.typeLeaveName : item?.typeLeaveNameE}</TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.timeLeaveName : item?.timeLeaveNameE}</TableCell>
-                                                <TableCell className="text-center border">{item?.reason}</TableCell>
-                                                <TableCell className="text-center font-bold text-red-700 border">{item?.createdBy}</TableCell>
-                                                <TableCell className="text-left border">{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
+                                                <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
+                                                <TableCell className="text-center border">{item?.createdBy}</TableCell>
+                                                <TableCell className="text-center border">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                                 <TableCell className="text-center border">
                                                     <StatusLeaveRequest 
-                                                        status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
+                                                        status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
                                                     />
-                                                    </TableCell>
+                                                </TableCell>
                                                 <TableCell className="text-center border">
                                                     {
-                                                        item.requestStatusId == 1 && item.userCodeCreatedBy == item.userCode ? (
+                                                        item?.requestStatus?.id == 1 ? (
                                                             <>
-                                                                <Link to={`/leave/edit/${item.leaveRequestId}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                <Link to={`/leave/edit/${item?.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                                 </Link>
-                                                                <ButtonDeleteComponent id={item.leaveRequestId} onDelete={() => handleDelete(item.leaveRequestId ?? "")} />
+                                                                <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id ?? "")} />
                                                             </>
                                                         ) : (
                                                             <span>--</span>
@@ -204,41 +193,39 @@ export default function ListLeaveRequest () {
                                     ))}
                                     </div>
                                 ))
-                            ) : isError || leaveRequests.length === 0 ? (
+                            ) : isError || leaveRequestRegistered.length === 0 ? (
                                 <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
-                                leaveRequests.map((item: GetMyLeaveRequest) => {
+                                leaveRequestRegistered.map((item: GetMyLeaveRequestRegistered) => {
                                     return (
-                                        <div key={item.leaveRequestId} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                            <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
+                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
                                                 <Link to={``} className="text-blue-600 underline hover:cursor-not-allowed">
                                                      {item?.code}
                                                 </Link>
                                             </div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item?.departmentName}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeaveName : item?.typeLeaveNameE}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeaveName : item?.timeLeaveNameE}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item?.reason}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item?.createdBy}</div>
-                                            <div className="mb-1"><strong>
-                                                {t('list_leave_request.status')}: </strong> 
-                                                <StatusLeaveRequest 
-                                                    status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
-                                                />
+                                            <div className="mb-1">
+                                                <strong>{lang == 'vi' ? 'Loại đơn' : 'Request type'}: </strong> { lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE }
                                             </div>
-                                            <div className="mb-1 mt-2">
+                                            <div className="mb-1">
+                                                <strong>{lang == 'vi' ? 'Người tạo' : 'Created By'}: </strong> { lang == 'vi' ? item?.createdBy : item?.createdBy }
+                                            </div>
+                                            <div className="mb-1">
+                                                <strong>{lang == 'vi' ? 'Người tạo' : 'Created By'}: </strong> { lang == 'vi' ? item?.createdBy : item?.createdBy }
+                                            </div>
+                                            <div className="mb-1">
+                                                <strong>{lang == 'vi' ? 'Trạng thái' : 'Status'}: </strong> { lang == 'vi' ? item?.requestStatus?.name : item?.requestStatus?.nameE }
+                                            </div>
+                                            <div className="mb-1">
+                                                <strong>{lang == 'vi' ? 'Hành động' : 'Action'}: </strong> 
                                                 {
-                                                    item.requestStatusId == 1 && item.userCodeCreatedBy == item.userCode ? (
+                                                    item?.requestStatus?.id == 1 ? (
                                                         <>
-                                                            <Link to={`/leave/edit/${item.leaveRequestId}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
+                                                            <Link to={`/leave/delete-application-form-leave/${item?.id}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                                 {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                             </Link>
-                                                            <ButtonDeleteComponent id={item.leaveRequestId} onDelete={() => handleDelete(item.leaveRequestId ?? "")} />
+                                                            <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id ?? "")} />
                                                         </>
                                                     ) : (
                                                         <span>--</span>
@@ -249,12 +236,12 @@ export default function ListLeaveRequest () {
                                     )
                                 }
                             )
-                            )}
-                        </div>
+                        )}
+                    </div>
                 </div>
             </div>
             {
-                leaveRequests.length > 0 ? (<PaginationControl
+                leaveRequestRegistered.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}
