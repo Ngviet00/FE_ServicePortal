@@ -17,5 +17,6 @@
     "no_date": "No data",
     "delete": "Delete",
     "not_allow": "You dont have permission register, contact to HR",
-    "receive_email": "Receive email"
+    "receive_email": "Receive email",
+    "title_update": "Update leave request"
 }

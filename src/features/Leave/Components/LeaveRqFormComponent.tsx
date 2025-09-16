@@ -33,6 +33,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
     const isEdit = mode == 'edit'
 
     const leaveRequestSchema = z.object({
+        id: z.string().nullable().optional(),
         user_code: z.string().nonempty({ message: "Bắt buộc." }),
         user_code_register: z.string().nonempty({ message: "Bắt buộc." }),
         name: z.string().nonempty({ message: "Bắt buộc." }),
@@ -61,6 +62,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
 
     const defaultSingleLeaveRequest = useMemo(() => {
         return {
+            id: formData?.id ?? null,
             user_code: formData?.applicationForm?.userCodeRequestor ?? "",
             user_code_register: user?.userCode ?? "",
             name: formData?.applicationForm?.userNameRequestor ?? '',
@@ -72,6 +74,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             type_leave: formData?.typeLeave?.id,
             time_leave: formData?.timeLeave?.id,
             reason: formData?.reason,
+
         };
     }, [formData, user?.userCode]);
 
@@ -147,7 +150,8 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
 
     useEffect(() => {
         if (isEdit && formData) {
-            const mappedLeaveRequests = formData.map(item => ({
+            const mappedLeaveRequests = formData.map((item: any) => ({
+                id: item.id,
                 user_code: item.userCode ?? "",
                 user_code_register: user?.userCode ?? "",
                 name: item.userName ?? "",
@@ -159,27 +163,10 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
                 type_leave: item.typeLeaveId?.toString() ?? "",
                 time_leave: item.timeLeaveId?.toString() ?? "",
                 reason: item.reason ?? "",
+                isEditable: false,
             }));
 
             reset({ leaveRequests: mappedLeaveRequests });
-            // const formatFromDate = (formData?.fromDate.split('T')[0] + ' ' + formData.fromDate.split('T')[1].substring(0, 5))
-            // const formatToDate = formData?.toDate.split('T')[0] + ' ' + formData.toDate.split('T')[1].substring(0, 5)
-
-            // reset({
-            //     leaveRequests: [{
-            //         user_code: formData?.applicationForm?.userCodeRequestor ?? "",
-            //         user_code_register: user?.userCode ?? "",
-            //         name: formData?.applicationForm?.userNameRequestor ?? '',
-            //         department: formData?.orgUnit?.name ?? '',
-            //         departmentId: formData?.orgUnit?.id ?? -1,
-            //         position: formData?.position ?? '',
-            //         from_date: formatFromDate ?? `${new Date().toISOString().slice(0, 10)} 08:00`,
-            //         to_date: formatToDate ?? `${new Date().toISOString().slice(0, 10)} 17:00`,
-            //         type_leave: formData?.typeLeave?.id?.toString(),
-            //         time_leave: formData?.timeLeave?.id?.toString(),
-            //         reason: formData?.reason ?? '',
-            //     }],
-            // });
         }
         else if (isCreate) {
             reset({
@@ -203,7 +190,10 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             }
             {
                 fields.map((field, index) => {
+                    
                     const errors = form.formState.errors.leaveRequests?.[index];
+
+                    const isNewRow = !getValues(`leaveRequests.${index}.id`);
 
                     return (
                         <div key={field.id} className="space-y-4">
@@ -214,11 +204,11 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
                                 <div>
                                     <label htmlFor={`usercode-${index}`} className="block mb-1">{ t('usercode') } <DotRequireComponent /></label>
                                     <input
-                                        disabled={!isCreate}
+                                        disabled={!isNewRow}
                                         id={`usercode-${index}`}
                                         {...control.register(`leaveRequests.${index}.user_code`)}
                                         placeholder={ t('usercode') }
-                                        className={`w-full p-2 border rounded text-sm ${errors?.user_code ? "border-red-500 bg-red-50" : ""} ${!isCreate ? 'bg-gray-100' : ''}`}
+                                        className={`w-full p-2 border rounded text-sm ${errors?.user_code ? "border-red-500 bg-red-50" : ""} ${!(isCreate || isNewRow) ? 'bg-gray-100' : ''}`}
                                         onBlur={() => handleFindUser(getValues(`leaveRequests.${index}.user_code`), index)}
                                     />
                                     {errors?.user_code && (
@@ -374,10 +364,10 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             }
             <div className="mb-4 flex space-x-2 mt-2">
                 {
-                    isCreate && (
+                    isCreate || isEdit && (
                         <button type="button" className="dark:bg-black bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400"
                             onClick={() =>
-                                append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", })
+                                append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", id: null})
                             }
                         >
                             +

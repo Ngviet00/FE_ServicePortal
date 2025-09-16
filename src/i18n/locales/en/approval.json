@@ -29,7 +29,7 @@
         "status": "Status"
     },
     "history_component": {
-        "title": "History approval",
+        "title": "History",
         "username_approval": "Approver",
         "action": "Action",
         "comment": "Comment",

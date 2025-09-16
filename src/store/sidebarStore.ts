@@ -45,15 +45,15 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.hr.change_org_unit_id_user", route: "/change-org-unit" },
 		],
 	},
-	// {
-	// 	key: "MemoNotification",
-	// 	label: "sidebar.notification.title",
-	// 	icon: Bell,
-	// 	children: [
-	// 		{ label: "sidebar.notification.create", route: "/memo-notify/create" },
-	// 		{ label: "sidebar.notification.list", route: "/memo-notify" },
-	// 	],
-	// },
+	{
+		key: "MemoNotification",
+		label: "sidebar.notification.title",
+		icon: Bell,
+		children: [
+			{ label: "sidebar.notification.create", route: "/memo-notify/create" },
+			{ label: "sidebar.notification.list", route: "/memo-notify" },
+		],
+	},
 	{
 		key: "leave_request",
 		label: "sidebar.leave_request.title",

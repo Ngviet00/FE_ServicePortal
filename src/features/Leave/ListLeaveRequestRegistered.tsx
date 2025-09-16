@@ -201,7 +201,7 @@ export default function ListLeaveRequestRegistered () {
                                         <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={``} className="text-blue-600 underline hover:cursor-not-allowed">
+                                                <Link to={`/leave/edit/${item?.id}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>
@@ -222,7 +222,7 @@ export default function ListLeaveRequestRegistered () {
                                                 {
                                                     item?.requestStatus?.id == 1 ? (
                                                         <>
-                                                            <Link to={`/leave/delete-application-form-leave/${item?.id}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
+                                                            <Link to={`/leave/edit/${item?.id}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                                 {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                             </Link>
                                                             <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id ?? "")} />

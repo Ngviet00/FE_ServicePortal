@@ -30,7 +30,7 @@
         "status": "Trạng thái"
     },
     "history_component": {
-        "title": "Lịch sử phê duyệt",
+        "title": "Lịch sử",
         "username_approval": "Người duyệt",
         "action": "Hành động",
         "comment": "Chú thích",

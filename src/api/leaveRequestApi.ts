@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
@@ -156,16 +157,18 @@ const leaveRequestApi = {
     deleteApplicationFormLeave(applicationFormId: string) {
         return axiosClient.delete(`/leave-request/delete-application-form-leave/${applicationFormId}`)
     },
-    GetListLeaveToUpdate(id: string) {
+    getListLeaveToUpdate(id: string) {
         return axiosClient.get(`/leave-request/get-list-leave-to-update/${id}`)
     },
-    update(id: string, data: FormData){
+    update(id: string, data: any){
         return axiosClient.put(`/leave-request/${id}`, data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
+            headers: { 'Content-Type': 'application/json' }
         })
     },
+    viewDetailLeaveRequestWithHistory(id: string) {
+        return axiosClient.get(`/leave-request/view-detail-leave-request-with-history/${id}`)
+    },
+
 
 
 
@@ -317,7 +320,7 @@ export function useCreateLeaveRequest() {
 
 export function useUpdateLeaveRq() {
     return useMutation({
-        mutationFn: async ({id, data} : { id: string, data: FormData } ) => {
+        mutationFn: async ({id, data} : { id: string, data: any } ) => {
             await leaveRequestApi.update(id, data)
         },
         onSuccess: () => {

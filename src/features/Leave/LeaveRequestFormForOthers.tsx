@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getErrorMessage, ShowToast } from "@/lib";
 import { useAuthStore } from "@/store/authStore";
-import leaveRequestApi, { CreateLeaveRequestDetail, useCreateLeaveRequest, useUpdateLeaveRq } from "@/api/leaveRequestApi";
+import leaveRequestApi, { useCreateLeaveRequest, useUpdateLeaveRq } from "@/api/leaveRequestApi";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -21,8 +21,8 @@ export default function LeaveRequestFormForOthers() {
     const navigate = useNavigate();
 
     const createLeaveRequest = useCreateLeaveRequest()
+    const useUpdateLeaveRequest = useUpdateLeaveRq()
 
-    const useUpdateLeaveRequest = useUpdateLeaveRq();
     const [checkReceiveEmail, setCheckReceiveEmail] = useState(false)
 
     const [selectedRadio, setSelectedRadio] = useState<string>("normal")
@@ -37,7 +37,7 @@ export default function LeaveRequestFormForOthers() {
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['leaveRequestForm', id],
         queryFn: async () => {
-            const res = await leaveRequestApi.GetListLeaveToUpdate(id ?? '');
+            const res = await leaveRequestApi.getListLeaveToUpdate(id ?? '');
             return res.data.data;
         },
         enabled: isEdit,
@@ -49,42 +49,20 @@ export default function LeaveRequestFormForOthers() {
     const handleFormSubmit = async (data: any) => {
         try {
             if (isEdit) {
-                const formData = new FormData();
+                const payload = data.leaveRequests.map((item: any) => ({
+                    Id: item.id,
+                    UserCode: item.user_code ?? "",
+                    UserName: item.name ?? "",
+                    DepartmentId: item.departmentId ?? null,
+                    Position: item.position ?? "",
+                    FromDate: item.from_date ? item.from_date.replace(" ", "T") + ":00+07:00" : null,
+                    ToDate: item.to_date ? item.to_date.replace(" ", "T") + ":00+07:00" : null,
+                    TypeLeaveId: item.type_leave ?? null,
+                    TimeLeaveId: item.time_leave ?? null,
+                    Reason: item.reason ?? ""
+                }));
 
-                data.leaveRequests.forEach((item: any, index: number) => {
-                    formData.append(`CreateLeaveRequestDto[${index}].UserCode`, item.user_code ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].UserName`, item.name ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].DepartmentId`, item.departmentId ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].Position`, item.position ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].FromDate`, item.from_date ? item.from_date.replace(" ", "T") + ":00+07:00" : "");
-                    formData.append(`CreateLeaveRequestDto[${index}].ToDate`, item.to_date ? item.to_date.replace(" ", "T") + ":00+07:00" : "");
-                    formData.append(`CreateLeaveRequestDto[${index}].TypeLeaveId`, item.type_leave ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].TimeLeaveId`, item.time_leave ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].Reason`, item.reason ?? "");
-
-                    if (item.Image) {
-                        formData.append(`CreateLeaveRequestDto[${index}].Image`, item.Image);
-                    }
-
-                    // Nếu có id để update từng request
-                    if (item.id) {
-                        formData.append(`CreateLeaveRequestDto[${index}].Id`, item.id);
-                    }
-                });
-
-                // Thêm thông tin người update
-                formData.append("UpdatedBy", user?.userName ?? "");
-                formData.append("UserCodeUpdated", user?.userCode ?? "");
-                formData.append("EmailUpdated", user?.email ?? "");
-                
-                await useUpdateLeaveRequest.mutateAsync({ id: id, data: formData });
-
-                // const payload = data.leaveRequests.map((data: any) => formatSingleLeaveRequest(data))[0]
-                // if (payload == undefined) {
-                //     ShowToast(lang == 'vi' ? 'Dữ liệu bị lỗi, liên hệ team IT' : 'Data is error, contact to IT Team', 'error')
-                //     return
-                // }
-                // await useUpdateLeaveRequest.mutateAsync({ id: id, data: payload})
+                await useUpdateLeaveRequest.mutateAsync({ id, data: payload });
             }
             else {
                 const formData = new FormData();
@@ -98,21 +76,18 @@ export default function LeaveRequestFormForOthers() {
                     formData.append(`CreateLeaveRequestDto[${index}].UserName`, data.name ?? "");
                     formData.append(`CreateLeaveRequestDto[${index}].DepartmentId`, data.departmentId ?? "");
                     formData.append(`CreateLeaveRequestDto[${index}].Position`, data.position ?? "");
-
                     formData.append(`CreateLeaveRequestDto[${index}].FromDate`, data.from_date ? data.from_date.replace(" ", "T") + ":00+07:00" : "");
                     formData.append(`CreateLeaveRequestDto[${index}].ToDate`, data.to_date ? data.to_date.replace(" ", "T") + ":00+07:00" : "");
-
                     formData.append(`CreateLeaveRequestDto[${index}].TypeLeaveId`, data.type_leave ?? "");
                     formData.append(`CreateLeaveRequestDto[${index}].TimeLeaveId`, data.time_leave ?? "");
                     formData.append(`CreateLeaveRequestDto[${index}].Reason`, data.reason ?? "");
-
                     if (data.Image) {
                         formData.append(`CreateLeaveRequestDto[${index}].Image`, data.Image);
                     }
                 })
                 await createLeaveRequest.mutateAsync(formData);
             }
-            navigate("/leave");
+            // navigate("/leave/leave-registered");
         } catch (err) {
             console.log(err);
         }
@@ -142,18 +117,6 @@ export default function LeaveRequestFormForOthers() {
             setCheckReceiveEmail(true);
         }
     }, [receiveEmail])
-
-    const formatSingleLeaveRequest = (values: any): CreateLeaveRequestDetail => ({
-        UserCode: values.user_code ?? null,
-        UserName: values?.name ?? "",
-        DepartmentId: values.departmentId,
-        Position: values.position,
-        FromDate: values.from_date.replace(" ", "T") + ":00+07:00",
-        ToDate: values.to_date.replace(" ", "T") + ":00+07:00",
-        TypeLeaveId: parseInt(values.type_leave),
-        TimeLeaveId: parseInt(values.time_leave),
-        Reason: values.reason,
-    });
     
     const handleCheckChange = async (checked: boolean) => {
         try {
@@ -199,7 +162,7 @@ export default function LeaveRequestFormForOthers() {
                 <div className="flex flex-col gap-2">
                     <div className="flex">
                         <h3 className="font-bold text-xl md:text-2xl">
-                            <span>{ t('sub_title') } </span>
+                            <span>{ isEdit ? t('title_update') : t('sub_title') } </span>
                         </h3>
                         {
                             mode == 'create' && (
@@ -227,23 +190,27 @@ export default function LeaveRequestFormForOthers() {
                 </Button>
             </div>
             
-            <div className="flex">
-                <RadioGroup
-                    label={lang == 'vi' ? 'Chọn loại đăng ký' : 'Select type register'}
-                    options={options}
-                    value={selectedRadio}
-                    onChange={setSelectedRadio}
-                />
-                <div className="ml-3">
-                    <div className="bg-red-400 inline-block p-1 text-sm text-white rounded-[3px]">
-                        **
-                        {
-                            lang == 'vi' ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ' 
-                                : 'Note, you should only enter registration data for yourself or member of your team, organization.'
-                        } 
+            {
+                mode == 'create' && (
+                     <div className="flex">
+                        <RadioGroup
+                            label={lang == 'vi' ? 'Chọn loại đăng ký' : 'Select type register'}
+                            options={options}
+                            value={selectedRadio}
+                            onChange={setSelectedRadio}
+                        />
+                        <div className="ml-3">
+                            <div className="bg-red-400 inline-block p-1 text-sm text-white rounded-[3px]">
+                                **
+                                {
+                                    lang == 'vi' ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ' 
+                                        : 'Note, you should only enter registration data for yourself or member of your team, organization.'
+                                } 
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                )
+            }
             {
                 selectedRadio == "normal" ? (
                     <div className="w-[100%]">

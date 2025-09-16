@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import {
     Table,
     TableBody,
@@ -14,9 +14,7 @@ import {
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import leaveRequestApi, { GetMyLeaveRequest } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
-import { getErrorMessage, ShowToast } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
@@ -29,7 +27,6 @@ export default function ListLeaveRequest () {
     const [pageSize, setPageSize] = useState(10)
     const [status, setStatus] = useState('')
     const {user} = useAuthStore()
-    const queryClient = useQueryClient();
     
     const { data: leaveRequests = [], isPending, isError, error } = useQuery({
         queryKey: ['get-leave-requests', { page, pageSize, status: status }],
@@ -57,32 +54,6 @@ export default function ListLeaveRequest () {
     const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
         setStatus(e.target.value);
     }
-
-    function handleSuccessDelete(shouldGoBack?: boolean) {
-        if (shouldGoBack && page > 1) {
-            setPage(prev => prev - 1);
-        } else {
-            queryClient.invalidateQueries({ queryKey: ['get-leave-requests'] });
-        }
-    }
-
-    const mutation = useMutation({
-        mutationFn: async (id: string) => {
-            await leaveRequestApi.delete(id);
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (error) => {
-            ShowToast(getErrorMessage(error), "error");
-        }
-    });
-
-    const handleDelete = async (id: string) => {
-        const shouldGoBack = leaveRequests.length === 1;
-        await mutation.mutateAsync(id);
-        handleSuccessDelete(shouldGoBack);
-    };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -127,14 +98,13 @@ export default function ListLeaveRequest () {
                                     <TableHead className="w-[150px] text-center border">{t('list_leave_request.write_leave_name')}</TableHead>
                                     <TableHead className="w-[150px] text-center border">{t('list_leave_request.created_at')}</TableHead>
                                     <TableHead className="w-[150px] text-center border">{t('list_leave_request.status')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Hành động' : 'Action'} </TableHead>
                                 </TableRow>
                             </TableHeader>
                         <TableBody>
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <TableRow key={index}>
-                                        {Array.from({ length: 14 }).map((_, i) => (
+                                        {Array.from({ length: 13 }).map((_, i) => (
                                             <TableCell key={i}>
                                                 <div className="flex justify-center">
                                                     <Skeleton className="h-4 w-[100px] bg-gray-300" />
@@ -145,7 +115,7 @@ export default function ListLeaveRequest () {
                                     ))
                                 ) : isError || leaveRequests.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={14} className="text-red-700 border text-center font-medium dark:text-white">
+                                        <TableCell colSpan={13} className="text-red-700 border text-center font-medium dark:text-white">
                                             {error?.message ?? t('list_leave_request.no_result')}
                                         </TableCell>
                                     </TableRow>
@@ -154,7 +124,7 @@ export default function ListLeaveRequest () {
                                         return (
                                             <TableRow key={item.leaveRequestId}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={``} className="text-blue-600 underline hover:cursor-not-allowed">{item?.code}</Link>
+                                                    <Link to={`/leave/view/${item.leaveRequestId}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{item?.userCode}</TableCell>
                                                 <TableCell className="text-center border">{item?.userName}</TableCell>
@@ -172,21 +142,6 @@ export default function ListLeaveRequest () {
                                                         status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
                                                     />
                                                     </TableCell>
-                                                <TableCell className="text-center border">
-                                                    {
-                                                        item.requestStatusId == 1 && item.userCodeCreatedBy == item.userCode ? (
-                                                            <>
-                                                                <Link to={`/leave/edit/${item.leaveRequestId}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                    {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                                                </Link>
-                                                                <ButtonDeleteComponent id={item.leaveRequestId} onDelete={() => handleDelete(item.leaveRequestId ?? "")} />
-                                                            </>
-                                                        ) : (
-                                                            <span>--</span>
-                                                        )
-                                                    }
-                                                </TableCell>
-                                                
                                             </TableRow>
                                         )
                                     })
@@ -213,7 +168,7 @@ export default function ListLeaveRequest () {
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={``} className="text-blue-600 underline hover:cursor-not-allowed">
+                                                <Link to={`/leave/view/${item.leaveRequestId}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>
@@ -230,20 +185,6 @@ export default function ListLeaveRequest () {
                                                 <StatusLeaveRequest 
                                                     status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
                                                 />
-                                            </div>
-                                            <div className="mb-1 mt-2">
-                                                {
-                                                    item.requestStatusId == 1 && item.userCodeCreatedBy == item.userCode ? (
-                                                        <>
-                                                            <Link to={`/leave/edit/${item.leaveRequestId}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
-                                                                {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                                            </Link>
-                                                            <ButtonDeleteComponent id={item.leaveRequestId} onDelete={() => handleDelete(item.leaveRequestId ?? "")} />
-                                                        </>
-                                                    ) : (
-                                                        <span>--</span>
-                                                    )
-                                                }
                                             </div>
                                         </div>
                                     )

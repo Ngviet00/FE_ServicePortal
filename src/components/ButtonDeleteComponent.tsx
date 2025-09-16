@@ -1,4 +1,13 @@
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogCancel } from "@/components/ui/alert-dialog"
+import { 
+  AlertDialog, 
+  AlertDialogTrigger, 
+  AlertDialogContent, 
+  AlertDialogHeader, 
+  AlertDialogFooter, 
+  AlertDialogTitle, 
+  AlertDialogCancel,
+  AlertDialogDescription
+} from "@/components/ui/alert-dialog"
 
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,8 +23,8 @@ export default function ButtonDeleteComponent({ onDelete, className }: DeleteDep
     const { t } = useTranslation('common')
 
     const handleConfirm = () => {
-        onDelete();
-        setOpen(false);
+        onDelete()
+        setOpen(false)
     }
 
     return (
@@ -26,13 +35,19 @@ export default function ButtonDeleteComponent({ onDelete, className }: DeleteDep
                 </button>
             </AlertDialogTrigger>
 
-            <AlertDialogContent aria-describedby="custom-description">
+            <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>{t('confirm_delete')}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                    </AlertDialogDescription>
                 </AlertDialogHeader>
+
                 <AlertDialogFooter>
                     <AlertDialogCancel className="hover:cursor-pointer">{t('cancel')}</AlertDialogCancel>
-                    <button onClick={handleConfirm} className="hover:cursor-pointer inline-flex items-center justify-center rounded-md bg-black text-white px-4 py-2 text-sm font-medium">
+                    <button 
+                        onClick={handleConfirm} 
+                        className="hover:cursor-pointer inline-flex items-center justify-center rounded-md bg-black text-white px-4 py-2 text-sm font-medium"
+                    >
                         {t('submit')}
                     </button>
                 </AlertDialogFooter>
