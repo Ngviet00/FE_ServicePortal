@@ -93,8 +93,8 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
         if (formData) {
             reset({
                 requester: {
-                    userCode: formData?.applicationForm?.userCodeRequestor ?? '',
-                    name: formData?.applicationForm?.userNameRequestor ?? '',
+                    userCode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedBy ?? '',
+                    name: formData?.applicationFormItem?.applicationForm?.createdBy ?? '',
                     email: formData?.email ?? '',
                     department: formData?.orgUnit?.name ?? '',
                     departmentId: formData?.orgUnit?.id ?? -1,
@@ -372,7 +372,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                             id="itRequest.reason"
                             {...register('itRequest.reason')}
                             placeholder={tCommon('reason')}
-                            rows={4}
+                            rows={6}
                             className={`${errors.itRequest?.reason ? 'border-red-500' : 'border-gray-300'} mt-1 w-full p-2 rounded-md text-sm border ${mode != 'create' && mode != 'edit' ? 'bg-gray-100' : ''}`}
                         ></textarea>
                         {errors.itRequest?.reason && <p className="text-red-500 text-xs mt-1">{errors.itRequest.reason.message}</p>}

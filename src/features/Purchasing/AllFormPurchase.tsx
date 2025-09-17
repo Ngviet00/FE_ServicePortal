@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChangeEvent, useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
@@ -155,22 +156,23 @@ export default function AllFormPurchase () {
                                         </td>
                                     </tr>
                                 ) : (
-                                    purchases.map((item: IPurchase) => {
-                                        const requestStatusId = item?.applicationForm?.requestStatusId
+                                    purchases.map((item: any) => {
+                                        const rsApplicationForm = item?.applicationFormItem?.applicationForm;
 
                                         return (
                                             <tr key={item.id}>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
+                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{rsApplicationForm?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameRequestor ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{rsApplicationForm?.createdBy ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
-                                                        requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
-                                                    }
-                                                />
+                                                        rsApplicationForm.requestStatusId == STATUS_ENUM.ASSIGNED || rsApplicationForm.requestStatusId == STATUS_ENUM.FINAL_APPROVAL 
+                                                            ? STATUS_ENUM.IN_PROCESS 
+                                                        : rsApplicationForm.requestStatusId
+                                                    }/>
                                                 </td>
                                             </tr>
                                         )

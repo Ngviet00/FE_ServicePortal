@@ -42,7 +42,7 @@ const DetailWaitApprovalFormIT = () => {
         }
     });
 
-    const mode = isHasId && formData?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_it_approval' : 'approval'
+    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_it_approval' : 'approval'
     const isManagerITapproval = mode == 'manager_it_approval'
     const initialFormData = isHasId ? formData : {};
 
@@ -111,7 +111,7 @@ const DetailWaitApprovalFormIT = () => {
                     Note: note,
                     ITFormId: id,
                     urlFrontend: window.location.origin,
-                    RequestTypeId: formData?.applicationForm?.requestTypeId,
+                    RequestTypeId: formData?.applicationFormItem?.applicationForm?.requestTypeId,
                 })
             }
             navigate("/approval/pending-approval")
@@ -204,7 +204,7 @@ const DetailWaitApprovalFormIT = () => {
                                 )
                             }
                         </div>
-                        <HistoryApproval historyApplicationForm={formData?.applicationForm?.historyApplicationForms[0]}/>
+                        <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
                     </div>
                 </div>
             </div>

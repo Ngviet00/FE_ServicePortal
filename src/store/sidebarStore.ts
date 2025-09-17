@@ -67,27 +67,27 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 		],
 	},
-	// {
-	// 	key: "IT",
-	// 	label: "sidebar.IT.title",
-	// 	icon: Computer,
-	// 	children: [
-	// 		{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
-	// 		{ label: "sidebar.IT.create", route: "/form-it/create" },
-	// 		{ label: "sidebar.IT.list", route: "/form-it" },
-	// 		// { label: "sidebar.IT.setting", route: "/form-it/setting" },
-	// 	],
-	// },
-	// {
-	// 	key: "Purchase",
-	// 	label: "sidebar.purchase.title",
-	// 	icon: WalletCards,
-	// 	children: [
-	// 		{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
-	// 		{ label: "sidebar.purchase.create", route: "/purchase/create" },
-	// 		{ label: "sidebar.purchase.list", route: "/purchase" }
-	// 	],
-	// },
+	{
+		key: "IT",
+		label: "sidebar.IT.title",
+		icon: Computer,
+		children: [
+			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
+			{ label: "sidebar.IT.create", route: "/form-it/create" },
+			// { label: "sidebar.IT.list", route: "/form-it" },
+			// { label: "sidebar.IT.setting", route: "/form-it/setting" },
+		],
+	},
+	{
+		key: "Purchase",
+		label: "sidebar.purchase.title",
+		icon: WalletCards,
+		children: [
+			{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
+			{ label: "sidebar.purchase.create", route: "/purchase/create" },
+			// { label: "sidebar.purchase.list", route: "/purchase" }
+		],
+	},
 	{
 		key: "approval",
 		label: "sidebar.approval.title",

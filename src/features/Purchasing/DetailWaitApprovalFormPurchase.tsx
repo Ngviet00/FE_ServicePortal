@@ -66,7 +66,7 @@ const DetailWaitApprovalFormPurchase = () => {
         }
     });
 
-    const mode = isHasId && formData?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_purchase_approval' : 'approval'
+    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_purchase_approval' : 'approval'
     const isManagerPurchaseApproval = mode == 'manager_purchase_approval'
     const initialFormData = isHasId ? formData : {};
 
@@ -109,7 +109,7 @@ const DetailWaitApprovalFormPurchase = () => {
                     Note: note,
                     PurchaseId: id,
                     urlFrontend: window.location.origin,
-                    RequestTypeId: formData?.applicationForm?.requestTypeId,
+                    RequestTypeId: formData?.applicationFormItem?.applicationForm?.requestTypeId,
                 })
             }
             navigate("/approval/pending-approval")
@@ -158,7 +158,7 @@ const DetailWaitApprovalFormPurchase = () => {
                         isPending={assignedTaskPurchase.isPending || approval.isPending}
                     />
                 </div>
-                <div className='mt-8 border-t border-dashed border-gray-300 pt-5'>
+                <div className='mt-2 border-gray-300 pt-5'>
                     <div className='w-full'>
                         <Label className='mb-1'>{t('create.note')}</Label>
                         <Textarea 
@@ -214,7 +214,7 @@ const DetailWaitApprovalFormPurchase = () => {
                         )
                     }
                 </div>
-                <HistoryApproval historyApplicationForm={formData?.applicationForm?.historyApplicationForms[0]}/>
+                <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
             </div>
         </div>
     );

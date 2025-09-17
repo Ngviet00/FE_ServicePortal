@@ -22,7 +22,7 @@ export default function HistoryApproval({ historyApplicationForm }: { historyApp
                                 <strong className='mr-2'>{ t('history_component.username_approval') }:</strong>{item?.actionBy || '--'}
                             </p>
                             <p className='my-2 text-[15px]'>
-                                <strong className='mr-2'>{ t('history_component.action') }:</strong><span className={`${item?.action == 'REJECT' ? 'text-red-600' : 'text-green-600'} font-semibold`}>{item?.action || '--'}</span>
+                                <strong className='mr-2'>{ t('history_component.action') }:</strong><span className={`${item?.action == 'Reject' ? 'text-red-600' : 'text-green-600'} font-semibold`}>{item?.action || '--'}</span>
                             </p>
                             <p className='my-2 text-[15px]'>
                                 <strong className='mr-2'>{ t('history_component.comment') }:</strong>

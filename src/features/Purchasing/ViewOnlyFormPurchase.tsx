@@ -103,7 +103,7 @@ const ViewOnlyFormPurchase = () => {
                         </div>
                     ) : (<></>)
                 }
-                <HistoryApproval historyApplicationForm={formData?.applicationForm?.historyApplicationForms[0]}/>
+                <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
             </div>
         </div>
     );

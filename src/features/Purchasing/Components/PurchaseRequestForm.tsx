@@ -88,8 +88,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
     useEffect(() => {
         if (formData && mode != 'create') {
             reset({
-                usercode: formData.applicationForm?.userCodeRequestor ?? '',
-                username: formData.applicationForm?.userNameRequestor ?? '',
+                usercode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedBy ?? '',
+                username: formData?.applicationFormItem?.applicationForm?.createdBy ?? '',
                 departmentId: formData.departmentId.toString() ?? -1,
                 departmentName: formData.orgUnit?.name ?? '',
                 request_date: formData.requestedDate?.split('T')[0] ?? '',

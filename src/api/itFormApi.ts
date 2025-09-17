@@ -17,8 +17,8 @@ interface GetAll {
 }
 
 export interface CreateITFormRequest {
-    UserCodeRequestor?: string;
-    UserNameRequestor?: string,
+    UserCode?: string;
+    UserName?: string,
     UserCodeCreated?: string;
     UserNameCreated?: string
     DepartmentId?: number;

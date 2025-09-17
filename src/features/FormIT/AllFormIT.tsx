@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChangeEvent, useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
@@ -136,9 +137,7 @@ export default function AllFormIT () {
                                     <th className="px-4 py-2 border w-[320px] text-left">{t('list.reason')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.user_requestor')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.department')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.user_register')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.approved_by')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-left">{t('list.status')}</th>
                                 </tr>
                             </thead>
@@ -146,41 +145,37 @@ export default function AllFormIT () {
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <tr key={index}>
-                                        {Array.from({ length: 8 }).map((_, i) => (
+                                        {Array.from({ length: 6 }).map((_, i) => (
                                             <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-start"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                         ))}
                                     </tr>
                                     ))
                                 ) : isError || itForms.length == 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
+                                        <td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
                                             {error?.message ?? tCommon('no_results')}
                                         </td>
                                     </tr>
                                 ) : (
-                                    itForms.map((item: ITForm) => {
-                                        const requestStatusId = item?.applicationForm?.requestStatusId
+                                    itForms.map((item: any) => {
+                                        const requestStatusId = item?.requestStatusId
 
                                         return (
                                             <tr key={item.id}>
                                                 <td className="px-4 py-2 border text-left">
-                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.applicationForm.code ?? '--'}</Link>
+                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
                                                 </td>
                                                 <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
                                                     {item?.reason ?? '--'}
                                                 </td>
-                                                <td className="px-4 py-2 border text-left">{item?.applicationForm?.userNameRequestor ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{item?.orgUnit?.name ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{item?.applicationForm?.userNameCreated ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-left">{item?.createdBy ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-left">{item?.departmentName ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-left">
-                                                    {
-                                                        item?.applicationForm?.historyApplicationForms.length > 0 ? item?.applicationForm?.historyApplicationForms[0]?.userNameApproval : '--'
-                                                    }
-                                                </td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
-                                                        requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
+                                                        requestStatusId == STATUS_ENUM.ASSIGNED || requestStatusId == STATUS_ENUM.FINAL_APPROVAL 
+                                                            ? STATUS_ENUM.IN_PROCESS 
+                                                        : requestStatusId
                                                     }/>
                                                 </td>
                                             </tr>

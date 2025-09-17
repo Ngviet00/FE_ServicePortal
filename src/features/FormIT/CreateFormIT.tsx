@@ -47,10 +47,8 @@ const CreateFormIT = () => {
 
     const handleFormSubmit = async (data: any) => {
         const payload: CreateITFormRequest = {
-            UserCodeRequestor: data.requester.userCode,
-            UserNameRequestor: data.requester.name,
-            UserCodeCreated: user?.userCode,
-            UserNameCreated: user?.userName ?? '',
+            UserCode: data.requester.userCode,
+            UserName: data.requester.name,
             DepartmentId: data.requester.departmentId,
             Email: data.requester.email,
             Position: data.requester.position,

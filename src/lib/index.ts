@@ -160,7 +160,7 @@ export enum REQUEST_TYPE {
     TIME_KEEPING = 2,
     MEMO_NOTIFICATION = 3,
     FORM_IT = 4,
-    PURCHASE = 6,
+    PURCHASE = 5,
 }
 
 export enum IT_CATEGORY {

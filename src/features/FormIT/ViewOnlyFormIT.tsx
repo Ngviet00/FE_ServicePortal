@@ -90,12 +90,12 @@ const ViewOnlyFormIT = () => {
                         />
                     </div>
                     {
-                        formData?.applicationForm?.assignedTasks?.length > 0 ? (
+                        formData?.applicationFormItem?.applicationForm?.assignedTasks?.length > 0 ? (
                             <div className='w-full mt-5'>
                                 <Label className='mb-1'>{t('create.assigned')} </Label>
                                 <div className="flex flex-col gap-2 mt-2">
                                     {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                             
-                                        const isExist = formData?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
+                                        const isExist = formData?.applicationFormItem?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
                                         if (isExist) {
                                             return (
                                                 <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
@@ -144,7 +144,7 @@ const ViewOnlyFormIT = () => {
                         ) : (<></>) 
                     }
                     
-                    <HistoryApproval historyApplicationForm={formData?.applicationForm?.historyApplicationForms[0]}/>
+                    <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
                 </div>
             </div>
         </div>

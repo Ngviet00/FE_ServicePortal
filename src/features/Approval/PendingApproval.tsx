@@ -356,7 +356,6 @@ export default function PendingApproval() {
 										<th className="px-4 py-2 border">{t('pending_approval.department')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.last_approved')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
 										<th className="px-4 py-2 border text-center">{t('pending_approval.action')}</th>
 									</tr>
@@ -374,12 +373,11 @@ export default function PendingApproval() {
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 												</tr>  
 											))
 										) : isError || ListWaitApprovals?.length == 0 ? (
 											<tr>
-												<td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
+												<td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
 													{ error?.message ?? tCommon('no_results') } 
 												</td>
 											</tr>
@@ -388,17 +386,16 @@ export default function PendingApproval() {
 
 												return (
 													<tr key={idx} className="hover:bg-gray-50">
-														<td className="px-4 py-2 border whitespace-nowrap text-left">
+														<td className="px-4 py-2 border whitespace-nowrap text-center">
 															<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
 																{item?.code}
 															</Link>
 														</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name}</td>
+														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name ?? '--'}</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreated}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
 														<td className="px-4 py-2 border text-center">
 															<StatusLeaveRequest status="Pending"/>
 														</td>

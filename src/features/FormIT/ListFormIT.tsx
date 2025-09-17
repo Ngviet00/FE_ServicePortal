@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -9,7 +10,7 @@ import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import itFormApi, { ITForm, useDeleteITForm } from "@/api/itFormApi"
+import itFormApi, { useDeleteITForm } from "@/api/itFormApi"
 import { STATUS_ENUM } from "@/lib"
 
 export default function ListFormIT () {
@@ -69,56 +70,54 @@ export default function ListFormIT () {
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-4 py-2 border w-[70px] text-left">{t('list.code')}</th>
-                                    <th className="px-4 py-2 border w-[370px] text-left">{t('list.reason')}</th>
-                                    <th className="px-4 py-2 border w-[120px] text-left">{t('list.user_requestor')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.department')}</th>
-                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_register')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.status')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-left">{t('list.action')}</th>
+                                    <th className="px-4 py-2 border w-[70px] text-center">{t('list.code')}</th>
+                                    <th className="px-4 py-2 border w-[370px] text-center">{t('list.reason')}</th>
+                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_requestor')}</th>
+                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.department')}</th>
+                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.created_at')}</th>
+                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.status')}</th>
+                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.action')}</th>
                                 </tr>
                             </thead>
                         <tbody>
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <tr key={index}>
-                                        {Array.from({ length: 8 }).map((_, i) => (
+                                        {Array.from({ length: 7 }).map((_, i) => (
                                             <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                         ))}
                                     </tr>
                                     ))
                                 ) : isError || itForms.length == 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
+                                        <td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
                                             {error?.message ?? tCommon('no_results')}
                                         </td>
                                     </tr>
                                 ) : (
-                                    itForms.map((item: ITForm) => {
-                                        const requestStatusId = item?.applicationForm?.requestStatusId
-
+                                    itForms.map((item: any, idx: number) => {
+                                        // const requestStatusId = 
                                         return (
-                                            <tr key={item.id}>
-                                                <td className="px-4 py-2 border text-left">
-                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
+                                            <tr key={idx}>
+                                                <td className="px-4 py-2 border text-center">
+                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
                                                 </td>
                                                 <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
                                                     {item?.reason ?? '--'}
                                                 </td>
-                                                <td className="px-4 py-2 border text-left">{item?.applicationForm?.userNameRequestor ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{item?.orgUnit?.name ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{item?.applicationForm?.userNameCreated ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-left">
+                                                <td className="px-4 py-2 border text-center">{item?.createdBy ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{item?.departmentName ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
+                                                <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
-                                                        requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
-                                                    }
-                                                />
+                                                        item?.requestStatusId == STATUS_ENUM.ASSIGNED || item?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL 
+                                                            ? STATUS_ENUM.IN_PROCESS 
+                                                        : item.requestStatusId
+                                                    }/>
                                                 </td>
                                                 <td className="text-center border font-bold text-red-700">
                                                     {
-                                                        item?.applicationForm?.requestStatusId == STATUS_ENUM.PENDING ? (
+                                                        item?.requestStatusId == STATUS_ENUM.PENDING ? (
                                                             <>
                                                                 <Link to={`/form-it/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {t('list.edit')}
@@ -148,11 +147,11 @@ export default function ListFormIT () {
                         ) : isError || itForms.length === 0 ? (
                             <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
                         ) : (
-                            itForms.map((item: ITForm) => (
+                            itForms.map((item: any) => (
                                 <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                    <div className="mb-1"><strong>{t('list.code')}:</strong> {item?.applicationForm?.code}</div>
+                                    <div className="mb-1"><strong>{t('list.code')}:</strong> {item?.code}</div>
                                     <div className="mb-1"><strong>{t('list.reason')}:</strong> {item?.reason}</div>
-                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.applicationForm?.userNameRequestor ?? '--'}</div>
+                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.createdBy ?? '--'}</div>
                                     <div className="mb-1"><strong>{t('list.department')}:</strong> {item?.orgUnit?.name}</div>
                                     <div className="mb-1"><strong>{t('list.user_register')}:</strong>{item?.applicationForm?.userNameCreated}</div>
                                     <div className="mb-1"><strong>{t('list.created_at')}:</strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
