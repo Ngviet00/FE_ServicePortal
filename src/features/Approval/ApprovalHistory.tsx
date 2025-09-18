@@ -203,7 +203,6 @@ const ApprovalHistory: React.FC = () => {
 								) : (
 									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => {
 										const reqStatusId = item?.requestStatus?.id
-										const reqTypeId = item?.requestType?.id
 
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
@@ -220,17 +219,11 @@ const ApprovalHistory: React.FC = () => {
 													{ item.action }
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
-													{
-														reqTypeId == REQUEST_TYPE.FORM_IT ? (
-															<>
-																<StatusLeaveRequest status={
-																	reqStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : reqStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : reqStatusId
-																}/>
-															</>
-														) : (
-															<StatusLeaveRequest status={reqStatusId == STATUS_ENUM.FINAL_APPROVAL ? "In Process" : reqStatusId}/>
-														)
-													}
+													<StatusLeaveRequest status={
+                                                        reqStatusId == STATUS_ENUM.ASSIGNED || reqStatusId == STATUS_ENUM.FINAL_APPROVAL 
+                                                            ? STATUS_ENUM.IN_PROCESS 
+                                                        : reqStatusId
+                                                    }/>
 												</td>
 											</tr>
 										)

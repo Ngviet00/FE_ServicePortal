@@ -8,7 +8,7 @@ import { IRequestType } from './requestTypeApi';
 import { ISelectedUserAssigned } from './userApi';
 
 interface GetAll {
-    UserCode?: string,
+    UserCode?: string | null,
     Page: number
     PageSize: number,
     DepartmentId?: number | null,
@@ -125,7 +125,8 @@ export interface IAssignedTask {
     ITFormId?: string,
     PurchaseId?: string,
     UrlFrontend?: string
-    UserAssignedTasks?: ISelectedUserAssigned[];
+    UserAssignedTasks?: ISelectedUserAssigned[],
+    Note?: string
 }
 
 export interface IResolvedTask {
@@ -135,7 +136,8 @@ export interface IResolvedTask {
     PurchaseId?: string,
     UrlFrontend?: string,
     TargetCompletionDate?: string,
-    ActualCompletionDate?: string
+    ActualCompletionDate?: string,
+    Note?: string
 }
 
 export interface IStatistical {

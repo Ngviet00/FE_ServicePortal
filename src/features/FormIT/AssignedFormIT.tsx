@@ -25,8 +25,8 @@ const AssignedFormIT = () => {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const [statusModalConfirm, setStatusModalConfirm] = useState('')
-    const [targetDate, setTargetDate] = useState<any>(null);
-    const [actualDate, setActualDate] = useState<any>(null);
+    const [targetDate, setTargetDate] = useState<any>(new Date().toISOString().split('T')[0]);
+    const [actualDate, setActualDate] = useState<any>(new Date().toISOString().split('T')[0]);
 
     const { id } = useParams<{ id: string }>();
     const isAssigned = !!id;

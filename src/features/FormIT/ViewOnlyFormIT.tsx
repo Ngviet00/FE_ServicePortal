@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import priorityApi from '@/api/priorityApi';
 import itCategoryApi from '@/api/itCategoryApi';
 import DotRequireComponent from '@/components/DotRequireComponent';
-import userApi from '@/api/userApi';
 import itFormApi from '@/api/itFormApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
@@ -49,7 +48,7 @@ const ViewOnlyFormIT = () => {
     const { data: ItMembers = [] } = useQuery({
         queryKey: ['get-all-it-member'],
         queryFn: async () => {
-            const res = await userApi.GetMultipleUserViclockByOrgPositionId(8)
+            const res = await itFormApi.getMemberITAssigned()
             return res.data.data
         },
     });

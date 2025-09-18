@@ -71,6 +71,7 @@ const AssignedFormPurchase = () => {
             UserCodeApproval: user?.userCode,
             UserNameApproval: user?.userName ?? '',
             PurchaseId: id, 
+            Note: note,
             UrlFrontend: window.location.origin,
         })
 

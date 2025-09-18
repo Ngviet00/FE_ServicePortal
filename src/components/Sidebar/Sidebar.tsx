@@ -131,7 +131,11 @@ export default function Sidebar() {
 											return null
 										}
 
-										if (child.route === "/form-it/statistical" && !isIT!) {
+										if (!isIT 
+												&& (
+													child.route == '/form-it/statistical' || child.route == '/form-it/all-form-it'
+												))
+										{
 											return null
 										}
 

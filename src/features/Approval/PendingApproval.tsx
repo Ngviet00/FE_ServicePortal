@@ -353,7 +353,7 @@ export default function PendingApproval() {
 										<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.department')}</th>
+										{/* <th className="px-4 py-2 border">{t('pending_approval.department')}</th> */}
 										<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
 										<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
@@ -368,7 +368,7 @@ export default function PendingApproval() {
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+													{/* <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td> */}
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
@@ -393,7 +393,7 @@ export default function PendingApproval() {
 														</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name ?? '--'}</td>
+														{/* <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name ?? '--'}</td> */}
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
 														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreated}</td>
 														<td className="px-4 py-2 border text-center">

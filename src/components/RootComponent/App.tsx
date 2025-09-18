@@ -45,7 +45,6 @@ import ListPriority from '@/features/Priority/ListPriority';
 import ListITCategory from '@/features/ITCategory/ListITCategory';
 import DetailWaitApprovalFormIT from '@/features/FormIT/DetailWaitApprovalFormIT';
 import ViewOnlyFormIT from '@/features/FormIT/ViewOnlyFormIT';
-import AllFormIT from '@/features/FormIT/AllFormIT';
 import AssignedFormIT from '@/features/FormIT/AssignedFormIT';
 import StatisticalFormPurchase from '@/features/Purchasing/StatisticalFormPurchase';
 import CreateFormPurchase from '@/features/Purchasing/CreateFormPurchase';
@@ -115,10 +114,10 @@ function App() {
 
 		//form it
 		{ path: "/form-it/statistical", element: <StatisticalFormIT />, allowedRoles: [RoleEnum.IT]},
+		{ path: "/form-it/all-form-it", element: <ListFormIT />, allowedRoles: [RoleEnum.IT]},
 		{ path: "/form-it/create", element: <CreateFormIT />},
 		{ path: "/form-it", element: <ListFormIT />},
 		{ path: "/form-it/edit/:id", element: <CreateFormIT />},
-		{ path: "/form-it/all-form-it", element: <AllFormIT />, allowedRoles: [RoleEnum.IT]},
 
 		//purchasing
 		{ path: "/purchase/statistical", element: <StatisticalFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]

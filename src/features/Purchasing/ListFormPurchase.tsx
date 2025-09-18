@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -7,9 +8,9 @@ import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveR
 import { useAuthStore } from "@/store/authStore"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
+import { STATUS_ENUM } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import { STATUS_ENUM } from "@/lib"
 import purchaseApi, { IPurchase, useDeletePurchase } from "@/api/purchaseApi"
 
 export default function ListFormPurchase () {
@@ -93,15 +94,15 @@ export default function ListFormPurchase () {
                                         </td>
                                     </tr>
                                 ) : (
-                                    purchases.map((item: IPurchase) => {
-                                        const requestStatusId = item?.applicationForm?.requestStatusId
+                                    purchases.map((item: any) => {
+                                        const requestStatusId = item?.applicationFormItem?.applicationForm?.requestStatusId
 
                                         return (
                                             <tr key={item.id}>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
+                                                    <Link to={`/approval/view-purchase/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.applicationFormItem?.applicationForm?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameRequestor ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{item?.applicationFormItem?.applicationForm?.createdBy ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-center">
@@ -112,7 +113,7 @@ export default function ListFormPurchase () {
                                                 </td>
                                                 <td className="text-center border font-bold text-red-700">
                                                     {
-                                                        item?.applicationForm?.requestStatusId == STATUS_ENUM.PENDING ? (
+                                                        requestStatusId == STATUS_ENUM.PENDING ? (
                                                             <>
                                                                 <Link to={`/purchase/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {t('list.edit')}

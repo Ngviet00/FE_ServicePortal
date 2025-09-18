@@ -1,31 +1,66 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
-import { useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router-dom"
+import { Link, useLocation, useSearchParams } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
+import { STATUS_ENUM } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import itFormApi, { useDeleteITForm } from "@/api/itFormApi"
-import { STATUS_ENUM } from "@/lib"
+import { Label } from "@/components/ui/label"
+import { YearSelect } from "./StatisticalFormIT"
+import orgUnitApi from "@/api/orgUnitApi"
 
 export default function ListFormIT () {
     const { t } = useTranslation('formIT');
     const { t:tCommon} = useTranslation('common')
+    const lang = useTranslation().i18n.language.split('-')[0]
+
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
+    
     const {user} = useAuthStore()
     const queryClient = useQueryClient()
+
+    const location = useLocation();
+    const isAllForm = location.pathname.includes("all-form-it");
+
+    const [selectedDepartment, setSelectedDepartment] = useState('')
+    const [selectedStatus, setSelectedStatus] = useState('')
+    const [selectedYear, setSelectedYear] = useState('')
+    const [searchParams] = useSearchParams();
+
+    useEffect(() => {
+        const statusIdParam = searchParams.get('statusId');
+        const yearParam = searchParams.get('year');
+
+        if (statusIdParam !== null) {
+            setSelectedStatus(statusIdParam);
+        }
+
+        if (yearParam !== null) {
+            setSelectedYear(yearParam)
+        }
+
+    }, [searchParams]);
     
     const { data: itForms = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-all-it-form', { page, pageSize }],
+        queryKey: ['get-all-it-form', { page, pageSize, selectedDepartment, selectedStatus, selectedYear }],
         queryFn: async () => {
-            const res = await itFormApi.getAll({UserCode: user?.userCode ?? "", Page: page, PageSize: pageSize });
+            const res = await itFormApi.getAll({
+                UserCode: isAllForm ? null : user?.userCode,
+                Page: page,
+                PageSize: pageSize,
+                DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
+                RequestStatusId: selectedStatus == '' ? null : Number(selectedStatus),
+                Year: selectedYear == '' ? null : Number(selectedYear)
+            });
             setTotalPage(res.data.total_pages)
             return res.data.data;
         },
@@ -39,6 +74,20 @@ export default function ListFormIT () {
         setPage(1)
         setPageSize(size)
     }
+
+    const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
+        setPage(1)
+        setSelectedDepartment(e.target.value)
+    }
+
+    const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
+        setPage(1)
+        setSelectedStatus(e.target.value)
+    }
+
+    const handleYearChange = (year: string) => {
+        setSelectedYear(year);
+    };
 
     function handleSuccessDelete(shouldGoBack?: boolean) {
         if (shouldGoBack && page > 1) {
@@ -55,14 +104,65 @@ export default function ListFormIT () {
         handleSuccessDelete(shouldGoBack);
     };
 
+    const { data: departments = [] } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		},
+        enabled: isAllForm
+	});
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{t('list.title')}</h3>
-                <Button asChild className="w-full md:w-auto">
-                    <Link to="/form-it/create">{t('list.btn_create')}</Link>
-                </Button>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{isAllForm ? t('list.title_all_form_it') :  t('list.title')}</h3>
+                {
+                    !isAllForm && (
+                        <Button asChild className="w-full md:w-auto">
+                            <Link to="/form-it/create">{t('list.btn_create')}</Link>
+                        </Button>
+                    )
+                }
             </div>
+            {
+                isAllForm && (
+                    <div className="flex">
+                        <div className="w-[20%]">
+                            <Label className="mb-2">{t('list.department')}</Label>
+                            <select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
+                                <option value="">
+                                    { lang == 'vi' ? 'Tất cả' : 'All' }
+                                </option>
+                                {
+                                    departments.map((item: { id: number, name: string }, idx: number) => (
+                                        <option key={idx} value={item.id}>{item.name}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <div className="w-[20%] ml-2">
+                            <Label className="mb-2">{t('list.status')}</Label>
+                            <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
+                                <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
+                                {
+                                    Object.entries(STATUS_ENUM).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
+                                        .map(([key, value]) => (
+                                            <option key={value} value={value}>
+                                            {key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
+                                            </option>
+                                        ))
+                                }
+                            </select>
+                        </div>
+
+                        <div className="w-[20%] ml-2">
+                            <label className="block mb-0.5 font-semibold text-sm text-gray-700">{t('statistical.time')}</label>
+                            <YearSelect onChange={handleYearChange} defaultYear={selectedYear} className="border p-1 rounded w-full cursor-pointer" />
+                        </div>
+                    </div>
+                )
+            }
 
             <div className="mb-5 pb-3">
                 <div className="mt-2">
@@ -96,7 +196,6 @@ export default function ListFormIT () {
                                     </tr>
                                 ) : (
                                     itForms.map((item: any, idx: number) => {
-                                        // const requestStatusId = 
                                         return (
                                             <tr key={idx}>
                                                 <td className="px-4 py-2 border text-center">
@@ -139,9 +238,9 @@ export default function ListFormIT () {
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
                                 <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
-                                {Array.from({ length: 8 }).map((_, i) => (
-                                    <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
-                                ))}
+                                    {Array.from({ length: 7 }).map((_, i) => (
+                                        <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
+                                    ))}
                                 </div>
                             ))
                         ) : isError || itForms.length === 0 ? (
@@ -149,25 +248,32 @@ export default function ListFormIT () {
                         ) : (
                             itForms.map((item: any) => (
                                 <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                    <div className="mb-1"><strong>{t('list.code')}:</strong> {item?.code}</div>
+                                    <div className="mb-1">
+                                        <strong>{t('list.code')}: </strong>
+                                        <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline font-semibold">{item?.code ?? '--'}</Link>
+                                    </div>
                                     <div className="mb-1"><strong>{t('list.reason')}:</strong> {item?.reason}</div>
-                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.createdBy ?? '--'}</div>
-                                    <div className="mb-1"><strong>{t('list.department')}:</strong> {item?.orgUnit?.name}</div>
-                                    <div className="mb-1"><strong>{t('list.user_register')}:</strong>{item?.applicationForm?.userNameCreated}</div>
-                                    <div className="mb-1"><strong>{t('list.created_at')}:</strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                    <div className="mb-1"><strong>{t('list.status')}:</strong> <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/></div>
+                                    <div className="mb-1"><strong>{t('list.user_requestor')}: </strong> {item?.createdBy ?? '--'}</div>
+                                    <div className="mb-1"><strong>{t('list.department')}: </strong> {item?.departmentName ?? '--'}</div>
+                                    <div className="mb-1"><strong>{t('list.created_at')}: </strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                    <div className="mb-1"><strong>{t('list.status')}: </strong>
+                                        <StatusLeaveRequest status={
+                                            item?.requestStatusId == STATUS_ENUM.ASSIGNED || item?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL 
+                                                ? STATUS_ENUM.IN_PROCESS 
+                                            : item.requestStatusId
+                                        }/>
+                                    </div>
                                     <div className="mb-1">
                                         {
-                                            item?.applicationForm?.requestStatus?.id != STATUS_ENUM.COMPLETED && item?.applicationForm?.requestStatus?.id != STATUS_ENUM.REJECT ? (
+                                            item?.requestStatusId == STATUS_ENUM.PENDING ? (
                                                 <>
-                                                    <Link to={`/form-it/edit/${item?.id}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-sm">
+                                                    <Link to={`/form-it/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                         {t('list.edit')}
                                                     </Link>
-                                                    <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id)}/>
+                                                    <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
                                                 </>
                                             ) : (<>--</>)
                                         }
-
                                     </div>
                                 </div>
                             ))

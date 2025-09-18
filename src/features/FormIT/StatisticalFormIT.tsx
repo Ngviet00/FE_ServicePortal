@@ -27,7 +27,6 @@ ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement
 
 const StatisticalFormIT = () => {
     const { t } = useTranslation('formIT')
-    const lang = useTranslation().i18n.language.split('-')[0]
     const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString())
 
     const { data: statisticalData, isLoading, isError } = useQuery({
@@ -90,11 +89,11 @@ const StatisticalFormIT = () => {
     }, [statisticalData]);
     
     if (isLoading) {
-        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
+        return <div>{t('statistical.loading')}...</div>;
     }
 
     if (isError) {
-        return <div className='text-red-500'>{lang == 'vi' ? 'Lỗi dữ liệu thống kê, thử lại sau' : 'Statistic data error, please try again.'}</div>;
+        return <div className='text-red-500'>{t('statistical.error')}</div>;
     }
 
     return (
@@ -180,11 +179,11 @@ const StatisticalFormIT = () => {
                     <table className="w-full text-sm text-left text-gray-600">
                         <thead>
                             <tr>
-                                <th className="px-3 py-2">ID</th>
-                                <th className="px-3 py-2">{t('statistical.content')}</th>
-                                <th className="px-3 py-2">{t('statistical.user_sent')}</th>
-                                <th className="px-3 py-2">{t('statistical.dept')}</th>
-                                <th className="px-3 py-2">{t('statistical.time_sent')}</th>
+                                <th className="px-3 py-2">{t('statistical.code')}</th>
+                                <th className="px-3 py-2">{t('statistical.reason')}</th>
+                                <th className="px-3 py-2">{t('statistical.requestor')}</th>
+                                <th className="px-3 py-2">{t('statistical.department')}</th>
+                                <th className="px-3 py-2">{t('statistical.created_at')}</th>
                                 <th className="px-3 py-2">{t('statistical.status')}</th>
                             </tr>
                         </thead>
@@ -200,7 +199,7 @@ const StatisticalFormIT = () => {
                                             </Link>
                                         </td>
                                         <td className="px-3 py-2">{item.reason}</td>
-                                        <td className="px-3 py-2">{item.userNameRequestor}</td>
+                                        <td className="px-3 py-2">{item.createdBy}</td>
                                         <td className="px-3 py-2">{item.departmentName}</td>
                                         <td className="px-3 py-2">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                         <td className="px-3 py-2">
