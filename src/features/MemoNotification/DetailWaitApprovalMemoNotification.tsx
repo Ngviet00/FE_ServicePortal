@@ -60,7 +60,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
             Note: note,
             MemoNotificationId: id,
             urlFrontend: window.location.origin,
-            RequestTypeId: memo?.applicationForm?.requestTypeId
+            RequestTypeId: memo?.applicationFormItem?.applicationForm?.requestTypeId
         }
 
         try {
@@ -75,7 +75,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
     }
 
     if (!memo) {
-        return <div className="p-6">Đang tải...</div>
+        return <div className="p-6">{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>
     }
 
     return (
@@ -88,7 +88,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
                 <h2 className="text-[24px] sm:text-[30px] font-bold mb-1">{memo.title}</h2>
                 <div className="text-sm text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className='dark:text-white'>
-                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.applicationForm?.userNameRequestor}</span>
+                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.applicationFormItem?.applicationForm?.createdBy}</span>
                     </span>
                     <span className='dark:text-white'>•</span>
                     <span className='dark:text-white'>
@@ -154,7 +154,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
                 </div>
             </div>
 
-            <HistoryApproval historyApplicationForm={memo?.applicationForm?.historyApplicationForms[0]}/>
+            <HistoryApproval historyApplicationForm={memo?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
         </div>
     )
 };

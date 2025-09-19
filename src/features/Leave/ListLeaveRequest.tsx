@@ -124,7 +124,7 @@ export default function ListLeaveRequest () {
                                         return (
                                             <TableRow key={item.leaveRequestId}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/leave/view/${item.leaveRequestId}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/leave/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{item?.userCode}</TableCell>
                                                 <TableCell className="text-center border">{item?.userName}</TableCell>

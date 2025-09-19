@@ -70,7 +70,7 @@ export default function HomePage() {
             <div className='mb-3'>
                 {
                     data && data.length > 0 && data.map((item: IMemoNotify, idx: number) => (
-                        <Link key={idx} to={`/detail-memo-notify/${item.id}`}>
+                        <Link key={idx} to={`/detail-memo-notify/${item.id}?locate=home`}>
                             <div
                                 className="bg-[#eff6ff] py-4 px-5 mb-3 rounded-md font-inter shadow-sm hover:shadow-md transition dark:bg-[#1e1e1e69]"
                             >

@@ -18,7 +18,6 @@ import Forbidden from '@/pages/Forbidden';
 import MngTimekeeping from '@/features/TimeKeeping/MngTimeKeeping';
 import MemoNotification from '@/features/MemoNotification/MemoNotification';
 import CreateMemoNotification from '@/features/MemoNotification/CreateMemoNotification';
-import DetailMemoNotification from '@/pages/DetailMemoNotification';
 import AdminSetting from '@/pages/AdminSetting';
 import HRManagementTimekeeping from '@/features/TimeKeeping/HRManagementTimekeeping';
 import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOthers';
@@ -97,7 +96,7 @@ function App() {
 		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] }, //danh sách của user tạo
 		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] }, 
 		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/detail-memo-notify/:id", element: <DetailMemoNotification/> }, //ở ngoài homepage
+		{ path: "/detail-memo-notify/:id", element: <ViewOnlyMemoNotification/> }, //ở ngoài homepage  DetailMemoNotification ViewOnlyMemoNotification
 		
 		//leave + timekeeping
 		{ path: "/leave", element: <ListLeaveRequest/> },

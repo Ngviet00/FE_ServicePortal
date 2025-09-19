@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -178,7 +179,6 @@ export default function CreateMemoNotification () {
 
                     const selectedDepartments = result.applyAllDepartment
                         ? options.map((opt: {value: string}) => opt.value)
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         : result?.memoNotificationDepartments?.map((item: { orgUnit: { id: any; }; }) => item?.orgUnit?.id);
                     form.reset({
                         title: result.title,

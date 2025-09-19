@@ -7,22 +7,22 @@ const getFileIcon = (file: { name?: string; type?: string }) => {
     const type = file.type || "";
 
     if (type.includes("image/")) {
-        return <img src="/icon-image.png" alt="Image"/>;
+        return <img src="/icon-image.png" alt="Image" className="hover:cursor-pointer"/>;
     };
 
     if (type.includes("pdf") || name.endsWith(".pdf")) {
-        return <img src="/icon-pdf.png" alt="Pdf"/>;
+        return <img src="/icon-pdf.png" alt="Pdf" className="hover:cursor-pointer"/>;
     }
 
     if (type.includes("word") || name.endsWith(".doc") || name.endsWith(".docx")) {
-        return <img src="/icon-word.svg" alt="Word"/>;
+        return <img src="/icon-word.svg" alt="Word" className="hover:cursor-pointer"/>;
     }
 
     if (type.includes("excel") || name.endsWith(".xls") || name.endsWith(".xlsx")) {
-        return <img src='/icon-excel.svg' alt='Excel'/>
+        return <img src='/icon-excel.svg' alt='Excel' className="hover:cursor-pointer"/>
     }
 
-    return <img src='/icon-file-default.svg' alt='File'/>
+    return <img src='/icon-file-default.svg' alt='File' className="hover:cursor-pointer"/>
 };
 
 type FileType = {
@@ -111,11 +111,11 @@ export function FileListPreviewDownload ({
             {
                  uploadedFiles.map((file, index) => (
                     <li onClick={() => handleDownload(file)} key={`uploaded-${index}`} className="hover:cursor-pointer inline-flex items-center hover:bg-gray-200 bg-gray-100 px-3 py-1 rounded-md max-w-full">
-                        <div className="flex items-center space-x-2 pr-3">
+                        <div className="flex items-center space-x-2 pr-3 hover:cursor-pointer">
                             {getFileIcon({name: file.fileName, type: file.contentType})}
-                            <span className="text-sm ">{file.fileName}</span>
+                            <span className="text-sm hover:cursor-pointer">{file.fileName}</span>
                         </div>
-                        <button>
+                        <button className="hover:cursor-pointer">
                             {
                                 loadingMap[file.id] ? (<Spinner className="size-4"/>) : (<Download size={16} /> )
                             }

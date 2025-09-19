@@ -5,7 +5,7 @@ import axiosClient from './axiosClient';
 import { OrgUnit } from './orgUnitApi';
 
 interface GetAll {
-    currentUserCode?: string,
+    UserCode?: string,
     Page: number
     PageSize: number
 }

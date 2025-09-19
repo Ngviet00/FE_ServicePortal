@@ -67,17 +67,15 @@ const ViewOnlyLeaveRq = () => {
                     <p className='my-2 text-[15px]'>
                         <span className="">{tLocal.userCode}: <strong className='mr-2 text-red-700'>{formData?.userCode ?? '--'}</strong></span>,
                         <span className="ml-2">{tLocal.userName}: <strong className='mr-2 text-red-700'>{formData?.userName ?? '--'}</strong></span>,
-                        <span className="ml-2">{tLocal.department}: <strong className='mr-2 text-red-700'>{formData?.orgUnit?.name ?? '--'}</strong></span>, 
-                        <span className="ml-2">{tLocal.position}: <strong className='mr-2 text-red-700'>{formData?.position ?? '--'}</strong></span> 
+                        <span className="ml-2">{tLocal.department}: <strong className='mr-2 text-red-700'>{formData?.orgUnit?.name ?? '--'}</strong></span>,
+                        <span className="ml-2">{tLocal.position}: <strong className='mr-2 text-red-700'>{formData?.position ?? '--'}</strong></span>,
+                        <span className="ml-2">{tLocal.leaveType}: <strong className='mr-2 text-red-700'>{`${formData?.typeLeave?.name}__${formData?.typeLeave?.code}`}</strong></span>,
+                        <span className="ml-2">{tLocal.leaveTime}: <strong className='mr-2 text-red-700'>{formData?.timeLeave?.name ?? '--'}</strong></span>
                     </p>
                     <p className='my-2 text-[15px]'>
-                        <span className="">{tLocal.leaveType}: <strong className='mr-2 text-red-700'>{`${formData?.typeLeave?.name}__${formData?.typeLeave?.code}`}</strong></span>, 
-                        <span className="ml-2">{tLocal.leaveTime}: <strong className='mr-2 text-red-700'>{formData?.timeLeave?.name ?? '--'}</strong></span>, 
-                        <span className="ml-2">{tLocal.fromDate}: <strong className='mr-2 text-red-700'>{formatDate(formData?.fromDate, 'yyyy/MM/dd HH:mm') ?? '--'}</strong></span>, 
-                        <span className="ml-2">{tLocal.toDate}: <strong className='mr-2 text-red-700'>{formatDate(formData?.toDate, 'yyyy/MM/dd HH:mm') ?? '--'}</strong></span>
-                    </p>
-                    <p className='my-2 text-[15px]'>
-                        <span>{tLocal.reason}: <strong className='mr-2 text-red-700'>{formData?.reason ?? '--'}</strong></span>
+                        <span className="">{tLocal.fromDate}: <strong className='mr-2 text-red-700'>{formatDate(formData?.fromDate, 'yyyy/MM/dd HH:mm') ?? '--'}</strong></span>, 
+                        <span className="ml-2">{tLocal.toDate}: <strong className='mr-2 text-red-700'>{formatDate(formData?.toDate, 'yyyy/MM/dd HH:mm') ?? '--'}</strong></span>,
+                        <span className="ml-2">{tLocal.reason}: <strong className='mr-2 text-red-700'>{formData?.reason ?? '--'}</strong></span>
                     </p>
                     {
                         formData?.noteOfHR && (

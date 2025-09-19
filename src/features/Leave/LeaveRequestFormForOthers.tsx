@@ -87,7 +87,7 @@ export default function LeaveRequestFormForOthers() {
                 })
                 await createLeaveRequest.mutateAsync(formData);
             }
-            // navigate("/leave/leave-registered");
+            navigate("/leave/leave-registered");
         } catch (err) {
             console.log(err);
         }

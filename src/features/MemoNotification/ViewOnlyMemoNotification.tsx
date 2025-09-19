@@ -3,7 +3,7 @@ import { FileListPreviewDownload, UploadedFileType } from '@/components/Componen
 import { getErrorMessage, ShowToast } from '@/lib';
 import { formatDate } from '@/lib/time';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import React, { useState } from 'react';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
 import memoNotificationApi from '@/api/memoNotificationApi';
@@ -14,6 +14,10 @@ const ViewOnlyMemoNotification: React.FC = () => {
     const lang = useTranslation().i18n.language.split('-')[0]
     const [uploadedFiles, setUploadedFiles] = useState<{ id: string, fileName: string; contentType: string }[]>([]);
     const { id } = useParams<{ id: string }>();
+
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const isDislayInHomePage = searchParams.get("locate") == 'home';
 
     const { data: memo } = useQuery({
         queryKey: ['get-detail-memo-notify'],
@@ -46,14 +50,14 @@ const ViewOnlyMemoNotification: React.FC = () => {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{t('title_wait_approval')}</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{lang == 'vi' ? 'Chi tiết thông báo' : 'Detail memo notification'}</h3>
             </div>
 
-            <div className="p-4 mt-2 space-y-4 border rounded-[3px] border-gray-200">
+            <div className={`p-1 mt-2 space-y-4 ${isDislayInHomePage ? 'pl-0' : 'p-4 border'}  rounded-[3px] border-gray-200`}>
                 <h2 className="text-[24px] sm:text-[30px] font-bold mb-1">{memo.title}</h2>
                 <div className="text-sm text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className='dark:text-white'>
-                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.applicationForm?.userNameRequestor}</span>
+                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.applicationFormItem?.applicationForm?.createdBy}</span>
                     </span>
                     <span className='dark:text-white'>•</span>
                     <span className='dark:text-white'>
@@ -89,8 +93,9 @@ const ViewOnlyMemoNotification: React.FC = () => {
                     />
                 </div>
             </div>
-
-            <HistoryApproval historyApplicationForm={memo?.applicationForm?.historyApplicationForms[0]}/>
+            {
+                !isDislayInHomePage && (<HistoryApproval historyApplicationForm={memo?.applicationFormItem?.applicationForm?.historyApplicationForms}/>)
+            }
         </div>
     )
 };

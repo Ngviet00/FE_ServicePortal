@@ -190,11 +190,8 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             }
             {
                 fields.map((field, index) => {
-                    
                     const errors = form.formState.errors.leaveRequests?.[index];
-
                     const isNewRow = !getValues(`leaveRequests.${index}.id`);
-
                     return (
                         <div key={field.id} className="space-y-4">
                             {
@@ -364,7 +361,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             }
             <div className="mb-4 flex space-x-2 mt-2">
                 {
-                    isCreate || isEdit && (
+                    // isCreate || isEdit && (
                         <button type="button" className="dark:bg-black bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400"
                             onClick={() =>
                                 append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", id: null})
@@ -372,7 +369,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
                         >
                             +
                     </button>
-                    )
+                    // )
                 }
                 {
                     isCreate || isEdit ? (
