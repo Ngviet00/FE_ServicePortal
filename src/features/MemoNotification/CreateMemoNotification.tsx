@@ -144,9 +144,9 @@ export default function CreateMemoNotification () {
                 formData.append("deleteFiles", item);
             })
         } else {
-            formData.append("createdBy", String(user?.userName));
-            formData.append("createdAt", String(getVietnamTime('iso')));
             formData.append("userCodeCreated", String(user?.userCode));
+            formData.append("UserNameCreated", String(user?.userName));
+            formData.append("createdAt", String(getVietnamTime('iso')));
         }
 
         if (Array.isArray(values.attachments)) {
