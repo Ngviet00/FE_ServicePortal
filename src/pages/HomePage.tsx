@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import memoNotificationApi, { IMemoNotify } from '@/api/memoNotificationApi';
+import memoNotificationApi from '@/api/memoNotificationApi';
 import { formatDate } from '@/lib/time';
 import { useAuthStore } from '@/store/authStore';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -69,8 +70,8 @@ export default function HomePage() {
             </div>
             <div className='mb-3'>
                 {
-                    data && data.length > 0 && data.map((item: IMemoNotify, idx: number) => (
-                        <Link key={idx} to={`/detail-memo-notify/${item.id}?locate=home`}>
+                    data && data.length > 0 && data.map((item: any, idx: number) => (
+                        <Link key={idx} to={`/detail-memo-notify/${item.code}?locate=home`}>
                             <div
                                 className="bg-[#eff6ff] py-4 px-5 mb-3 rounded-md font-inter shadow-sm hover:shadow-md transition dark:bg-[#1e1e1e69]"
                             >
@@ -88,7 +89,7 @@ export default function HomePage() {
 
                                 <div className="flex flex-nowrap items-center mt-4 text-xs text-gray-600 gap-2">
                                     <span className="whitespace-nowrap dark:text-white">
-                                        Created By <strong className="text-gray-800 dark:text-white">{item.createdBy}</strong>
+                                        Created By <strong className="text-gray-800 dark:text-white">{item.userNameCreatedForm}</strong>
                                     </span>
                                     <span className="whitespace-nowrap dark:text-white">-</span>
                                     <span className="whitespace-nowrap dark:text-white">

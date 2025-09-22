@@ -149,9 +149,9 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
     };
 
     useEffect(() => {
-        if (isEdit && formData) {
+        if (isEdit && formData && formData.length > 0) {
             const mappedLeaveRequests = formData.map((item: any) => ({
-                id: item.id,
+                id: item.id.toString(),
                 user_code: item.userCode ?? "",
                 user_code_register: user?.userCode ?? "",
                 name: item.userName ?? "",
@@ -168,7 +168,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
 
             reset({ leaveRequests: mappedLeaveRequests });
         }
-        else if (isCreate) {
+        else if (isCreate && !formData) {
             reset({
                 leaveRequests: [{
                     ...defaultSingleLeaveRequest,
@@ -179,7 +179,9 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
     }, [defaultSingleLeaveRequest, formData, isCreate, isEdit, reset, user?.userCode]);
     
     return (
-        <form onSubmit={handleSubmit(handleSubmitForm)}
+        <form onSubmit={handleSubmit(handleSubmitForm, (errors) => {
+                console.log("❌ Form errors:", errors);
+            })}
             onKeyDown={(e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();

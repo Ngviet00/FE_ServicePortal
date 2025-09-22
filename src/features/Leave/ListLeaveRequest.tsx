@@ -135,7 +135,7 @@ export default function ListLeaveRequest () {
                                                 <TableCell className="text-left border">{lang == 'vi' ? item?.typeLeaveName : item?.typeLeaveNameE}</TableCell>
                                                 <TableCell className="text-center border">{lang == 'vi' ? item?.timeLeaveName : item?.timeLeaveNameE}</TableCell>
                                                 <TableCell className="text-center border">{item?.reason}</TableCell>
-                                                <TableCell className="text-center font-bold text-red-700 border">{item?.createdBy}</TableCell>
+                                                <TableCell className="text-center font-bold text-red-700 border">{item?.userNameCreatedForm}</TableCell>
                                                 <TableCell className="text-left border">{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
                                                 <TableCell className="text-center border">
                                                     <StatusLeaveRequest 
@@ -179,7 +179,7 @@ export default function ListLeaveRequest () {
                                             <div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeaveName : item?.typeLeaveNameE}</div>
                                             <div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeaveName : item?.timeLeaveNameE}</div>
                                             <div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item?.reason}</div>
-                                            <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item?.createdBy}</div>
+                                            <div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item?.userNameCreatedForm}</div>
                                             <div className="mb-1"><strong>
                                                 {t('list_leave_request.status')}: </strong> 
                                                 <StatusLeaveRequest 

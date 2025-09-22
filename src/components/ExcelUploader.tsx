@@ -97,6 +97,9 @@ export default function ExcelUploader({
 
         if (success) {
             setFile(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
         }
     };
 

@@ -157,10 +157,9 @@ export enum STATUS_ENUM {
 
 export enum REQUEST_TYPE {
     LEAVE_REQUEST = 1,
-    TIME_KEEPING = 2,
-    MEMO_NOTIFICATION = 3,
-    FORM_IT = 4,
-    PURCHASE = 5,
+    MEMO_NOTIFICATION = 2,
+    FORM_IT = 3,
+    PURCHASE = 4,
 }
 
 export enum IT_CATEGORY {

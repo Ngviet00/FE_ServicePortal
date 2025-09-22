@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from "@/api/approvalApi";
 import { HistoryApplicationForm, IRequestStatus } from "@/api/itFormApi";
 import { useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi";
-import orgUnitApi, { OrgUnit } from "@/api/orgUnitApi";
+import { OrgUnit } from "@/api/orgUnitApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
@@ -32,15 +33,15 @@ export interface PendingApprovalResponse {
 	orgUnit?: OrgUnit
 }
 
-function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
+function GetUrlDetailWaitApproval(item: any) {
 	let result = ''
-	const requestTypeId = item?.requestType?.id
+	const requestTypeId = item?.requestTypeId
 
 	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
 		result = `/approval/approval-leave-request/${item.id ?? '-1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/approval-memo-notify/${item.id ?? '1'}`
+		result = `/approval/approval-memo-notify/${item.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
 		result = `/approval/approval-form-it/${item.id ?? '1'}`
@@ -61,7 +62,6 @@ export default function PendingApproval() {
 	const [pageSize, setPageSize] = useState(10)
 	const [totalPage, setTotalPage] = useState(0)
 	const { user } = useAuthStore()
-	const [selectedDepartment, setSelectedDepartment] = useState('')
 	const hasPermissionHrMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
 	const [selectedIds, setSelectedIds] = useState<string[]>([])
 	const [loadingRegisterAll, setLoadingRegisterAll] = useState(false)
@@ -87,41 +87,28 @@ export default function PendingApproval() {
             return res.data.data;
         },
     });
-
-	const { data: departments = [] } = useQuery({
-		queryKey: ['get-all-department'],
-		queryFn: async () => {
-			const res = await orgUnitApi.GetAllDepartment()
-			return res.data.data
-		},
-	});
-
+	
 	const { data: ListWaitApprovals = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-list-wait-approval', page, pageSize, requestType, selectedDepartment],
+        queryKey: ['get-list-wait-approval', page, pageSize, requestType],
         queryFn: async () => {
             const res = await approvalApi.GetAllApproval({
                 Page: page,
                 PageSize: pageSize,
 				OrgPositionId: user?.orgPositionId,
 				UserCode: user?.userCode,
-				RequestTypeId: requestType == '' ? null : Number(requestType),
-				DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment)
+				RequestTypeId: requestType == '' ? null : Number(requestType)
             });
 			setTotalPage(res.data.total_pages)
             return res.data.data;
         },
     });
 
-	const currentPageIds = ListWaitApprovals
-		.filter((item: { requestType: { id: number, name: string } }) => item.requestType.id == 1)
-		.map((item: { id: number, name: string }) => item.id);
+	const currentPageIds = ListWaitApprovals;
+		// .filter((item: { requestType: { id: number, name: string } }) => item.requestType.id == 1)
+		// .map((item: { id: number, name: string }) => item.id);
 
 	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
 		setRequestType(e.target.value)
-	}
-	
-	const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
-		setSelectedDepartment(e.target.value)
 	}
 
 	const handleSelectAllCurrentPage = (checked: string | boolean) => {
@@ -218,205 +205,91 @@ export default function PendingApproval() {
 						}
 					</select>
 				</div>
-
-				<div className="w-[12%] mx-5">
-					<Label className="mb-2">{t('history_approval_processed.department')}</Label>
-					<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
-						<option value="">
-							{ lang == 'vi' ? 'Tất cả' : 'All' }
-						</option>
-						{
-							departments.map((item: { id: number, name: string }, idx: number) => (
-								<option key={idx} value={item.id}>{item.name}</option>
-							))
-						}
-					</select>
-				</div>
-
-				{/* {
-					hasPermissionHrMngLeaveRq && (
-						<div className="w-[20%]">
-							<Label className="mb-2">{t('pending_approval.department')}</Label>
-							<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
-								<option value="">
-									{ lang == 'vi' ? 'Tất cả' : 'All' }
-								</option>
-								{
-									departments.map((item: { id: number, name: string }, idx: number) => (
-										<option key={idx} value={item.id}>{item.name}</option>
-									))
-								}
-							</select>
-						</div>
-					)
-				} */}
 			</div>
 
 			<div>
 				<div className="overflow-x-auto">
-					{
-						//hiển thị của hr
-						hasPermissionHrMngLeaveRq ? (
-							<table className="min-w-full text-sm border border-gray-200">
-								<thead className="bg-gray-100">
+					<table className="min-w-full text-sm border border-gray-200">
+						<thead className="bg-gray-100">
+							<tr>
+								<th className="px-4 py-2 border">
+									<input
+										type='checkbox' 
+										className='hover:cursor-pointer scale-[1.2]'
+										checked={selectedIds.length > 0 && currentPageIds.every((id: string) => selectedIds.includes(id))}
+										onChange={(event) => handleSelectAllCurrentPage(event.target.checked)}
+									/>
+								</th>
+								<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
+								<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
+								<th className="px-4 py-2 border">{lang == 'vi' ? 'Danh mục' : 'Category'}</th>
+								<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
+								<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
+								<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
+								<th className="px-4 py-2 border text-center">{t('pending_approval.action')}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{
+								isPending ? (
+									Array.from({ length: 3 }).map((_, index) => (
+										<tr key={index}>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
+										</tr>  
+									))
+								) : isError || ListWaitApprovals?.length == 0 ? (
 									<tr>
-										<th className="px-4 py-2 border">
-											<input
-												type="checkbox" 
-												className="hover:cursor-pointer scale-[1.3]"
-												checked={selectedIds.length > 0 && currentPageIds.every((id: string) => selectedIds.includes(id))}
-												onChange={(event) => handleSelectAllCurrentPage(event.target.checked)}
-											/>
-										</th>
-										<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.last_approved')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
-										<th className="px-4 py-2 border text-center">{t('pending_approval.action')}</th>
+										<td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
+											{ error?.message ?? tCommon('no_results') } 
+										</td>
 									</tr>
-								</thead>
-								<tbody>
-									{
-										isPending ? (
-											Array.from({ length: 3 }).map((_, index) => (
-												<tr key={index}>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-												</tr>
-											))
-										) : isError || ListWaitApprovals?.length == 0 ? (
-											<tr>
-												<td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
-													{ error?.message ?? tCommon('no_results') } 
+								) : (
+									ListWaitApprovals.map((item: any, idx: number) => {
+										return (
+											<tr key={idx} className="hover:bg-gray-50">
+												<td className="px-4 py-2 border whitespace-nowrap text-center">
+													<input 
+														type="checkbox" 
+														className="hover:cursor-pointer scale-[1.2]"
+														checked={selectedIds.includes(item?.id ?? "")}
+														onChange={(event) => handleRowCheckboxChange(item?.id ?? "", event.target.checked)}
+													/>
+												</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">
+													<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+														{item?.code}
+													</Link>
+												</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestTypeName : item?.requestTypeNameE}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">--</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreatedForm}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
+												<td className="px-4 py-2 border text-center">
+													<StatusLeaveRequest status="Pending"/>
+												</td>
+												<td className="px-4 py-2 border text-center space-x-1">
+													<button
+														className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+													>
+														<Link to={GetUrlDetailWaitApproval(item)}>
+															{t('pending_approval.detail')}
+														</Link>
+													</button>
 												</td>
 											</tr>
-										) : (
-											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => {
-
-												return (
-													<tr key={idx} className="hover:bg-gray-50">
-														<td className="px-4 py-2 border whitespace-nowrap text-center">
-															{
-																item?.requestType?.id == 1 && (
-																	<input
-																		type="checkbox" 
-																		className="hover:cursor-pointer scale-[1.3]"
-																		checked={selectedIds.includes(item?.id ?? "")}
-																		onChange={(event) => handleRowCheckboxChange(item?.id ?? "", event.target.checked)}
-																	/>
-																)
-															}
-														</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">
-															<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-																{ item?.code }
-															</Link>
-														</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreated}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
-														<td className="px-4 py-2 border text-center">
-															<StatusLeaveRequest status="Pending"/>
-														</td>
-														<td className="px-4 py-2 border text-center space-x-1">
-															<button
-																className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-															>
-																<Link to={GetUrlDetailWaitApproval(item)}>
-																	{t('pending_approval.detail')}
-																</Link>
-															</button>
-														</td>
-													</tr>
-												)
-											})
 										)
-									}
-								</tbody>
-							</table>
-						) : (
-							<table className="min-w-full text-sm border border-gray-200">
-								<thead className="bg-gray-100">
-									<tr>
-										<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
-										{/* <th className="px-4 py-2 border">{t('pending_approval.department')}</th> */}
-										<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
-										<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
-										<th className="px-4 py-2 border text-center">{t('pending_approval.action')}</th>
-									</tr>
-								</thead>
-								<tbody>
-									{
-										isPending ? (
-											Array.from({ length: 3 }).map((_, index) => (
-												<tr key={index}>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[20px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													{/* <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td> */}
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-													<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-												</tr>  
-											))
-										) : isError || ListWaitApprovals?.length == 0 ? (
-											<tr>
-												<td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
-													{ error?.message ?? tCommon('no_results') } 
-												</td>
-											</tr>
-										) : (
-											ListWaitApprovals.map((item: PendingApprovalResponse, idx: number) => {
-
-												return (
-													<tr key={idx} className="hover:bg-gray-50">
-														<td className="px-4 py-2 border whitespace-nowrap text-center">
-															<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
-																{item?.code}
-															</Link>
-														</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
-														{/* <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name ?? '--'}</td> */}
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-														<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreated}</td>
-														<td className="px-4 py-2 border text-center">
-															<StatusLeaveRequest status="Pending"/>
-														</td>
-														<td className="px-4 py-2 border text-center space-x-1">
-															<button
-																className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-															>
-																<Link to={GetUrlDetailWaitApproval(item)}>
-																	{t('pending_approval.detail')}
-																</Link>
-															</button>
-														</td>
-													</tr>
-												)
-											})
-										)
-									}
-								</tbody>
-							</table>
-						)
-					}
+									})
+								)
+							}
+						</tbody>
+					</table>
      		 	</div>
 			</div>
 			{
@@ -428,33 +301,6 @@ export default function PendingApproval() {
                     onPageSizeChange={handlePageSizeChange}
                 />) : (null)
             }
-			{/* <div className="block md:hidden space-y-4">
-				{isPending ? (
-					Array.from({ length: 3 }).map((_, index) => (
-						<div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
-						{Array.from({ length: 6 }).map((_, i) => (
-							<div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
-						))}
-						</div>
-					))
-				) : isError || leaveRequests.length === 0 ? (
-					<div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
-				) : (
-					leaveRequests.map((item: LeaveRequestData) => (
-						<div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-							<div className="mb-1 font-bold">{item.name} ({item.requesterUserCode})</div>
-							<div className="mb-1"><strong>{t('list_leave_request.department')}:</strong> {item.department}</div>
-							<div className="mb-1"><strong>{t('list_leave_request.position')}:</strong> {item.position}</div>
-							<div className="mb-1"><strong>{t('list_leave_request.from')}:</strong> {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-							<div className="mb-1"><strong>{t('list_leave_request.to')}:</strong>{formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-							<div className="mb-1"><strong>{t('list_leave_request.type_leave')}:</strong> {lang == 'vi' ? item?.typeLeave?.nameV : item?.typeLeave?.name}</div>
-							<div className="mb-1"><strong>{t('list_leave_request.time_leave')}:</strong> {lang == 'vi' ? item?.timeLeave?.description : item?.timeLeave?.english}</div>
-							<div className="mb-1"><strong>{t('list_leave_request.reason')}:</strong> {item.reason}</div>
-							<div className="mb-1"><strong>{t('list_leave_request.write_leave_name')}:</strong> {item.userNameWriteLeaveRequest}</div>
-						</div>
-					))
-				)}
-			</div> */}
         </div>
     )
 }

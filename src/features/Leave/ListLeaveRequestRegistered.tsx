@@ -13,7 +13,7 @@ import {
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import leaveRequestApi from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
-import { getErrorMessage, ShowToast } from "@/lib"
+import { getErrorMessage, REQUEST_TYPE, ShowToast } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
@@ -25,7 +25,7 @@ import { IRequestType } from "@/api/requestTypeApi"
 interface GetMyLeaveRequestRegistered {
     id?: string,
     code?: string,
-    createdBy?: string,
+    userNameCreatedForm?: string,
     createdAt?: string,
     requestStatus?: IRequestStatus,
     requestType?: IRequestType
@@ -78,7 +78,7 @@ export default function ListLeaveRequestRegistered () {
 
     const mutation = useMutation({
         mutationFn: async (id: string) => {
-            await leaveRequestApi.deleteApplicationFormLeave(id);
+            await leaveRequestApi.delete(id);
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -88,9 +88,9 @@ export default function ListLeaveRequestRegistered () {
         }
     });
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (code: string) => {
         const shouldGoBack = leaveRequestRegistered.length === 1;
-        await mutation.mutateAsync(id);
+        await mutation.mutateAsync(code);
         handleSuccessDelete(shouldGoBack);
     };
 
@@ -151,10 +151,10 @@ export default function ListLeaveRequestRegistered () {
                                         return (
                                             <TableRow key={item.id}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={``} className="text-blue-600 underline hover:cursor-not-allowed">{item?.code}</Link>
+                                                    <Link to={`/leave/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
-                                                <TableCell className="text-center border">{item?.createdBy}</TableCell>
+                                                <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
                                                 <TableCell className="text-center border">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                                 <TableCell className="text-center border">
                                                     <StatusLeaveRequest 
@@ -163,12 +163,12 @@ export default function ListLeaveRequestRegistered () {
                                                 </TableCell>
                                                 <TableCell className="text-center border">
                                                     {
-                                                        item?.requestStatus?.id == 1 ? (
+                                                        item?.requestStatus?.id == REQUEST_TYPE.LEAVE_REQUEST ? (
                                                             <>
-                                                                <Link to={`/leave/edit/${item?.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                <Link to={`/leave/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                                 </Link>
-                                                                <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id ?? "")} />
+                                                                <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
                                                             </>
                                                         ) : (
                                                             <span>--</span>
@@ -209,10 +209,10 @@ export default function ListLeaveRequestRegistered () {
                                                 <strong>{lang == 'vi' ? 'Loại đơn' : 'Request type'}: </strong> { lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE }
                                             </div>
                                             <div className="mb-1">
-                                                <strong>{lang == 'vi' ? 'Người tạo' : 'Created By'}: </strong> { lang == 'vi' ? item?.createdBy : item?.createdBy }
+                                                <strong>{lang == 'vi' ? 'Người tạo' : 'Created By'}: </strong> { lang == 'vi' ? item?.userNameCreatedForm : item?.userNameCreatedForm }
                                             </div>
                                             <div className="mb-1">
-                                                <strong>{lang == 'vi' ? 'Người tạo' : 'Created By'}: </strong> { lang == 'vi' ? item?.createdBy : item?.createdBy }
+                                                <strong>{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}: </strong> { formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
                                             </div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Trạng thái' : 'Status'}: </strong> { lang == 'vi' ? item?.requestStatus?.name : item?.requestStatus?.nameE }
@@ -222,10 +222,10 @@ export default function ListLeaveRequestRegistered () {
                                                 {
                                                     item?.requestStatus?.id == 1 ? (
                                                         <>
-                                                            <Link to={`/leave/edit/${item?.id}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
+                                                            <Link to={`/leave/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                                 {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                             </Link>
-                                                            <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id ?? "")} />
+                                                            <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
                                                         </>
                                                     ) : (
                                                         <span>--</span>

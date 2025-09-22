@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import HistoryApproval from "../Approval/Components/HistoryApproval"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
@@ -14,8 +15,8 @@ const dict = {
         position: 'Chức vụ',
         leaveType: 'Loại phép',
         leaveTime: 'Thời gian nghỉ',
-        fromDate: 'Nghỉ từ ngày',
-        toDate: 'Nghỉ đến ngày',
+        fromDate: 'Từ ngày',
+        toDate: 'Đến ngày',
         reason: 'Lý do',
         hrNote: 'Ghi chú HR',
         title: 'Chi tiết đơn nghỉ phép'
@@ -47,7 +48,7 @@ const ViewOnlyLeaveRq = () => {
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['leaveRequestForm', id],
         queryFn: async () => {
-            const res = await leaveRequestApi.viewDetailLeaveRequestWithHistory(id ?? '');
+            const res = await leaveRequestApi.getLeaveByAppliationFormCode(id ?? '');
             return res.data.data;
         },
         enabled: hasId,
@@ -63,28 +64,73 @@ const ViewOnlyLeaveRq = () => {
                 <h3 className="font-bold text-xl md:text-2xl m-0 pb-2">{tApproval('detail_approval_leave_request.title')}</h3>
             </div>
             <div className="text-left mb-6 border-gray-400 pt-2 w-[100%]">
-                <div>
-                    <p className='my-2 text-[15px]'>
-                        <span className="">{tLocal.userCode}: <strong className='mr-2 text-red-700'>{formData?.userCode ?? '--'}</strong></span>,
-                        <span className="ml-2">{tLocal.userName}: <strong className='mr-2 text-red-700'>{formData?.userName ?? '--'}</strong></span>,
-                        <span className="ml-2">{tLocal.department}: <strong className='mr-2 text-red-700'>{formData?.orgUnit?.name ?? '--'}</strong></span>,
-                        <span className="ml-2">{tLocal.position}: <strong className='mr-2 text-red-700'>{formData?.position ?? '--'}</strong></span>,
-                        <span className="ml-2">{tLocal.leaveType}: <strong className='mr-2 text-red-700'>{`${formData?.typeLeave?.name}__${formData?.typeLeave?.code}`}</strong></span>,
-                        <span className="ml-2">{tLocal.leaveTime}: <strong className='mr-2 text-red-700'>{formData?.timeLeave?.name ?? '--'}</strong></span>
-                    </p>
-                    <p className='my-2 text-[15px]'>
-                        <span className="">{tLocal.fromDate}: <strong className='mr-2 text-red-700'>{formatDate(formData?.fromDate, 'yyyy/MM/dd HH:mm') ?? '--'}</strong></span>, 
-                        <span className="ml-2">{tLocal.toDate}: <strong className='mr-2 text-red-700'>{formatDate(formData?.toDate, 'yyyy/MM/dd HH:mm') ?? '--'}</strong></span>,
-                        <span className="ml-2">{tLocal.reason}: <strong className='mr-2 text-red-700'>{formData?.reason ?? '--'}</strong></span>
-                    </p>
-                    {
-                        formData?.noteOfHR && (
-                            <p className='my-2 text-[15px]'>
-                                <span className="font-bold">{tLocal.hrNote}: <strong className='mr-2 text-red-700'>{formData?.noteOfHR ?? '--'}</strong></span>
-                            </p>
+                {
+                    formData?.leaveRequests?.map((item: any, idx: number) => {
+                        return (
+                            <div key={idx} className="flex items-start gap-3 mb-4">
+                                <div className="flex flex-col items-center justify-start mt-1">
+                                    {/* <input type="checkbox" className="w-5 h-5 accent-blue-600 rounded cursor-pointer"/> */}
+                                    <span className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-semibold text-sm mb-2">
+                                        {idx + 1}
+                                    </span>
+                                </div>
+
+                                <div className="flex-grow border border-gray-200 p-4 rounded-lg shadow-sm bg-white">
+                                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[15px] leading-relaxed">
+                                        <span className="text-gray-700">
+                                            {tLocal.userCode}: <strong className="text-red-600">{item?.userCode ?? "--"}</strong>
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {tLocal.userName}: <strong className="text-red-600">{item?.userName ?? "--"}</strong>
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {tLocal.department}: <strong className="text-red-600">{item?.orgUnit?.name ?? "--"}</strong>
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {tLocal.position}: <strong className="text-red-600">{item?.position ?? "--"}</strong>
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {tLocal.leaveType}: <strong className="text-red-600">
+                                                {`${lang == "vi" ? item?.typeLeave?.name : item?.typeLeave?.nameE ?? "--"}__${
+                                                    item?.typeLeave?.code ?? "--"
+                                                }`}
+                                            </strong>
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {tLocal.leaveTime}: <strong className="text-red-600">
+                                            {lang == "vi" ? item?.timeLeave?.name : item?.timeLeave?.nameE ?? "--"}
+                                            </strong>
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {tLocal.fromDate}: <strong className="text-red-600">
+                                            {formatDate(item?.fromDate, "yyyy/MM/dd HH:mm") ?? "--"}
+                                            </strong>
+                                        </span>
+                                        <span className="text-gray-700">
+                                            {tLocal.toDate}: <strong className="text-red-600">
+                                            {formatDate(item?.toDate, "yyyy/MM/dd HH:mm") ?? "--"}
+                                            </strong>
+                                        </span>
+                                    </div>
+
+                                    <div className="mt-2 text-[15px]">
+                                        <span className="text-gray-700">
+                                            {tLocal.reason}: <strong className="text-red-600">{item?.reason ?? "--"}</strong>
+                                        </span>
+                                    </div>
+
+                                    {formData?.noteOfHR && (
+                                        <div className="mt-2 text-[15px]">
+                                            <span className="font-bold text-gray-800">
+                                            {tLocal.hrNote}: <strong className="text-red-600">{item?.noteOfHR ?? "--"}</strong>
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         )
-                    }
-                </div>
+                    })
+                }
             </div>
             <HistoryApproval historyApplicationForm={formData?.applicationForm?.historyApplicationForms}/>
         </div>

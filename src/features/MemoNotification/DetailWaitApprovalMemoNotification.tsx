@@ -58,8 +58,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
             OrgPositionId: user?.orgPositionId,
             Status: type == 'approval' ? true : false,
             Note: note,
-            MemoNotificationId: id,
-            urlFrontend: window.location.origin,
+            ApplicationFormCode: id,
             RequestTypeId: memo?.applicationFormItem?.applicationForm?.requestTypeId
         }
 

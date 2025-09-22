@@ -17,7 +17,7 @@ export interface GetMyLeaveRequest {
     toDate?: string;
     reason?: string;
     createdAt?: string;
-    createdBy?: string;
+    userNameCreatedForm?: string;
     requestStatusId?: number;
     requestStatusName?: string;
     requestStatusNameE?: string;
@@ -154,9 +154,12 @@ const leaveRequestApi = {
     delete(id: string) {
         return axiosClient.delete(`/leave-request/${id}`)
     },
-    deleteApplicationFormLeave(applicationFormId: string) {
-        return axiosClient.delete(`/leave-request/delete-application-form-leave/${applicationFormId}`)
+    getLeaveByAppliationFormCode(applicationFormCode: string) {
+        return axiosClient.get(`/leave-request/${applicationFormCode}`)
     },
+
+
+
     getListLeaveToUpdate(id: string) {
         return axiosClient.get(`/leave-request/get-list-leave-to-update/${id}`)
     },

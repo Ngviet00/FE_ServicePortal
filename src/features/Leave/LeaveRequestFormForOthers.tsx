@@ -37,14 +37,14 @@ export default function LeaveRequestFormForOthers() {
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['leaveRequestForm', id],
         queryFn: async () => {
-            const res = await leaveRequestApi.getListLeaveToUpdate(id ?? '');
+            const res = await leaveRequestApi.getLeaveByAppliationFormCode(id ?? '');
             return res.data.data;
         },
         enabled: isEdit,
     });
 
     const mode = isEdit ? 'edit' : 'create';
-    const initialFormData = isEdit ? formData : {};
+    const initialFormData = isEdit ? formData?.leaveRequests : {};
 
     const handleFormSubmit = async (data: any) => {
         try {
@@ -69,20 +69,20 @@ export default function LeaveRequestFormForOthers() {
                 formData.append("EmailCreated", user?.email ?? "");
                 formData.append("OrgPositionId", String(user?.orgPositionId ?? ""));
                 formData.append("UserCodeCreated", user?.userCode ?? "");
-                formData.append("CreatedBy", user?.userName ?? "");
+                formData.append("UserNameCreated", user?.userName ?? "");
 
                 data.leaveRequests.map((data: any, index: number) => {
-                    formData.append(`CreateLeaveRequestDto[${index}].UserCode`, data.user_code ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].UserName`, data.name ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].DepartmentId`, data.departmentId ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].Position`, data.position ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].FromDate`, data.from_date ? data.from_date.replace(" ", "T") + ":00+07:00" : "");
-                    formData.append(`CreateLeaveRequestDto[${index}].ToDate`, data.to_date ? data.to_date.replace(" ", "T") + ":00+07:00" : "");
-                    formData.append(`CreateLeaveRequestDto[${index}].TypeLeaveId`, data.type_leave ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].TimeLeaveId`, data.time_leave ?? "");
-                    formData.append(`CreateLeaveRequestDto[${index}].Reason`, data.reason ?? "");
+                    formData.append(`CreateListLeaveRequests[${index}].UserCode`, data.user_code ?? "");
+                    formData.append(`CreateListLeaveRequests[${index}].UserName`, data.name ?? "");
+                    formData.append(`CreateListLeaveRequests[${index}].DepartmentId`, data.departmentId ?? "");
+                    formData.append(`CreateListLeaveRequests[${index}].Position`, data.position ?? "");
+                    formData.append(`CreateListLeaveRequests[${index}].FromDate`, data.from_date ? data.from_date.replace(" ", "T") + ":00+07:00" : "");
+                    formData.append(`CreateListLeaveRequests[${index}].ToDate`, data.to_date ? data.to_date.replace(" ", "T") + ":00+07:00" : "");
+                    formData.append(`CreateListLeaveRequests[${index}].TypeLeaveId`, data.type_leave ?? "");
+                    formData.append(`CreateListLeaveRequests[${index}].TimeLeaveId`, data.time_leave ?? "");
+                    formData.append(`CreateListLeaveRequests[${index}].Reason`, data.reason ?? "");
                     if (data.Image) {
-                        formData.append(`CreateLeaveRequestDto[${index}].Image`, data.Image);
+                        formData.append(`CreateListLeaveRequests[${index}].Image`, data.Image);
                     }
                 })
                 await createLeaveRequest.mutateAsync(formData);
@@ -137,8 +137,8 @@ export default function LeaveRequestFormForOthers() {
 
         formData.append("EmailCreated", user?.email ?? '');
         formData.append("OrgPositionId", String(user?.orgPositionId ?? '0'));
-        formData.append("UserCodeCreated", user?.email ?? '');
-        formData.append("CreatedBy", user?.userName ?? '');
+        formData.append("UserCodeCreated", user?.userCode ?? '');
+        formData.append("UserNameCreated", user?.userName ?? '');
         formData.append("file", file)
 
         try {

@@ -17,17 +17,14 @@ export interface ListWaitApprovalRequest {
 }
 
 interface ApprovalRequest {
+    ApplicationFormId?: number,
+    ApplicationFormCode?: string,
     RequestTypeId?: number,
     UserCodeApproval?: string,
     UserNameApproval?: string,
     OrgPositionId?: number,
-    MemoNotificationId?: string,
-    LeaveRequestId?: string,
-    ITFormId?: string,
-    PurchaseId?: string,
     Status?: boolean,
     Note?: string,
-    urlFrontend?: string,
 }
 
 export interface ListHistoryApprovalOrProcessedRequest {

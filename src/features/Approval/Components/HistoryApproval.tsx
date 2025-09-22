@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { formatDate } from "@/lib/time";
 import { useTranslation } from "react-i18next";
 
@@ -15,11 +16,11 @@ export default function HistoryApproval({ historyApplicationForm }: { historyApp
         <div className='history-approval mt-5' style={{ borderTop: '1px dashed #99a1af' }}>
             <h3 className='text-blue-600 text-xl font-semibold mb-2 pt-2'>{ t('history_component.title') }</h3>
             {
-                historyApplicationForm?.map((item: IHistoryApplicationForm, idx: number) => {
+                historyApplicationForm?.map((item: any, idx: number) => {
                     return (
                         <div key={idx} style={{ borderBottom: '1px dashed #99a1af' }}>
                             <p className='my-2 text-[15px]'>
-                                <strong className='mr-2'>{ t('history_component.username_approval') }:</strong>{item?.actionBy || '--'}
+                                <strong className='mr-2'>{ t('history_component.username_approval') }:</strong>{item?.userNameAction || '--'}
                             </p>
                             <p className='my-2 text-[15px]'>
                                 <strong className='mr-2'>{ t('history_component.action') }:</strong><span className={`${item?.action == 'Reject' ? 'text-red-600' : 'text-green-600'} font-semibold`}>{item?.action || '--'}</span>
