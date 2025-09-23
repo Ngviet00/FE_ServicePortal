@@ -38,7 +38,7 @@ function GetUrlDetailWaitApproval(item: any) {
 	const requestTypeId = item?.requestTypeId
 
 	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/approval-leave-request/${item.id ?? '-1'}`
+		result = `/approval/approval-leave-request/${item.code ?? '-1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
 		result = `/approval/approval-memo-notify/${item.code ?? '1'}`
@@ -139,7 +139,7 @@ export default function PendingApproval() {
 			ShowToast("Chọn đơn nghỉ phép muốn xuất excel", "error")
 			return
 		}
-		await hrExportExcelLeaveRequest.mutateAsync(selectedIds)
+		await hrExportExcelLeaveRequest.mutateAsync({applicationFormId: -11})
 	};
 
 	const registerAllLeave = async () => {

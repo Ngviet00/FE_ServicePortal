@@ -13,7 +13,7 @@ import {
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import leaveRequestApi from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
-import { getErrorMessage, REQUEST_TYPE, ShowToast } from "@/lib"
+import { getErrorMessage, ShowToast } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
@@ -163,7 +163,7 @@ export default function ListLeaveRequestRegistered () {
                                                 </TableCell>
                                                 <TableCell className="text-center border">
                                                     {
-                                                        item?.requestStatus?.id == REQUEST_TYPE.LEAVE_REQUEST ? (
+                                                        item?.requestStatus?.id == 1 ? (
                                                             <>
                                                                 <Link to={`/leave/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {lang == 'vi' ? 'Sửa' : 'Edit'}

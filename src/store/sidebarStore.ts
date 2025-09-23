@@ -96,6 +96,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.approval.pending_approval", route: "/approval/pending-approval" },
 			{ label: "sidebar.approval.assigned", route: "/approval/assigned-tasks" },
 			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
+			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
+			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
 		],
 	}
 ];

@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import leaveRequestApi from "@/api/leaveRequestApi"
 import { formatDate } from "@/lib/time"
+import { X } from "lucide-react"
 
 const dict = {
     vi: {
@@ -44,7 +45,6 @@ const ViewOnlyLeaveRq = () => {
     const hasId = !!id;
     const tLocal = dict[lang as keyof typeof dict] || dict.en;
 
-
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['leaveRequestForm', id],
         queryFn: async () => {
@@ -69,13 +69,12 @@ const ViewOnlyLeaveRq = () => {
                         return (
                             <div key={idx} className="flex items-start gap-3 mb-4">
                                 <div className="flex flex-col items-center justify-start mt-1">
-                                    {/* <input type="checkbox" className="w-5 h-5 accent-blue-600 rounded cursor-pointer"/> */}
-                                    <span className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-semibold text-sm mb-2">
-                                        {idx + 1}
+                                    <span className={`w-7 h-7 flex items-center justify-center rounded-full ${item?.applicationFormItem?.status == false ? 'bg-red-100' : 'bg-gray-200'} text-gray-700 font-semibold text-sm mb-2`}>
+                                        {item?.applicationFormItem?.status == true ? (idx + 1) : <X size={18} className="text-red-400"/>}
                                     </span>
                                 </div>
 
-                                <div className="flex-grow border border-gray-200 p-4 rounded-lg shadow-sm bg-white">
+                                <div className={`flex-grow border border-gray-200 p-4 rounded-lg shadow-sm ${item?.applicationFormItem?.status == false ? 'bg-red-50' : 'bg-white'}`}>
                                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[15px] leading-relaxed">
                                         <span className="text-gray-700">
                                             {tLocal.userCode}: <strong className="text-red-600">{item?.userCode ?? "--"}</strong>
@@ -119,10 +118,10 @@ const ViewOnlyLeaveRq = () => {
                                         </span>
                                     </div>
 
-                                    {formData?.noteOfHR && (
+                                    {item?.noteOfHR && (
                                         <div className="mt-2 text-[15px]">
-                                            <span className="font-bold text-gray-800">
-                                            {tLocal.hrNote}: <strong className="text-red-600">{item?.noteOfHR ?? "--"}</strong>
+                                            <span className="font-normal text-gray-800">
+                                                {tLocal.hrNote}: <strong className="text-red-600">{item?.noteOfHR ?? "--"}</strong>
                                             </span>
                                         </div>
                                     )}

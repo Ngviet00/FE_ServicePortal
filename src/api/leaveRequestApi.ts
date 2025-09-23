@@ -137,6 +137,22 @@ interface HrRegisterAllLeave {
     leaveRequestIds?: string[]
 }
 
+export interface RejectSomeLeavesRequest {
+    leaveIds: number[], 
+    note?: string, 
+    userCodeReject?: string, 
+    userNameReject?: string,
+    orgPositionId?: number
+    applicationFormCode?: string
+}
+
+interface HrNoteRequest {
+    UserCode?: string,
+    ApplicationFormId?: number,
+    LeaveRequestId?: number,
+    NoteOfHr?: string,
+}
+
 const leaveRequestApi = {
     create(formData: FormData) {
         return axiosClient.post('/leave-request', formData, {
@@ -157,19 +173,21 @@ const leaveRequestApi = {
     getLeaveByAppliationFormCode(applicationFormCode: string) {
         return axiosClient.get(`/leave-request/${applicationFormCode}`)
     },
-
-
-
-    getListLeaveToUpdate(id: string) {
-        return axiosClient.get(`/leave-request/get-list-leave-to-update/${id}`)
-    },
     update(id: string, data: any){
         return axiosClient.put(`/leave-request/${id}`, data, {
             headers: { 'Content-Type': 'application/json' }
         })
     },
-    viewDetailLeaveRequestWithHistory(id: string) {
-        return axiosClient.get(`/leave-request/view-detail-leave-request-with-history/${id}`)
+    rejectSomeLeaves(data: RejectSomeLeavesRequest) {
+        return axiosClient.post('/leave-request/reject-some-leaves', data)
+    },
+    HrExportExcelLeaveRequest(data: {applicationFormId: number}) {
+        return axiosClient.post('/leave-request/hr-export-excel-leave-request', data, {
+            responseType: 'blob'
+        })
+    },
+    HrNote(data: HrNoteRequest) {
+        return axiosClient.post('/leave-request/hr-note', data)
     },
 
 
@@ -180,12 +198,6 @@ const leaveRequestApi = {
     statistical(params: { year?: number}) {
         return axiosClient.get('/leave-request/statistical-leave-request', {params})
     },
-
-    getById(id: string) {
-        return axiosClient.get(`/leave-request/${id}`)
-    },
-
-
 
     registerAllLeaveRequest(data: HrRegisterAllLeave) {
         return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
@@ -211,16 +223,12 @@ const leaveRequestApi = {
     UpdateHrWithManagementLeavePermission(data: string[]) {
         return axiosClient.post(`/leave-request/update-user-have-permission-hr-mng-leave-request`, data)
     },
-    HrExportExcelLeaveRequest(data: string[]) {
-        return axiosClient.post('/leave-request/hr-export-excel-leave-request', data, {
-            responseType: 'blob'
-        })
-    }
+
 }
 
 export function useHrExportExcelLeaveRequest() {
     return useMutation({
-        mutationFn: async (data: string[]) => {
+        mutationFn: async (data: {applicationFormId: number}) => {
             const response = await leaveRequestApi.HrExportExcelLeaveRequest(data)
 
             const d = new Date();
@@ -325,6 +333,34 @@ export function useUpdateLeaveRq() {
     return useMutation({
         mutationFn: async ({id, data} : { id: string, data: any } ) => {
             await leaveRequestApi.update(id, data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useRejectSomeLeaves() {
+     return useMutation({
+        mutationFn: async (data: RejectSomeLeavesRequest) => {
+            await leaveRequestApi.rejectSomeLeaves(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useHrNote() {
+    return useMutation({
+        mutationFn: async (data: HrNoteRequest) => {
+            await leaveRequestApi.HrNote(data)
         },
         onSuccess: () => {
             ShowToast("Success");
