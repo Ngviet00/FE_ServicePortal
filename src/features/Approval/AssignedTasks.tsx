@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { REQUEST_TYPE } from "@/lib";
@@ -11,7 +12,6 @@ import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import approvalApi from "@/api/approvalApi";
 import { Label } from "@/components/ui/label";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
-import orgUnitApi from "@/api/orgUnitApi";
 import { PendingApprovalResponse } from "./PendingApproval";
 
 function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
@@ -43,16 +43,10 @@ export default function AssignedTasks() {
 	const [totalPage, setTotalPage] = useState(0)
 	const { user } = useAuthStore()
 	const [requestType, setRequestType] = useState('')
-	const [selectedDepartment, setSelectedDepartment] = useState('')
 
 	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
 		setPage(1)
 		setRequestType(e.target.value)
-	}
-	
-	const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
-		setPage(1)
-		setSelectedDepartment(e.target.value)
 	}
 
 	function setCurrentPage(page: number): void {
@@ -65,26 +59,18 @@ export default function AssignedTasks() {
 	}
 
 	const { data: ListAssignedTask = [], isPending, isError, error } = useQuery({
-		queryKey: ['get-list-assigned-task', page, pageSize, selectedDepartment, requestType],
+		queryKey: ['get-list-assigned-task', page, pageSize, requestType],
 		queryFn: async () => {
 			const res = await approvalApi.GetListAssigned({
 				Page: page,
 				PageSize: pageSize,
 				UserCode: user?.userCode,
-				DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
 				RequestTypeId: requestType == '' ? null : Number(requestType),
 			});
+			console.log(res, 222);
 			setTotalPage(res.data.total_pages)
 			return res.data.data;
 		},
-	});
-
-	const { data: departments = [] } = useQuery({
-		queryKey: ['get-all-department'],
-		queryFn: async () => {
-			const res = await orgUnitApi.GetAllDepartment()
-			return res.data.data
-		}
 	});
 
 	const { data: requestTypes = []} = useQuery({
@@ -118,20 +104,6 @@ export default function AssignedTasks() {
 						}
 					</select>
 				</div>
-
-				<div className="w-[12%] ml-5">
-					<Label className="mb-2">{t('history_approval_processed.department')}</Label>
-					<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
-						<option value="">
-							{ lang == 'vi' ? 'Tất cả' : 'All' }
-						</option>
-						{
-							departments.map((item: { id: number, name: string }, idx: number) => (
-								<option key={idx} value={item.id}>{item.name}</option>
-							))
-						}
-					</select>
-				</div>
 			</div>
 
 			<div>
@@ -141,11 +113,9 @@ export default function AssignedTasks() {
 							<tr>
 								<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
+								<th className="px-4 py-2 border">{lang == 'vi' ? 'Danh mục' : 'Category'}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
-								<th className="px-4 py-2 border">{t('pending_approval.department')}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
-								<th className="px-4 py-2 border">{t('pending_approval.user_register')}</th>
-								<th className="px-4 py-2 border">{t('pending_approval.last_approved')}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
 								<th className="px-4 py-2 border text-center">{t('pending_approval.action')}</th>
 							</tr>
@@ -162,32 +132,27 @@ export default function AssignedTasks() {
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 										</tr>  
 									))
 								) : isError || ListAssignedTask?.length == 0 ? (
 									<tr>
-										<td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
+										<td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
 											{ error?.message ?? tCommon('no_results') } 
 										</td>
 									</tr>
 								) : (
-									ListAssignedTask.map((item: PendingApprovalResponse, idx: number) => {
-
+									ListAssignedTask.map((item: any, idx: number) => {
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
-												<td className="px-4 py-2 border whitespace-nowrap text-left">
+												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
 														{item?.code}
 													</Link>
 												</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestTypeName : item?.requestTypeNameE}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">--</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreatedForm}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreated}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.historyApplicationForm?.userNameApproval ? item?.historyApplicationForm?.userNameApproval : '--'}</td>
 												<td className="px-4 py-2 border text-center">
 													<StatusLeaveRequest status="Pending"/>
 												</td>

@@ -63,7 +63,7 @@ const approvalApi = {
         return axiosClient.post(`/approval/approval`, data)
     },
     GetListHistoryApprovalOrProcessed(params: ListHistoryApprovalOrProcessedRequest) {
-        return axiosClient.get('/approval/list-history-approval-or-processed', {params})
+        return axiosClient.get('/approval/list-history-approval', {params})
     },
     GetListAssigned(params: IListAssigned) {
         return axiosClient.get('/approval/list-assigned', {params})

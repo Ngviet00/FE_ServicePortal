@@ -34,7 +34,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 	},
 	{
 		key: "HR",
-		label: "HR",
+		label: "Admin HR",
 		icon: Users,
 		children: [
 			{ label: "sidebar.hr.type_leave", route: "/type-leave" },
@@ -62,32 +62,32 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			// { label: "sidebar.leave_request.statistical", route: "/leave/statistical" },
 			// { label: "Tăng ca", route: "/ot/create" },
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
-			// { label: "sidebar.leave_request.list_leave", route: "/leave" },
+			{ label: "sidebar.leave_request.over_time", route: "/overtime" },
 			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 		],
 	},
-	{
-		key: "IT",
-		label: "sidebar.IT.title",
-		icon: Computer,
-		children: [
-			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
-			{ label: "sidebar.IT.create", route: "/form-it/create" },
-			// { label: "sidebar.IT.list", route: "/form-it" },
-			// { label: "sidebar.IT.setting", route: "/form-it/setting" },
-		],
-	},
-	{
-		key: "Purchase",
-		label: "sidebar.purchase.title",
-		icon: WalletCards,
-		children: [
-			{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
-			{ label: "sidebar.purchase.create", route: "/purchase/create" },
-			// { label: "sidebar.purchase.list", route: "/purchase" }
-		],
-	},
+	// {
+	// 	key: "IT",
+	// 	label: "sidebar.IT.title",
+	// 	icon: Computer,
+	// 	children: [
+	// 		{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
+	// 		{ label: "sidebar.IT.create", route: "/form-it/create" },
+	// 		// { label: "sidebar.IT.list", route: "/form-it" },
+	// 		// { label: "sidebar.IT.setting", route: "/form-it/setting" },
+	// 	],
+	// },
+	// {
+	// 	key: "Purchase",
+	// 	label: "sidebar.purchase.title",
+	// 	icon: WalletCards,
+	// 	children: [
+	// 		{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
+	// 		{ label: "sidebar.purchase.create", route: "/purchase/create" },
+	// 		// { label: "sidebar.purchase.list", route: "/purchase" }
+	// 	],
+	// },
 	{
 		key: "approval",
 		label: "sidebar.approval.title",
@@ -96,8 +96,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.approval.pending_approval", route: "/approval/pending-approval" },
 			{ label: "sidebar.approval.assigned", route: "/approval/assigned-tasks" },
 			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
-			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
-			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
+			{ label: "sidebar.approval.resolved", route: "/approval/resolved" },
 		],
 	}
 ];

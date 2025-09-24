@@ -75,7 +75,7 @@
 			"title": "Nhân sự",
 			"create_leave": "Nghỉ phép, đi trễ về sớm",
 			"create_leave_for_others" : "Tăng ca",
-			"list_leave": "Danh sách nghỉ phép đã tạo",
+			"over_time": "Tăng ca",
 			"time_keeping": "Chấm công",
 			"mng_time_keeping": "Quản lý chấm công"
 		},
@@ -96,7 +96,8 @@
 			"title": "Phê duyệt",
 			"pending_approval": "Chờ duyệt",
 			"assigned": "Được giao",
-			"history_approval": "Đã duyệt/xử lý xong"
+			"history_approval": "Lịch sử duyệt",
+			"resolved": "Đã xử lý xong"
 		}
 	},
 

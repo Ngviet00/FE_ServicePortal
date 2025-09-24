@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from '@/api/approvalApi';
-import { IRequestStatus } from '@/api/itFormApi';
 import requestTypeApi, { IRequestType } from '@/api/requestTypeApi';
 import PaginationControl from '@/components/PaginationControl/PaginationControl';
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
@@ -12,33 +12,20 @@ import { formatDate } from 'date-fns';
 import React, { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import orgUnitApi, { OrgUnit } from '@/api/orgUnitApi';
 
-interface HistoryApprovalProcessedResponse {
-	id?: string,
-	code?: string,
-	action?: string,
-	approvedAt?: string,
-	requestType?: IRequestType,
-	requestStatus?: IRequestStatus,
-	orgUnit?: OrgUnit,
-	userCodeRequestor?: string
-	userNameRequestor?: string
-}
-
-function GetUrlDetailWaitApproval(item: HistoryApprovalProcessedResponse) {
+function GetUrlDetailWaitApproval(item: any) {
 	let result = ''
 
-	if (item?.requestType?.id == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/view-leave-request/${item?.id ?? '-1'}`
+	if (item?.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = `/approval/view-leave-request/${item?.code ?? '-1'}`
 	}
-	else if (item?.requestType?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/view-memo-notify/${item?.id ?? '1'}`
+	else if (item?.requestTypeId?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/approval/view-memo-notify/${item?.code ?? '1'}`
 	}
-	else if (item?.requestType?.id == REQUEST_TYPE.FORM_IT) {
+	else if (item?.requestTypeId == REQUEST_TYPE.FORM_IT) {
 		result = `/approval/view-form-it/${item?.id ?? '1'}`
 	}
-	else if (item?.requestType?.id == REQUEST_TYPE.PURCHASE) {
+	else if (item?.requestTypeId == REQUEST_TYPE.PURCHASE) {
 		result = `/approval/view-purchase/${item?.id ?? '1'}`
 	}
 
@@ -54,7 +41,6 @@ const ApprovalHistory: React.FC = () => {
 	const [pageSize, setPageSize] = useState(10)
 	const [totalPage, setTotalPage] = useState(0)
 	const { user } = useAuthStore()
-	const [selectedDepartment, setSelectedDepartment] = useState('')
 	const [selectedStatus, setSelectedStatus] = useState('')
 
 	const { data: requestTypes = []} = useQuery({
@@ -74,14 +60,13 @@ const ApprovalHistory: React.FC = () => {
 	}
 
 	const { data: ListHistoryApprovalsProcessed = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-list-history-approval-processed', page, pageSize, requestType, selectedStatus, selectedDepartment],
+        queryKey: ['get-list-history-approval-processed', page, pageSize, requestType, selectedStatus],
         queryFn: async () => {
             const res = await approvalApi.GetListHistoryApprovalOrProcessed({
                 Page: page,
                 PageSize: pageSize,
 				UserCode: user?.userCode,
 				RequestTypeId: requestType == '' ? null : Number(requestType),
-				DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
 				Status: selectedStatus == '' ? null : Number(selectedStatus),
             });
 			setTotalPage(res.data.total_pages)
@@ -98,23 +83,10 @@ const ApprovalHistory: React.FC = () => {
         setPageSize(size)
     }
 
-	const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
-        setPage(1)
-        setSelectedDepartment(e.target.value)
-    }
-
 	const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
         setPage(1)
         setSelectedStatus(e.target.value)
     }
-
-	const { data: departments = [] } = useQuery({
-		queryKey: ['get-all-department'],
-		queryFn: async () => {
-			const res = await orgUnitApi.GetAllDepartment()
-			return res.data.data
-		}
-	});
 		
 	return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
@@ -136,21 +108,7 @@ const ApprovalHistory: React.FC = () => {
 						}
 					</select>
 				</div>
-
 				<div className="w-[12%] mx-5">
-					<Label className="mb-2">{t('history_approval_processed.department')}</Label>
-					<select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
-						<option value="">
-							{ lang == 'vi' ? 'Tất cả' : 'All' }
-						</option>
-						{
-							departments.map((item: { id: number, name: string }, idx: number) => (
-								<option key={idx} value={item.id}>{item.name}</option>
-							))
-						}
-					</select>
-				</div>
-				<div className="w-[12%]">
 					<Label className="mb-2">{t('history_approval_processed.status')}</Label>
 					<select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
 						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
@@ -174,7 +132,6 @@ const ApprovalHistory: React.FC = () => {
 								<th className="px-4 py-2 border">{t('history_approval_processed.code')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.request_type')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.user_request')}</th>
-								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.department')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.approval_at')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.action')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.result')}</th>
@@ -191,18 +148,17 @@ const ApprovalHistory: React.FC = () => {
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[50px] bg-gray-300" /></div></td>
 										</tr>
 									))
 								) : isError || ListHistoryApprovalsProcessed?.length == 0 ? (
 									<tr>
-										<td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
+										<td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
 											{ error?.message ?? tCommon('no_results') } 
 										</td>
 									</tr>
 								) : (
-									ListHistoryApprovalsProcessed.map((item: HistoryApprovalProcessedResponse, idx: number) => {
-										const reqStatusId = item?.requestStatus?.id
+									ListHistoryApprovalsProcessed.map((item: any, idx: number) => {
+										const reqStatusId = item?.requestStatusId
 
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
@@ -211,12 +167,11 @@ const ApprovalHistory: React.FC = () => {
 														{item?.code}
 													</Link>
 												</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameRequestor}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.orgUnit?.name}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.approvedAt ? formatDate(item?.approvedAt, "yyyy/MM/dd HH:mm:ss") : '--'}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestTypeName : item?.requestTypeNameE}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreatedForm}</td>
+												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.actionAt ? formatDate(item?.actionAt, "yyyy/MM/dd HH:mm:ss") : '--'}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
-													{ item.action }
+													{ item?.action }
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													<StatusLeaveRequest status={

@@ -134,7 +134,7 @@ function App() {
 		{ path: "/approval/view-memo-notify/:id", element: <ViewOnlyMemoNotification />},
 
 		{ path: "/approval/approval-leave-request/:id", element: <DetailWaitApprovalLeaveRq />},
-		// { path: "/approval/view-leave-request/:id", element: <ViewOnlyLeaveRq />},
+		{ path: "/approval/view-leave-request/:id", element: <ViewOnlyLeaveRq />},
 
 		{ path: "/approval/approval-form-it/:id", element: <DetailWaitApprovalFormIT />},
 		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
