@@ -24,13 +24,15 @@ export interface IGetAllTeam {
 }
 
 const orgUnitApi = {
+    getUnitCompany() {
+        return axiosClient.get('/org-unit/get-unit-company')
+    },
     CreateOrUpdate(data: OrgUnit) {
         return axiosClient.post('/org-unit/save-or-update', data)
     },
     GetAllDepartment() {
         return axiosClient.get('/org-unit/get-all-departments')
     },
-
     GetTeamByDeptIdAndUserNotSetOrgPositionId(departmentId: number) {
         return axiosClient.get(`/org-unit/get-team-by-department-id-and-user-not-set-org-position-id-by-department-name?departmentId=${departmentId}`)
     },

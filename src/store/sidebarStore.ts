@@ -19,7 +19,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 	},
 	{
 		key: "Admin",
-		label: "Admin",
+		label: "SuperAdmin",
 		icon: LockKeyhole,
 		children: [
 			{ label: "sidebar.admin.role", route: "/role" },
@@ -59,10 +59,10 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		label: "sidebar.leave_request.title",
 		icon: Ticket,
 		children: [
-			// { label: "sidebar.leave_request.statistical", route: "/leave/statistical" },
-			// { label: "Tăng ca", route: "/ot/create" },
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
-			{ label: "sidebar.leave_request.over_time", route: "/overtime" },
+			{ label: "sidebar.leave_request.over_time", route: "/overtime/create" },
+			{ label: "sidebar.leave_request.missing_attendace_data", route: "/missing-attendace-data/create" },
+			{ label: "sidebar.leave_request.internal_memo_hr", route: "/internal-hr/create" },
 			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 		],

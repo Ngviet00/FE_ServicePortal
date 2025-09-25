@@ -76,6 +76,8 @@
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
 			"overtime": "Overtime",
+			"missing_attendace_data": "Miss attendance data",
+			"internal_memo_hr": "Internal memo HR",
 			"time_keeping": "Timekeeping",
 			"mng_time_keeping": "Manage timekeeping"
 		},

@@ -55,6 +55,8 @@ import ViewOnlyFormPurchase from '@/features/Purchasing/ViewOnlyFormPurchase';
 import StatisticalLeaveRqForm from '@/features/Leave/StatisticalLeaveRqForm';
 import AllFormLeaveRequest from '@/features/Leave/AllFormLeaveRequest';
 import ListLeaveRequestRegistered from '@/features/Leave/ListLeaveRequestRegistered';
+import CreateOverTime from '@/features/Overtime/CreateOverTime';
+import ListMyOverTime from '@/features/Overtime/ListMyOverTime';
 
 function App() {
 	const location = useLocation();
@@ -104,6 +106,9 @@ function App() {
 		{ path: "/leave/edit/:id", element: <LeaveRequestFormForOthers/> },
 		{ path: "/leave/leave-registered", element: <ListLeaveRequestRegistered/> },
 		{ path: "/leave/view/:id", element: <ViewOnlyLeaveRq/> },
+
+		{ path: "/overtime", element: <ListMyOverTime/> },
+		{ path: "/overtime/create", element: <CreateOverTime/> },
 
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']

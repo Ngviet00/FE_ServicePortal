@@ -11,9 +11,10 @@ interface DateTimePickerProps {
     className?: string,
     initialDateTime?: string; // default ISO string
     onChange?: (selectedDates: Date[], dateStr: string, instance: flatpickr.Instance) => void;
+    placeHolder?: string
 }
 
-const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enableTime = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange }) => {
+const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enableTime = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange, placeHolder }) => {
     const lang = useTranslation().i18n.language.split('-')[0]
     const inputRef = useRef<HTMLInputElement>(null);
     const fpInstance = useRef<flatpickr.Instance | null>(null);
@@ -51,7 +52,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enabl
                 fpInstance.current.destroy();
             }
         };
-    }, [dateFormat, enableTime, initialDateTime, onChange]);
+    }, [dateFormat, enableTime, initialDateTime, lang, onChange]);
 
     return (
         <>
@@ -63,6 +64,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enabl
                 ref={inputRef}
                 value={selectedDateTime || ''}
                 readOnly 
+                placeholder={placeHolder}
             />
         </>
     );

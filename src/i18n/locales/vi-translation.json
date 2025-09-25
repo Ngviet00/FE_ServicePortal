@@ -76,6 +76,8 @@
 			"create_leave": "Nghỉ phép, đi trễ về sớm",
 			"create_leave_for_others" : "Tăng ca",
 			"over_time": "Tăng ca",
+			"missing_attendace_data": "Quên chấm công",
+			"internal_memo_hr": "Nội bộ HR",
 			"time_keeping": "Chấm công",
 			"mng_time_keeping": "Quản lý chấm công"
 		},

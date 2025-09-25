@@ -14,10 +14,10 @@ interface RadioGroupProps {
 
 const RadioGroup: React.FC<RadioGroupProps> = ({ label, options, value, onChange }) => {
     return (
-        <div className="flex flex-col space-y-2">
-            {label && <span className="font-semibold">{label}</span>}
+        <div className="flex items-center space-y-2">
+            {label && <span className="font-semibold mb-0 mr-4">{label}: </span>}
                 {options.map((option) => (
-                    <div key={option.value} className="flex items-center space-x-2">
+                    <div key={option.value} className="flex items-center space-x-2 mb-0 mr-3">
                         <input
                             type="radio"
                             id={`radio-${option.value}`}
