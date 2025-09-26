@@ -1,0 +1,46 @@
+{
+    "overtime": {
+        "list": {
+            "title": "My overtime",
+            "button_link_page_register": "Overtime register",
+            "status": "Status",
+            "code": "Code",
+            "usercode": "UserCode",
+            "username": "UserName",
+            "position": "Position",
+            "date_register": "Date register",
+            "type_overtime": "Type overtime",
+            "from_hour": "From hour",
+            "to_hour": "To hour",
+            "number_hour": "Number hour",
+            "note": "Note",
+            "created_at": "Created at",
+            "unit": "Unit",
+            "department": "Department",
+            "title_view": "Detail overtime"
+        },
+        "list_register": {
+            "title": "List overtime register",
+            "status": "Status",
+            "code": "Code",
+            "request_type": "Request type",
+            "created_by": "Created by",
+            "created_at": "Created at",
+            "action": "Action"
+        },
+        "create": {
+            "title_create": "Tạo đơn tăng ca",
+            "title_update": "Cập nhật tăng ca",
+            "add": "Thêm",
+            "delete": "Xóa",
+            "save": "Đăng ký",
+            "update": "Cập nhật"
+        }
+    },
+    "miss_attendance_data": {
+
+    },
+    "internal_memo_hr": {
+
+    }
+}

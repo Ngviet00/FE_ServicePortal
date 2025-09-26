@@ -1,0 +1,46 @@
+{
+    "overtime": {
+        "list": {
+            "title": "Danh sách tăng ca của tôi",
+            "button_link_page_register": "Danh sách tăng ca đã đăng ký",
+            "status": "Trạng thái",
+            "code": "Mã đơn",
+            "usercode": "Mã NV",
+            "username": "Họ tên",
+            "position": "Chức vụ",
+            "date_register": "Ngày đăng ký",
+            "type_overtime": "Loại tăng ca",
+            "from_hour": "Từ giờ",
+            "to_hour": "Đến giờ",
+            "number_hour": "Số giờ",
+            "created_at": "Tạo lúc",
+            "note": "Ghi chú",
+            "unit": "Đơn vị",
+            "department": "Bộ phận",
+            "title_view": "Chi tiết đơn tăng ca"
+        },
+        "list_register": {
+            "title": "Danh sách tăng ca đã đăng ký",
+            "status": "Trạng thái",
+            "code": "Mã đơn",
+            "request_type": "Loại đơn",
+            "created_by": "Người tạo",
+            "created_at": "Thời gian tạo",
+            "action": "Hành động"
+        },
+        "create": {
+            "title_create": "Tạo đơn tăng ca",
+            "title_update": "Cập nhật tăng ca",
+            "add": "Thêm",
+            "delete": "Xóa",
+            "save": "Đăng ký",
+            "update": "Cập nhật"
+        }
+    },
+    "miss_attendance_data": {
+
+    },
+    "internal_memo_hr": {
+        
+    }
+}

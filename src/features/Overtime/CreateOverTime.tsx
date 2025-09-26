@@ -10,24 +10,26 @@ import RadioGroup, { RadioOption } from "@/components/RadioGroup";
 import ExcelUploader from "@/components/ExcelUploader";
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import orgUnitApi from "@/api/orgUnitApi";
-import overTimeApi from "@/api/overTimeApi";
+import overTimeApi, { useCreateOverTime, useUpdateOverTime } from "@/api/overTimeApi";
 import { useEffect, useRef, useState } from "react";
 import FullscreenLoader from "@/components/FullscreenLoader";
 import DotRequireComponent from "@/components/DotRequireComponent";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function CreateOverTime() {
+    const { t } = useTranslation('hr')
     const lang = useTranslation().i18n.language.split('-')[0]
     const user = useAuthStore((state) => state.user)
     const navigate = useNavigate()
     const lastUserCodesRef = useRef<Record<number, string>>({})
-    const tLocal = dict[lang as keyof typeof dict] || dict.en;
-
-    const [unitId, setUnitId] = useState<number | null>(null);
     const [typeOvertimeId, setTypeOvertimeId] = useState<number | null>(null);
+    const [orgUnitCompanyId, setOrgUnitCompanyId] = useState<number | null>(null);
     const [departmentId, setDepartmentId] = useState<number | null>(null);
     const [registerDate, setRegisterDate] = useState<string>("");
     const [isSearchingUser, setIsSearchingUser] = useState(false)
     const [errorFields, setErrorFields] = useState<{ [key: string]: string[] }>({});
+    const createOverTime = useCreateOverTime();
+    const updateOverTime = useUpdateOverTime();
     
     const [selectedRadio, setSelectedRadio] = useState<string>("normal")
     const options: RadioOption[] = [
@@ -38,6 +40,36 @@ export default function CreateOverTime() {
     
     const { id } = useParams<{ id: string }>();
     const isEdit = !!id;
+
+    const { data: formDataDetail, isLoading: isFormDataLoading } = useQuery({
+        queryKey: ['overtime', id],
+        queryFn: async () => {
+            const res = await overTimeApi.getDetailOverTime(id ?? '');
+            return res.data.data;
+        },
+        enabled: isEdit,
+    });
+
+    useEffect(() => {
+        if (formDataDetail && isEdit) {
+            const mappedRows = formDataDetail.overTimes.map((ot: any) => ({
+                id: `${ot.id}`,
+                userCode: ot.userCode ?? '',
+                userName: ot.userName ?? '',
+                position: ot.position ?? '',
+                fromHour: ot.fromHour ?? '',
+                toHour: ot.toHour ?? '',
+                numberHour: ot.numberHour ?? '',
+                note: ot.note ?? '',
+                checked: false,
+            }));
+            setRows(mappedRows);
+            setOrgUnitCompanyId(formDataDetail?.applicationForm?.orgUnitCompany?.id)
+            setTypeOvertimeId(formDataDetail?.applicationForm?.typeOverTime?.id)
+            setDepartmentId(formDataDetail?.applicationForm?.orgUnit?.id)
+            setRegisterDate(formDataDetail?.applicationForm?.dateRegister)
+        }
+    }, [formDataDetail, isEdit]);
     
     const { data: unitCompanys = [] } = useQuery({ queryKey: ['get-unit-company'], queryFn: async () => { const res = await orgUnitApi.getUnitCompany(); return res.data.data; }, });
     const { data: typeOverTimes = [] } = useQuery({ queryKey: ['get-type-overtimes'], queryFn: async () => { const res = await overTimeApi.getTypeOverTime(); return res.data.data; }, });
@@ -47,21 +79,29 @@ export default function CreateOverTime() {
 
     useEffect(() => {
         if (mode == "create") {
-            if (unitCompanys.length > 0) {
-                setUnitId(unitCompanys[0].id);
-            }
-            if (typeOverTimes.length > 0) {
-                setTypeOvertimeId(typeOverTimes[0].id);
-            }
-            if (!registerDate) {
-                setRegisterDate(new Date().toISOString().split("T")[0]);
-            }
+            setRows([
+                {
+                    id: `ot_${Date.now()}`,
+                    userCode: '',
+                    userName: '',
+                    position: '',
+                    fromHour: '',
+                    toHour: '',
+                    numberHour: '',
+                    note: '',
+                    checked: false,
+                }
+            ]);
+            setOrgUnitCompanyId(unitCompanys.length > 0 ? unitCompanys[0].id : null);
+            setTypeOvertimeId(typeOverTimes.length > 0 ? typeOverTimes[0].id : null);
+            setDepartmentId(null);
+            setRegisterDate(new Date().toISOString().split("T")[0]);
         }
     }, [mode, registerDate, typeOverTimes, unitCompanys]);
     
     const handleFormSubmitByExcel = async (file: File) => {
         if (departmentId == null) {
-            ShowToast(tLocal.select_department, 'error')
+            ShowToast(lang == 'vi' ? 'Vui lòng chọn bộ phận' : 'Please select department', 'error')
             return false
         }
 
@@ -70,17 +110,16 @@ export default function CreateOverTime() {
         formData.append("OrgPositionId", String(user?.orgPositionId ?? ""));
         formData.append("UserCodeCreated", user?.userCode ?? "");
         formData.append("UserNameCreated", user?.userName ?? "");
-        formData.append("OrgUnitCompanyId", String(unitId));
+        formData.append("OrgUnitCompanyId", String(orgUnitCompanyId));
         formData.append("TypeOverTimeId", String(typeOvertimeId));
         formData.append("DateRegisterOT", String(registerDate));
         formData.append("DepartmentId", String(departmentId))
         formData.append("file", file)
 
         try {
-            await overTimeApi.create(formData);
-            ShowToast("Success", "success")
+            await createOverTime.mutateAsync(formData)
+            navigate("/overtime/overtime-registered");
             return true
-
         } catch (err) {
             ShowToast(getErrorMessage(err), "error")
             return false
@@ -119,7 +158,7 @@ export default function CreateOverTime() {
 
     const handleDeleteRows = () => {
         if (selectedIds.length === 0) {
-            ShowToast(tLocal.choose_delete, 'error');
+            ShowToast(lang == 'vi' ? 'Vui lòng chọn mục cần xóa' : 'Please choose item to delete', 'error');
             return;
         }
         setErrorMsg('');
@@ -139,12 +178,12 @@ export default function CreateOverTime() {
 
     const handleSubmit = async () => {
         if (departmentId == null) {
-            ShowToast(tLocal.select_department, 'error')
+            ShowToast(lang == 'vi' ? 'Vui lòng chọn bộ phận' : 'Please select department', 'error')
             return
         }
 
         if (rows.length <= 0) {
-            ShowToast(tLocal.select_least_one_person, 'error')
+            ShowToast(lang == 'vi' ? 'Vui lòng chọn ít nhất 1 người' : 'Please select at least 1 person', 'error')
             return
         }
 
@@ -168,48 +207,53 @@ export default function CreateOverTime() {
 
         if (hasError) {
             setErrorFields(newErrors);
-            ShowToast(tLocal.required, 'error');
+            ShowToast(lang == 'vi' ? 'Chưa nhập đủ dữ liệu' : 'Missing required data', 'error');
             return;
         }
 
         setErrorFields({});
 
-        if (isEdit) {
-            console.log(isEdit);
-        } else {
-            const formData = new FormData()
-            formData.append("EmailCreated", user?.email ?? "");
-            formData.append("OrgPositionId", String(user?.orgPositionId ?? ""));
-            formData.append("UserCodeCreated", user?.userCode ?? "");
-            formData.append("UserNameCreated", user?.userName ?? "");
-            formData.append("OrgUnitCompanyId", String(unitId));
-            formData.append("TypeOverTimeId", String(typeOvertimeId));
-            formData.append("DateRegisterOT", String(registerDate));
-            formData.append("DepartmentId", String(departmentId))
+        const formData = new FormData()
 
-            rows.map((data: any, index: number) => {
-                formData.append(`CreateListOverTimeRequests[${index}].UserCode`, data.userCode ?? "");
-                formData.append(`CreateListOverTimeRequests[${index}].UserName`, data.userName ?? "");
-                formData.append(`CreateListOverTimeRequests[${index}].Position`, data.position ?? "");
-                formData.append(`CreateListOverTimeRequests[${index}].FromHour`, data.fromHour );
-                formData.append(`CreateListOverTimeRequests[${index}].ToHour`, data.toHour);
-                formData.append(`CreateListOverTimeRequests[${index}].NumberHour`, data.numberHour ?? "");
-                formData.append(`CreateListOverTimeRequests[${index}].Note`, data.note ?? "");
-            })
+        formData.append("EmailCreated", user?.email ?? "");
+        formData.append("OrgPositionId", String(user?.orgPositionId ?? ""))
+        formData.append("UserCodeCreated", user?.userCode ?? "")
+        formData.append("UserNameCreated", user?.userName ?? "")
+        formData.append("OrgUnitCompanyId", String(orgUnitCompanyId))
+        formData.append("TypeOverTimeId", String(typeOvertimeId))
+        formData.append("DateRegisterOT", String(registerDate))
+        formData.append("DepartmentId", String(departmentId))
 
-            try {
-                await overTimeApi.create(formData);
-                ShowToast("Success", "success")
-                return true
-
-            } catch (err) {
-                ShowToast(getErrorMessage(err), "error")
-                return false
+        rows.map((data: any, index: number) => {
+            if (!data?.id.startsWith("ot")) {
+                formData.append(`CreateListOverTimeRequests[${index}].Id`, data?.id ?? '-1');
             }
+            formData.append(`CreateListOverTimeRequests[${index}].UserCode`, data.userCode ?? "");
+            formData.append(`CreateListOverTimeRequests[${index}].UserName`, data.userName ?? "");
+            formData.append(`CreateListOverTimeRequests[${index}].Position`, data.position ?? "");
+            formData.append(`CreateListOverTimeRequests[${index}].FromHour`, data.fromHour );
+            formData.append(`CreateListOverTimeRequests[${index}].ToHour`, data.toHour);
+            formData.append(`CreateListOverTimeRequests[${index}].NumberHour`, data.numberHour ?? "");
+            formData.append(`CreateListOverTimeRequests[${index}].Note`, data.note ?? "");
+        })
+
+
+        try {
+            if (isEdit) {   
+                await updateOverTime.mutateAsync({applicationFormCode: id, data: formData})
+            } else {
+                await createOverTime.mutateAsync(formData)
+            }
+            navigate("/overtime/overtime-registered");
+        }
+        catch (err) {
+            console.log(err);
         }
     }
 
     const handleFindUser = async (userCode: string, index: number) => {
+        userCode = userCode.trim()
+
         if (userCode == '') {
             setRows(rows.map(row => row.id === index ? { ...row, userName: '', userCode: '' } : row));
             lastUserCodesRef.current[index] = '';
@@ -235,6 +279,10 @@ export default function CreateOverTime() {
         }
     }
 
+    if (isEdit && isFormDataLoading) {
+        return <div>{lang == 'vi' ? 'Loading' : 'Đang tải'}...</div>;
+    }
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
             {
@@ -244,7 +292,7 @@ export default function CreateOverTime() {
                 <div className="flex flex-col gap-2">
                     <div className="flex">
                         <h3 className="font-bold text-xl md:text-2xl">
-                            <span>{ mode == 'create' ? tLocal.title_create : tLocal.title_update } </span>
+                            <span>{ mode == 'create' ? t('overtime.create.title_create') : t('overtime.create.title_update') } </span>
                         </h3>
                     </div>
                 </div>
@@ -275,12 +323,12 @@ export default function CreateOverTime() {
             }
             <div className="flex flex-col md:flex-row md:justify-start mb-0">
                 <div className="mb-4 mr-15">
-                    <label className="block mb-2 font-semibold text-gray-700">{tLocal.unit_require} <DotRequireComponent/></label>
+                    <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.unit')} <DotRequireComponent/></label>
                     <div className="flex space-x-4">
                         {
-                            unitCompanys?.map((item: any, idx: number) => (
+                            unitCompanys?.map((item: any) => (
                                 <label key={item?.id} className="flex items-center space-x-2 cursor-pointer">
-                                    <input type="radio" className="accent-black cursor-pointer" name="unit" value={item?.id} defaultChecked={idx == 0} onChange={() => setUnitId(item.id)} />
+                                    <input type="radio" className="accent-black cursor-pointer" name="unit" checked={orgUnitCompanyId === item.id} value={item?.id} onChange={() => setOrgUnitCompanyId(item.id)} />
                                     <span>{item?.name}</span>
                                 </label>
                             ))
@@ -289,13 +337,13 @@ export default function CreateOverTime() {
                 </div>
 
                 <div className="mb-4 mr-15">
-                    <label className="block mb-2 font-semibold text-gray-700">{tLocal.type_overtime} <DotRequireComponent/></label>
+                    <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.type_overtime')} <DotRequireComponent/></label>
                     <div className="flex space-x-4">
                         {
-                            typeOverTimes?.map((item: any, idx: number) => {
+                            typeOverTimes?.map((item: any) => {
                                 return (
                                     <label key={item?.id} className="flex items-center space-x-2 cursor-pointer">
-                                        <input type="radio" className="accent-black cursor-pointer" name="type_overtime" value="Normal" defaultChecked={idx == 0} onChange={() => setTypeOvertimeId(item.id)} />
+                                        <input type="radio" className="accent-black cursor-pointer" name="type_overtime" value={item?.id} checked={typeOvertimeId === item.id} onChange={() => setTypeOvertimeId(item.id)} />
                                         <span>{lang == 'vi' ? item?.name : item?.nameE}</span>
                                     </label>
                                 )
@@ -306,7 +354,7 @@ export default function CreateOverTime() {
 
                 <div className="flex flex-col md:flex-row md:space-x-8 items-start mt-4 md:mt-0">
                     <div className="mb-4 md:mb-0">
-                        <label className="block mb-2 font-semibold text-gray-700">{tLocal.date_register} <DotRequireComponent/></label>
+                        <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.date_register')} <DotRequireComponent/></label>
                         <DateTimePicker
                             enableTime={false}
                             dateFormat="Y-m-d"
@@ -319,17 +367,17 @@ export default function CreateOverTime() {
                     </div>
 
                     <div>
-                        <label className="block mb-2 font-semibold text-gray-700">{tLocal.department} <DotRequireComponent/></label>
+                        <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.department')} <DotRequireComponent/></label>
                         <select
                             onChange={(e) => setDepartmentId(Number(e.target.value))}
                             className="border cursor-pointer border-gray-300 rounded px-3 py-1"
-                            defaultValue=""
+                            value={departmentId ?? ''}
                         >
-                            <option value="">--{tLocal.select}--</option>
+                            <option value="">--{lang == 'vi' ? 'Chọn' : 'Select'}--</option>
                             {
                                 departments?.map((item: any, idx: number) => {
                                     return (
-                                        <option key={idx} value={item?.id}>{item?.name}</option>
+                                        <option key={idx} value={item?.id ?? ''}>{item?.name}</option>
                                     )
                                 })
                             }
@@ -343,12 +391,24 @@ export default function CreateOverTime() {
                         <div className="bg-white">
                             {errorMsg && <div className="mb-4 text-red-600 font-semibold">{errorMsg}</div>}
                             <div className="flex space-x-2 mb-4">
-                                <button type="button" onClick={handleAddRow} className="px-2 py-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">{tLocal.add}</button>
-                                <button type="button" onClick={handleDeleteRows} className="px-2 py-1 bg-red-600 cursor-pointer text-white text-sm rounded hover:bg-red-600">{tLocal.delete}</button>
+                                <button type="button" onClick={handleAddRow} className="px-2 py-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">{t('overtime.create.add')}</button>
+                                <button type="button" onClick={handleDeleteRows} className="px-2 py-1 bg-red-600 cursor-pointer text-white text-sm rounded hover:bg-red-600">{t('overtime.create.delete')}</button>
                                 {
-                                    selectedIds.length == 0 && (
-                                        <button type="button" onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">{tLocal.register}</button>
-                                    )
+                                    selectedIds.length == 0 ? (
+                                        <>
+                                            {
+                                                isEdit ? (
+                                                    <button type="button" disabled={updateOverTime.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                                                        {updateOverTime.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.update')}
+                                                    </button>
+                                                ) : (
+                                                    <button type="button" disabled={createOverTime.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                                                        {createOverTime.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.save')}
+                                                    </button>
+                                                )
+                                            }
+                                        </>
+                                    ) : (<></>)
                                 }
                             </div>
                             
@@ -370,13 +430,13 @@ export default function CreateOverTime() {
                                                     }}
                                                 />
                                             </th>
-                                            <th className="px-4 py-2 border">{tLocal.userCode} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-[350px]">{tLocal.userName} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border">{tLocal.position} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40">{tLocal.fromHour} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40">{tLocal.toHour} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40 text-center">{tLocal.numberHour} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border">{tLocal.note}</th>
+                                            <th className="px-4 py-2 border">{ t('overtime.list.usercode')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border w-[350px]">{t('overtime.list.username')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border">{t('overtime.list.position')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border w-40">{t('overtime.list.from_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border w-40">{t('overtime.list.to_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border w-40 text-center">{t('overtime.list.number_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border">{t('overtime.list.note')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -397,7 +457,7 @@ export default function CreateOverTime() {
                                                         value={row.userCode ?? ''}
                                                         onChange={(e) => updateRow(row.id, 'userCode', e.target.value)}
                                                         onBlur={(e) => handleFindUser(e.target.value, row.id)}
-                                                        placeholder={tLocal.userCode}
+                                                        placeholder={t('overtime.list.usercode')}
                                                     />
                                                 </td>
                                                 <td className={`border rounded px-2 py-1 text-center`}>{row.userName || '--'}</td> 
@@ -407,7 +467,7 @@ export default function CreateOverTime() {
                                                         className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('position') ? 'border-red-500' : '' }`}
                                                         value={row.position}
                                                         onChange={(e) => updateRow(row.id, 'position', e.target.value)}
-                                                        placeholder={tLocal.position}
+                                                        placeholder={t('overtime.list.position')}
                                                     />
                                                 </td>
                                                 
@@ -422,7 +482,7 @@ export default function CreateOverTime() {
                                                                 updateRow(row.id, 'fromHour', val);
                                                             }
                                                         }}
-                                                        placeholder={tLocal.fromHour}
+                                                        placeholder={t('overtime.list.from_hour')}
                                                         inputMode="numeric"
                                                         pattern="^\d{1,2}(:\d{1,2})?$"
                                                     />
@@ -439,7 +499,7 @@ export default function CreateOverTime() {
                                                                 updateRow(row.id, 'toHour', val);
                                                             }
                                                         }}
-                                                        placeholder={tLocal.toHour}
+                                                        placeholder={t('overtime.list.to_hour')}
                                                         inputMode="numeric"
                                                         pattern="^\d{1,2}(:\d{1,2})?$"
                                                     />
@@ -456,7 +516,7 @@ export default function CreateOverTime() {
                                                                 updateRow(row.id, 'numberHour', e.target.value)
                                                             }
                                                         }}
-                                                        placeholder={tLocal.numberHour}
+                                                        placeholder={t('overtime.list.number_hour')}
                                                         inputMode="decimal"
                                                         pattern="^\d+([.,]\d{1})?$"
                                                     />
@@ -468,7 +528,7 @@ export default function CreateOverTime() {
                                                         className="border rounded px-2 py-1 w-full"
                                                         value={row.note}
                                                         onChange={(e) => updateRow(row.id, 'note', e.target.value)}
-                                                        placeholder={tLocal.note}
+                                                        placeholder={t('overtime.list.note')}
                                                     />
                                                 </td>
                                             </tr>
@@ -487,55 +547,4 @@ export default function CreateOverTime() {
             }
         </div>
     );
-}
-
-const dict = {
-    vi: {
-        required: 'Chưa nhập đủ dữ liệu',
-        select_least_one_person: 'Vui lòng chọn ít nhất 1 người',
-        choose_delete: 'Vui lòng chọn mục cần xóa',
-        select_department: 'Vui lòng chọn phòng ban',
-        title_create: 'Đơn xin tăng ca',
-        title_update: 'Cập nhật đơn xin tăng ca',
-        unit_require: 'Đơn vị yêu cầu',
-        type_overtime: 'Loại tăng ca',
-        date_register: 'Ngày đăng ký tăng ca',
-        department: 'Bộ phận',
-        select: 'Chọn',
-        add: 'Thêm',
-        delete: 'Xóa',
-        register: 'Đăng ký',
-        userCode: 'Mã nhân viên',
-        userName: 'Họ tên',
-        position: 'Chức vụ',
-        fromHour: 'Từ giờ',
-        toHour: 'Đến giờ',
-        numberHour: 'Số giờ',
-        note: 'Ghi chú',
-        loading: 'Đang tải',
-    },
-    en: {
-        required: 'Missing required data',
-        select_least_one_person: 'Please select at least 1 person',
-        choose_delete: 'Please choose item to delete',
-        select_department: 'Please select department',
-        title_create: 'Create overtime',
-        title_update: 'Update overtime',
-        unit_require: 'Unit required',
-        type_overtime: 'Type overtime',
-        date_register: 'Date register',
-        department: 'Department',
-        select: 'Select',
-        add: 'Add',
-        delete: 'Delete',
-        register: 'Register',
-        loading: 'Loading',
-        userCode: 'UserCode',
-        userName: 'UserName',
-        position: 'Position',
-        fromHour: 'From hour',
-        toHour: 'To Hour',
-        numberHour: 'Number Hour',
-        note: 'Note',
-    }
 }

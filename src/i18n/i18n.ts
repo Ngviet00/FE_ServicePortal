@@ -38,6 +38,9 @@ import viAdmin from './locales/vi/admin.json'
 import enPurchase from './locales/en/purchase.json'
 import viPurchase from './locales/vi/purchase.json'
 
+import enHr from './locales/en/hr.json'
+import viHr from './locales/vi/hr.json'
+
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
@@ -56,10 +59,12 @@ i18n
 		'common', 
 		'changeOrgUnit', 
 		'formIT',
-		'permission'
+		'permission',
+		'hr'
 	],
     resources: {
 		en: {
+			hr: enHr,
 			purchase: enPurchase,
 			admin: enAdmin,
 			pendingApproval: enApproval,
@@ -74,6 +79,7 @@ i18n
 			changeOrgUnit: enChangeOrgUnit
 		},
 		vi: {
+			hr: viHr,
 			purchase: viPurchase,
 			admin: viAdmin,
 			pendingApproval: viApproval,

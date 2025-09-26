@@ -57,6 +57,9 @@ import AllFormLeaveRequest from '@/features/Leave/AllFormLeaveRequest';
 import ListLeaveRequestRegistered from '@/features/Leave/ListLeaveRequestRegistered';
 import CreateOverTime from '@/features/Overtime/CreateOverTime';
 import ListMyOverTime from '@/features/Overtime/ListMyOverTime';
+import ListOverTimeRegister from '@/features/Overtime/ListOverTimeRegister';
+import ViewOverTime from '@/features/Overtime/ViewOverTime';
+import DetailApprovalOverTime from '@/features/Overtime/DetailApprovalOverTime';
 
 function App() {
 	const location = useLocation();
@@ -109,6 +112,10 @@ function App() {
 
 		{ path: "/overtime", element: <ListMyOverTime/> },
 		{ path: "/overtime/create", element: <CreateOverTime/> },
+		{ path: "/overtime/edit/:id", element: <CreateOverTime/> },
+		{ path: "/overtime/overtime-registered", element: <ListOverTimeRegister/> },
+		{ path: "/overtime/view/:id", element: <ViewOverTime/> },
+		{ path: "/overtime//:id", element: <ViewOverTime/> },
 
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']
@@ -148,6 +155,8 @@ function App() {
 		{ path: "/approval/approval-purchase/:id", element: <DetailWaitApprovalFormPurchase />},
 		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
 		{ path: "/approval/view-purchase/:id", element: <ViewOnlyFormPurchase />},
+
+		{ path: "/approval/approval-overtime/:id", element: <DetailApprovalOverTime />},
 	];
   
 	return (

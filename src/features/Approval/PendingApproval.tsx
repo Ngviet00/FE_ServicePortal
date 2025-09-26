@@ -49,6 +49,9 @@ function GetUrlDetailWaitApproval(item: any) {
 	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
 		result = `/approval/approval-purchase/${item.id ?? '1'}`
 	}
+	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
+		result = `/approval/approval-overtime/${item?.code ?? '1'}`
+	}
 
 	return result
 }
