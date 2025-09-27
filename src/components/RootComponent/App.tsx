@@ -60,6 +60,10 @@ import ListMyOverTime from '@/features/Overtime/ListMyOverTime';
 import ListOverTimeRegister from '@/features/Overtime/ListOverTimeRegister';
 import ViewOverTime from '@/features/Overtime/ViewOverTime';
 import DetailApprovalOverTime from '@/features/Overtime/DetailApprovalOverTime';
+import ListMyMissTimeKeeping from '@/features/MissTimeKeeping/ListMyMissTimeKeeping';
+import ViewMissTimeKeeping from '@/features/MissTimeKeeping/ViewMissTimeKeeping';
+import ListMissTimeKeepingRegister from '@/features/MissTimeKeeping/ListMissTimeKeepingRegister';
+import CreateMissTimeKeeping from '@/features/MissTimeKeeping/CreateMissTimeKeeping';
 
 function App() {
 	const location = useLocation();
@@ -115,7 +119,12 @@ function App() {
 		{ path: "/overtime/edit/:id", element: <CreateOverTime/> },
 		{ path: "/overtime/overtime-registered", element: <ListOverTimeRegister/> },
 		{ path: "/overtime/view/:id", element: <ViewOverTime/> },
-		{ path: "/overtime//:id", element: <ViewOverTime/> },
+
+		{ path: "/miss-timekeeping", element: <ListMyMissTimeKeeping/> },
+		{ path: "/miss-timekeeping/create", element: <CreateMissTimeKeeping/> },
+		{ path: "/miss-timekeeping/edit/:id", element: <CreateMissTimeKeeping/> },
+		{ path: "/miss-timekeeping/registered", element: <ListMissTimeKeepingRegister/> },
+		{ path: "/miss-timekeeping/view/:id", element: <ViewMissTimeKeeping/> },
 
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']

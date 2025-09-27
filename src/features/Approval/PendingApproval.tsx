@@ -172,7 +172,7 @@ export default function PendingApproval() {
 		<div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('pending_approval.title')}</h3>
-				{hasPermissionHrMngLeaveRq && (
+				{/* {hasPermissionHrMngLeaveRq && (
                     <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
                         <Button
                             variant="outline"
@@ -191,7 +191,7 @@ export default function PendingApproval() {
                             {t('pending_approval.register_all')}
                         </Button>
                     </div>
-                )}
+                )} */}
             </div>
 
 			<div className="mt-2 flex">
@@ -215,14 +215,14 @@ export default function PendingApproval() {
 					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border">
+								{/* <th className="px-4 py-2 border">
 									<input
 										type='checkbox' 
 										className='hover:cursor-pointer scale-[1.2]'
 										checked={selectedIds.length > 0 && currentPageIds.every((id: string) => selectedIds.includes(id))}
 										onChange={(event) => handleSelectAllCurrentPage(event.target.checked)}
 									/>
-								</th>
+								</th> */}
 								<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
 								<th className="px-4 py-2 border">{lang == 'vi' ? 'Danh mục' : 'Category'}</th>
@@ -257,14 +257,14 @@ export default function PendingApproval() {
 									ListWaitApprovals.map((item: any, idx: number) => {
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
-												<td className="px-4 py-2 border whitespace-nowrap text-center">
+												{/* <td className="px-4 py-2 border whitespace-nowrap text-center">
 													<input 
 														type="checkbox" 
 														className="hover:cursor-pointer scale-[1.2]"
 														checked={selectedIds.includes(item?.id ?? "")}
 														onChange={(event) => handleRowCheckboxChange(item?.id ?? "", event.target.checked)}
 													/>
-												</td>
+												</td> */}
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
 														{item?.code}

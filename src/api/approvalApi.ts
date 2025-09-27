@@ -16,7 +16,7 @@ export interface ListWaitApprovalRequest {
     DepartmentId?: number | null
 }
 
-interface ApprovalRequest {
+export interface ApprovalRequest {
     ApplicationFormId?: number,
     ApplicationFormCode?: string,
     RequestTypeId?: number,

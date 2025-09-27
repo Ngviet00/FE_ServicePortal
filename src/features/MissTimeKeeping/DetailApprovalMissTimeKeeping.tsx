@@ -16,7 +16,7 @@ import { Spinner } from "@/components/ui/spinner"
 import overTimeApi, { useApprovalOverTime, useHrExportExcelOverTime, useHrNoteOverTime, useRejectSomeOverTime } from "@/api/overTimeApi"
 import { formatDate } from "@/lib/time"
 
-export default function DetailApprovalOverTime() {
+export default function DetailApprovalMissTimeKeeping() {
     const { t } = useTranslation('hr')
     const lang = useTranslation().i18n.language.split('-')[0]
     const [note, setNote] = useState("")

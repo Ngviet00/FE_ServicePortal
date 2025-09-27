@@ -61,7 +61,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [
 			{ label: "sidebar.leave_request.create_leave", route: "/leave/create" },
 			{ label: "sidebar.leave_request.over_time", route: "/overtime/create" },
-			{ label: "sidebar.leave_request.missing_attendace_data", route: "/missing-attendace-data/create" },
+			{ label: "sidebar.leave_request.missing_attendace_data", route: "/miss-timekeeping/create" },
 			{ label: "sidebar.leave_request.internal_memo_hr", route: "/internal-hr/create" },
 			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },

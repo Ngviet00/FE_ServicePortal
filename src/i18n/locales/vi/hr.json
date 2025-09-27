@@ -38,7 +38,15 @@
         }
     },
     "miss_attendance_data": {
+        "create": {
 
+        },
+        "list": {
+
+        },
+        "list_register": {
+            
+        }
     },
     "internal_memo_hr": {
         

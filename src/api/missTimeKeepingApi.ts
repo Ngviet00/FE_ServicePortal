@@ -4,83 +4,68 @@ import axiosClient from './axiosClient';
 import { getErrorMessage, ShowToast } from '@/lib';
 import { ApprovalRequest } from './approvalApi';
 
-interface MyOverTimeRequest {
+interface MyMissTimeKeepingRequest {
     UserCode?: string,
     Page?: number,
     PageSize?: number,
     Status?: number | null
 }
 
-interface RejectSomeOverTimeRequest {
-    overTimeIds: number[], 
-    note?: string, 
-    userCodeReject?: string, 
-    userNameReject?: string,
-    orgPositionId?: number
-    applicationFormCode?: string
-}
-
-interface HrNoteOverTimeRequest {
+interface HrNoteMissTimeKeepingRequest {
     UserCode?: string,
     ApplicationFormId?: number,
-    OverTimeId?: number,
+    MissTimeKeepingId?: number,
     NoteOfHr?: string,
 }
 
-const overTimeApi = {
-    getTypeOverTime() {
-        return axiosClient.get(`/overtime/type-overtime`)
-    },
+const missTimeKeepingApi = {
     create(data: FormData) {
-        return axiosClient.post('/overtime', data, {
+        return axiosClient.post('/miss-timekeeping', data, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
     },
-    getMyOverTime(params: MyOverTimeRequest) {
-        return axiosClient.get(`/overtime/get-my-overtime`, {params})
+    getMyMissTimeKeeping(params: MyMissTimeKeepingRequest) {
+        return axiosClient.get(`/miss-timekeeping/get-my-miss-timekeeping`, {params})
     },
-    getOverTimeRegister(params: MyOverTimeRequest) {
-        return axiosClient.get(`/overtime/get-overtime-register`, {params})
+    getMissTimeKeepingRegister(params: MyMissTimeKeepingRequest) {
+        return axiosClient.get(`/miss-timekeeping/get-miss-timekeeping-register`, {params})
     },
     delete(applicationFormCode: string) {
-        return axiosClient.delete(`/overtime/${applicationFormCode}`)
+        return axiosClient.delete(`/miss-timekeeping/${applicationFormCode}`)
     },
-    getDetailOverTime(applicationFormCode: string) {
-        return axiosClient.get(`/overtime/${applicationFormCode}`)
+    getDetailMissTimeKeeping(applicationFormCode: string) {
+        return axiosClient.get(`/miss-timekeeping/${applicationFormCode}`)
     },
     update(applicationFormCode: string, data: FormData) {
-        return axiosClient.put(`/overtime/${applicationFormCode}`, data, {
+        return axiosClient.put(`/miss-timekeeping/${applicationFormCode}`, data, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
     },
-    rejectSomeOverTimes(data: RejectSomeOverTimeRequest) {
-        return axiosClient.post('/overtime/reject-some-overtimes', data)
+    hrNote(data: HrNoteMissTimeKeepingRequest) {
+        return axiosClient.post('/miss-timekeeping/hr-note', data)
     },
-    hrNote(data: HrNoteOverTimeRequest) {
-        return axiosClient.post('/overtime/hr-note', data)
+    approvalMissTimeKeeping(data: ApprovalRequest) {
+        return axiosClient.post(`/miss-timekeeping/approval`, data)
     },
-    approvalOverTime(data: ApprovalRequest) {
-        return axiosClient.post(`/overtime/approval`, data)
-    },
-    hrExportExcelOverTime(data: {applicationFormId: number}) {
-        return axiosClient.post('/overtime/hr-export-excel-overtime', data, {
+    hrExportExcelMissTimeKeeping(data: {applicationFormId: number}) {
+        return axiosClient.post('/miss-timekeeping/hr-export-excel-miss-timekeeping', data, {
             responseType: 'blob'
         })
     },
 }
 
-export function useHrExportExcelOverTime() {
+export function useHrExportExcelMissTimeKeeping() {
     return useMutation({
         mutationFn: async (data: {applicationFormId: number}) => {
-            const response = await overTimeApi.hrExportExcelOverTime(data)
+            const response = await missTimeKeepingApi.hrExportExcelMissTimeKeeping(data)
 
             const d = new Date();
             const f = (n: number, l: number) => n.toString().padStart(l, '0');
-            const name = `OverTimes_${d.getFullYear()}_${f(d.getMonth()+1,2)}_${f(d.getDate(),2)}_${f(d.getHours(),2)}_${f(d.getMinutes(),2)}_${f(d.getSeconds(),2)}.xlsx`;
+            const name = `Miss_TimeKeeping_${d.getFullYear()}_${f(d.getMonth()+1,2)}_${f(d.getDate(),2)}_${f(d.getHours(),2)}_${f(d.getMinutes(),2)}_${f(d.getSeconds(),2)}.xlsx`;
 
             const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
@@ -101,10 +86,10 @@ export function useHrExportExcelOverTime() {
     })
 }
 
-export function useApprovalOverTime() {
+export function useApprovalMissTimeKeeping() {
     return useMutation({
         mutationFn: async (data: ApprovalRequest) => {
-            await overTimeApi.approvalOverTime(data)
+            await missTimeKeepingApi.approvalMissTimeKeeping(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -115,10 +100,10 @@ export function useApprovalOverTime() {
     })
 }
 
-export function useHrNoteOverTime() {
+export function useHrNoteMissTimeKeeping() {
     return useMutation({
-        mutationFn: async (data: HrNoteOverTimeRequest) => {
-            await overTimeApi.hrNote(data)
+        mutationFn: async (data: HrNoteMissTimeKeepingRequest) => {
+            await missTimeKeepingApi.hrNote(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -129,24 +114,10 @@ export function useHrNoteOverTime() {
     })
 }
 
-export function useRejectSomeOverTime() {
-    return useMutation({
-        mutationFn: async (data: RejectSomeOverTimeRequest) => {
-            await overTimeApi.rejectSomeOverTimes(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useCreateOverTime() {
+export function useCreateMissTimeKeeping() {
     return useMutation({
         mutationFn: async (data: FormData) => {
-            await overTimeApi.create(data)
+            await missTimeKeepingApi.create(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -157,10 +128,10 @@ export function useCreateOverTime() {
     })
 }
 
-export function useUpdateOverTime() {
+export function useUpdateMissTimeKeeping() {
     return useMutation({
         mutationFn: async ({applicationFormCode, data} : { applicationFormCode: string, data: FormData } ) => {
-            await overTimeApi.update(applicationFormCode, data)
+            await missTimeKeepingApi.update(applicationFormCode, data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -172,4 +143,4 @@ export function useUpdateOverTime() {
 }
 
 
-export default overTimeApi;
+export default missTimeKeepingApi;

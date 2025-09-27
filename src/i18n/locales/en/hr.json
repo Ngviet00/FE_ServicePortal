@@ -29,12 +29,12 @@
             "action": "Action"
         },
         "create": {
-            "title_create": "Tạo đơn tăng ca",
-            "title_update": "Cập nhật tăng ca",
-            "add": "Thêm",
-            "delete": "Xóa",
-            "save": "Đăng ký",
-            "update": "Cập nhật"
+            "title_create": "Create overtime",
+            "title_update": "Update overtime",
+            "add": "Add",
+            "delete": "Delete",
+            "save": "Register",
+            "update": "Update"
         }
     },
     "miss_attendance_data": {

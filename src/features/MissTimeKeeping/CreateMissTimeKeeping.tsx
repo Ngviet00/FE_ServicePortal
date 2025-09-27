@@ -16,7 +16,7 @@ import FullscreenLoader from "@/components/FullscreenLoader";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function CreateOverTime() {
+export default function CreateMissTimeKeeping() {
     const { t } = useTranslation('hr')
     const lang = useTranslation().i18n.language.split('-')[0]
     const user = useAuthStore((state) => state.user)
