@@ -168,7 +168,7 @@ export default function ListMyOverTime () {
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{t('overtime.list.code')}: </strong>
-                                                <Link to={`/leave/view/${item.leaveRequestId}`} className="text-blue-600 underline">
+                                                <Link to={`/overtime/view/${item.code}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

@@ -64,6 +64,7 @@ import ListMyMissTimeKeeping from '@/features/MissTimeKeeping/ListMyMissTimeKeep
 import ViewMissTimeKeeping from '@/features/MissTimeKeeping/ViewMissTimeKeeping';
 import ListMissTimeKeepingRegister from '@/features/MissTimeKeeping/ListMissTimeKeepingRegister';
 import CreateMissTimeKeeping from '@/features/MissTimeKeeping/CreateMissTimeKeeping';
+import DetailApprovalMissTimeKeeping from '@/features/MissTimeKeeping/DetailApprovalMissTimeKeeping';
 
 function App() {
 	const location = useLocation();
@@ -166,6 +167,8 @@ function App() {
 		{ path: "/approval/view-purchase/:id", element: <ViewOnlyFormPurchase />},
 
 		{ path: "/approval/approval-overtime/:id", element: <DetailApprovalOverTime />},
+
+		{ path: "/approval/approval-miss-timekeeping/:id", element: <DetailApprovalMissTimeKeeping />},
 	];
   
 	return (

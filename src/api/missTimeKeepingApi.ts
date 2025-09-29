@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
  
 import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
@@ -19,12 +20,8 @@ interface HrNoteMissTimeKeepingRequest {
 }
 
 const missTimeKeepingApi = {
-    create(data: FormData) {
-        return axiosClient.post('/miss-timekeeping', data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
+    create(data: any) {
+        return axiosClient.post('/miss-timekeeping', data)
     },
     getMyMissTimeKeeping(params: MyMissTimeKeepingRequest) {
         return axiosClient.get(`/miss-timekeeping/get-my-miss-timekeeping`, {params})
@@ -38,12 +35,8 @@ const missTimeKeepingApi = {
     getDetailMissTimeKeeping(applicationFormCode: string) {
         return axiosClient.get(`/miss-timekeeping/${applicationFormCode}`)
     },
-    update(applicationFormCode: string, data: FormData) {
-        return axiosClient.put(`/miss-timekeeping/${applicationFormCode}`, data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
+    update(applicationFormCode: string, data: any) {
+        return axiosClient.put(`/miss-timekeeping/${applicationFormCode}`, data)
     },
     hrNote(data: HrNoteMissTimeKeepingRequest) {
         return axiosClient.post('/miss-timekeeping/hr-note', data)
@@ -116,7 +109,7 @@ export function useHrNoteMissTimeKeeping() {
 
 export function useCreateMissTimeKeeping() {
     return useMutation({
-        mutationFn: async (data: FormData) => {
+        mutationFn: async (data: any) => {
             await missTimeKeepingApi.create(data)
         },
         onSuccess: () => {
@@ -130,7 +123,7 @@ export function useCreateMissTimeKeeping() {
 
 export function useUpdateMissTimeKeeping() {
     return useMutation({
-        mutationFn: async ({applicationFormCode, data} : { applicationFormCode: string, data: FormData } ) => {
+        mutationFn: async ({applicationFormCode, data} : { applicationFormCode: string, data: any } ) => {
             await missTimeKeepingApi.update(applicationFormCode, data)
         },
         onSuccess: () => {

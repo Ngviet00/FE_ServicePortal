@@ -17,7 +17,8 @@
             "created_at": "Created at",
             "unit": "Unit",
             "department": "Department",
-            "title_view": "Detail overtime"
+            "title_view": "Detail overtime",
+            "note_of_hr": "Note of HR"
         },
         "list_register": {
             "title": "List overtime register",
@@ -37,8 +38,38 @@
             "update": "Update"
         }
     },
-    "miss_attendance_data": {
-
+    "miss_timekeeping": {
+        "create": {
+            "title_create": "Create miss timekeeping",
+            "title_update": "Update miss timekeeping",
+            "add": "Add",
+            "delete": "Delete",
+            "save": "Register",
+            "update": "Update"
+        },
+        "list": {
+            "code": "Code",
+            "title": "My miss timekeeping",
+            "usercode": "UserCode",
+            "username": "UserName",
+            "date": "Date",
+            "shift": "Shift",
+            "additional": "Additional",
+            "facial_recognition": "Facial recognition",
+            "gate": "Gate",
+            "reason": "Reason",
+            "in": "In",
+            "out": "Out",
+            "status": "Status",
+            "created_at": "Created at",
+            "button_link_page_register": "Miss timekeeping registered",
+            "department": "Department",
+            "title_view": "Detail miss timekeeping",
+            "note_of_hr": "Note of HR"
+        },
+        "list_register": {
+            
+        }
     },
     "internal_memo_hr": {
 

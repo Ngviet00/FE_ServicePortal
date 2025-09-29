@@ -1,24 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Skeleton } from "@/components/ui/skeleton"
 import { ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
-import overTimeApi from "@/api/overTimeApi"
+import { Skeleton } from "@/components/ui/skeleton"
+import missTimeKeepingApi from "@/api/missTimeKeepingApi"
 
 export default function ListMyMissTimeKeeping () {
     const { t } = useTranslation('hr')
@@ -30,10 +22,10 @@ export default function ListMyMissTimeKeeping () {
     const [status, setStatus] = useState('')
     const {user} = useAuthStore()
     
-    const { data: myOverTimes = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-my-overtime', { page, pageSize, status: status }],
+    const { data: myMissTimeKeepings = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-my-miss-timekeeping', { page, pageSize, status: status }],
         queryFn: async () => {
-            const res = await overTimeApi.getMyOverTime({
+            const res = await missTimeKeepingApi.getMyMissTimeKeeping({
                 UserCode: user?.userCode ?? "",
                 Page: page,
                 PageSize: pageSize,
@@ -61,18 +53,18 @@ export default function ListMyMissTimeKeeping () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
                 <h3 className="font-bold text-xl md:text-2xl m-0">
-                    {t('overtime.list.title')}
+                    {t('miss_timekeeping.list.title')}
                 </h3>
                 <Button asChild className="w-full md:w-auto">
-                    <Link to="/overtime/overtime-registered">
-                        {t('overtime.list.button_link_page_register')}
+                    <Link to="/miss-timekeeping/registered">
+                        {t('miss_timekeeping.list.button_link_page_register')}
                     </Link>
                 </Button>
             </div>
 
             <div className="mb-5 pb-3">
                 <div className="mb-2">
-                    <Label className="mb-2">{t('overtime.list.status')}</Label>
+                    <Label className="mb-2">{t('miss_timekeeping.list.status')}</Label>
 					<select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
 						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
@@ -84,104 +76,131 @@ export default function ListMyMissTimeKeeping () {
 
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list.code')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list.usercode')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list.username')}</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{t('overtime.list.position')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list.date_register')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list.type_overtime')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list.from_hour')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.to_hour')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.number_hour')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.note')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.created_at')}</TableHead>
-                                    <TableHead className="w-[200px] text-center border">{t('overtime.list.status')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 1 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: 12 }).map((_, i) => (
-                                            <TableCell key={i}>
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
-                                    ))
-                                ) : isError || myOverTimes.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={12} className="text-red-700 border text-center font-medium dark:text-white">
-                                            { error?.message ?? tCommon('no_results') } 
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    myOverTimes.map((item: any, idx: number) => {
-                                        return (
-                                            <TableRow key={idx}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/overtime/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
-                                                </TableCell>
-                                                <TableCell className="text-center border">{item?.userCode}</TableCell>
-                                                <TableCell className="text-center border">{item?.userName}</TableCell>
-                                                <TableCell className="text-center border">{item?.position}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(item?.dateRegister ?? "", "yyyy-MM-dd") }</TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.typeOverTimeName : item?.typeOverTimeNameE}</TableCell>
-                                                <TableCell className="text-center border">{item?.fromHour}</TableCell>
-                                                <TableCell className="text-center border">{item?.toHour}</TableCell>
-                                                <TableCell className="text-center border">{item?.numberHour}</TableCell>
-                                                <TableCell className="text-center border">{item?.note}</TableCell>
-                                                <TableCell className="text-center border">{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-center border">
+                        <table className="min-w-full table-fixed text-sm border border-gray-200 rounded-lg">
+                            <thead className="bg-gray-100 rounded-t-lg">
+                                <tr>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[100px]">{ t('miss_timekeeping.list.code')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[80px]">{ t('miss_timekeeping.list.usercode')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[150px]">{t('miss_timekeeping.list.username')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[90px]">{t('miss_timekeeping.list.date')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[80px]">{t('miss_timekeeping.list.shift')}</th>
+                                    <th colSpan={2} className="px-4 py-2 border w-[180px]">{t('miss_timekeeping.list.additional')}</th>
+                                    <th colSpan={2} className="px-4 py-2 border text-center w-[200px]">{t('miss_timekeeping.list.facial_recognition')}</th>
+                                    <th colSpan={2} className="px-4 py-2 border w-[150px]">{t('miss_timekeeping.list.gate')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border">{t('miss_timekeeping.list.reason')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[150px]">{t('miss_timekeeping.list.created_at')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[150px]">{t('miss_timekeeping.list.status')}</th>
+                                </tr>
+                                <tr>
+                                    <th className="py-1 border-r  border-b w-[30px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="border-r border-b w-[30px]">{t('miss_timekeeping.list.out')}</th>
+                                    <th className="border-r border-b w-[30px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="border-r border-b w-[30px]">{t('miss_timekeeping.list.out')}</th>
+                                    <th className="border-r border-b w-[30px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="w-[30px] border-b">{t('miss_timekeeping.list.out')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                    isPending ? (
+                                        Array.from({ length: 3 }).map((_, index) => (
+                                            <tr key={index}>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                                <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[40px] bg-gray-300" /></div></td>
+                                            </tr>  
+                                        ))
+                                    ) : isError || myMissTimeKeepings.length == 0 ? (
+                                        <tr>
+                                            <td colSpan={14} className="px-4 py-2 text-center font-bold text-red-700">
+                                                { error?.message ?? tCommon('no_results') } 
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        myMissTimeKeepings?.map((item: any, idx: number) => (
+                                            <tr key={idx} className="hover:bg-gray-50">
+                                                <td className="border px-2 py-2 text-center">
+                                                    <Link to={`/miss-timekeeping/view/${item?.code}`} className="underline text-blue-600">{item?.code}</Link>
+                                                </td>
+                                                <td className="border px-2 py-2 text-center">{item?.userCode}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.userName}</td>
+                                                <td className="border px-2 py-2 text-center">{formatDate(item?.dateRegister ?? '', 'yyyy-MM-dd')}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.shift}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.additionalIn}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.additionalOut}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.facialRecognitionIn}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.facialRecognitionOut}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.gateIn}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.gateOut}</td>
+                                                <td className="border px-2 py-2 text-center">{item?.reason}</td>
+                                                <td className="border px-2 py-2 text-center">{formatDate(item?.createdAt ?? '', 'yyyy-MM-dd HH:mm:ss') }</td>
+                                                <td className="border px-2 py-2 text-center">
                                                     <StatusLeaveRequest 
                                                         status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
                                                     />
-                                                    </TableCell>
-                                            </TableRow>
-                                        )
-                                    })
-                                )}
-                            </TableBody>
-                        </Table>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )
+                                }
+                            </tbody>
+                        </table>
                     </div>
 
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
-                                    {Array.from({ length: 12 }).map((_, i) => (
-                                        <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
-                                    ))}
+                                        {Array.from({ length: 12 }).map((_, i) => (
+                                            <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
+                                        ))}
                                     </div>
                                 ))
-                            ) : isError || myOverTimes.length === 0 ? (
+                            ) : isError || myMissTimeKeepings.length === 0 ? (
                                 <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') }</div>
                             ) : (
-                                myOverTimes.map((item: any) => {
+                                myMissTimeKeepings.map((item: any, idx: number) => {
                                     return (
-                                        <div key={item.leaveRequestId} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={idx} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
-                                                <strong>{t('overtime.list.code')}: </strong>
-                                                <Link to={`/leave/view/${item.leaveRequestId}`} className="text-blue-600 underline">
+                                                <strong>{t('miss_timekeeping.list.code')}: </strong>
+                                                <Link to={`/miss-timekeeping/view/${item?.code}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>
-                                            <div className="mb-1"><strong>{t('overtime.list.position')}: </strong>{item?.position}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.date_register')}: </strong> {formatDate(item?.dateRegister ?? "", "yyyy-MM-dd") }</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.type_overtime')}: </strong> {lang == 'vi' ? item?.typeOverTimeName : item?.typeOverTimeNameE}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.from_hour')}: </strong> {item?.fromHour}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.to_hour')}: </strong> {item?.toHour}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.number_hour')}: </strong> {item?.numberHour}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.number_hour')}: </strong> {item?.note}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.note')}: </strong> {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                            <div className="mb-1"><strong>{t('miss_timekeeping.list.date')}: </strong>{formatDate(item?.dateRegister ?? "", "yyyy-MM-dd")}</div>
+                                            <div className="mb-1"><strong>{t('miss_timekeeping.list.shift')}: </strong>{item?.shift}</div>
+                                            <div className="mb-1">
+                                                <strong>{t('miss_timekeeping.list.additional')}: </strong> 
+                                                    {t('miss_timekeeping.list.in')}: {item?.additionalIn ? item?.additionalIn : '--'} ,_____
+                                                    {t('miss_timekeeping.list.out')}: {item?.additionalOut ? item?.additionalOut : '--'}
+                                            </div>
+                                            <div className="mb-1">
+                                                <strong>{t('miss_timekeeping.list.facial_recognition')}: </strong> 
+                                                    {t('miss_timekeeping.list.in')}: {item?.facialRecognitionIn ? item?.facialRecognitionIn : '--'} ,_____
+                                                    {t('miss_timekeeping.list.out')}: {item?.facialRecognitionOut ? item?.facialRecognitionOut : '--'}
+                                            </div>
+                                            <div className="mb-1">
+                                                <strong>{t('miss_timekeeping.list.gate')}: </strong> 
+                                                    {t('miss_timekeeping.list.in')}: {item?.gateIn ? item?.gateIn : '--'} ,_____
+                                                    {t('miss_timekeeping.list.out')}: {item?.gateOut ? item?.gateOut : '--'}
+                                            </div>
+                                            <div className="mb-1"><strong>{t('miss_timekeeping.list.reason')}: </strong> {item?.reason}</div>
+                                            <div className="mb-1"><strong>{t('miss_timekeeping.list.created_at')}: </strong> {formatDate(item?.createdAt ?? '', 'yyyy-MM-dd HH:mm:ss')}</div>
                                             <div className="mb-1"><strong>
-                                                {t('overtime.list.status')}: </strong> 
+                                                {t('miss_timekeeping.list.status')}: </strong> 
                                                 <StatusLeaveRequest 
                                                     status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
                                                 />
@@ -195,7 +214,7 @@ export default function ListMyMissTimeKeeping () {
                 </div>
             </div>
             {
-                myOverTimes.length > 0 ? (<PaginationControl
+                myMissTimeKeepings.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}

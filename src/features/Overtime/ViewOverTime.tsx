@@ -86,7 +86,7 @@ export default function ViewOverTime() {
                                     {item?.noteOfHR && (
                                         <div className="mt-2 text-[15px]">
                                             <span className="font-normal text-gray-800">
-                                                {t('overtime.list.userCode')}:: <strong className="text-red-600">{item?.noteOfHR ?? "--"}</strong>
+                                                {t('overtime.list.note_of_hr')}: <strong className="text-red-600">{item?.noteOfHR ?? "--"}</strong>
                                             </span>
                                         </div>
                                     )}

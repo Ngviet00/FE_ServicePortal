@@ -17,7 +17,8 @@
             "note": "Ghi chú",
             "unit": "Đơn vị",
             "department": "Bộ phận",
-            "title_view": "Chi tiết đơn tăng ca"
+            "title_view": "Chi tiết đơn tăng ca",
+            "note_of_hr": "Ghi chú HR"
         },
         "list_register": {
             "title": "Danh sách tăng ca đã đăng ký",
@@ -37,15 +38,37 @@
             "update": "Cập nhật"
         }
     },
-    "miss_attendance_data": {
+    "miss_timekeeping": {
         "create": {
-
+            "title_create": "Bù chấm công",
+            "title_update": "Cập nhật bù chấm công",
+            "add": "Thêm",
+            "delete": "Xóa",
+            "save": "Đăng ký",
+            "update": "Cập nhật"
         },
         "list": {
-
+            "code": "Mã đơn",
+            "title": "Danh sách bù chấm công của tôi",
+            "usercode": "Mã NV",
+            "username": "Họ tên",
+            "date": "Ngày",
+            "shift": "Ca",
+            "additional": "Giờ bù dữ liệu",
+            "facial_recognition": "Giờ nhận diện khuân mặt",
+            "gate": "Giờ cổng",
+            "reason": "Nguyên nhân",
+            "in": "Vào",
+            "out": "Ra",
+            "status": "Trạng thái",
+            "created_at": "Tạo lúc",
+            "button_link_page_register": "Danh sách bù chấm công đã đăng ký",
+            "department": "Bộ phận",
+            "title_view": "Chi tiết bù chấm công",
+            "note_of_hr": "Ghi chú HR"
         },
         "list_register": {
-            
+            "title": "Danh sách bù chấm công đã đăng ký"
         }
     },
     "internal_memo_hr": {

@@ -52,6 +52,9 @@ function GetUrlDetailWaitApproval(item: any) {
 	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
 		result = `/approval/approval-overtime/${item?.code ?? '1'}`
 	}
+	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
+		result = `/approval/approval-miss-timekeeping/${item?.code ?? '1'}`
+	}
 
 	return result
 }

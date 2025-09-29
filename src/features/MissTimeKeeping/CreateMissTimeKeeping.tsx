@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -6,15 +7,28 @@ import { useAuthStore } from "@/store/authStore";
 import leaveRequestApi from "@/api/leaveRequestApi";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import RadioGroup, { RadioOption } from "@/components/RadioGroup";
-import ExcelUploader from "@/components/ExcelUploader";
-import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import orgUnitApi from "@/api/orgUnitApi";
-import overTimeApi, { useCreateOverTime, useUpdateOverTime } from "@/api/overTimeApi";
 import { useEffect, useRef, useState } from "react";
 import FullscreenLoader from "@/components/FullscreenLoader";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import { Spinner } from "@/components/ui/spinner";
+import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
+import missTimeKeepingApi, { useCreateMissTimeKeeping, useUpdateMissTimeKeeping } from "@/api/missTimeKeepingApi";
+
+const createNewRow = (_data: Partial<any> = {}) => ({
+    id: `miss_timekeeping_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    userCode: '',
+    userName: '',
+    dateRegister: new Date().toISOString().split("T")[0],
+    shift: '',
+    additionalIn: '',
+    additionalOut: '',
+    facialRecognitionIn: '',
+    facialRecognitionOut:'',
+    gateIn: '',
+    gateOut:'',
+    reason: ''
+});
 
 export default function CreateMissTimeKeeping() {
     const { t } = useTranslation('hr')
@@ -22,20 +36,12 @@ export default function CreateMissTimeKeeping() {
     const user = useAuthStore((state) => state.user)
     const navigate = useNavigate()
     const lastUserCodesRef = useRef<Record<number, string>>({})
-    const [typeOvertimeId, setTypeOvertimeId] = useState<number | null>(null);
-    const [orgUnitCompanyId, setOrgUnitCompanyId] = useState<number | null>(null);
     const [departmentId, setDepartmentId] = useState<number | null>(null);
-    const [registerDate, setRegisterDate] = useState<string>("");
     const [isSearchingUser, setIsSearchingUser] = useState(false)
     const [errorFields, setErrorFields] = useState<{ [key: string]: string[] }>({});
-    const createOverTime = useCreateOverTime();
-    const updateOverTime = useUpdateOverTime();
+    const createMissTimeKeeping = useCreateMissTimeKeeping();
+    const updateMissTimeKeeping = useUpdateMissTimeKeeping();
     
-    const [selectedRadio, setSelectedRadio] = useState<string>("normal")
-    const options: RadioOption[] = [
-        { label: lang == 'vi' ? 'Đăng ký thủ công' : 'Manual', value: "normal" },
-        { label: lang == 'vi' ? "Đăng ký bằng excel" : 'Excel', value: "excel" },
-    ];
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     
     const { id } = useParams<{ id: string }>();
@@ -44,7 +50,7 @@ export default function CreateMissTimeKeeping() {
     const { data: formDataDetail, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['overtime', id],
         queryFn: async () => {
-            const res = await overTimeApi.getDetailOverTime(id ?? '');
+            const res = await missTimeKeepingApi.getDetailMissTimeKeeping(id ?? '');
             return res.data.data;
         },
         enabled: isEdit,
@@ -52,27 +58,25 @@ export default function CreateMissTimeKeeping() {
 
     useEffect(() => {
         if (formDataDetail && isEdit) {
-            const mappedRows = formDataDetail.overTimes.map((ot: any) => ({
-                id: `${ot.id}`,
-                userCode: ot.userCode ?? '',
-                userName: ot.userName ?? '',
-                position: ot.position ?? '',
-                fromHour: ot.fromHour ?? '',
-                toHour: ot.toHour ?? '',
-                numberHour: ot.numberHour ?? '',
-                note: ot.note ?? '',
-                checked: false,
+            const mappedRows = formDataDetail.missTimeKeepings.map((item: any) => ({
+                id: `${item.id}`,
+                userCode: item?.userCode ?? '',
+                userName: item?.userName ?? '',
+                dateRegister: item?.dateRegister,
+                shift: item?.shift,
+                additionalIn: item?.additionalIn,
+                additionalOut: item?.additionalOut,
+                facialRecognitionIn: item?.facialRecognitionIn,
+                facialRecognitionOut: item?.facialRecognitionOut,
+                gateIn: item?.gateIn,
+                gateOut: item?.gateOut,
+                reason: item?.reason ?? ''
             }));
             setRows(mappedRows);
-            setOrgUnitCompanyId(formDataDetail?.applicationForm?.orgUnitCompany?.id)
-            setTypeOvertimeId(formDataDetail?.applicationForm?.typeOverTime?.id)
             setDepartmentId(formDataDetail?.applicationForm?.orgUnit?.id)
-            setRegisterDate(formDataDetail?.applicationForm?.dateRegister)
         }
     }, [formDataDetail, isEdit]);
     
-    const { data: unitCompanys = [] } = useQuery({ queryKey: ['get-unit-company'], queryFn: async () => { const res = await orgUnitApi.getUnitCompany(); return res.data.data; }, });
-    const { data: typeOverTimes = [] } = useQuery({ queryKey: ['get-type-overtimes'], queryFn: async () => { const res = await overTimeApi.getTypeOverTime(); return res.data.data; }, });
     const { data: departments = [] } = useQuery({ queryKey: ['get-all-department'], queryFn: async () => { const res = await orgUnitApi.GetAllDepartment(); return res.data.data; } });
     
     const mode = isEdit ? 'edit' : 'create';
@@ -81,80 +85,33 @@ export default function CreateMissTimeKeeping() {
         if (mode == "create") {
             setRows([
                 {
-                    id: `ot_${Date.now()}`,
+                    id: `miss_timekeeping_${Date.now()}`,
                     userCode: '',
                     userName: '',
-                    position: '',
-                    fromHour: '',
-                    toHour: '',
-                    numberHour: '',
-                    note: '',
-                    checked: false,
+                    dateRegister: new Date().toISOString().split("T")[0],
+                    shift: '',
+                    additionalIn: '',
+                    additionalOut: '',
+                    facialRecognitionIn: '',
+                    facialRecognitionOut:'',
+                    gateIn: '',
+                    gateOut:'',
+                    reason: ''
                 }
             ]);
-            setOrgUnitCompanyId(unitCompanys.length > 0 ? unitCompanys[0].id : null);
-            setTypeOvertimeId(typeOverTimes.length > 0 ? typeOverTimes[0].id : null);
             setDepartmentId(null);
-            setRegisterDate(new Date().toISOString().split("T")[0]);
         }
-    }, [mode, typeOverTimes, unitCompanys]);
-    
-    const handleFormSubmitByExcel = async (file: File) => {
-        if (departmentId == null) {
-            ShowToast(lang == 'vi' ? 'Vui lòng chọn bộ phận' : 'Please select department', 'error')
-            return false
-        }
-
-        const formData = new FormData()
-        formData.append("EmailCreated", user?.email ?? "");
-        formData.append("OrgPositionId", String(user?.orgPositionId ?? ""));
-        formData.append("UserCodeCreated", user?.userCode ?? "");
-        formData.append("UserNameCreated", user?.userName ?? "");
-        formData.append("OrgUnitCompanyId", String(orgUnitCompanyId));
-        formData.append("TypeOverTimeId", String(typeOvertimeId));
-        formData.append("DateRegisterOT", String(registerDate));
-        formData.append("DepartmentId", String(departmentId))
-        formData.append("file", file)
-
-        try {
-            await createOverTime.mutateAsync(formData)
-            navigate("/overtime/overtime-registered");
-            return true
-        } catch (err) {
-            ShowToast(getErrorMessage(err), "error")
-            return false
-        }
-    };
+    }, [mode]);
 
     const [errorMsg, setErrorMsg] = useState('')
-    const [rows, setRows] = useState<any[]>([
-        {
-            id: `ot_${Date.now()}`,
-            userCode: '',
-            userName: '',
-            position: '',
-            fromHour: '',
-            toHour: '',
-            numberHour: '',
-            note: '',
-            checked: false,
+    const [rows, setRows] = useState<any[]>([]);
+    useEffect(() => {
+        if (!isEdit && rows.length === 0) {
+            setRows([createNewRow()])
         }
-    ]);
+    }, [isEdit, rows.length])
 
-    const handleAddRow = () => {
-        const newRow = {
-            id: `ot_${Date.now()}`,
-            userCode: '',
-            userName: '',
-            position: '',
-            fromHour: '',
-            toHour: '',
-            numberHour: '',
-            note: '',
-            checked: false,
-        }
-        setRows([...rows, newRow]);
-    };
+    const handleAddRow = () => { setRows([...rows, createNewRow()])};
 
     const handleDeleteRows = () => {
         if (selectedIds.length === 0) {
@@ -194,10 +151,8 @@ export default function CreateMissTimeKeeping() {
             const missing: string[] = [];
             if (!row.userCode) missing.push('userCode');
             if (!row.userName) missing.push('userName');
-            if (!row.position) missing.push('position');
-            if (!row.fromHour) missing.push('fromHour');
-            if (!row.toHour) missing.push('toHour');
-            if (!row.numberHour) missing.push('numberHour');
+            if (!row.dateRegister) missing.push('date');
+            if (!row.shift) missing.push('shift');
 
             if (missing.length > 0) {
                 newErrors[row.id] = missing;
@@ -213,38 +168,28 @@ export default function CreateMissTimeKeeping() {
 
         setErrorFields({});
 
-        const formData = new FormData()
-
-        formData.append("EmailCreated", user?.email ?? "");
-        formData.append("OrgPositionId", String(user?.orgPositionId ?? ""))
-        formData.append("UserCodeCreated", user?.userCode ?? "")
-        formData.append("UserNameCreated", user?.userName ?? "")
-        formData.append("OrgUnitCompanyId", String(orgUnitCompanyId))
-        formData.append("TypeOverTimeId", String(typeOvertimeId))
-        formData.append("DateRegisterOT", String(registerDate))
-        formData.append("DepartmentId", String(departmentId))
-
-        rows.map((data: any, index: number) => {
-            if (!data?.id.startsWith("ot")) {
-                formData.append(`CreateListOverTimeRequests[${index}].Id`, data?.id ?? '-1');
+        rows.forEach(item => {
+            if (item?.id.startsWith("miss_timekeeping")) {
+                item.id = null
             }
-            formData.append(`CreateListOverTimeRequests[${index}].UserCode`, data.userCode ?? "");
-            formData.append(`CreateListOverTimeRequests[${index}].UserName`, data.userName ?? "");
-            formData.append(`CreateListOverTimeRequests[${index}].Position`, data.position ?? "");
-            formData.append(`CreateListOverTimeRequests[${index}].FromHour`, data.fromHour );
-            formData.append(`CreateListOverTimeRequests[${index}].ToHour`, data.toHour);
-            formData.append(`CreateListOverTimeRequests[${index}].NumberHour`, data.numberHour ?? "");
-            formData.append(`CreateListOverTimeRequests[${index}].Note`, data.note ?? "");
-        })
+        });
 
+        const payLoad = {
+            OrgPositionId: user?.orgPositionId,
+            UserCodeCreated: user?.userCode,
+            UserNameCreated: user?.userName,
+            Email: user?.email,
+            DepartmentId: departmentId,
+            ListCreateMissTimeKeepings: rows
+        };
 
         try {
             if (isEdit) {   
-                await updateOverTime.mutateAsync({applicationFormCode: id, data: formData})
+                await updateMissTimeKeeping.mutateAsync({applicationFormCode: id, data: payLoad})
             } else {
-                await createOverTime.mutateAsync(formData)
+                await createMissTimeKeeping.mutateAsync(payLoad)
             }
-            navigate("/overtime/overtime-registered");
+            navigate("/miss-timekeeping/registered");
         }
         catch (err) {
             console.log(err);
@@ -292,259 +237,262 @@ export default function CreateMissTimeKeeping() {
                 <div className="flex flex-col gap-2">
                     <div className="flex">
                         <h3 className="font-bold text-xl md:text-2xl">
-                            <span>{ mode == 'create' ? t('overtime.create.title_create') : t('overtime.create.title_update') } </span>
+                            <span>{ mode == 'create' ? t('miss_timekeeping.create.title_create') : t('miss_timekeeping.create.title_update') } </span>
                         </h3>
                     </div>
                 </div>
-                <Button onClick={() => navigate("/overtime")} className="w-full md:w-auto hover:cursor-pointer">
-                    { lang == 'vi' ? 'Danh sách tăng ca của tôi' : 'My list overtime' }
+                <Button onClick={() => navigate("/miss-timekeeping")} className="w-full md:w-auto hover:cursor-pointer">
+                    { lang == 'vi' ? 'Danh sách bù chấm công của tôi' : 'My list miss timekeeping' }
                 </Button>
             </div>
-            {
-                mode == 'create' && (
-                    <div className="flex">
-                        <RadioGroup
-                            label={lang == 'vi' ? 'Chọn loại đăng ký' : 'Select type register'}
-                            options={options}
-                            value={selectedRadio}
-                            onChange={setSelectedRadio}
-                        />
-                        <div className="ml-3">
-                            <div className="bg-red-400 inline-block p-1 text-sm text-white rounded-[3px]">
-                                **
-                                {
-                                    lang == 'vi' ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ' 
-                                        : 'Note, you should only enter registration data for yourself or member of your team, organization.'
-                                }
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
-            <div className="flex flex-col md:flex-row md:justify-start mb-0">
-                <div className="mb-4 mr-15">
-                    <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.unit')} <DotRequireComponent/></label>
-                    <div className="flex space-x-4">
-                        {
-                            unitCompanys?.map((item: any) => (
-                                <label key={item?.id} className="flex items-center space-x-2 cursor-pointer">
-                                    <input type="radio" className="accent-black cursor-pointer" name="unit" checked={orgUnitCompanyId === item.id} value={item?.id} onChange={() => setOrgUnitCompanyId(item.id)} />
-                                    <span>{item?.name}</span>
-                                </label>
-                            ))
-                        }
-                    </div>
-                </div>
 
-                <div className="mb-4 mr-15">
-                    <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.type_overtime')} <DotRequireComponent/></label>
-                    <div className="flex space-x-4">
+            <div className="flex items-end">
+                <div className="mb-3">
+                    <label className="block mb-2 font-semibold text-gray-700">{t('miss_timekeeping.list.department')} <DotRequireComponent/></label>
+                    <select
+                        onChange={(e) => setDepartmentId(Number(e.target.value))}
+                        className="border cursor-pointer border-gray-300 rounded px-3 py-1"
+                        value={departmentId ?? ''}
+                    >
+                        <option value="">--{lang == 'vi' ? 'Chọn' : 'Select'}--</option>
                         {
-                            typeOverTimes?.map((item: any) => {
+                            departments?.map((item: any, idx: number) => {
                                 return (
-                                    <label key={item?.id} className="flex items-center space-x-2 cursor-pointer">
-                                        <input type="radio" className="accent-black cursor-pointer" name="type_overtime" value={item?.id} checked={typeOvertimeId === item.id} onChange={() => setTypeOvertimeId(item.id)} />
-                                        <span>{lang == 'vi' ? item?.name : item?.nameE}</span>
-                                    </label>
+                                    <option key={idx} value={item?.id ?? ''}>{item?.name}</option>
                                 )
                             })
                         }
-                    </div>
+                    </select>
                 </div>
-
-                <div className="flex flex-col md:flex-row md:space-x-8 items-start mt-4 md:mt-0">
-                    <div className="mb-4 md:mb-0">
-                        <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.date_register')} <DotRequireComponent/></label>
-                        <DateTimePicker
-                            enableTime={false}
-                            dateFormat="Y-m-d"
-                            initialDateTime={registerDate || new Date().toISOString().split('T')[0]}
-                            onChange={(_selectedDates, dateStr) => {
-                                setRegisterDate(dateStr);
-                            }}
-                            className={`dark:bg-[#454545] text-sm border border-gray-300 p-1.5 rounded-[3px]`}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.department')} <DotRequireComponent/></label>
-                        <select
-                            onChange={(e) => setDepartmentId(Number(e.target.value))}
-                            className="border cursor-pointer border-gray-300 rounded px-3 py-1"
-                            value={departmentId ?? ''}
-                        >
-                            <option value="">--{lang == 'vi' ? 'Chọn' : 'Select'}--</option>
-                            {
-                                departments?.map((item: any, idx: number) => {
-                                    return (
-                                        <option key={idx} value={item?.id ?? ''}>{item?.name}</option>
-                                    )
-                                })
-                            }
-                        </select>
+                <div className="ml-5">
+                    <div className="flex space-x-2 mb-4">
+                        <button type="button" onClick={handleAddRow} className="px-2 py-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">{t('overtime.create.add')}</button>
+                        <button type="button" onClick={handleDeleteRows} className="px-2 py-1 bg-red-600 cursor-pointer text-white text-sm rounded hover:bg-red-600">{t('overtime.create.delete')}</button>
+                        {
+                            selectedIds.length == 0 ? (
+                                <>
+                                    {
+                                        isEdit ? (
+                                            <button type="button" disabled={updateMissTimeKeeping.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                                                {updateMissTimeKeeping.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.update')}
+                                            </button>
+                                        ) : (
+                                            <button type="button" disabled={createMissTimeKeeping.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                                                {createMissTimeKeeping.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.save')}
+                                            </button>
+                                        )
+                                    }
+                                </>
+                            ) : (<></>)
+                        }
                     </div>
                 </div>
             </div>
-            {
-                selectedRadio == "normal" ? (
-                    <div className="w-[100%]">
-                        <div className="bg-white">
-                            {errorMsg && <div className="mb-4 text-red-600 font-semibold">{errorMsg}</div>}
-                            <div className="flex space-x-2 mb-4">
-                                <button type="button" onClick={handleAddRow} className="px-2 py-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">{t('overtime.create.add')}</button>
-                                <button type="button" onClick={handleDeleteRows} className="px-2 py-1 bg-red-600 cursor-pointer text-white text-sm rounded hover:bg-red-600">{t('overtime.create.delete')}</button>
-                                {
-                                    selectedIds.length == 0 ? (
-                                        <>
-                                            {
-                                                isEdit ? (
-                                                    <button type="button" disabled={updateOverTime.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
-                                                        {updateOverTime.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.update')}
-                                                    </button>
-                                                ) : (
-                                                    <button type="button" disabled={createOverTime.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
-                                                        {createOverTime.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.save')}
-                                                    </button>
-                                                )
-                                            }
-                                        </>
-                                    ) : (<></>)
-                                }
-                            </div>
-                            
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full text-sm border border-gray-200 rounded-lg">
-                                    <thead className="bg-gray-100 rounded-t-lg">
-                                        <tr>
-                                            <th className="px-4 py-2 border w-12 text-center">
-                                                <input 
-                                                    type="checkbox" 
-                                                    className="scale-[1.2] hover:cursor-pointer"
-                                                    checked={rows.length > 0 && rows.every((row) => selectedIds.includes(row.id))}
-										            onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setSelectedIds(rows.map((row) => row.id))
-                                                        } else {
-                                                            setSelectedIds([]);
-                                                        }
-                                                    }}
-                                                />
-                                            </th>
-                                            <th className="px-4 py-2 border">{ t('overtime.list.usercode')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-[350px]">{t('overtime.list.username')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border">{t('overtime.list.position')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40">{t('overtime.list.from_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40">{t('overtime.list.to_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40 text-center">{t('overtime.list.number_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border">{t('overtime.list.note')}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row) => (
-                                            <tr key={row.id} className="hover:bg-gray-50">
-                                                <td className="border px-2 py-2 text-center">
-                                                    <input
-                                                        className="scale-[1.2] hover:cursor-pointer"
-                                                        type="checkbox"
-                                                        checked={selectedIds.includes(row.id)}
-                                                        onChange={() => toggleCheck(row.id)}
-                                                    />
-                                                </td>
-                                                <td className="border px-2 py-2">
-                                                    <input
-                                                        type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('userCode') ? 'border-red-500' : '' }`}
-                                                        value={row.userCode ?? ''}
-                                                        onChange={(e) => updateRow(row.id, 'userCode', e.target.value)}
-                                                        onBlur={(e) => handleFindUser(e.target.value, row.id)}
-                                                        placeholder={t('overtime.list.usercode')}
-                                                    />
-                                                </td>
-                                                <td className={`border rounded px-2 py-1 text-center`}>{row.userName || '--'}</td> 
-                                                <td className="border px-2 py-2">
-                                                    <input
-                                                        type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('position') ? 'border-red-500' : '' }`}
-                                                        value={row.position}
-                                                        onChange={(e) => updateRow(row.id, 'position', e.target.value)}
-                                                        placeholder={t('overtime.list.position')}
-                                                    />
-                                                </td>
-                                                
-                                                <td className="border px-2 py-2">
-                                                    <input
-                                                        type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('fromHour') ? 'border-red-500' : '' }`}
-                                                        value={row.fromHour}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
-                                                                updateRow(row.id, 'fromHour', val);
-                                                            }
-                                                        }}
-                                                        placeholder={t('overtime.list.from_hour')}
-                                                        inputMode="numeric"
-                                                        pattern="^\d{1,2}(:\d{1,2})?$"
-                                                    />
-                                                </td>
-                                                
-                                                <td className="border px-2 py-2">
-                                                    <input
-                                                        type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('toHour') ? 'border-red-500' : '' }`}
-                                                        value={row.toHour}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
-                                                                updateRow(row.id, 'toHour', val);
-                                                            }
-                                                        }}
-                                                        placeholder={t('overtime.list.to_hour')}
-                                                        inputMode="numeric"
-                                                        pattern="^\d{1,2}(:\d{1,2})?$"
-                                                    />
-                                                </td>
-                                            
-                                                <td className="border px-2 py-2 text-center">
-                                                    <input
-                                                        type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('numberHour') ? 'border-red-500' : '' }`}
-                                                        value={row.numberHour}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (/^(?:\d+([.,]\d{0,1})?)?$/.test(val)) { 
-                                                                updateRow(row.id, 'numberHour', e.target.value)
-                                                            }
-                                                        }}
-                                                        placeholder={t('overtime.list.number_hour')}
-                                                        inputMode="decimal"
-                                                        pattern="^\d+([.,]\d{1})?$"
-                                                    />
-                                                </td>
-                                                
-                                                <td className="border px-2 py-2">
-                                                    <input
-                                                        type="text"
-                                                        className="border rounded px-2 py-1 w-full"
-                                                        value={row.note}
-                                                        onChange={(e) => updateRow(row.id, 'note', e.target.value)}
-                                                        placeholder={t('overtime.list.note')}
-                                                    />
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+
+            <div className="w-[100%]">
+                <div className="bg-white">
+                    {errorMsg && <div className="mb-4 text-red-600 font-semibold">{errorMsg}</div>}
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full table-fixed text-sm border border-gray-200 rounded-lg">
+                            <thead className="bg-gray-100 rounded-t-lg">
+                                <tr>
+                                    <th className="px-4 py-2 border text-center w-[20px]" rowSpan={2}>
+                                        <input 
+                                            type="checkbox" 
+                                            className="scale-[1.2] hover:cursor-pointer"
+                                            checked={rows.length > 0 && rows.every((row) => selectedIds.includes(row.id))}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setSelectedIds(rows.map((row) => row.id))
+                                                } else {
+                                                    setSelectedIds([]);
+                                                }
+                                            }}
+                                        />
+                                    </th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[70px]">{ t('miss_timekeeping.list.usercode')} <DotRequireComponent/></th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[200px]">{t('miss_timekeeping.list.username')} <DotRequireComponent/></th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[100px]">{t('miss_timekeeping.list.date')} <DotRequireComponent/></th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[80px]">{t('miss_timekeeping.list.shift')} <DotRequireComponent/></th>
+                                    <th colSpan={2} className="px-4 py-2 border">{t('miss_timekeeping.list.additional')}</th>
+                                    <th colSpan={2} className="px-4 py-2 border text-center w-[200px]">{t('miss_timekeeping.list.facial_recognition')}</th>
+                                    <th colSpan={2} className="px-4 py-2 border w-[130px]">{t('miss_timekeeping.list.gate')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border">{t('miss_timekeeping.list.reason')}</th>
+                                </tr>
+                                <tr>
+                                    <th className="py-1 border-r w-[30px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.out')}</th>
+                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.out')}</th>
+                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="w-[30px]">{t('miss_timekeeping.list.out')}</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {rows.map((row) => (
+                                    <tr key={row.id} className="hover:bg-gray-50">
+                                        <td className="border px-2 py-2 text-center">
+                                            <input
+                                                className="scale-[1.2] hover:cursor-pointer"
+                                                type="checkbox"
+                                                checked={selectedIds.includes(row.id)}
+                                                onChange={() => toggleCheck(row.id)}
+                                            />
+                                        </td>
+                                        <td className="border px-2 py-2">
+                                            <input
+                                                type="text"
+                                                className={`border rounded px-2 py-1 ${errorFields[row.id]?.includes('userCode') ? 'border-red-500' : '' }`}
+                                                value={row.userCode ?? ''}
+                                                onChange={(e) => updateRow(row.id, 'userCode', e.target.value)}
+                                                onBlur={(e) => handleFindUser(e.target.value, row.id)}
+                                                placeholder={t('miss_timekeeping.list.usercode')}
+                                            />
+                                        </td>
+                                        <td className={`border rounded px-2 py-1 text-center`}>{row.userName || '--'}</td> 
+                                        <td className="border px-2 py-2">
+                                            <DateTimePicker
+                                                enableTime={false}
+                                                dateFormat="Y-m-d"
+                                                initialDateTime={row.dateRegister || new Date().toISOString().split('T')[0]}
+                                                onChange={(_selectedDates, dateStr) => {
+                                                    updateRow(row.id, 'dateRegister', dateStr)
+                                                }}
+                                                className={`dark:bg-[#454545] text-sm border border-gray-300 p-1.5 rounded-[3px] w-[120px]`}
+                                            />
+                                        </td>
+                                        
+                                        <td className="border px-2 py-2">
+                                            <input
+                                                type="text"
+                                                className={`border rounded w-[50px] px-2 py-1 ${errorFields[row.id]?.includes('shift') ? 'border-red-500' : '' }`}
+                                                value={row.shift ?? ''}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    updateRow(row.id, 'shift', val);
+                                                }}
+                                                placeholder={t('miss_timekeeping.list.shift')}
+                                            />
+                                        </td>
+
+                                        <td className="border px-2 py-2 text-center">
+                                            <input
+                                                type="text"
+                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('additionalIn') ? 'border-red-500' : '' }`}
+                                                value={row.additionalIn}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                        updateRow(row.id, 'additionalIn', e.target.value)
+                                                    }
+                                                }}
+                                                placeholder={t('miss_timekeeping.list.in')}
+                                                inputMode="numeric"
+                                                pattern="^\d{1,2}(:\d{1,2})?$"
+                                            />
+                                        </td>
+
+                                        <td className="border px-2 py-2">
+                                            <input
+                                                type="text"
+                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('additionalOut') ? 'border-red-500' : '' }`}
+                                                value={row.additionalOut}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                        updateRow(row.id, 'additionalOut', val);
+                                                    }
+                                                }}
+                                                placeholder={t('miss_timekeeping.list.out')}
+                                                inputMode="numeric"
+                                                pattern="^\d{1,2}(:\d{1,2})?$"
+                                            />
+                                        </td>
+
+                                        <td className="border px-2 py-2 text-center">
+                                            <input
+                                                type="text"
+                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('facialRecognitionIn') ? 'border-red-500' : '' }`}
+                                                value={row.facialRecognitionIn}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                        updateRow(row.id, 'facialRecognitionIn', e.target.value)
+                                                    }
+                                                }}
+                                                placeholder={t('miss_timekeeping.list.in')}
+                                                inputMode="numeric"
+                                                pattern="^\d{1,2}(:\d{1,2})?$"
+                                            />
+                                        </td>
+
+                                        <td className="border px-2 py-2">
+                                            <input
+                                                type="text"
+                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('facialRecognitionOut') ? 'border-red-500' : '' }`}
+                                                value={row.facialRecognitionOut}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                        updateRow(row.id, 'facialRecognitionOut', val);
+                                                    }
+                                                }}
+                                                placeholder={t('miss_timekeeping.list.out')}
+                                                inputMode="numeric"
+                                                pattern="^\d{1,2}(:\d{1,2})?$"
+                                            />
+                                        </td>
+                                        <td className="border px-2 py-2 text-center">
+                                            <input
+                                                type="text"
+                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('gateIn') ? 'border-red-500' : '' }`}
+                                                value={row.gateIn}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                        updateRow(row.id, 'gateIn', e.target.value)
+                                                    }
+                                                }}
+                                                placeholder={t('miss_timekeeping.list.in')}
+                                                inputMode="numeric"
+                                                pattern="^\d{1,2}(:\d{1,2})?$"
+                                            />
+                                        </td>
+
+                                        <td className="border px-2 py-2">
+                                            <input
+                                                type="text"
+                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('gateOut') ? 'border-red-500' : '' }`}
+                                                value={row.gateOut}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                        updateRow(row.id, 'gateOut', val);
+                                                    }
+                                                }}
+                                                placeholder={t('miss_timekeeping.list.out')}
+                                                inputMode="numeric"
+                                                pattern="^\d{1,2}(:\d{1,2})?$"
+                                            />
+                                        </td>
+                                        
+                                        <td className="border px-2 py-2">
+                                            <input
+                                                type="text"
+                                                className="border rounded px-2 py-1 w-full"
+                                                value={row.reason}
+                                                onChange={(e) => updateRow(row.id, 'reason', e.target.value)}
+                                                placeholder={t('miss_timekeeping.list.reason')}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                ) : (
-                    <ExcelUploader
-                        templateFileUrl={`/template_excel/template_tang_ca.xlsx`}
-                        onSubmit={handleFormSubmitByExcel}
-                    />
-                )
-            }
+                </div>
+            </div>
         </div>
     );
 }

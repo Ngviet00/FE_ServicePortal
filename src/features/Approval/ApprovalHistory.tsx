@@ -28,6 +28,12 @@ function GetUrlDetailWaitApproval(item: any) {
 	else if (item?.requestTypeId == REQUEST_TYPE.PURCHASE) {
 		result = `/approval/view-purchase/${item?.id ?? '1'}`
 	}
+	else if (item?.requestTypeId == REQUEST_TYPE.OVERTIME) {
+		result = `/overtime/view/${item?.code ?? '1'}`
+	}
+	else if (item?.requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
+		result = `/miss-timekeeping/view/${item?.code ?? '1'}`
+	}
 
 	return result
 }

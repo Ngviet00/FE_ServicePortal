@@ -19,18 +19,7 @@ import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
-import { IRequestStatus } from "@/api/itFormApi"
-import { IRequestType } from "@/api/requestTypeApi"
-import overTimeApi from "@/api/overTimeApi"
-
-interface GetMyLeaveRequestRegistered {
-    id?: string,
-    code?: string,
-    userNameCreatedForm?: string,
-    createdAt?: string,
-    requestStatus?: IRequestStatus,
-    requestType?: IRequestType
-}
+import missTimeKeepingApi from "@/api/missTimeKeepingApi"
 
 export default function ListMissTimeKeepingRegister () {
     const { t } = useTranslation('hr')
@@ -43,10 +32,10 @@ export default function ListMissTimeKeepingRegister () {
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
     
-    const { data: overTimeRegisters = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-overtime-registered', { page, pageSize, status: status }],
+    const { data: missTimeKeepingRegisters = [], isPending, isError, error } = useQuery({
+        queryKey: ['get-miss-timekeeping-registered', { page, pageSize, status: status }],
         queryFn: async () => {
-            const res = await overTimeApi.getOverTimeRegister({
+            const res = await missTimeKeepingApi.getMissTimeKeepingRegister({
                 UserCode: user?.userCode ?? "",
                 Page: page,
                 PageSize: pageSize,
@@ -74,13 +63,13 @@ export default function ListMissTimeKeepingRegister () {
         if (shouldGoBack && page > 1) {
             setPage(prev => prev - 1);
         } else {
-            queryClient.invalidateQueries({ queryKey: ['get-overtime-registered'] });
+            queryClient.invalidateQueries({ queryKey: ['get-miss-timekeeping-registered'] });
         }
     }
 
     const mutation = useMutation({
         mutationFn: async (id: string) => {
-            await overTimeApi.delete(id);
+            await missTimeKeepingApi.delete(id);
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -91,23 +80,22 @@ export default function ListMissTimeKeepingRegister () {
     });
 
     const handleDelete = async (code: string) => {
-        const shouldGoBack = overTimeRegisters.length === 1;
+        const shouldGoBack = missTimeKeepingRegisters.length === 1;
         await mutation.mutateAsync(code);
         handleSuccessDelete(shouldGoBack);
-        window.location.reload()
     };
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
                 <h3 className="font-bold text-xl md:text-2xl m-0">
-                    {t('overtime.list_register.title')}
+                    {t('miss_timekeeping.list_register.title')}
                 </h3>
             </div>
 
             <div className="mb-5 pb-3">
                 <div className="mb-2">
-                    <Label className="mb-2">{t('overtime.list_register.status')}</Label>
+                    <Label className="mb-2">{t('miss_timekeeping.list.status')}</Label>
                     <select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
                         <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
@@ -143,18 +131,18 @@ export default function ListMissTimeKeepingRegister () {
                                         ))}
                                         </TableRow>
                                     ))
-                                ) : isError || overTimeRegisters.length === 0 ? (
+                                ) : isError || missTimeKeepingRegisters.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
                                             { error?.message ?? tCommon('no_results') } 
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    overTimeRegisters.map((item: any) => {
+                                    missTimeKeepingRegisters.map((item: any) => {
                                         return (
                                             <TableRow key={item.id}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/overtime/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/miss-timekeeping/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
                                                 <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
@@ -168,7 +156,7 @@ export default function ListMissTimeKeepingRegister () {
                                                     {
                                                         item?.requestStatus?.id == 1 ? (
                                                             <>
-                                                                <Link to={`/overtime/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                <Link to={`/miss-timekeeping/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                                 </Link>
                                                                 <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
@@ -196,12 +184,12 @@ export default function ListMissTimeKeepingRegister () {
                                     ))}
                                     </div>
                                 ))
-                            ) : isError || overTimeRegisters.length === 0 ? (
+                            ) : isError || missTimeKeepingRegisters.length === 0 ? (
                                 <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
-                                overTimeRegisters.map((item: GetMyLeaveRequestRegistered) => {
+                                missTimeKeepingRegisters.map((item: any, idx: number) => {
                                     return (
-                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={idx} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
                                                 <Link to={`/overtime/edit/${item?.id}`} className="text-blue-600 underline">
@@ -244,7 +232,7 @@ export default function ListMissTimeKeepingRegister () {
                 </div>
             </div>
             {
-                overTimeRegisters.length > 0 ? (<PaginationControl
+                missTimeKeepingRegisters.length > 0 ? (<PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}

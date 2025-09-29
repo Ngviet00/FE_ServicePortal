@@ -161,6 +161,7 @@ export enum REQUEST_TYPE {
     FORM_IT = 3,
     PURCHASE = 4,
     OVERTIME = 5,
+    MISS_TIMEKEEPING = 6,
 }
 
 export enum IT_CATEGORY {
