@@ -65,6 +65,9 @@ import ViewMissTimeKeeping from '@/features/MissTimeKeeping/ViewMissTimeKeeping'
 import ListMissTimeKeepingRegister from '@/features/MissTimeKeeping/ListMissTimeKeepingRegister';
 import CreateMissTimeKeeping from '@/features/MissTimeKeeping/CreateMissTimeKeeping';
 import DetailApprovalMissTimeKeeping from '@/features/MissTimeKeeping/DetailApprovalMissTimeKeeping';
+import ListInternalMemoHR from '@/features/InternalMemoHR/ListInternalMemoHR';
+import CreateInternalMemoHR from '@/features/InternalMemoHR/CreateInternalMemoHR';
+import ViewAndApprovalInternalMemoHR from '@/features/InternalMemoHR/ViewAndApprovalInternalMemoHR';
 
 function App() {
 	const location = useLocation();
@@ -126,6 +129,11 @@ function App() {
 		{ path: "/miss-timekeeping/edit/:id", element: <CreateMissTimeKeeping/> },
 		{ path: "/miss-timekeeping/registered", element: <ListMissTimeKeepingRegister/> },
 		{ path: "/miss-timekeeping/view/:id", element: <ViewMissTimeKeeping/> },
+
+		{ path: "/internal-memo-hr", element: <ListInternalMemoHR/> },
+		{ path: "/internal-memo-hr/create", element: <CreateInternalMemoHR/> },
+		{ path: "/internal-memo-hr/edit/:id", element: <CreateInternalMemoHR/> },
+		{ path: "/internal-memo-hr/view/:id", element: <ViewAndApprovalInternalMemoHR/> },
 
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']

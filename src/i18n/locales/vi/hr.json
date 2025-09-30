@@ -72,6 +72,10 @@
         }
     },
     "internal_memo_hr": {
-        
+        "title_create": "Tạo đơn nội bộ",
+        "title_update": "Cập nhật đơn nội bộ",
+        "title_view": "Chi tiết đơn nội bộ",
+        "title_list": "Danh sách đơn nội bộ đã tạo",
+        "user_register": "Người tạo đơn"
     }
 }

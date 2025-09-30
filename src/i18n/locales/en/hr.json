@@ -72,6 +72,9 @@
         }
     },
     "internal_memo_hr": {
-
+        "title_create": "Create internal memo",
+        "title_update": "Update internal memo",
+        "title_view": "Detail internal memo",
+        "title_list": "List internal memo"
     }
 }

@@ -124,6 +124,10 @@ input[type="password"]::-webkit-textfield-decoration {
 input[type="password"]::-webkit-password-toggle-button {
   display: none;
 }
+.ht_master .wtHolder {
+  overflow-y: auto !important;
+  max-height: 300px !important;
+}
 
 @import "tailwindcss";
 
