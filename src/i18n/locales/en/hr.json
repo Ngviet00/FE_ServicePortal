@@ -75,6 +75,23 @@
         "title_create": "Create internal memo",
         "title_update": "Update internal memo",
         "title_view": "Detail internal memo",
-        "title_list": "List internal memo"
+        "title_list": "List internal memo",
+        "department": "Department",
+        "created_by": "Created by",
+        "title": "Title",
+        "title_other": "Title other",
+        "change_shift": "Change shift",
+        "change_sunday": "Change sunday",
+        "use_phone": "Use phone",
+        "register_gate": "Register gate",
+        "other": "Other information",
+        "save": "Save",
+        "note": "Note",
+        "list": "List",
+        "status": "Status",
+        "code": "Code",
+        "user_code": "UserCode",
+        "action": "Action",
+        "created_at": "Created at"
     }
 }

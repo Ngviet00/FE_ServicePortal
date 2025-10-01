@@ -162,6 +162,7 @@ export enum REQUEST_TYPE {
     PURCHASE = 4,
     OVERTIME = 5,
     MISS_TIMEKEEPING = 6,
+    INTERNAL_MEMO_HR = 7,
 }
 
 export enum IT_CATEGORY {

@@ -76,6 +76,23 @@
         "title_update": "Cập nhật đơn nội bộ",
         "title_view": "Chi tiết đơn nội bộ",
         "title_list": "Danh sách đơn nội bộ đã tạo",
-        "user_register": "Người tạo đơn"
+        "user_register": "Người tạo đơn",
+        "department": "Bộ phận",
+        "created_by": "Người làm đơn",
+        "title": "Tiêu đề",
+        "title_other": "Tiêu đề khác",
+        "change_shift": "Đổi ca",
+        "change_sunday": "Đổi chủ nhật",
+        "use_phone": "Sử dụng điện thoại",
+        "register_gate": "Đăng ký ra vào cổng",
+        "other": "Thông tin khác",
+        "save": "Lưu",
+        "note": "Ghi chú",
+        "list": "Danh sách",
+        "status": "Trạng thái",
+        "code": "Mã đơn",
+        "user_code": "Mã nhân viên",
+        "action": "Hành động",
+        "created_at": "Thời gian tạo"
     }
 }

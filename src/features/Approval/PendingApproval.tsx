@@ -55,6 +55,9 @@ function GetUrlDetailWaitApproval(item: any) {
 	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
 		result = `/approval/approval-miss-timekeeping/${item?.code ?? '1'}`
 	}
+	else if (requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
+		result = `/internal-memo-hr/${item?.code ?? '1'}?mode=approval`
+	}
 
 	return result
 }

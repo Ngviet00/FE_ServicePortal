@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useNavigate, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-// import { ShowToast } from "@/lib";
-import { useAuthStore } from "@/store/authStore";
-import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import orgUnitApi from "@/api/orgUnitApi";
-import { useRef, useState } from "react";
-import DotRequireComponent from "@/components/DotRequireComponent";
-import { HotTable } from '@handsontable/react-wrapper';
-import { registerAllModules } from 'handsontable/registry';
-import 'handsontable/styles/handsontable.css';
-import 'handsontable/styles/ht-theme-main.css';
-import Handsontable from "handsontable";
-import { useApprovalInternalMemo, useCreateInternalMemo, useUpdateInternalMemo } from "@/api/internalMemoHrApi";
-import { Spinner } from "@/components/ui/spinner";
+import { useNavigate, useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
+import { useAuthStore } from "@/store/authStore"
+import { Button } from "@/components/ui/button"
+import { useQuery } from "@tanstack/react-query"
+import { useEffect, useRef, useState } from "react"
+import { HotTable, HotTableRef } from '@handsontable/react-wrapper'
+import { registerAllModules } from 'handsontable/registry'
+import internalMemoHrApi, { useCreateInternalMemo, useUpdateInternalMemo } from "@/api/internalMemoHrApi"
+import { Spinner } from "@/components/ui/spinner"
+import { ShowToast } from "@/lib"
+import orgUnitApi from "@/api/orgUnitApi"
+import Handsontable from "handsontable"
+import DotRequireComponent from "@/components/DotRequireComponent"
+import 'handsontable/styles/handsontable.css'
+import 'handsontable/styles/ht-theme-main.css'
 
 registerAllModules();
 
-const formSchemas: Record<string, { colHeaders: string[]; columns: Handsontable.ColumnSettings[] }> = {
+// eslint-disable-next-line react-refresh/only-export-components
+export const formSchemas: Record<string, { colHeaders: string[]; columns: Handsontable.ColumnSettings[] }> = {
     change_shift: {
         colHeaders: ["Mã NV", "Họ tên", "Từ ngày", "Đến ngày", "Từ ca", "Đến ca"],
         columns: [
@@ -74,29 +75,102 @@ export default function CreateInternalMemoHR() {
     const user = useAuthStore((state) => state.user)
     const navigate = useNavigate()
 
-     const hotRef = useRef<HotTable>(null);
+    const hotRef = useRef<HotTableRef>(null);
     const [formType, setFormType] = useState<keyof typeof formSchemas>("change_shift");
-    const schema = formSchemas[formType];
     const [departmentId, setDepartmentId] = useState<number | null>(null);
     const [note, setNote] = useState<string | null>(null);
     const [save, setSave] = useState<string | null>(null);
     const [formTypeOther, setFormTypeOther] = useState<string | null>(null);
+    const [tableData, setTableData] = useState<string[][]>([]);
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     const createInternalMemoHr = useCreateInternalMemo()
     const updateInternalMemoHr = useUpdateInternalMemo()
-    const approvalInternalMemoHr = useApprovalInternalMemo()
     
     const { id } = useParams<{ id: string }>();
     const isEdit = !!id;
 
-    // const { data: formDataDetail, isLoading: isFormDataLoading } = useQuery({
-    //     queryKey: ['overtime', id],
-    //     queryFn: async () => {
-    //         const res = await overTimeApi.getDetailOverTime(id ?? '');
-    //         return res.data.data;
-    //     },
-    //     enabled: isEdit,
-    // });
+    const { data: formDataDetail, isLoading: isFormDataLoading } = useQuery({
+        queryKey: ['internal-memo-hr', id],
+        queryFn: async () => {
+            const res = await internalMemoHrApi.getDetailInternalMemoHr(id ?? '');
+            return res.data.data;
+        },
+        enabled: isEdit,
+    });
+
+    useEffect(() => {
+        if (isEdit && formDataDetail) {
+            const meta = JSON.parse(formDataDetail?.metaData);
+
+            const headers: string[] = meta.Headers ?? [];
+            const rows: any[][] = meta.Rows ?? [];
+            const emptyRows = Array.from({ length: 15 }, () =>
+                Array(headers.length).fill("")
+            );
+            setTableData([headers, ...rows, ...emptyRows]);
+
+            setDepartmentId(formDataDetail?.departmentId)
+            setFormType(meta?.Title)
+            setNote(formDataDetail?.note)
+            setSave(meta?.Save)
+            setIsDataLoaded(true);
+        } else if (!isDataLoaded) {
+            setIsDataLoaded(true);
+        }
+    }, [formDataDetail, isDataLoaded, isEdit]);
+
+    useEffect(() => {
+        if (!isEdit) {
+            const headers = [...formSchemas[formType].colHeaders];
+            const emptyRows = Array.from({ length: 15 }, () =>
+                Array(headers.length).fill("")
+            );
+            setTableData([headers, ...emptyRows]);
+            setFormType("change_shift");
+            setDepartmentId(null);
+            setNote(null);
+            setSave(null);
+            setFormTypeOther(null);
+            setIsDataLoaded(true);
+        }
+    }, [isEdit, formType]);
+
+    useEffect(() => {
+        if (!isDataLoaded) {
+            return;
+        }
+        const currentSchema = formSchemas[formType];
+        const newHeaders = [...currentSchema.colHeaders];
+        const newColsCount = newHeaders.length;
+
+        const currentData = hotRef.current?.hotInstance?.getData() ?? tableData;
+
+        let rowsToKeep: any[][] = [];
+        if (currentData.length > 1) {
+            rowsToKeep = currentData.slice(1);
+        }
+        
+        rowsToKeep = rowsToKeep
+            .map(row => {
+                return [...row.slice(0, newColsCount), ...Array(Math.max(0, newColsCount - row.length)).fill("")];
+            })
+            .filter((r: any) => r.some((cell: string | null) => cell !== null && cell !== ""));
+        const minRows = 14;
+        const emptyRowsToAdd = Math.max(0, minRows - rowsToKeep.length);
+
+        const emptyRows = Array.from({ length: emptyRowsToAdd }, () =>
+            Array(newColsCount).fill("")
+        );
+
+        if (isEdit && formDataDetail && formType === formDataDetail.metaData?.Title) {
+            // Đã được khởi tạo ở useEffect 1, không làm gì ở đây
+        } else {
+            setTableData([newHeaders, ...rowsToKeep, ...emptyRows]);
+        }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formType, isDataLoaded]);
 
     const mode = isEdit ? 'edit' : 'create';
 
@@ -105,16 +179,25 @@ export default function CreateInternalMemoHR() {
 
     const handleSave = async () => {
         const hot = hotRef.current?.hotInstance;
-        if (!hot) return;
+        
+        if (!hot) return
 
-        // Lấy toàn bộ data trong table
+        if (departmentId == null) {
+            ShowToast(lang == 'vi' ? 'Vui lòng chọn phòng ban' : 'Please select department', 'error')
+            return
+        }
+
+        if (formType == 'other' && (formTypeOther == '' || formTypeOther == null)) {
+            ShowToast(lang == 'vi' ? 'Vui lòng nhập tiêu đề khác' : 'Please input title other', 'error')
+            return
+        }
+
         const allData = hot.getData();
 
-        // Row đầu tiên = header, còn lại = rows
         const headers = allData[0];
         const rows = allData.slice(1).filter(
-            (r) => r.some((cell: string | null) => cell !== null && cell !== "")
-        ); // bỏ dòng trống
+            (r: any) => r.some((cell: string | null) => cell !== null && cell !== "")
+        );
 
         const payload = {
             OrgPositionId: user?.orgPositionId,
@@ -128,19 +211,20 @@ export default function CreateInternalMemoHR() {
             Headers: headers,
             Rows: rows,
         };
-
-        await createInternalMemoHr.mutateAsync(payload)
+        if (isEdit) {
+            await updateInternalMemoHr.mutateAsync({
+                applicationFormCode: formDataDetail?.code,
+                data: payload
+            })
+        }
+        else {
+            await createInternalMemoHr.mutateAsync(payload)
+        }
 
         navigate('/internal-memo-hr')
-        // console.log("Saving payload:", payload);
-
-        // // TODO: call API
-        // // await api.saveInternalMemo({
-        // //   table_data: JSON.stringify(payload),
-        // // });
     };
 
-    if (isEdit) { //isFormDataLoading
+    if (isEdit && isFormDataLoading) {
         return <div>{lang == 'vi' ? 'Loading' : 'Đang tải'}...</div>;
     }
     
@@ -159,7 +243,7 @@ export default function CreateInternalMemoHR() {
                 </Button>
             </div>
             <div className="flex items-center">
-                <label className="block mb-2 mr-2">Bộ phận:</label>
+                <label className="block mb-2 mr-2">{t('internal_memo_hr.department')} <DotRequireComponent/></label>
                 <select
                     onChange={(e) => setDepartmentId(Number(e.target.value))}
                     className="border cursor-pointer border-gray-300 rounded px-3 py-1"
@@ -183,20 +267,10 @@ export default function CreateInternalMemoHR() {
                 }}
             >
                  <div>
-                    <label className="">Người làm đơn: <span className="font-semibold">{user?.userName} - {user?.userCode}</span></label> <br />
+                    <label className="">{t('internal_memo_hr.created_by')}: <span className="font-semibold">{user?.userName} - {user?.userCode}</span></label> <br />
                 </div>
-                <div className="mt-1">
-                    <label className="block mb-1">Lưu</label>
-                    <input
-                        value={save ?? ''}
-                        onChange={(e) => setSave(e.target.value)}
-                        placeholder={`Lưu`}
-                        className={`dark:bg-[#454545] w-full p-2 text-sm border rounded`}
-                    />
-                </div>
-
                 <div className="mt-2">
-                    <label className="block mb-1">Chủ đề:</label>
+                    <label className="block mb-1">{t('internal_memo_hr.title')} <DotRequireComponent/></label>
                     <select
                         className="border cursor-pointer border-gray-300 rounded px-3 py-1"
                         value={formType}
@@ -205,21 +279,20 @@ export default function CreateInternalMemoHR() {
                         }
                         style={{ marginBottom: 10 }}
                     >
-                        <option value="change_shift">Đổi ca</option>
-                        <option value="change_sunday">Đổi chủ nhật</option>
-                        <option value="use_phone">Sử dụng điện thoại</option>
-                        <option value="register_gate">Đăng ký ra vào cổng</option>
-                        <option value="other">Thông tin khác</option>
+                        <option value="change_shift">{t('internal_memo_hr.change_shift')}</option>
+                        <option value="change_sunday">{t('internal_memo_hr.change_sunday')}</option>
+                        <option value="use_phone">{t('internal_memo_hr.use_phone')}</option>
+                        <option value="register_gate">{t('internal_memo_hr.register_gate')}</option>
+                        <option value="other">{t('internal_memo_hr.other')}</option>
                     </select>
                     {
                         formType == 'other' && (
                             <div>
-                                <label htmlFor="" className="">Thông tin khác <DotRequireComponent/></label>
+                                <label htmlFor="" className="mb-1 inline-block">{t('internal_memo_hr.title_other')} <DotRequireComponent/></label>
                                 <input
-                                    required
                                     value={formTypeOther ?? ''}
                                     onChange={(e) => setFormTypeOther(e.target.value)}
-                                    placeholder={`Thông tin khác`}
+                                    placeholder={t('internal_memo_hr.title_other')}
                                     className={`dark:bg-[#454545] w-full p-2 text-sm border rounded`}
                                 />
                             </div>
@@ -227,24 +300,31 @@ export default function CreateInternalMemoHR() {
                     }
                 </div>
 
+                <div className="mt-1">
+                    <label className="block mb-1">{t('internal_memo_hr.save')}</label>
+                    <input
+                        value={save ?? ''}
+                        onChange={(e) => setSave(e.target.value)}
+                        placeholder={t('internal_memo_hr.save')}
+                        className={`dark:bg-[#454545] w-full p-2 text-sm border rounded`}
+                    />
+                </div>
+
                 <div className="mt-3">
-                    <label className="block mb-1">Ghi chú</label>
+                    <label className="block mb-1">{t('internal_memo_hr.note')}</label>
                     <textarea
                         value={note ?? ''}
                         onChange={(e) => setNote(e.target.value)}
-                        placeholder={`Ghi chú`}
+                        placeholder={t('internal_memo_hr.note')}
                         className={`w-full p-2 border rounded`}
                     />
                 </div>
 
                 <div className="mt-1">
-                    <label htmlFor="" className="inline-block mb-2">Danh sách user</label>
+                    <label htmlFor="" className="inline-block mb-2">{t('internal_memo_hr.list')}</label>
                     <HotTable
                         ref={hotRef}
-                        data={[
-                            [...schema.colHeaders],
-                            ...Array.from({ length: 14 }, () => ["", "", "", "", ""]),
-                        ]}
+                        data={tableData}
                         fixedRowsTop={1}
                         rowHeaders={true}
                         colHeaders={false}
@@ -253,17 +333,15 @@ export default function CreateInternalMemoHR() {
                         height="280"
                         stretchH="all"
                         colWidths={130}
-                        
-                        cells={(row, col) => {
-                            const cellProperties: Handsontable.CellProperties = {};
-
+                        cells={(row) => {
+                            const cellProperties = {} as Handsontable.CellProperties;
                             if (row === 0) {
                                 if (formType !== "other") {
                                     cellProperties.readOnly = true;
                                 }
                                 cellProperties.renderer = (instance, td, r, c, prop, value, cellProps) => {
-                                    Handsontable.renderers.TextRenderer.apply(this, [instance, td, r, c, prop, value, cellProps]);
-                                    td.style.fontWeight = "bold";;
+                                    Handsontable.renderers.TextRenderer(instance, td, r, c, prop, value, cellProps);
+                                    td.style.fontWeight = "bold";
                                     td.style.textAlign = "center";
                                 };
                             } else {
@@ -275,13 +353,15 @@ export default function CreateInternalMemoHR() {
                     />
                 </div>
 
-                <button
-                    disabled={createInternalMemoHr.isPending}
-                    type="submit"
-                    className={`bg-black text-white px-4 py-2 rounded hover:cursor-pointer hover:opacity-70`}
-                >
-                    { createInternalMemoHr.isPending ? <Spinner className="text-white" size={`small`}/> : t('confirm')}
-                </button>
+                <div className="text-right">
+                    <button
+                        disabled={createInternalMemoHr.isPending || updateInternalMemoHr.isPending}
+                        type="submit"
+                        className={`bg-black mt-4 text-white px-7 py-2 rounded hover:cursor-pointer hover:opacity-70`}
+                    >
+                        { createInternalMemoHr.isPending || updateInternalMemoHr.isPending ? <Spinner className="text-white" size={`small`}/> : t('internal_memo_hr.save')}
+                    </button>
+                </div>
             </form>
         </div>
     );

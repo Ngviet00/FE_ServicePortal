@@ -11,6 +11,12 @@ import { useTranslation } from "react-i18next"
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import { formatDateToInputString } from "./Components/functions";
 
+const formatHour = (minutes: number) => {
+    if (minutes < 60) return 0;
+    const hours = minutes / 60;
+    return hours % 1 === 0 ? hours.toFixed(0) : hours.toFixed(1);
+};
+
 export default function Timekeeping () {
     const [fromDate, setFromDate] = useState("")
     const [toDate, setToDate] = useState("")
@@ -218,8 +224,17 @@ export default function Timekeeping () {
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">{item.OutCuoi}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCTGLamNgay1}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCTGLamToi1}</td>
-                                            <td className={`${item?.LamThemNgay != 0 && (item?.LamThemNgay ?? 0) >= 60 ? 'font-bold text-green-800 bg-green-300' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{(item?.LamThemNgay ?? 0) >= 60 ? item?.LamThemNgay : 0}</td>
-                                            <td className={`${item?.LamThemToi != 0 && (item?.LamThemToi ?? 0) >= 60 ? 'font-bold text-green-800 bg-green-300' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{(item?.LamThemToi ?? 0) >= 60 ? item.LamThemToi : 0}</td>
+                                            <td className={`${item?.LamThemNgay != 0 && (item?.LamThemNgay ?? 0) >= 60 
+                                                ? 'font-bold text-green-800 bg-green-300' 
+                                                : ''} px-4 py-2 border whitespace-nowrap text-center`}>
+                                                {formatHour(item?.LamThemNgay ?? 0)}
+                                            </td>
+
+                                            <td className={`${item?.LamThemToi != 0 && (item?.LamThemToi ?? 0) >= 60 
+                                                ? 'font-bold text-green-800 bg-green-300' 
+                                                : ''} px-4 py-2 border whitespace-nowrap text-center`}>
+                                                {formatHour(item?.LamThemToi ?? 0)}
+                                            </td>
                                             <td className={`${item?.DiMuon != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.DiMuon}</td>
                                             <td className={`${item?.VeSom != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.VeSom}</td>
                                             <td className={`${item?.RaNgoai != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.RaNgoai}</td>

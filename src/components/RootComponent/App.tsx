@@ -133,7 +133,7 @@ function App() {
 		{ path: "/internal-memo-hr", element: <ListInternalMemoHR/> },
 		{ path: "/internal-memo-hr/create", element: <CreateInternalMemoHR/> },
 		{ path: "/internal-memo-hr/edit/:id", element: <CreateInternalMemoHR/> },
-		{ path: "/internal-memo-hr/view/:id", element: <ViewAndApprovalInternalMemoHR/> },
+		{ path: "/internal-memo-hr/:id", element: <ViewAndApprovalInternalMemoHR/> },
 
 		{ path: "/time-keeping", element: <Timekeeping/>},
 		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']
