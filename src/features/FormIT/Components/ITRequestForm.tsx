@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ITCategoryInterface } from "@/api/itCategoryApi";
+import memoNotificationApi from "@/api/memoNotificationApi";
 import { IPriority } from "@/api/priorityApi";
 import userApi from "@/api/userApi";
+import FileListPreview, { FileListPreviewDownload, UploadedFileType } from "@/components/ComponentCustom/FileListPreviewMemoNotify";
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import FullscreenLoader from "@/components/FullscreenLoader";
@@ -32,8 +34,15 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
     const lang = useTranslation().i18n.language.split('-')[0]
     const navigate = useNavigate()
 
+    const [localFiles, setLocalFiles] = useState<File[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+    const [idDeleteFile, setIdDeleteFile] = useState<number[]>([]);
+
     const isCreate = mode == 'create'
     const isEdit = mode == 'edit'
+
+    const MAX_FILE_SIZE_MB = 5;
+    const MAX_FILE_COUNT = 5;
 
     //create
     const previousUserCodeValueRef = useRef('')
@@ -54,7 +63,8 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
             dateCompleted: z.string().min(1, tCommon('required')),
             itCategory: z.array(z.number()).nonempty(tCommon('required')),
             reason: z.string().min(1, tCommon('required')),
-            priority: z.coerce.number()
+            priority: z.coerce.number(),
+            attachments: z.any().optional()
         })
     });
 
@@ -67,13 +77,13 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
         reset,
         getValues,
         setValue,
+        watch
     } = useForm<ITRequestState>({
         resolver: zodResolver(ITRequestFormSchema),
         defaultValues: {
             requester: {
-                userCode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedBy ?? '',
-                name: formData?.applicationFormItem?.applicationForm?.createdBy ?? '',
-
+                userCode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm ?? '',
+                name: formData?.applicationFormItem?.applicationForm?.userNameCreatedForm ?? '',
                 email: formData?.email ?? '',
                 department: formData?.orgUnit?.name ?? '',
                 departmentId: formData?.orgUnit?.id ?? -1,
@@ -86,21 +96,23 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                 itCategory: formData?.itFormCategories?.map((item: {itCategoryId: number}) => item.itCategoryId) ?? [],
                 reason: formData?.reason ?? '',
                 priority: formData?.priorityId ?? 1,
+                attachments: formData?.files ?? []
             }
         },
     });
 
     useEffect(() => {
         if (formData) {
+            setUploadedFiles(formData?.files)
             reset({
                 requester: {
-                    userCode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedBy ?? '',
-                    name: formData?.applicationFormItem?.applicationForm?.createdBy ?? '',
+                    userCode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm ?? '',
+                    name: formData?.applicationFormItem?.applicationForm?.userNameCreatedForm ?? '',
                     email: formData?.email ?? '',
                     department: formData?.orgUnit?.name ?? '',
                     departmentId: formData?.orgUnit?.id ?? -1,
                     orgPositionId: user?.orgPositionId,
-                    position: formData?.position ?? ''
+                    position: formData?.position ?? '',
                 },
                 itRequest: {
                     dateRequired: formData?.requestDate ?? new Date().toISOString().split('T')[0],
@@ -111,12 +123,25 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                 }
             });
         }
-    }, [formData, reset, user?.orgPositionId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [formData, user?.orgPositionId]);
 
     const onInternalSubmit = (data: any) => {
-        if (onSubmit) {
-            onSubmit(data);
+        if (shouldShowUpload) {
+            if (localFiles.length == 0 && uploadedFiles.length == 0) {
+                ShowToast(lang == 'vi' ? 'Vui lòng chọn file đính kèm' : 'Please select file attachment', 'error')
+                return false
+            }
         }
+        const payload = {
+            ...data,
+            itRequest: {
+                ...data.itRequest,
+                attachments: localFiles,
+                idDeleteFile: idDeleteFile
+            }
+        };
+        onSubmit?.(payload);
     };
 
     const onCancel = () => {
@@ -177,6 +202,46 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
         }
         finally {
             setIsSearchingUser(false)
+        }
+    }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        const newFiles = Array.from(files);
+
+        if (newFiles.length + localFiles.length + uploadedFiles.length > 5) {
+            e.target.value = "";
+            ShowToast(lang == 'vi' ? `Chỉ được upload tối đa ${MAX_FILE_COUNT} file` : `Only upload maximun ${MAX_FILE_COUNT} file`, 'error');
+            return;
+        }
+
+        const oversized = newFiles.find(f => f.size > 5 * 1024 * 1024);
+        if (oversized) {
+            e.target.value = "";
+            ShowToast(lang == 'vi' ? `File ${oversized.name} vượt quá ${MAX_FILE_SIZE_MB}MB` : `The file ${oversized.name} exceeds ${MAX_FILE_SIZE_MB}MB.`, 'error');
+            return;
+        }
+
+        setLocalFiles(prev => [...prev, ...newFiles]);
+        e.target.value = "";
+    };
+
+    const itCategory = watch("itRequest.itCategory");
+    const shouldShowUpload = itCategory?.some((id: number) => [1, 2, 5].includes(id));
+
+    const handleDownloadFile = async (file: UploadedFileType) => {
+        try {
+            const result = await memoNotificationApi.downloadFile(file.id)
+            const url = window.URL.createObjectURL(result.data);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            ShowToast(`Download file failed,${getErrorMessage(err)}`, "error")
         }
     }
 
@@ -363,6 +428,59 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                             </p>
                         )}
                     </div>
+                    {
+                        shouldShowUpload && (
+                            <div className="form-group mt-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    File <DotRequireComponent/><span className="inline-block ml-1 text-red-700 text-xs italic">(5MB)</span>
+                                </label>
+                                {
+                                    mode == 'create' || mode == 'edit' ? (
+                                        <>
+                                            <input
+                                                id="file-upload"
+                                                type="file"
+                                                multiple
+                                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx"
+                                                onChange={handleFileChange}
+                                                className="hidden"
+                                            />
+
+                                            <div className="w-max mt-2">
+                                                <label
+                                                    htmlFor="file-upload"
+                                                    className="inline-block cursor-pointer w-auto text-sm rounded-md bg-blue-800 px-3 py-2 text-white text-center hover:bg-blue-900 transition select-none"
+                                                >
+                                                    {lang == 'vi' ? 'Chọn file' : 'Choose file'}
+                                                </label>
+                                            </div>
+
+                                            <FileListPreview 
+                                                files={localFiles} 
+                                                uploadedFiles={uploadedFiles}
+                                                onRemove={(index) => {
+                                                    const updated = [...localFiles];
+                                                    updated.splice(index, 1);
+                                                    setLocalFiles(updated);
+                                                }}
+                                                onRemoveUploaded={(index) => {
+                                                    const removed = uploadedFiles[index];
+                                                    const updated = [...uploadedFiles];
+                                                    updated.splice(index, 1);
+                                                    setUploadedFiles(updated);
+                                                    setIdDeleteFile((prev) => [...prev, removed.id]);
+                                                }}
+                                            />
+                                        </>
+                                    ) : (
+                                        <div>
+                                            <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles}/>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        )
+                    }
 
                     <div className="form-group mt-4">
                         <label htmlFor="itRequest.reason" className="block text-sm font-medium text-gray-700">

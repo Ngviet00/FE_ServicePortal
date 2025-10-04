@@ -42,10 +42,10 @@ function GetUrlDetailWaitApproval(item: any) {
 		result = `/view-memo-notify-approval/${item.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/approval-form-it/${item.id ?? '1'}`
+		result = `/approval/approval-form-it/${item.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/approval/approval-purchase/${item.id ?? '1'}`
+		result = `/approval/approval-purchase/${item.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
 		result = `/view-overtime-approval/${item?.code ?? '1'}`

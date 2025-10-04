@@ -98,9 +98,9 @@ export default function ListFormIT () {
     }
 
     const delITForm = useDeleteITForm(); 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (code: string) => {
         const shouldGoBack = itForms.length === 1;
-        await delITForm.mutateAsync(id);
+        await delITForm.mutateAsync(code);
         handleSuccessDelete(shouldGoBack);
     };
 
@@ -199,7 +199,7 @@ export default function ListFormIT () {
                                         return (
                                             <tr key={idx}>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                    <Link to={`/view/form-it/${item?.code ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
                                                 </td>
                                                 <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
                                                     {item?.reason ?? '--'}
@@ -218,10 +218,10 @@ export default function ListFormIT () {
                                                     {
                                                         item?.requestStatusId == STATUS_ENUM.PENDING ? (
                                                             <>
-                                                                <Link to={`/form-it/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                <Link to={`/form-it/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {t('list.edit')}
                                                                 </Link>
-                                                                <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
+                                                                <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code)}/>
                                                             </>
                                                         ) : (<>--</>)
                                                     }
@@ -267,10 +267,10 @@ export default function ListFormIT () {
                                         {
                                             item?.requestStatusId == STATUS_ENUM.PENDING ? (
                                                 <>
-                                                    <Link to={`/form-it/edit/${item.id}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                    <Link to={`/form-it/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                         {t('list.edit')}
                                                     </Link>
-                                                    <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
+                                                    <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code)}/>
                                                 </>
                                             ) : (<>--</>)
                                         }

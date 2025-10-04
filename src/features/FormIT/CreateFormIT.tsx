@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
-import itFormApi, { CreateITFormRequest, useCreateITForm, useUpdateITForm } from '@/api/itFormApi';
+import itFormApi, { useCreateITForm, useUpdateITForm } from '@/api/itFormApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import ITRequestForm from './Components/ITRequestForm';
 import priorityApi from '@/api/priorityApi';
@@ -46,26 +46,38 @@ const CreateFormIT = () => {
     const updateItForm = useUpdateITForm()
 
     const handleFormSubmit = async (data: any) => {
-        const payload: CreateITFormRequest = {
-            UserCode: data.requester.userCode,
-            UserName: data.requester.name,
-            DepartmentId: data.requester.departmentId,
-            Email: data.requester.email,
-            Position: data.requester.position,
-            Reason: data.itRequest.reason,
-            PriorityId: data.itRequest.priority,
-            OrgPositionId: user?.orgPositionId ?? 0,
-            ITCategories: data.itRequest.itCategory,
-            RequestDate: data.itRequest.dateRequired, 
-            RequiredCompletionDate: data.itRequest.dateCompleted,
-            UrlFrontend: window.location.origin,
-        };
+        const formData = new FormData();
+
+        formData.append("UserCode", data.requester.userCode);
+        formData.append("UserName", data.requester.name);
+        formData.append("DepartmentId", String(data.requester.departmentId));
+        formData.append("Email", data.requester.email);
+        formData.append("Position", data.requester.position);
+        formData.append("Reason", data.itRequest.reason);
+        formData.append("PriorityId", String(data.itRequest.priority));
+        formData.append("OrgPositionId", String(user?.orgPositionId));
+        formData.append("RequestDate", data.itRequest.dateRequired);
+        formData.append("RequiredCompletionDate", data.itRequest.dateCompleted);
+        
+        data?.itRequest?.itCategory?.forEach((cat: any, idx: any) => {
+            formData.append(`ITCategories[${idx}]`, String(cat));
+        });
+
+        data.itRequest.attachments.forEach((file: File) => {
+            formData.append("Files", file);
+        });
+
+        data?.itRequest?.idDeleteFile?.forEach((id: any) => {
+            formData.append('IdDeleteFile', String(id));
+        });
+
+        console.log(data);
 
         if (isEdit) {
-            await updateItForm.mutateAsync({id: id, data: payload})
+            await updateItForm.mutateAsync({id: id, data: formData})
         }
         else {
-            await createItForm.mutateAsync(payload)
+            await createItForm.mutateAsync(formData)
         }
 
         await queryClient.invalidateQueries({ queryKey: ['get-all-it-form'] });

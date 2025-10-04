@@ -16,41 +16,6 @@ interface GetAll {
     Year?: number | null,
 }
 
-export interface CreateITFormRequest {
-    UserCode?: string;
-    UserName?: string,
-    UserCodeCreated?: string;
-    UserNameCreated?: string
-    DepartmentId?: number;
-    Email?: string;
-    Position?: string;
-    Reason?: string;
-    PriorityId?: number;
-    OrgPositionId: number;
-    ITCategories: number[];
-    RequestDate?: string; 
-    RequiredCompletionDate?: string;
-    TargetCompletionDate?: string;
-    ActualCompletionDate?: string;
-    UrlFrontend?: string,
-}
-
-interface UpdateITFormRequest {
-    UserCodeRequestor?: string;
-    UserCodeCreated?: string;
-    DepartmentId?: number;
-    Email?: string;
-    Position?: string;
-    Reason?: string;
-    PriorityId?: number;
-    OrgPositionId: number;
-    ITCategories: number[];
-    RequestDate?: string; 
-    RequiredCompletionDate?: string;
-    TargetCompletionDate?: string;
-    ActualCompletionDate?: string;
-}
-
 export interface ITFormCategory {
     id: number;
     itFormId: string;
@@ -156,16 +121,24 @@ const itFormApi = {
         return axiosClient.get(`/it-form/${id}`)
     },
 
-    create(data: CreateITFormRequest) {
-        return axiosClient.post('/it-form', data)
+    create(data: FormData) {
+        return axiosClient.post('/it-form', data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     },
 
-    update(id: string, data: UpdateITFormRequest){
-        return axiosClient.put(`/it-form/${id}`, data)
+    update(id: string, data: FormData){
+        return axiosClient.put(`/it-form/${id}`, data, {
+             headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     },
 
-    delete(id: string | undefined) {
-        return axiosClient.delete(`/it-form/${id}`)
+    delete(applicationFormCode: string | undefined) {
+        return axiosClient.delete(`/it-form/${applicationFormCode}`)
     },
     assignedTask(data: IAssignedTask) {
         return axiosClient.post('/it-form/assigned-task', data)
@@ -180,7 +153,7 @@ const itFormApi = {
 
 export function useCreateITForm() {
     return useMutation({
-        mutationFn: async (data: CreateITFormRequest) => {
+        mutationFn: async (data: FormData) => {
             await itFormApi.create(data)
         },
         onSuccess: () => {
@@ -194,7 +167,7 @@ export function useCreateITForm() {
 
 export function useUpdateITForm() {
     return useMutation({
-        mutationFn: async ({id, data} : {id: string, data: UpdateITFormRequest}) => {
+        mutationFn: async ({id, data} : {id: string, data: FormData}) => {
             await itFormApi.update(id, data)
         },
         onSuccess: () => {
@@ -208,8 +181,8 @@ export function useUpdateITForm() {
 
 export function useDeleteITForm() {
     return useMutation({
-        mutationFn: async (id: string | undefined) => {
-            await itFormApi.delete(id)
+        mutationFn: async (code: string | undefined) => {
+            await itFormApi.delete(code)
         },
         onSuccess: () => {
             ShowToast("Success");

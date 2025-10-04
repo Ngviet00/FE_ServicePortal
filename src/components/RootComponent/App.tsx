@@ -154,6 +154,9 @@ function App() {
 		{ path: "/form-it/create", element: <CreateFormIT />},
 		{ path: "/form-it", element: <ListFormIT />},
 		{ path: "/form-it/edit/:id", element: <CreateFormIT />},
+		{ path: "/view-form-it-approval/:id", element: <DetailWaitApprovalFormIT />},
+		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
+		{ path: "/view/form-it/:id", element: <ViewOnlyFormIT />},
 
 		//purchasing
 		{ path: "/purchase/statistical", element: <StatisticalFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
@@ -167,9 +170,7 @@ function App() {
 		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},
 		{ path: "/approval/approval-history", element: <ApprovalHistory />},
 
-		{ path: "/approval/approval-form-it/:id", element: <DetailWaitApprovalFormIT />},
-		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
-		{ path: "/approval/view-form-it/:id", element: <ViewOnlyFormIT />},
+
 
 		{ path: "/approval/approval-purchase/:id", element: <DetailWaitApprovalFormPurchase />},
 		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
