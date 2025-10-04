@@ -3,6 +3,7 @@ import { ShowToast } from "@/lib";
 import { X } from "lucide-react";
 import { useRef, useState } from "react";
 import i18n from "@/i18n/i18n";
+import { Spinner } from "./ui/spinner";
 
 const ALLOWED_EXT = [".xlsx", ".xls"];
 const ALLOWED_TYPES = [
@@ -15,6 +16,7 @@ type ExcelUploaderProps = {
     onSubmit: (file: File) => Promise<boolean>;
     accept?: string;
     showTemplateButton?: boolean;
+    isPending?: boolean;
 };
 
 const texts: Record<string, any> = {
@@ -43,7 +45,9 @@ export default function ExcelUploader({
     onSubmit,
     accept = ".xlsx,.xls",
     showTemplateButton = true,
+    isPending = false
  }: ExcelUploaderProps) {
+    const [downloading, setDownloading] = useState(false);
     const [file, setFile] = useState<File | null>(null)
     const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -103,11 +107,31 @@ export default function ExcelUploader({
         }
     };
 
+    const handleDownloadTemplate = async () => {
+        try {
+            setDownloading(true);
+            const res = await fetch(templateFileUrl);
+        if (!res.ok) throw new Error("File not found");
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = templateFileUrl.split("/").pop() || "template.xlsx";
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            ShowToast("Download failed!", "error");
+            console.error(err);
+        } finally {
+            setDownloading(false);
+        }
+    };
+
     return (
         <div className="flex flex-col space-y-4">
             <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-lg font-semibold">{t.title}:</h3> <br />
-                <label className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-md shadow-sm transition text-sm cursor-pointer">
+                <label className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-md shadow-sm transition text-sm cursor-pointer">
                     {t.choose}
                     <input
                         ref={fileInputRef}
@@ -119,26 +143,31 @@ export default function ExcelUploader({
                 </label>
                 {
                     showTemplateButton && (
-                         <a
-                            href={templateFileUrl}
-                            download
-                            className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded-md shadow-sm transition text-sm"
+                        <button
+                            onClick={handleDownloadTemplate}
+                            disabled={downloading}
+                            className={`px-3 py-2 rounded-md shadow-sm transition text-sm text-white cursor-pointer ${
+                            downloading
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-teal-500 hover:bg-teal-600"
+                            }`}
                         >
-                            {t.download_template}
-                        </a>
+                            {downloading ? <Spinner size="small" className="text-white" /> : t.download_template}
+                        </button>
                     )
                 }
-            </div>  
+            </div>
 
             {file && (
                 <div className="flex items-center space-x-2 mt-2">
                     <span className="text-gray-700 text-sm">{file.name}</span>
                     <X className="text-red-500 cursor-pointer hover:bg-gray-100 rounded-full p-1" onClick={handleClear}/>
                     <button
+                        disabled={isPending}
                         onClick={handleSubmit}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-md shadow-sm transition text-sm cursor-pointer"
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-md shadow-sm transition text-sm cursor-pointer"
                     >
-                        {t.submit}
+                        {isPending ? <Spinner className="text-white" size={`small`}/> : t.submit}
                     </button>
                 </div>
             )}

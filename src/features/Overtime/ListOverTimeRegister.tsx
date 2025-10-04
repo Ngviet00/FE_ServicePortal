@@ -154,7 +154,7 @@ export default function ListOverTimeRegister () {
                                         return (
                                             <TableRow key={item.id}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/overtime/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
                                                 <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
@@ -204,7 +204,7 @@ export default function ListOverTimeRegister () {
                                         <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/overtime/edit/${item?.id}`} className="text-blue-600 underline">
+                                                <Link to={`/view/overtime/${item?.id}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

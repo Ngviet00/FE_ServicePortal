@@ -1,101 +1,96 @@
-import TreeCheckbox, { TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Spinner } from "@/components/ui/spinner";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { ShowToast } from "@/lib";
-import leaveRequestApi, { useAttachUserManageOrgUnit, useUpdateHrWithManagementLeavePermission, useUpdateUserHavePermissionCreateMultipleLeaveRequest } from "@/api/leaveRequestApi";
-import orgUnitApi from "@/api/orgUnitApi";
+import leaveRequestApi, { useUpdateHrWithManagementLeavePermission } from "@/api/leaveRequestApi";
 import userApi from "@/api/userApi";
 import { useTranslation } from "react-i18next";
 import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
-// import delegatedTempApi, { useAddNewDelegatedTemp, useDeleteDelegatedTemp } from "@/api/delegatedTempApi";
-import { TreeCheckboxLeaveRequest } from "@/components/JsTreeCheckbox/TreeCheckBoxLeaveRequest";
 
 function HRManagementLeaveRequest() {
     const { t } = useTranslation('mngLeaveRequest');
-    const [checkedIds, setCheckedIds] = useState<string[]>([]);
-    const updateUserHavePermissionMngLeaveRequest = useUpdateUserHavePermissionCreateMultipleLeaveRequest();
+    // const [checkedIds, setCheckedIds] = useState<string[]>([]);
+    // const updateUserHavePermissionMngLeaveRequest = useUpdateUserHavePermissionCreateMultipleLeaveRequest();
     // const queryClient = useQueryClient();
 
 
-    const { data: departments = [] } = useQuery({
-        queryKey: ['get-all-departments'],
-        queryFn: async () => {
-            const res = await orgUnitApi.GetAllDepartment()
-            return res?.data?.data?.map((dept: {id: number, name: string}) => ({
-                id: dept.id,
-                label: dept.name,
-                type: 'department'
-            }))
-        },
-    });
+    // const { data: departments = [] } = useQuery({
+    //     queryKey: ['get-all-departments'],
+    //     queryFn: async () => {
+    //         const res = await orgUnitApi.GetAllDepartment()
+    //         return res?.data?.data?.map((dept: {id: number, name: string}) => ({
+    //             id: dept.id,
+    //             label: dept.name,
+    //             type: 'department'
+    //         }))
+    //     },
+    // });
 
-    const { data: getDepartmentAndChildrenTeam = [] } = useQuery({
-        queryKey: ['get-department-and-children-team'],
-        queryFn: async () => {
-            const res = await orgUnitApi.GetDepartmentAndChildrenTeam()
-            return res.data.data;
-        },
-    });
+    // const { data: getDepartmentAndChildrenTeam = [] } = useQuery({
+    //     queryKey: ['get-department-and-children-team'],
+    //     queryFn: async () => {
+    //         const res = await orgUnitApi.GetDepartmentAndChildrenTeam()
+    //         return res.data.data;
+    //     },
+    // });
 
-    useQuery({
-        queryKey: ['get-user-have-permission-mng-create-multiple-leave-request'],
-        queryFn: async () => {
-            const res = await leaveRequestApi.GetUserCodeHavePermissionCreateMultipleLeaveRequest();
-            const rs = res.data.data
-            setCheckedIds(rs)
-            return rs
-        },
-    });
+    // useQuery({
+    //     queryKey: ['get-user-have-permission-mng-create-multiple-leave-request'],
+    //     queryFn: async () => {
+    //         const res = await leaveRequestApi.GetUserCodeHavePermissionCreateMultipleLeaveRequest();
+    //         const rs = res.data.data
+    //         setCheckedIds(rs)
+    //         return rs
+    //     },
+    // });
 
-    const handleCheckedChange = (id: string, isChecked: boolean) => {
-        setCheckedIds((prev) => {
-            const set = new Set(prev);
-            if (isChecked) {
-                set.add(id);
-            } else {
-                set.delete(id);
-            }
-            return Array.from(set);
-        }); 
-    };
+    // const handleCheckedChange = (id: string, isChecked: boolean) => {
+    //     setCheckedIds((prev) => {
+    //         const set = new Set(prev);
+    //         if (isChecked) {
+    //             set.add(id);
+    //         } else {
+    //             set.delete(id);
+    //         }
+    //         return Array.from(set);
+    //     }); 
+    // };
 
-    const [selectedOpenPositionUser, setSelectedOpenPositionUser] = useState<{ id: string; type: string } | null>(null);
+    // const [selectedOpenPositionUser, setSelectedOpenPositionUser] = useState<{ id: string; type: string } | null>(null);
 
-    const [idLocations, setIdLocations] = useState<string[]>([]);
+    // const [idLocations, setIdLocations] = useState<string[]>([]);
 
-    const handleCheckedChangeLocations = useCallback((nodes: TreeNode[]) => {
-        setIdLocations(nodes.map((n) => n.id));
-    }, []);
+    // const handleCheckedChangeLocations = useCallback((nodes: TreeNode[]) => {
+    //     setIdLocations(nodes.map((n) => n.id));
+    // }, []);
 
-    const handleSave = async () => {
-        await updateUserHavePermissionMngLeaveRequest.mutateAsync(checkedIds)
-    }
+    // const handleSave = async () => {
+    //     await updateUserHavePermissionMngLeaveRequest.mutateAsync(checkedIds)
+    // }
 
-    const handleClickOpenDetailPositionMngLeaveRequest = async (id: string, type: string) => {
-        const fetchApi = await leaveRequestApi.GetOrgUnitIdAttachedByUserCode(id)
-        const result = fetchApi.data.data
-        setIdLocations(result.map(String))
-        setSelectedOpenPositionUser({ id: id, type: type });
-    }
+    // const handleClickOpenDetailPositionMngLeaveRequest = async (id: string, type: string) => {
+    //     const fetchApi = await leaveRequestApi.GetOrgUnitIdAttachedByUserCode(id)
+    //     const result = fetchApi.data.data
+    //     setIdLocations(result.map(String))
+    //     setSelectedOpenPositionUser({ id: id, type: type });
+    // }
 
-    const attachUserMngOrgUnit = useAttachUserManageOrgUnit();
+    // const attachUserMngOrgUnit = useAttachUserManageOrgUnit();
 
-    const handleSaveUserMngLeaveRq = async () => {
-        if (selectedOpenPositionUser == null) {
-            ShowToast("Chưa chọn quản lý", "error")
-            return
-        }
+    // const handleSaveUserMngLeaveRq = async () => {
+    //     if (selectedOpenPositionUser == null) {
+    //         ShowToast("Chưa chọn quản lý", "error")
+    //         return
+    //     }
 
-        const payLoad = {
-            userCode: selectedOpenPositionUser.id,
-            orgUnitIds: idLocations.map(Number)
-        }
+    //     const payLoad = {
+    //         userCode: selectedOpenPositionUser.id,
+    //         orgUnitIds: idLocations.map(Number)
+    //     }
 
-        await attachUserMngOrgUnit.mutateAsync(payLoad)
-    }
+    //     await attachUserMngOrgUnit.mutateAsync(payLoad)
+    // }
 
     // const [mainUser, setMainUser] = useState<OptionType[]>([]);
 
@@ -184,15 +179,15 @@ function HRManagementLeaveRequest() {
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('title')}</h3>
             </div>
 
-            <div className="mt-5">
+            {/* <div className="mt-5">
                 <span className="font-bold mr-2">
                     {t('choosing')}: <span className="font-bold text-base text-red-700">{selectedOpenPositionUser?.id} {selectedOpenPositionUser?.type}</span>
                 </span>
                 <Button className="bg-orange-700 hover:cursor-pointer" onClick={() => setSelectedOpenPositionUser(null)}>{t('delete')}</Button>
-            </div>
+            </div> */}
 
             <div className="flex">
-                <div className="border p-4 rounded">
+                {/* <div className="border p-4 rounded">
                     <div className="flex mb-3">
                         <Label className="text-red-700 mt-3">{t('title')}</Label>
                         <Button
@@ -244,8 +239,8 @@ function HRManagementLeaveRequest() {
                             )
                         }
                     </div>
-                </div>
-                <div className="border border-l-0 p-4">
+                </div> */}
+                <div className="mt-3">
                     <Label className="mb-2">{t('hr_mng_leave_request')}</Label>
                     <div className="flex">
                         <GenericAsyncMultiSelect

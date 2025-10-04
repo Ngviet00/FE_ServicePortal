@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/store/authStore"
 import { useNavigate, useParams } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import leaveRequestApi, { useHrExportExcelLeaveRequest, useHrNote, useRejectSomeLeaves } from "@/api/leaveRequestApi"
-import { useApproval } from "@/api/approvalApi"
+import leaveRequestApi, { useApprovalLeaveRq, useHrExportExcelLeaveRequest, useHrNote, useRejectSomeLeaves } from "@/api/leaveRequestApi"
 import useHasRole from "@/hooks/useHasRole"
 import { RoleEnum, STATUS_ENUM } from "@/lib"
 import useHasPermission from "@/hooks/useHasPermission"
@@ -60,7 +59,7 @@ const DetailWaitApprovalLeaveRq = () => {
     const { t } = useTranslation()
     const [statusModalConfirm, setStatusModalConfirm] = useState('')
     const { user } = useAuthStore()
-    const approval = useApproval()
+    const approval = useApprovalLeaveRq()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
     const { id } = useParams<{ id: string }>()
@@ -202,7 +201,7 @@ const DetailWaitApprovalLeaveRq = () => {
                 }
             </div>
             {
-                formData?.leaveRequests?.length > 1 && (
+                !isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && formData?.leaveRequests?.length > 1 && (
                     <div className="select-none flex items-center pl-1">
                         <input 
                             type="checkbox" 
@@ -225,7 +224,7 @@ const DetailWaitApprovalLeaveRq = () => {
                             <div key={idx} className="flex items-start gap-3 mb-4">
                                 <div className="flex flex-col items-center justify-start mt-1">
                                     {
-                                        formData?.leaveRequests?.length > 1 && (
+                                        !isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && formData?.leaveRequests?.length > 1 && (
                                             <input 
                                                 type="checkbox" 
                                                 className="w-5 h-5 accent-blue-600 rounded cursor-pointer mb-2" 

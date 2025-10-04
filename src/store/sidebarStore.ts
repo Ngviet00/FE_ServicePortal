@@ -1,4 +1,4 @@
-import { House, LockKeyhole, Ticket, Users, Bell, Computer, ClipboardCheck, WalletCards } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -67,27 +67,27 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 		],
 	},
-	// {
-	// 	key: "IT",
-	// 	label: "sidebar.IT.title",
-	// 	icon: Computer,
-	// 	children: [
-	// 		{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
-	// 		{ label: "sidebar.IT.create", route: "/form-it/create" },
-	// 		// { label: "sidebar.IT.list", route: "/form-it" },
-	// 		// { label: "sidebar.IT.setting", route: "/form-it/setting" },
-	// 	],
-	// },
-	// {
-	// 	key: "Purchase",
-	// 	label: "sidebar.purchase.title",
-	// 	icon: WalletCards,
-	// 	children: [
-	// 		{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
-	// 		{ label: "sidebar.purchase.create", route: "/purchase/create" },
-	// 		// { label: "sidebar.purchase.list", route: "/purchase" }
-	// 	],
-	// },
+	{
+		key: "IT",
+		label: "sidebar.IT.title",
+		icon: Computer,
+		children: [
+			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
+			{ label: "sidebar.IT.create", route: "/form-it/create" },
+			// { label: "sidebar.IT.list", route: "/form-it" },
+			// { label: "sidebar.IT.setting", route: "/form-it/setting" },
+		],
+	},
+	{
+		key: "Purchase",
+		label: "sidebar.purchase.title",
+		icon: WalletCards,
+		children: [
+			{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
+			{ label: "sidebar.purchase.create", route: "/purchase/create" },
+			// { label: "sidebar.purchase.list", route: "/purchase" }
+		],
+	},
 	{
 		key: "approval",
 		label: "sidebar.approval.title",
@@ -96,7 +96,6 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.approval.pending_approval", route: "/approval/pending-approval" },
 			{ label: "sidebar.approval.assigned", route: "/approval/assigned-tasks" },
 			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
-			{ label: "sidebar.approval.resolved", route: "/approval/resolved" },
 		],
 	}
 ];
@@ -111,7 +110,7 @@ interface SidebarState {
 	toggleSubmenu: (menu: SidebarMenuKey) => void;
 	closeAllSubmenus: () => void;
 	setVisibleSubmenuByPath: (path: string, parentKey?: string) => void;
-	closeMenuIfNotChild: (pathname: string) => void;
+	// closeMenuIfNotChild: (pathname: string) => void;
 }
 
 const initialSubmenusVisible = SIDEBAR_MENUS.reduce((acc, item) => {
@@ -168,16 +167,16 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
 		}
 	},
 
-	closeMenuIfNotChild: (pathname: string) => {
-		const matchedMenu = SIDEBAR_MENUS.find((menu) =>
-			menu.children?.some((child) => pathname.startsWith(child.route))
-		);
-		if (!matchedMenu) {
-			// set({
-			// 	submenusVisible: Object.fromEntries(
-			// 		SIDEBAR_MENUS.map((m) => [m.key, false])
-			// 	),
-			// });
-		}
-	},
+	// closeMenuIfNotChild: (pathname: string) => {
+	// 	const matchedMenu = SIDEBAR_MENUS.find((menu) =>
+	// 		menu.children?.some((child) => pathname.startsWith(child.route))
+	// 	);
+	// 	if (!matchedMenu) {
+	// 		// set({
+	// 		// 	submenusVisible: Object.fromEntries(
+	// 		// 		SIDEBAR_MENUS.map((m) => [m.key, false])
+	// 		// 	),
+	// 		// });
+	// 	}
+	// },
 }));

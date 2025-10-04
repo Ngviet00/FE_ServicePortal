@@ -142,7 +142,7 @@ export default function ListMissTimeKeepingRegister () {
                                         return (
                                             <TableRow key={item.id}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/miss-timekeeping/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/miss-timekeeping/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
                                                 <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
@@ -192,7 +192,7 @@ export default function ListMissTimeKeepingRegister () {
                                         <div key={idx} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/overtime/edit/${item?.id}`} className="text-blue-600 underline">
+                                                <Link to={`/view/miss-timekeeping/${item?.id}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>
@@ -206,14 +206,17 @@ export default function ListMissTimeKeepingRegister () {
                                                 <strong>{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}: </strong> { formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
                                             </div>
                                             <div className="mb-1">
-                                                <strong>{lang == 'vi' ? 'Trạng thái' : 'Status'}: </strong> { lang == 'vi' ? item?.requestStatus?.name : item?.requestStatus?.nameE }
+                                                <strong>{lang == 'vi' ? 'Trạng thái' : 'Status'}: </strong>
+                                                <StatusLeaveRequest 
+                                                    status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
+                                                />
                                             </div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Hành động' : 'Action'}: </strong> 
                                                 {
                                                     item?.requestStatus?.id == 1 ? (
                                                         <>
-                                                            <Link to={`/overtime/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
+                                                            <Link to={`//miss-timekeeping/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                                 {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                             </Link>
                                                             <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />

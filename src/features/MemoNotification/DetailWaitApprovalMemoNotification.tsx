@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useApproval } from '@/api/approvalApi';
 import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -13,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
 import ModalConfirm from '@/components/ModalConfirm';
-import memoNotificationApi from '@/api/memoNotificationApi';
+import memoNotificationApi, { useApprovalMemoNotify } from '@/api/memoNotificationApi';
 
 const DetailWaitApprovalMemoNotification: React.FC = () => {
     const { t } = useTranslation();
@@ -24,7 +23,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
     const [note, setNote] = useState("")
     const navigate = useNavigate()
     const queryClient = useQueryClient();
-    const approval = useApproval();
+    const approval = useApprovalMemoNotify();
     const [statusModalConfirm, setStatusModalConfirm] = useState('')
 
     const { data: memo } = useQuery({
@@ -72,9 +71,9 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
             console.log(err);
         }
     }
-
+    
     if (!memo) {
-        return <div className="p-6">{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>
+        return <div className="p-2">{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>
     }
 
     return (
@@ -87,7 +86,7 @@ const DetailWaitApprovalMemoNotification: React.FC = () => {
                 <h2 className="text-[24px] sm:text-[30px] font-bold mb-1">{memo.title}</h2>
                 <div className="text-sm text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className='dark:text-white'>
-                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.applicationFormItem?.applicationForm?.createdBy}</span>
+                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.applicationFormItem?.applicationForm?.userNameCreatedForm}</span>
                     </span>
                     <span className='dark:text-white'>•</span>
                     <span className='dark:text-white'>

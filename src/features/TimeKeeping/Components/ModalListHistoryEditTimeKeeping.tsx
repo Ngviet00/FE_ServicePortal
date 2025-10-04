@@ -6,8 +6,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import timekeepingApi, { ListHistoryTimeAttendance, useDeleteHistoryEditTimeKeeping } from "@/api/timeKeepingApi";
 import { useAuthStore } from "@/store/authStore";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
-import ButtonDeleteComponent from "@/components/ButtonDeleteComponent";
 import { formatDate } from "@/lib/time";
+import { useTranslation } from "react-i18next";
 
 interface ModalListHistoryEditTimeKeepingProps {
     isOpen: boolean;
@@ -19,6 +19,7 @@ const ModalListHistoryEditTimeKeeping: React.FC<ModalListHistoryEditTimeKeepingP
     onClose,
 }) => {
     const {user} = useAuthStore()
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [totalPage, setTotalPage] = useState(0)
@@ -125,9 +126,7 @@ const ModalListHistoryEditTimeKeeping: React.FC<ModalListHistoryEditTimeKeepingP
                                                 }
                                             </TableCell>
                                             <TableCell className="font-medium text-center">
-                                                {
-                                                    item.isSentToHR == true ? (<span>--</span>) : (<ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id ?? 0)}/>)
-                                                }
+                                                <button className="bg-black text-white px-3 py-0.5 rounded-[3px] cursor-pointer" onClick={() => handleDelete(item?.id ?? 0)}>{lang == 'vi' ? 'Xóa' : 'Delete'}</button>
                                             </TableCell>
                                         </TableRow>
                                     ))

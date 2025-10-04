@@ -199,7 +199,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
                             {
                                 isCreate && (<h2 className="font-bold text-xl text-red-600 dark:text-white mb-1">{`#` + (index + 1)}</h2>)
                             }
-                            <div className="flex flex-wrap gap-4">
+                            <div className="flex flex-wrap gap-4 justify-between md:justify-between">
                                 <div>
                                     <label htmlFor={`usercode-${index}`} className="block mb-1">{ t('usercode') } <DotRequireComponent /></label>
                                     <input

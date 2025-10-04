@@ -20,7 +20,7 @@ import orgUnitApi from "@/api/orgUnitApi";
 export default function MngTimekeeping () {
     const { t } = useTranslation()
     const {user} = useAuthStore()
-
+    const { t: tCommon } = useTranslation('common')
     const today = getToday()
     const defaultMonth = getDefaultMonth(today)
     const defaultYear = getDefaultYear(today)
@@ -249,120 +249,118 @@ export default function MngTimekeeping () {
                             })}
                             </tr>
                         </thead>
-                    <tbody>
-                        {isLoading &&
-                        Array.from({ length: 5 }).map((_, index) => (
-                            <tr key={index}>
-                                <td className="w-[130px] text-center p-2">
-                                    <div className="flex justify-center">
-                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                    </div>
-                                </td>
-                                <td className="w-[180px] text-center">
-                                    <div className="flex justify-center">
-                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                    </div>
-                                </td>
-                                <td className="w-[130px] text-center">
-                                    <div className="flex justify-center">
-                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                    </div>
-                                </td>
-                                {daysHeader.map(({ dayStr }) => (
-                                    <td key={dayStr} className="w-[36px] text-center">
-                                    <div className="flex justify-center">
-                                        <Skeleton className="h-3 w-[17px] bg-gray-300" />
-                                    </div>
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-
-                        {(isError || !dataAttendances || dataAttendances.length === 0) && (
-                            <tr>
-                                <td
-                                    colSpan={daysInMonth + 3}
-                                    className={`${
-                                        isError ? "text-red-700" : "text-black dark:text-gray-300"
-                                    } font-medium text-center align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a]`}
-                                    >
-                                    {error?.message ?? "No results"}
-                                </td>
-                            </tr>
-                        )}
-
-                        {!isLoading && !isError &&
-                            dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
-                                <tr key={idx} className="border-b dark:border-[#9b9b9b]">
-                                <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">{item.UserCode}</td>
-                                <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
-                                <td className="text-left border-r pl-2 text-sm w-[130px]">{item.Department}</td>
-                                {daysHeader.map(({ dayStr }, colIdx: number) => {
-                                    let bgColor = "#FFFFFF";
-                                    let textColor = "#000000";
-                                    const dayNumber = parseInt(dayStr, 10);
-
-                                    let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
-                                    const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
-                                    const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
-                                    const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
-                                    const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
-                                    const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
-                                    const isSunday = new Date(fullDate).getDay() === 0;
-
-                                    if (result == "X") {
-                                    if (isSunday) {
-                                        result = "CN_X";
-                                    } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
-                                        result = "X";
-                                    } else if (parseFloat(wh) < 8) {
-                                        const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
-                                        result = calculateTime == "1" ? "X" : calculateTime;
-                                    }
-                                    } else if (result == "SH") {
-                                        bgColor = "#3AFD13";
-                                    } else if (result == "CN") {
-                                    if (den != "" && ve != "" && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
-                                        result = "CN_X";
-                                        bgColor = "#FFFFFF";
-                                        textColor = "#000000";
-                                    } else {
-                                        bgColor = "#858585";
-                                    }
-                                    } else if (result == "ABS" || result == "MISS") {
-                                        bgColor = "#FD5C5E";
-                                    } else if (result != "X") {
-                                        bgColor = "#ffe378";
-                                    }
-
-                                    return (
+                        <tbody>
+                            {
+                                isLoading ? (
+                                    Array.from({ length: 5 }).map((_, index) => (
+                                        <tr key={index}>
+                                            <td className="w-[130px] text-center p-2">
+                                                <div className="flex justify-center">
+                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                </div>
+                                            </td>
+                                            <td className="w-[180px] text-center">
+                                                <div className="flex justify-center">
+                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                </div>
+                                            </td>
+                                            <td className="w-[130px] text-center">
+                                                <div className="flex justify-center">
+                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                </div>
+                                            </td>
+                                            {daysHeader.map(({ dayStr }) => (
+                                                <td key={dayStr} className="w-[36px] text-center">
+                                                <div className="flex justify-center">
+                                                    <Skeleton className="h-3 w-[17px] bg-gray-300" />
+                                                </div>
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))
+                                ) : isError || dataAttendances.length == 0 ? (
+                                    <tr>
                                         <td
-                                            key={dayStr}
-                                            style={{ backgroundColor: bgColor, color: textColor }}
-                                            className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
-                                            onClick={() => {
-                                            const invalidResults = ["X", "CN_X", "NM"];
-                                            if (!invalidResults.includes(result)) {
-                                                setSelectedData({
-                                                    Name: item.Name,
-                                                    UserCode: item.UserCode,
-                                                    CurrentDate: fullDate,
-                                                    Result: result,
-                                                    Den: den,
-                                                    Ve: ve,
-                                                    RowIndex: idx,
-                                                    ColIndex: colIdx,
-                                                });
-                                                setOpenModalUpdateTimeKeeping(true);
-                                            }
-                                            }}
-                                        >
-                                            <div className="flex justify-center text-xs">{result}</div>
+                                            colSpan={daysInMonth + 3}
+                                            className={`align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-center font-bold text-red-700`}
+                                            >
+                                            { error?.message ?? tCommon('no_results') } 
                                         </td>
-                                    );
-                                })}
-                                </tr>
-                            ))}
+                                    </tr>
+                                ) : (
+                                        dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
+                                        <tr key={idx} className="border-b dark:border-[#9b9b9b]">
+                                        <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">{item.UserCode}</td>
+                                        <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
+                                        <td className="text-left border-r pl-2 text-sm w-[130px]">{item.Department}</td>
+                                        {daysHeader.map(({ dayStr }, colIdx: number) => {
+                                            let bgColor = "#FFFFFF";
+                                            let textColor = "#000000";
+                                            const dayNumber = parseInt(dayStr, 10);
+
+                                            let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
+                                            const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
+                                            const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
+                                            const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
+                                            const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
+                                            const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
+                                            const isSunday = new Date(fullDate).getDay() === 0;
+
+                                            if (result == "X") {
+                                                if (isSunday) {
+                                                    result = "CN_X";
+                                                } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
+                                                    result = "X";
+                                                } else if (parseFloat(wh) < 8) {
+                                                    const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
+                                                    result = calculateTime == "1" ? "X" : calculateTime;
+                                                }
+                                            } else if (result == "SH") {
+                                                bgColor = "#3AFD13";
+                                            } else if (result == "CN") {
+                                            if (den != "" && ve != "" && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
+                                                result = "CN_X";
+                                                bgColor = "#FFFFFF";
+                                                textColor = "#000000";
+                                            } else {
+                                                bgColor = "#858585";
+                                            }
+                                            } else if (result == "ABS" || result == "MISS") {
+                                                bgColor = "#FD5C5E";
+                                            } else if (result != "X") {
+                                                bgColor = "#ffe378";
+                                            }
+
+                                            return (
+                                                <td
+                                                    key={dayStr}
+                                                    style={{ backgroundColor: bgColor, color: textColor }}
+                                                    className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
+                                                    onClick={() => {
+                                                    const invalidResults = ["X", "CN_X", "NM"];
+                                                    if (!invalidResults.includes(result)) {
+                                                        setSelectedData({
+                                                            Name: item.Name,
+                                                            UserCode: item.UserCode,
+                                                            CurrentDate: fullDate,
+                                                            Result: result,
+                                                            Den: den,
+                                                            Ve: ve,
+                                                            RowIndex: idx,
+                                                            ColIndex: colIdx,
+                                                        });
+                                                        setOpenModalUpdateTimeKeeping(true);
+                                                    }
+                                                    }}
+                                                >
+                                                    <div className="flex justify-center text-xs">{result}</div>
+                                                </td>
+                                            );
+                                        })}
+                                        </tr>
+                                    ))
+                                )
+                            }
                         </tbody>
                     </table>
                 </div>

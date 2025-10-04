@@ -81,7 +81,6 @@ function App() {
 
 	const privateRoutes = [
 		{ path: "/", element: <HomePage /> },
-
 		{ path: "/forbidden", element: <Forbidden /> },
 		{ path: "/change-password", element: <ChangePasswordPage /> },
 		{ path: "/personal-info", element: <PersonalInfo />},
@@ -106,10 +105,11 @@ function App() {
 		{ path: "/change-org-unit", element: <ChangeOrgUnit />, allowedRoles: [RoleEnum.HR] },
 
 		//memo notification
-		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] }, //danh sách của user tạo
+		{ path: "/memo-notify", element: <MemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
 		{ path: "/memo-notify/create", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] }, 
 		{ path: "/memo-notify/edit/:id", element: <CreateMemoNotification/>, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/detail-memo-notify/:id", element: <ViewOnlyMemoNotification/> }, //ở ngoài homepage  DetailMemoNotification ViewOnlyMemoNotification
+		{ path: "/view-memo-notify-approval/:id", element: <DetailMemoNotificationWaitApproval />, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
+		{ path: "/view/memo-notify/:id", element: <ViewOnlyMemoNotification />},
 		
 		//leave + timekeeping
 		{ path: "/leave", element: <ListLeaveRequest/> },
@@ -117,19 +117,26 @@ function App() {
 		{ path: "/leave/edit/:id", element: <LeaveRequestFormForOthers/> },
 		{ path: "/leave/leave-registered", element: <ListLeaveRequestRegistered/> },
 		{ path: "/leave/view/:id", element: <ViewOnlyLeaveRq/> },
+		{ path: "/view-leave-request-approval/:id", element: <DetailWaitApprovalLeaveRq />},
+		{ path: "/view/leave-request/:id", element: <ViewOnlyLeaveRq />},
 
+		//overtime
 		{ path: "/overtime", element: <ListMyOverTime/> },
+		{ path: "/overtime/overtime-registered", element: <ListOverTimeRegister/> },
 		{ path: "/overtime/create", element: <CreateOverTime/> },
 		{ path: "/overtime/edit/:id", element: <CreateOverTime/> },
-		{ path: "/overtime/overtime-registered", element: <ListOverTimeRegister/> },
-		{ path: "/overtime/view/:id", element: <ViewOverTime/> },
+		{ path: "/view/overtime/:id", element: <ViewOverTime/> },
+		{ path: "/view-overtime-approval/:id", element: <DetailApprovalOverTime />},
 
+		//miss timekeeping
 		{ path: "/miss-timekeeping", element: <ListMyMissTimeKeeping/> },
 		{ path: "/miss-timekeeping/create", element: <CreateMissTimeKeeping/> },
 		{ path: "/miss-timekeeping/edit/:id", element: <CreateMissTimeKeeping/> },
 		{ path: "/miss-timekeeping/registered", element: <ListMissTimeKeepingRegister/> },
-		{ path: "/miss-timekeeping/view/:id", element: <ViewMissTimeKeeping/> },
+		{ path: "/view/miss-timekeeping/:id", element: <ViewMissTimeKeeping/> },
+		{ path: "/view-miss-timekeeping-approval/:id", element: <DetailApprovalMissTimeKeeping />},
 
+		//internal hr
 		{ path: "/internal-memo-hr", element: <ListInternalMemoHR/> },
 		{ path: "/internal-memo-hr/create", element: <CreateInternalMemoHR/> },
 		{ path: "/internal-memo-hr/edit/:id", element: <CreateInternalMemoHR/> },
@@ -160,12 +167,6 @@ function App() {
 		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},
 		{ path: "/approval/approval-history", element: <ApprovalHistory />},
 
-		{ path: "/approval/approval-memo-notify/:id", element: <DetailMemoNotificationWaitApproval />, allowedRoles: [RoleEnum.HR, RoleEnum.UNION, RoleEnum.IT], allowedPermissions: ['memo_notification.create'] },
-		{ path: "/approval/view-memo-notify/:id", element: <ViewOnlyMemoNotification />},
-
-		{ path: "/approval/approval-leave-request/:id", element: <DetailWaitApprovalLeaveRq />},
-		{ path: "/approval/view-leave-request/:id", element: <ViewOnlyLeaveRq />},
-
 		{ path: "/approval/approval-form-it/:id", element: <DetailWaitApprovalFormIT />},
 		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
 		{ path: "/approval/view-form-it/:id", element: <ViewOnlyFormIT />},
@@ -173,10 +174,6 @@ function App() {
 		{ path: "/approval/approval-purchase/:id", element: <DetailWaitApprovalFormPurchase />},
 		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
 		{ path: "/approval/view-purchase/:id", element: <ViewOnlyFormPurchase />},
-
-		{ path: "/approval/approval-overtime/:id", element: <DetailApprovalOverTime />},
-
-		{ path: "/approval/approval-miss-timekeeping/:id", element: <DetailApprovalMissTimeKeeping />},
 	];
   
 	return (

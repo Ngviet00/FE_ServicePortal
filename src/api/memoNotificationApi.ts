@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
 import { OrgUnit } from './orgUnitApi';
+import { ApprovalRequest } from './approvalApi';
 
 interface GetAll {
     UserCode?: string,
@@ -103,7 +104,24 @@ const memoNotificationApi = {
         return axiosClient.get(`/memo-notification/download/${id}`, {
             responseType: 'blob',
         })
-    }
+    },
+    approval(data: ApprovalRequest) {
+        return axiosClient.post(`/memo-notification/approval`, data)
+    },
+}
+
+export function useApprovalMemoNotify() {
+    return useMutation({
+        mutationFn: async (data: ApprovalRequest) => {
+            await memoNotificationApi.approval(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useCreateMemoNotification() {

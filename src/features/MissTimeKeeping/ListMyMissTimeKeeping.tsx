@@ -131,7 +131,7 @@ export default function ListMyMissTimeKeeping () {
                                         myMissTimeKeepings?.map((item: any, idx: number) => (
                                             <tr key={idx} className="hover:bg-gray-50">
                                                 <td className="border px-2 py-2 text-center">
-                                                    <Link to={`/miss-timekeeping/view/${item?.code}`} className="underline text-blue-600">{item?.code}</Link>
+                                                    <Link to={`/view/miss-timekeeping/${item?.code}`} className="underline text-blue-600">{item?.code}</Link>
                                                 </td>
                                                 <td className="border px-2 py-2 text-center">{item?.userCode}</td>
                                                 <td className="border px-2 py-2 text-center">{item?.userName}</td>
@@ -176,7 +176,7 @@ export default function ListMyMissTimeKeeping () {
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{t('miss_timekeeping.list.code')}: </strong>
-                                                <Link to={`/miss-timekeeping/view/${item?.code}`} className="text-blue-600 underline">
+                                                <Link to={`/view/miss-timekeeping/${item?.code}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

@@ -125,7 +125,7 @@ export default function ListMyOverTime () {
                                         return (
                                             <TableRow key={idx}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/overtime/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{item?.userCode}</TableCell>
                                                 <TableCell className="text-center border">{item?.userName}</TableCell>
@@ -162,13 +162,13 @@ export default function ListMyOverTime () {
                             ) : isError || myOverTimes.length === 0 ? (
                                 <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') }</div>
                             ) : (
-                                myOverTimes.map((item: any) => {
+                                myOverTimes.map((item: any, idx: number) => {
                                     return (
-                                        <div key={item.leaveRequestId} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={idx} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{t('overtime.list.code')}: </strong>
-                                                <Link to={`/overtime/view/${item.code}`} className="text-blue-600 underline">
+                                                <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

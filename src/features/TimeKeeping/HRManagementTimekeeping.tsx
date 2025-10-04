@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import orgUnitApi from "@/api/orgUnitApi";
-import timekeepingApi, { useAttachUserManageOrgUnit, useChangeUserMngTimekeeping, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeepingApi";
+import timekeepingApi, { useAttachUserManageOrgUnit, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeepingApi";
 import userApi from "@/api/userApi";
 import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
 import TreeCheckbox, { TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { ShowToast } from "@/lib";
 import { useQuery } from "@tanstack/react-query";
-import { MoveRight, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -98,48 +98,6 @@ function HRManagementTimekeeping() {
         setCheckedIds(ids)
     }
 
-    //#region thay đổi người quản lý chấm công
-    const [selectOldUser, setSelectOldUser] = useState<OptionType[]>([]);
-    const [selectNewUser, setSelectNewUser] = useState<OptionType[]>([]);
-
-    const changeUserMngTimekeeping = useChangeUserMngTimekeeping()
-
-    const handleCancelChangeUser = () => {
-        setSelectOldUser([])
-        setSelectNewUser([])
-    }
-
-    const handleSaveChangeUser = async () => {
-        const oldUser = Object.values(selectOldUser)
-        const newUser = Object.values(selectNewUser)
-
-        if (oldUser.length == 0) {
-            ShowToast("Chọn người cũ", "error")
-            return
-        }
-
-        if (newUser.length == 0) {
-            ShowToast("Chọn người mới", "error")
-            return
-        }
-
-        if (oldUser[1] == newUser[1]) {
-            ShowToast("Không thể chọn cùng 1 người", "error")
-            return
-        }
-        const payload = {
-            oldUserCode: oldUser[1]?.toString(),
-            newUserCode: newUser[1]?.toString(),
-        }
-        await changeUserMngTimekeeping.mutateAsync(payload);
-        setCheckedIds([])
-        setSelectOldUser([])
-        setSelectNewUser([])
-        setCurrentSelectedUser([])
-    }
-
-    //#endregion
-
     return (
         <div className="p-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
@@ -163,42 +121,6 @@ function HRManagementTimekeeping() {
                     </Button>
                 </div>
 
-                <div>
-                    <Label className="mb-2 mt-5 text-base">{t('change_user_mng')}</Label>
-                    <div className="flex items-end">
-                        <div>
-                            <GenericAsyncMultiSelect
-                                mode="single"
-                                value={selectOldUser}
-                                className="w-[400px] pl-1"
-                                options={selectedUserMngTKeeping}
-                                onChange={(v) => setSelectOldUser(v as OptionType[])}
-                                placeholder={t('old_user')}
-                            />
-                        </div>
-                        <MoveRight className="mx-2" />
-                        <div>
-                            <GenericAsyncMultiSelect
-                                mode="single"
-                                value={selectNewUser}
-                                className="w-[400px] pl-1"
-                                options={selectedUserMngTKeeping}
-                                onChange={(v) => setSelectNewUser(v as OptionType[])}
-                                placeholder={t('new_user')}
-                            />
-                        </div>
-                       <Label className="ml-2 underline text-red-700 underline-offset-2 pr-2 hover:cursor-pointer"onClick={handleCancelChangeUser}>
-                            <X/>
-                        </Label>
-                        <Button 
-                            className="hover:cursor-pointer bg-red-800"
-                            onClick={handleSaveChangeUser}
-                        >
-                            {t('save')}
-                        </Button>   
-                    </div>
-                </div>
-
                 <Label className="mt-5 mb-3 text-base">{t('choose_user_and_location')}</Label>
                 <div className="flex">
                     <div className="border" style={{flexBasis: '25%'}}>
@@ -218,7 +140,6 @@ function HRManagementTimekeeping() {
                                 ) : (<Label className="ml-2 underline text-red-700 underline-offset-2 pr-2 hover:cursor-pointer" onClick={handleRemoveCurrentUserSelectedMngTimeKeeping}><X/></Label>)
                             }
                         </div>
-
                     </div>
                     <div className="border" style={{flexBasis: '35%'}}>
                         <Label className="mb-1 block text-red-700 dark:text-gray-300 p-2 pl-1">

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -71,7 +70,7 @@ export default function HomePage() {
             <div className='mb-3'>
                 {
                     data && data.length > 0 && data.map((item: any, idx: number) => (
-                        <Link key={idx} to={`/detail-memo-notify/${item.code}?locate=home`}>
+                        <Link key={idx} to={`/view/memo-notify/${item.code}?locate=home`}>
                             <div
                                 className="bg-[#eff6ff] py-4 px-5 mb-3 rounded-md font-inter shadow-sm hover:shadow-md transition dark:bg-[#1e1e1e69]"
                             >
@@ -167,52 +166,6 @@ export default function HomePage() {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div className='flex mt-5'>
-                <div className='link-function flex-1'>
-                    <Tabs defaultValue="account" className="w-[100%] h-full hover:cursor-pointer">
-                        <TabsList className='mb-3'>
-                            <TabsTrigger value="account" className="hover:cursor-pointer w-[150px]">Leave</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="account">
-                            <div className='flex flex-wrap'>
-                                <div className="w-full sm:w-[48%] md:w-[31%] mb-4 mr-0 md:mr-5 border border-gray-300 rounded-2xl">
-                                    <span className="flex justify-between p-1 align-middle">
-                                        <span className='p-1'>
-                                            <Label className='text-sm'>{t('home_page.path')}</Label>
-                                        </span>
-                                        <span className='p-1'>
-                                            <Label className='text-base'> </Label>
-                                        </span>
-                                    </span>
-
-                                    <span className="flex justify-between p-1 align-middle">
-                                        <span className='p-1'>
-                                            <Link to="/leave/create" className='text-blue-400 underline underline-offset-2 dark:text-white'>
-                                                <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_register_leave_request')}</Label>
-                                            </Link>
-                                        </span>
-                                        <span className='p-1'>
-                                            <Label className='text-base'> </Label>
-                                        </span>
-                                    </span>
-
-                                    <span className="flex justify-between p-1 align-middle">
-                                        <span className='p-1'>
-                                            <Link to="/leave" className='text-blue-400 underline underline-offset-2 dark:text-white'>
-                                                <Label className='text-sm hover:cursor-pointer'>{t('home_page.path_list_leave_request')}</Label>
-                                            </Link>
-                                        </span>
-                                        <span className='p-1'>
-                                            <Label className='text-base'> </Label>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
                 </div>
             </div>
         </div>

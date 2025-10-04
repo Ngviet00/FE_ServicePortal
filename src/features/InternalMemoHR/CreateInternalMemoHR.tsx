@@ -134,7 +134,8 @@ export default function CreateInternalMemoHR() {
             setFormTypeOther(null);
             setIsDataLoaded(true);
         }
-    }, [isEdit, formType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isEdit]);
 
     useEffect(() => {
         if (!isDataLoaded) {
@@ -175,7 +176,6 @@ export default function CreateInternalMemoHR() {
     const mode = isEdit ? 'edit' : 'create';
 
     const { data: departments = [] } = useQuery({ queryKey: ['get-all-department'], queryFn: async () => { const res = await orgUnitApi.GetAllDepartment(); return res.data.data; } });
-
 
     const handleSave = async () => {
         const hot = hotRef.current?.hotInstance;

@@ -28,7 +28,7 @@ export default function ButtonDeleteComponent({ onDelete, className }: DeleteDep
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialog open={open} onOpenChange={setOpen} >
             <AlertDialogTrigger asChild>
                 <button className={`hover:cursor-pointer mx-1 rounded-[3px] px-[5px] py-[2px] bg-red-700 text-white ${className}`}>
                     {t('delete')}

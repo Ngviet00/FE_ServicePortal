@@ -215,7 +215,10 @@ export default function ListLeaveRequestRegistered () {
                                                 <strong>{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}: </strong> { formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
                                             </div>
                                             <div className="mb-1">
-                                                <strong>{lang == 'vi' ? 'Trạng thái' : 'Status'}: </strong> { lang == 'vi' ? item?.requestStatus?.name : item?.requestStatus?.nameE }
+                                                <strong>{lang == 'vi' ? 'Trạng thái' : 'Status'}: </strong> 
+                                                <StatusLeaveRequest 
+                                                    status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
+                                                />
                                             </div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Hành động' : 'Action'}: </strong> 

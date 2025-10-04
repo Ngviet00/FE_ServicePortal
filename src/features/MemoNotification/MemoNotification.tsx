@@ -95,7 +95,7 @@ export default function MemoNotification () {
                         ) : isError || MemoNotify.length === 0 ? (
                             <tr className="text-red-700 border text-center font-medium dark:text-white">
                                 <td className={`text-red-700 h-[35px] font-medium text-center`} colSpan={8}>
-                                    { error?.message ?? tCommon('no_results') } 
+                                    { error?.message ?? tCommon('no_results') }
                                 </td>
                             </tr>
                         ) : (
@@ -103,7 +103,7 @@ export default function MemoNotification () {
                                 return (
                                     <tr key={idx} className="pl-0 pt-0 memo-row bg-white border dark:bg-[#1e1e1e69]">
                                         <td data-label={t('memo_notification.list.code')} className="text-center border text-black p-4 break-words whitespace-normal dark:text-white">
-                                            <Link to={`/approval/view-memo-notify/${item.code}`} className="underline text-blue-600">{ item?.code }</Link>
+                                            <Link to={`/view/memo-notify/${item.code}`} className="underline text-blue-600">{ item?.code }</Link>
                                         </td>
                                         <td data-label={t('memo_notification.list.title')} className="border text-black px-4 py-4 dark:text-white break-words whitespace-normal clamp-content border-b-0 border-l-0 border-r-0 border-t-0" dangerouslySetInnerHTML={{ __html: item?.title ?? '' }}/>
                                         <td data-label={t('memo_notification.list.department_apply')} className="text-center border text-black px-4 py-4 break-words whitespace-normal dark:text-white">

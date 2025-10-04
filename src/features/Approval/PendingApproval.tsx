@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi from "@/api/approvalApi";
 import { HistoryApplicationForm, IRequestStatus } from "@/api/itFormApi";
-import { useHrExportExcelLeaveRequest, useRegisterAllLeaveRequest } from "@/api/leaveRequestApi";
+import { useHrExportExcelLeaveRequest } from "@/api/leaveRequestApi";
 import { OrgUnit } from "@/api/orgUnitApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import useHasPermission from "@/hooks/useHasPermission";
 import { REQUEST_TYPE, ShowToast } from "@/lib";
 import { formatDate } from "@/lib/time";
@@ -38,10 +36,10 @@ function GetUrlDetailWaitApproval(item: any) {
 	const requestTypeId = item?.requestTypeId
 
 	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/approval-leave-request/${item.code ?? '-1'}`
+		result = `/view-leave-request-approval/${item.code ?? '-1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/approval-memo-notify/${item.code ?? '1'}`
+		result = `/view-memo-notify-approval/${item.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
 		result = `/approval/approval-form-it/${item.id ?? '1'}`
@@ -50,10 +48,10 @@ function GetUrlDetailWaitApproval(item: any) {
 		result = `/approval/approval-purchase/${item.id ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
-		result = `/approval/approval-overtime/${item?.code ?? '1'}`
+		result = `/view-overtime-approval/${item?.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
-		result = `/approval/approval-miss-timekeeping/${item?.code ?? '1'}`
+		result = `/view-miss-timekeeping-approval/${item?.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
 		result = `/internal-memo-hr/${item?.code ?? '1'}?mode=approval`
@@ -74,7 +72,7 @@ export default function PendingApproval() {
 	const hasPermissionHrMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
 	const [selectedIds, setSelectedIds] = useState<string[]>([])
 	const [loadingRegisterAll, setLoadingRegisterAll] = useState(false)
-	const registerAllLeaveMutation = useRegisterAllLeaveRequest()
+	// const registerAllLeaveMutation = useRegisterAllLeaveRequest()
 	const queryClient = useQueryClient()
 
 	function setCurrentPage(page: number): void {
@@ -151,28 +149,28 @@ export default function PendingApproval() {
 		await hrExportExcelLeaveRequest.mutateAsync({applicationFormId: -11})
 	};
 
-	const registerAllLeave = async () => {
-		if (selectedIds.length <= 0) {
-			ShowToast("Chọn đơn nghỉ cần đăng ký", "error")
-			return
-		}
-		setLoadingRegisterAll(true)
-		try
-		{
-			await registerAllLeaveMutation.mutateAsync({
-				UserCode: user?.userCode,
-				UserName: user?.userName ?? "",
-				leaveRequestIds: selectedIds
-			})
-			setPage(1)
-			setSelectedIds([])
-			queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
-			queryClient.invalidateQueries({ queryKey: ['get-list-wait-approval'] });
-		}
-		finally {   
-			setLoadingRegisterAll(false)
-		}
-	}
+	// const registerAllLeave = async () => {
+	// 	if (selectedIds.length <= 0) {
+	// 		ShowToast("Chọn đơn nghỉ cần đăng ký", "error")
+	// 		return
+	// 	}
+	// 	setLoadingRegisterAll(true)
+	// 	try
+	// 	{
+	// 		await registerAllLeaveMutation.mutateAsync({
+	// 			UserCode: user?.userCode,
+	// 			UserName: user?.userName ?? "",
+	// 			leaveRequestIds: selectedIds
+	// 		})
+	// 		setPage(1)
+	// 		setSelectedIds([])
+	// 		queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+	// 		queryClient.invalidateQueries({ queryKey: ['get-list-wait-approval'] });
+	// 	}
+	// 	finally {   
+	// 		setLoadingRegisterAll(false)
+	// 	}
+	// }
 
     return (
 		<div className="p-1 pl-1 pt-0 space-y-4">

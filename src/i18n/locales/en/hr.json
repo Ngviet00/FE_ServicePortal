@@ -8,7 +8,7 @@
             "usercode": "UserCode",
             "username": "UserName",
             "position": "Position",
-            "date_register": "Date register",
+            "date_register": "Date register overtime",
             "type_overtime": "Type overtime",
             "from_hour": "From hour",
             "to_hour": "To hour",

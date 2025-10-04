@@ -22,7 +22,7 @@ export default function Sidebar() {
 		submenusVisible,
 		toggleSubmenu,
 		closeAllSubmenus,
-		closeMenuIfNotChild,
+		// closeMenuIfNotChild,
 		setVisibleSubmenuByPath,
 	} = useSidebarStore();
 
@@ -51,19 +51,19 @@ export default function Sidebar() {
 
 	useEffect(() => {
 		setVisibleSubmenuByPath(currentPath);
-		closeMenuIfNotChild(currentPath);
+		// closeMenuIfNotChild(currentPath);
 		if (isMobile) closeSidebar();
-	}, [closeMenuIfNotChild, closeSidebar, currentPath, isMobile, setVisibleSubmenuByPath]);
+	}, [closeSidebar, currentPath, isMobile, setVisibleSubmenuByPath]);
 
 	const handleMenuHomeClick = () => closeAllSubmenus();
 
 	return (
 		<div className={`sidebar ${isOpen ? "collapsed" : ""} bg-white dark:bg-[#1b1b1f] w-[250px]`}>
 			<div className="relative">
-				<a href="/" className="inline-block">
-					<img src="/logo.png" alt="Logo" style={{ height: "80px" }} />
+				<a href="/" className="block text-black text-3xl py-4 font-bold h-[65px] line-h-[50px] dark:text-white">
+					Service Portal
 				</a>
-				<button className="toggle-btn-mobile absolute top-[45%] right-2" onClick={closeSidebar}>
+				<button className="toggle-btn-mobile absolute top-[45%] right-2 hover:cursor-pointer" onClick={closeSidebar}>
 					<X className="text-black" />
 				</button>
 			</div>

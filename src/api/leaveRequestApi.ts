@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
+import { ApprovalRequest } from './approvalApi';
 
 export interface GetMyLeaveRequest {
     leaveRequestId?: string;
@@ -131,11 +132,11 @@ interface GetLeaveRequest {
     Date?: string
 }
 
-interface HrRegisterAllLeave {
-    UserCode: string | undefined,
-    UserName: string | undefined,
-    leaveRequestIds?: string[]
-}
+// interface HrRegisterAllLeave {
+//     UserCode: string | undefined,
+//     UserName: string | undefined,
+//     leaveRequestIds?: string[]
+// }
 
 export interface RejectSomeLeavesRequest {
     leaveIds: number[], 
@@ -189,41 +190,54 @@ const leaveRequestApi = {
     HrNote(data: HrNoteRequest) {
         return axiosClient.post('/leave-request/hr-note', data)
     },
-
-
-
-
-
-
-    statistical(params: { year?: number}) {
-        return axiosClient.get('/leave-request/statistical-leave-request', {params})
-    },
-
-    registerAllLeaveRequest(data: HrRegisterAllLeave) {
-        return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
-    },
-    GetUserCodeHavePermissionCreateMultipleLeaveRequest() {
-        return axiosClient.get('/leave-request/get-usercode-have-permission-create-multiple-leave-request')
-    },
-    UpdateUserHavePermissionCreateMultipleLeaveRequest(data: string[]) {
-        return axiosClient.post('/leave-request/update-user-have-permission-create-multiple-leave-request', data)
+    approval(data: ApprovalRequest) {
+        return axiosClient.post(`/leave-request/approval`, data)
     },
     SearchUserRegisterLeaveRequest(params: { userCodeRegister: string, usercode: string }) {
         return axiosClient.get('/leave-request/search-user-register-leave-request', {params})
     },
-    AttachUserManageOrgUnit(data: {userCode: string, orgUnitIds: number[]}) {
-        return axiosClient.post('/leave-request/attach-user-manager-org-unit', data)
-    },
-    GetOrgUnitIdAttachedByUserCode(userCode: string) {
-        return axiosClient.get(`/leave-request/get-org-unit-id-attach-by-usercode?userCode=${userCode}`)
-    },
+
+
+    // statistical(params: { year?: number}) {
+    //     return axiosClient.get('/leave-request/statistical-leave-request', {params})
+    // },
+
+    // registerAllLeaveRequest(data: HrRegisterAllLeave) {
+    //     return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
+    // },
+    // GetUserCodeHavePermissionCreateMultipleLeaveRequest() {
+    //     return axiosClient.get('/leave-request/get-usercode-have-permission-create-multiple-leave-request')
+    // },
+    // UpdateUserHavePermissionCreateMultipleLeaveRequest(data: string[]) {
+    //     return axiosClient.post('/leave-request/update-user-have-permission-create-multiple-leave-request', data)
+    // },
+
+    // AttachUserManageOrgUnit(data: {userCode: string, orgUnitIds: number[]}) {
+    //     return axiosClient.post('/leave-request/attach-user-manager-org-unit', data)
+    // },
+    // GetOrgUnitIdAttachedByUserCode(userCode: string) {
+    //     return axiosClient.get(`/leave-request/get-org-unit-id-attach-by-usercode?userCode=${userCode}`)
+    // },
     GetHrWithManagementLeavePermission() {
         return axiosClient.get(`/leave-request/get-user-have-permission-hr-mng-leave-request`)
     },
     UpdateHrWithManagementLeavePermission(data: string[]) {
         return axiosClient.post(`/leave-request/update-user-have-permission-hr-mng-leave-request`, data)
     },
+}
 
+export function useApprovalLeaveRq() {
+    return useMutation({
+        mutationFn: async (data: ApprovalRequest) => {
+            await leaveRequestApi.approval(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useHrExportExcelLeaveRequest() {
@@ -268,52 +282,52 @@ export function useUpdateHrWithManagementLeavePermission() {
     })
 }
 
-export function useAttachUserManageOrgUnit() {
-    return useMutation({
-        mutationFn: async (data: {userCode: string, orgUnitIds: number[]}) => {
-            await leaveRequestApi.AttachUserManageOrgUnit(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
+// export function useAttachUserManageOrgUnit() {
+//     return useMutation({
+//         mutationFn: async (data: {userCode: string, orgUnitIds: number[]}) => {
+//             await leaveRequestApi.AttachUserManageOrgUnit(data)
+//         },
+//         onSuccess: () => {
+//             ShowToast("Success");
+//         },
+//         onError: (err) => {
+//             ShowToast(getErrorMessage(err), "error");
+//         }
+//     })
+// }
 
-export function useUpdateUserHavePermissionCreateMultipleLeaveRequest() {
-    return useMutation({
-        mutationFn: async (data: string[]) => {
-            await leaveRequestApi.UpdateUserHavePermissionCreateMultipleLeaveRequest(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
+// export function useUpdateUserHavePermissionCreateMultipleLeaveRequest() {
+//     return useMutation({
+//         mutationFn: async (data: string[]) => {
+//             await leaveRequestApi.UpdateUserHavePermissionCreateMultipleLeaveRequest(data)
+//         },
+//         onSuccess: () => {
+//             ShowToast("Success");
+//         },
+//         onError: (err) => {
+//             ShowToast(getErrorMessage(err), "error");
+//         }
+//     })
+// }
 
-export function useRegisterAllLeaveRequest() {
-    const queryClient = useQueryClient()
+// export function useRegisterAllLeaveRequest() {
+//     const queryClient = useQueryClient()
 
-    return useMutation({
-        mutationFn: async (data: HrRegisterAllLeave) => {
-            await leaveRequestApi.registerAllLeaveRequest(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-            queryClient.invalidateQueries({
-                queryKey: ['get-leave-request-wait-approval'],
-            });
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
+//     return useMutation({
+//         mutationFn: async (data: HrRegisterAllLeave) => {
+//             await leaveRequestApi.registerAllLeaveRequest(data)
+//         },
+//         onSuccess: () => {
+//             ShowToast("Success");
+//             queryClient.invalidateQueries({
+//                 queryKey: ['get-leave-request-wait-approval'],
+//             });
+//         },
+//         onError: (err) => {
+//             ShowToast(getErrorMessage(err), "error");
+//         }
+//     })
+// }
 
 export function useCreateLeaveRequest() {
     return useMutation({

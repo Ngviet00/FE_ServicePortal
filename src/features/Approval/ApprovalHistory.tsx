@@ -17,22 +17,25 @@ function GetUrlDetailWaitApproval(item: any) {
 	let result = ''
 
 	if (item?.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/view-leave-request/${item?.code ?? '-1'}`
+		result = `/view/leave-request/${item?.code ?? '-1'}`
 	}
-	else if (item?.requestTypeId?.id == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/view-memo-notify/${item?.code ?? '1'}`
+	else if (item?.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/view/memo-notify/${item?.code ?? '1'}`
 	}
 	else if (item?.requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/view-form-it/${item?.id ?? '1'}`
+		result = `/approval/view-form-it/${item?.code ?? '1'}`
 	}
 	else if (item?.requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/approval/view-purchase/${item?.id ?? '1'}`
+		result = `/approval/view-purchase/${item?.code ?? '1'}`
 	}
 	else if (item?.requestTypeId == REQUEST_TYPE.OVERTIME) {
-		result = `/overtime/view/${item?.code ?? '1'}`
+		result = `/view/overtime/${item?.code ?? '1'}`
 	}
 	else if (item?.requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
-		result = `/miss-timekeeping/view/${item?.code ?? '1'}`
+		result = `/view/miss-timekeeping/${item?.code ?? '1'}`
+	}
+	else if (item?.requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
+		result = `/internal-memo-hr/${item?.code ?? '1'}?mode=view`
 	}
 
 	return result
@@ -135,7 +138,7 @@ const ApprovalHistory: React.FC = () => {
 					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border">{t('history_approval_processed.code')}</th>
+								<th className="px-4 py-2 border text-center">{t('history_approval_processed.code')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.request_type')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.user_request')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.approval_at')}</th>

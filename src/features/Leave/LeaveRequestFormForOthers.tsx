@@ -142,8 +142,8 @@ export default function LeaveRequestFormForOthers() {
         formData.append("file", file)
 
         try {
-            await leaveRequestApi.create(formData);
-            ShowToast("Success", "success")
+            await createLeaveRequest.mutateAsync(formData);
+            navigate("/leave/leave-registered");
             return true
 
         } catch (err) {
@@ -192,20 +192,21 @@ export default function LeaveRequestFormForOthers() {
             
             {
                 mode == 'create' && (
-                     <div className="flex">
+                    <div className="flex flex-col md:flex-row md:items-start gap-2">
                         <RadioGroup
                             label={lang == 'vi' ? 'Chọn loại đăng ký' : 'Select type register'}
                             options={options}
                             value={selectedRadio}
                             onChange={setSelectedRadio}
                         />
-                        <div className="ml-3">
-                            <div className="bg-red-400 inline-block p-1 text-sm text-white rounded-[3px]">
-                                **
-                                {
-                                    lang == 'vi' ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ' 
+
+                        <div className="md:ml-3">
+                            <div className="bg-red-400 p-1 text-sm text-white rounded-[3px] w-full md:w-auto">
+                                ** {
+                                    lang == 'vi'
+                                        ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ'
                                         : 'Note, you should only enter registration data for yourself or member of your team, organization.'
-                                } 
+                                }
                             </div>
                         </div>
                     </div>
@@ -226,6 +227,7 @@ export default function LeaveRequestFormForOthers() {
                     <ExcelUploader
                         templateFileUrl={`/template_excel/template_nghi_phep_di_tre_ve_som.xlsx`}
                         onSubmit={handleFormSubmitByExcel}
+                        isPending={createLeaveRequest.isPending}
                     />
                 )
             }
