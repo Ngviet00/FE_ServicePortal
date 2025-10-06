@@ -16,19 +16,13 @@ import { PendingApprovalResponse } from "./PendingApproval";
 
 function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 	let result = ''
-	const requestTypeId = item?.requestType?.id
 
-	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/approval/approval-leave-request/${item?.id ?? '-1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/approval/approval-memo-notify/${item?.id ?? '1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/assigned-form-it/${item?.id ?? '1'}`
+	const requestTypeId = item?.requestTypeId
+	if (requestTypeId == REQUEST_TYPE.FORM_IT) {
+		result = `/approval/assigned-form-it/${item?.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/approval/assigned-purchase/${item?.id ?? '1'}`
+		result = `/approval/assigned-purchase/${item?.code ?? '1'}`
 	}
 
 	return result
@@ -67,7 +61,6 @@ export default function AssignedTasks() {
 				UserCode: user?.userCode,
 				RequestTypeId: requestType == '' ? null : Number(requestType),
 			});
-			console.log(res, 222);
 			setTotalPage(res.data.total_pages)
 			return res.data.data;
 		},

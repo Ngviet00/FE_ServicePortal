@@ -6,6 +6,7 @@ import { IPriority } from './priorityApi';
 import { ITCategoryInterface } from './itCategoryApi';
 import { IRequestType } from './requestTypeApi';
 import { ISelectedUserAssigned } from './userApi';
+import { ApprovalRequest } from './approvalApi';
 
 interface GetAll {
     UserCode?: string | null,
@@ -87,9 +88,8 @@ export interface IAssignedTask {
     UserNameApproval?: string,
     NoteManager?: string,
     OrgPositionId?: number
-    ITFormId?: string,
-    PurchaseId?: string,
-    UrlFrontend?: string
+    ApplicationFormId?: number,
+    ApplicationFormCode?: string,
     UserAssignedTasks?: ISelectedUserAssigned[],
     Note?: string
 }
@@ -97,9 +97,8 @@ export interface IAssignedTask {
 export interface IResolvedTask {
     UserCodeApproval?: string,
     UserNameApproval?: string,
-    ITFormId?: string,
-    PurchaseId?: string,
-    UrlFrontend?: string,
+    ApplicationFormId?: number,
+    ApplicationFormCode?: string,
     TargetCompletionDate?: string,
     ActualCompletionDate?: string,
     Note?: string
@@ -148,7 +147,24 @@ const itFormApi = {
     },
     getMemberITAssigned() {
         return axiosClient.get('/it-form/get-member-it-assigned')
-    }
+    },
+    approval(data: ApprovalRequest) {
+        return axiosClient.post(`/it-form/approval`, data)
+    },
+}
+
+export function useApprovalITForm() {
+    return useMutation({
+        mutationFn: async (data: ApprovalRequest) => {
+            await itFormApi.approval(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useCreateITForm() {

@@ -4,13 +4,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ShowToast, STATUS_ENUM } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
-import itFormApi, { useAssignedTaskITForm } from '@/api/itFormApi';
+import itFormApi, { useApprovalITForm, useAssignedTaskITForm } from '@/api/itFormApi';
 import { useNavigate, useParams } from 'react-router-dom';
 import ModalConfirm from '@/components/ModalConfirm';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ISelectedUserAssigned } from '@/api/userApi';
-import { useApproval } from '@/api/approvalApi';
 import { Spinner } from '@/components/ui/spinner';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
 import ITRequestForm from './Components/ITRequestForm';
@@ -31,7 +30,7 @@ const DetailWaitApprovalFormIT = () => {
     const { id } = useParams<{ id: string }>()
     const isHasId = !!id
     
-    const approval = useApproval() //approval normal
+    const approval = useApprovalITForm() //approval normal
     const assignTask = useAssignedTaskITForm() //manager assign task for staff
 
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
@@ -96,8 +95,8 @@ const DetailWaitApprovalFormIT = () => {
                     UserNameApproval: user?.userName ?? '',
                     NoteManager: note,
                     OrgPositionId: user?.orgPositionId,
-                    ITFormId: id,
-                    UrlFrontend: window.location.origin,
+                    ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                    ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
                     UserAssignedTasks: selectedUserAssigned
                 })
                 
@@ -109,8 +108,8 @@ const DetailWaitApprovalFormIT = () => {
                     OrgPositionId: user?.orgPositionId,
                     Status: type == 'approval' ? true : false,
                     Note: note,
-                    ITFormId: id,
-                    urlFrontend: window.location.origin,
+                    ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                    ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
                     RequestTypeId: formData?.applicationFormItem?.applicationForm?.requestTypeId,
                 })
             }

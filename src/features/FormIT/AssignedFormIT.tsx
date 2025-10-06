@@ -49,8 +49,8 @@ const AssignedFormIT = () => {
         await resolvedTask.mutateAsync({
             UserCodeApproval: user?.userCode,
             UserNameApproval: user?.userName ?? '',
-            ITFormId: id, 
-            UrlFrontend: window.location.origin,
+            ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+            ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
             TargetCompletionDate: targetDate,
             ActualCompletionDate: actualDate
         })
@@ -78,7 +78,7 @@ const AssignedFormIT = () => {
     const { data: ItMembers = [] } = useQuery({
         queryKey: ['get-all-it-member'],
         queryFn: async () => {
-            const res = await userApi.GetMultipleUserViclockByOrgPositionId(8)
+            const res = await userApi.GetMultipleUserViclockByOrgPositionId(9)
             return res.data.data
         },
     });

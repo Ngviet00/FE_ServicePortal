@@ -25,7 +25,9 @@ export interface PendingApprovalResponse {
 	userNameCreated?: string,
 	userNameRequestor?: string,
 	orgPositionId?: number
-	requestType?: IRequestType
+	requestTypeId?: number,
+	requestTypeName?: string,
+	requestTypeNameE?: string,
 	requestStatus?: IRequestStatus
 	historyApplicationForm?: HistoryApplicationForm,
 	orgUnit?: OrgUnit
@@ -42,7 +44,7 @@ function GetUrlDetailWaitApproval(item: any) {
 		result = `/view-memo-notify-approval/${item.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/approval-form-it/${item.code ?? '1'}`
+		result = `/view-form-it-approval/${item.code ?? '1'}`
 	}
 	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
 		result = `/approval/approval-purchase/${item.code ?? '1'}`

@@ -23,7 +23,7 @@ function GetUrlDetailWaitApproval(item: any) {
 		result = `/view/memo-notify/${item?.code ?? '1'}`
 	}
 	else if (item?.requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/approval/view-form-it/${item?.code ?? '1'}`
+		result = `/view/form-it/${item?.code ?? '1'}`
 	}
 	else if (item?.requestTypeId == REQUEST_TYPE.PURCHASE) {
 		result = `/approval/view-purchase/${item?.code ?? '1'}`
