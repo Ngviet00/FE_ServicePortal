@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PurchaseRequestForm from './Components/PurchaseRequestForm';
 import costCenterApi from '@/api/costCenterApi';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,8 @@ const CreateFormPurchase = () => {
     const queryClient = useQueryClient()
     const { id } = useParams<{ id: string }>();
     const isEdit = !!id;
+    const [searchParams] = useSearchParams();
+    const applicationFormCode = searchParams.get("applicationFormCode");
 
     const { data: departments = [] } = useQuery({
 		queryKey: ['get-all-department'],
@@ -40,12 +42,13 @@ const CreateFormPurchase = () => {
         queryFn: async () => {
             const res = await costCenterApi.getAll()
 
-            const options: { value: string; label: string }[] = res?.data?.data?.map((center: { id: number; code: string }) => ({
+            const options: { value: string; label: string, departmentId: number | null }[] = res?.data?.data?.map((center: { id: number; code: string, departmentId: number, orgUnit?: { name?: string } }) => ({
                 value: center.id,
-                label: center.code
+                label: center?.orgUnit ? `${center.code}__${center?.orgUnit?.name}` : `${center?.code}`,
+                departmentId: center.departmentId,
             })) || [];
 
-            options.unshift({ value: '', label: '--Chọn--' });
+            options.unshift({ value: '', label: '--Chọn--', departmentId: null });
 
             return options
         }
@@ -79,6 +82,7 @@ const CreateFormPurchase = () => {
             RequestedDate: data.request_date,
             UrlFrontend: window.location.origin,
             OrgPositionId: user?.orgPositionId,
+            ApplicationFormCodeReference: applicationFormCode || null,
             CreatePurchaseDetailRequests: data.purchases.map((p: { id: any, name_category: any; description: any; quantity: any; unit_measurement: any; required_date: any; cost_center: any; note: any; }) => ({
                 id: p.id,
                 ItemName: p.name_category,
@@ -104,6 +108,26 @@ const CreateFormPurchase = () => {
                     {t('create.btn_list')}
                 </Button>
             </div>
+
+            {
+                formData?.applicationFormItem?.applicationForm?.reference?.code && (
+                    <div className='mb-4 mt-2 text-base text-black bg-orange-200 p-2 rounded'>
+                        <span>
+                            {lang == 'vi' ? 'Đơn mua bán này liên kết với đơn IT' : 'The purchase order linked to IT order'}: <Link className='text-purple-600 font-bold underline' to={`/view/form-it/${formData?.applicationFormItem?.applicationForm?.reference?.code}`}>{formData?.applicationFormItem?.applicationForm?.reference?.code}</Link> 
+                        </span>
+                    </div>
+                )
+            }
+
+            {
+                applicationFormCode && (
+                    <div className='mb-4 mt-2 text-base text-black bg-orange-200 p-2 rounded'>
+                        <span>
+                            {lang == 'vi' ? 'Đơn mua hàng liên kết với đơn IT' : 'The purchase order will be linked to the IT order'}: <Link className='text-purple-600 font-bold underline' to={`/view/form-it/${applicationFormCode}`}>{applicationFormCode}</Link> 
+                        </span>
+                    </div>
+                )
+            }
 
             <div className="flex flex-col min-h-screen">
                 <div className="w-full bg-white rounded-xl pl-0">

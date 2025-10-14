@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import { Skeleton } from "@/components/ui/skeleton";
-import { REQUEST_TYPE } from "@/lib";
+import { REQUEST_TYPE, STATUS_ENUM } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
@@ -106,7 +106,6 @@ export default function AssignedTasks() {
 							<tr>
 								<th className="px-4 py-2 border">{t('pending_approval.code')}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.request_type')}</th>
-								<th className="px-4 py-2 border">{lang == 'vi' ? 'Danh mục' : 'Category'}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.user_request')}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.created_at')}</th>
 								<th className="px-4 py-2 border">{t('pending_approval.status')}</th>
@@ -124,17 +123,22 @@ export default function AssignedTasks() {
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[70px] bg-gray-300" /></div></td>
 										</tr>  
 									))
 								) : isError || ListAssignedTask?.length == 0 ? (
 									<tr>
-										<td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
+										<td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
 											{ error?.message ?? tCommon('no_results') } 
 										</td>
 									</tr>
 								) : (
 									ListAssignedTask.map((item: any, idx: number) => {
+										let status = STATUS_ENUM.ASSIGNED;
+
+										if (item?.requestTypeId == REQUEST_TYPE.PURCHASE && item?.requestStatusIdPurchase > 0 ) {
+											status = item?.requestStatusIdPurchase
+										}
+
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
@@ -143,11 +147,11 @@ export default function AssignedTasks() {
 													</Link>
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestTypeName : item?.requestTypeNameE}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">--</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreatedForm}</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : '--'}</td>
 												<td className="px-4 py-2 border text-center">
-													<StatusLeaveRequest status="Pending"/>
+
+													<StatusLeaveRequest status={status}/>
 												</td>
 												<td className="px-4 py-2 border text-center space-x-1">
 													<button

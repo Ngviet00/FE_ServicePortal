@@ -6,7 +6,7 @@ import { IPriority } from './priorityApi';
 import { ITCategoryInterface } from './itCategoryApi';
 import { IRequestType } from './requestTypeApi';
 import { ISelectedUserAssigned } from './userApi';
-import { ApprovalRequest } from './approvalApi';
+import { ApprovalRequest, ListWaitApprovalRequest } from './approvalApi';
 
 interface GetAll {
     UserCode?: string | null,
@@ -108,6 +108,22 @@ export interface IStatistical {
     year?: number
 }
 
+export interface StaffITReferenceManagerITRequest {
+    OrgPositionId?: number;
+    ApplicationFormId: number;
+    UserCode?: string;
+    UserName?: string;
+    Note?: string;
+}
+
+export interface ConfirmFormITNeedFormPurchase {
+    OrgPositionId?: number;
+    ApplicationFormId: number;
+    UserCode?: string;
+    UserName?: string;
+    Note?: string;
+}
+
 const itFormApi = {
     statistical(params: IStatistical) {
         return axiosClient.get('/it-form/statistical-form-it', {params})
@@ -151,6 +167,43 @@ const itFormApi = {
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/it-form/approval`, data)
     },
+    staffITReferenceToManagerIT(data: StaffITReferenceManagerITRequest) {
+        return axiosClient.post(`/it-form/staff-it-reference-manager-it`, data)
+    },
+    listFormITWaitConfirm(params: ListWaitApprovalRequest) {
+        return axiosClient.get('/it-form/list-form-it-wait-confirm', {params})
+    },
+    confirmFormITNeedFormPurchase(data: ConfirmFormITNeedFormPurchase) {
+        return axiosClient.post('/it-form/confirm-form-it-need-form-purchase', data)            
+    }
+}
+
+export function useConfirmFormITNeedFormPurchase() {
+    return useMutation({
+        mutationFn: async (data: ConfirmFormITNeedFormPurchase) => {
+            await itFormApi.confirmFormITNeedFormPurchase(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useStaffITReferenceToManagerIT() {
+    return useMutation({
+        mutationFn: async (data: StaffITReferenceManagerITRequest) => {
+            await itFormApi.staffITReferenceToManagerIT(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useApprovalITForm() {

@@ -112,6 +112,17 @@ export default function Sidebar() {
 											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.total})</span>
 											: <></>
 									}
+									{
+										countWaitApprovalSidebar?.countFormITWaitFormPurchase > 0 && menu.key == "IT"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countFormITWaitFormPurchase})</span>
+											: <></>
+									}
+									{
+										countWaitApprovalSidebar?.countWaitResponseQuote > 0 && menu.key == "Purchase"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countWaitResponseQuote})</span>
+											: <></>
+									}
+									
 								</span>
 								<ChevronDown
 									size={18}
@@ -171,6 +182,26 @@ export default function Sidebar() {
 														{countWaitApprovalSidebar?.totalAssigned > 0 && child.route == "/approval/assigned-tasks" && (
 															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
 																({countWaitApprovalSidebar?.totalAssigned})
+															</span>
+														)}
+														{countWaitApprovalSidebar?.countFormITWaitFormPurchase > 0 && child.route == "/form-it/list-item-wait-form-purchase" && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.countFormITWaitFormPurchase})
+															</span>
+														)}
+														{countWaitApprovalSidebar?.countWaitConfirm > 0 && child.route == "/approval/wait-confirm" && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.countWaitConfirm})
+															</span>
+														)}
+														{countWaitApprovalSidebar?.countWaitQuote > 0 && child.route == "/approval/wait-quote" && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.countWaitQuote})
+															</span>
+														)}
+														{countWaitApprovalSidebar?.countWaitResponseQuote > 0 && child.route == "/purchase/list-item-wait-quote" && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.countWaitResponseQuote})
 															</span>
 														)}
 													</span>

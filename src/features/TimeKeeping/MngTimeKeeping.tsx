@@ -19,6 +19,7 @@ import orgUnitApi from "@/api/orgUnitApi";
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
+    const lang = useTranslation().i18n.language.split('-')[0]
     const {user} = useAuthStore()
     const { t: tCommon } = useTranslation('common')
     const today = getToday()
@@ -28,6 +29,7 @@ export default function MngTimekeeping () {
     const [year, setYear] = useState(defaultYear)
     const [team] = useState<string>("")
     const [deptId, setDeptId] = useState<string>("")
+    const [typePerson, setTypePerson] = useState<string>("")
     const confirmTimeKeeping = useConfirmTimeKeeping();
     const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
     const [dataAttendances, setDataAttendances] = useState<UpdateTimeKeeping[]>([])
@@ -69,7 +71,7 @@ export default function MngTimekeeping () {
     });
 
     const { isLoading, isError, error } = useQuery({
-        queryKey: ['management-timekeeping', year, month, page, pageSize, debouncedKeySearch, deptId],
+        queryKey: ['management-timekeeping', year, month, page, pageSize, debouncedKeySearch, deptId, typePerson],
         queryFn: async () => {
             const res = await timekeepingApi.getMngTimeKeeping({
                 UserCode: user?.userCode ?? "",
@@ -80,6 +82,7 @@ export default function MngTimekeeping () {
                 keySearch: debouncedKeySearch,
                 team: team ? Number(team) : null,
                 deptId: deptId ? Number(deptId) : null,
+                typePerson: typePerson ? Number(typePerson) : null
             })
             setDataAttendances(res.data.data)
             setTotalPage(res.data.total_pages)
@@ -151,7 +154,7 @@ export default function MngTimekeeping () {
                         </select>
                     </div>
                     <div>
-                        <Label className="mb-1">Mã nhân viên</Label>
+                        <Label className="mb-1">{t("mng_time_keeping.usercode")}</Label>
                         <input
                             value={keySearch}
                             onChange={(e) => {
@@ -164,18 +167,31 @@ export default function MngTimekeeping () {
                         />
                     </div>
                     <div>
-                        <Label className="mb-1">Bộ phận</Label>
+                        <Label className="mb-1">{t("mng_time_keeping.dept")}</Label>
                         <select className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer" value={deptId} 
                             onChange={(e) => {
                                 setPage(1)
                                 setDeptId(e.target.value)
                             }}>
-                            <option value="" className="text-sm">--Tất cả--</option>
+                            <option value="" className="text-sm">--{lang == 'vi' ? 'Tất cả' : 'All'}--</option>
                             {
                                 departments.map((item: {id: number, name: string}, idx: number) => (
                                     <option key={idx} className="text-sm" value={item.id}>{item.name}</option>
                                 ))
                             }
+                        </select>
+                    </div>
+                    <div>
+                        <Label className="mb-1">{lang == 'vi' ? 'Chính thức,thời vụ,..' : 'Type'}</Label>
+                        <select className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer" value={typePerson} 
+                            onChange={(e) => {
+                                setPage(1)
+                                setTypePerson(e.target.value)
+                            }}>
+                            <option value="" className="text-sm">--{lang == 'vi' ? 'Tất cả' : 'All'}--</option>
+                            <option key={1} className="text-sm" value={1}>{lang == 'vi' ? `Chính thức` : 'Fulltime'}</option>
+                            <option key={2} className="text-sm" value={2}>{lang == 'vi' ? `Thời vụ` : 'Temporary'}</option>
+                            <option key={3} className="text-sm" value={3}>{lang == 'vi' ? `Nước ngoài` : 'Foreigner'}</option>
                         </select>
                     </div>
                 </div>
@@ -184,7 +200,7 @@ export default function MngTimekeeping () {
                 </div>
                 <div>
                     <Button className="mr-1 bg-red-700 hover:bg-red-800 hover:cursor-pointer" onClick={() => setOpenModalListHistoryEditTimeKeeping(true)}>
-                        Lịch sử chỉnh sửa ({countHistoryEditTimeKeepingNotSendHR ?? 0})
+                        {lang == 'vi' ? 'Lịch sử chỉnh sửa' : 'History edit'} ({countHistoryEditTimeKeepingNotSendHR ?? 0})
                     </Button>
                     {
                         dataAttendances.length > 0 ? (

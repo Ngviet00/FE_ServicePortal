@@ -74,8 +74,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [
 			{ label: "sidebar.IT.statistical", route: "/form-it/statistical" },
 			{ label: "sidebar.IT.create", route: "/form-it/create" },
-			// { label: "sidebar.IT.list", route: "/form-it" },
-			// { label: "sidebar.IT.setting", route: "/form-it/setting" },
+			{ label: "sidebar.IT.it_form_wait_purchase", route: "/form-it/list-item-wait-form-purchase" },
 		],
 	},
 	{
@@ -85,7 +84,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [
 			{ label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
 			{ label: "sidebar.purchase.create", route: "/purchase/create" },
-			// { label: "sidebar.purchase.list", route: "/purchase" }
+			{ label: "sidebar.purchase.quote", route: "/purchase/list-item-wait-quote" },
 		],
 	},
 	{
@@ -95,6 +94,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		children: [
 			{ label: "sidebar.approval.pending_approval", route: "/approval/pending-approval" },
 			{ label: "sidebar.approval.assigned", route: "/approval/assigned-tasks" },
+			{ label: "sidebar.approval.list_wait_confirm", route: "/approval/wait-confirm" },
+			{ label: "sidebar.approval.list_wait_quote", route: "/approval/wait-quote" },
 			{ label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
 		],
 	}

@@ -6,7 +6,7 @@ import priorityApi from '@/api/priorityApi';
 import itCategoryApi from '@/api/itCategoryApi';
 import DotRequireComponent from '@/components/DotRequireComponent';
 import itFormApi from '@/api/itFormApi';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -68,6 +68,16 @@ const ViewOnlyFormIT = () => {
                     {t('list.title')}
                 </Button>
             </div>
+
+            {
+                formData?.applicationFormItem?.applicationForm?.reference?.code && (
+                    <div className='mb-4 mt-2 text-base text-black bg-orange-200 p-2 rounded'>
+                        <span>
+                            {lang == 'vi' ? 'Đơn IT này liên kết với đơn mua bán' : 'The IT order linked to purchase order'}: <Link className='text-purple-600 font-bold underline' to={`/view/purchase/${formData?.applicationFormItem?.applicationForm?.reference?.code}`}>{formData?.applicationFormItem?.applicationForm?.reference?.code}</Link> 
+                        </span>
+                    </div>
+                )
+            }
 
             <div className="flex">
                 <div className="w-full max-w-3xl bg-white rounded-xl pl-0">

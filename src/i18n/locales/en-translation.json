@@ -85,21 +85,22 @@
 			"title": "IT",
 			"statistical": "Statistical",
 			"create": "Create new request",
-			"list": "List",
-			"setting": "Setting"
+			"it_form_wait_purchase": "Waiting"
 		},
 		"purchase": {
 			"title": "Purchasing",
 			"statistical": "Statistical",
 			"create": "Create new request",
-			"list": "List"
+			"quote": "Item wait quote"
 		},
 		"approval": {
 			"title": "Approval",
 			"pending_approval": "Pending approval",
 			"assigned": "Assigned",
-			"history_approval": "History approval",
-			"resolved": "Resolved"
+			"history_approval": "History approval", 
+			"resolved": "Resolved",
+			"list_wait_confirm": "Wait confirm",
+			"list_wait_quote": "Wait quote"
 		}
 	},
 
@@ -264,7 +265,7 @@
 		"night_time_work": "Night work (minutes)",
 		"day_ot_work": "Overtime day (hour)",
 		"night_ot_work": "Overtime night (hour)",
-		"late": "Go to work leave (minutes)",
+		"late": "Late for work (minutes)",
 		"early": "Go home early (minutes)",
 		"go_out": "Go out (minutes)",
 		"note": "Note"
@@ -324,5 +325,18 @@
 			"view": "View",
 			"note": "Note"
 		}
+	},
+	"status": {
+		"pending": "Pending",
+		"in_process": "In Process",
+		"completed": "Completed",
+		"reject": "Reject",
+		"wait_hr": "Wait HR",
+		"final_approval": "Final Approval",
+		"assigned": "Assigned",
+		"wait_confirm": "Wait Confirm",
+		"wait_quote": "Wait Quote",
+		"wait_po": "Wait PO",
+		"wait_delivery": "Wait Delivery"
 	}
 }

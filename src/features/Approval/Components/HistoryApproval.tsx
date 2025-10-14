@@ -25,7 +25,7 @@ export default function HistoryApproval({ historyApplicationForm }: { historyApp
                             <p className='my-2 text-[15px]'>
                                 <strong className='mr-2'>{ t('history_component.action') }:</strong>
                                 <span 
-                                    className={`${item?.action == 'Reject' ? 'text-red-600' : item?.action == 'Approved' ? 'text-green-600' : 'text-yellow-600'} font-bold`}>
+                                    className={`${item?.action == 'Reject' ? 'text-red-600' : (item?.action == 'Approved' || item?.action == 'Resolved') ? 'text-green-600' : 'text-yellow-600'} font-bold`}>
                                         {item?.action || '--'}
                                 </span>
                             </p>

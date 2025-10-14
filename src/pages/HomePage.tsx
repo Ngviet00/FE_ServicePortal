@@ -51,7 +51,8 @@ export default function HomePage() {
                     dateOfBirth: result?.dateOfBirth,
                     IsActive: result?.isActive,
                     roles: result?.roles,
-                    permissions: result?.permissions
+                    permissions: result?.permissions,
+                    unitId: result?.unitId,
                 })
 
                 return res.data.data;

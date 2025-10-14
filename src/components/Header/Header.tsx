@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/store/authStore"
-import { Menu, Moon, Sun } from "lucide-react"
+import { Menu } from "lucide-react"
 import { useSidebarStore } from "@/store/sidebarStore"
 import { useEffect, useState } from "react"
 import { useAppStore } from "@/store/appStore"
@@ -33,9 +33,9 @@ export default function Header() {
         }
     }, [darkMode]);
 
-    const handDarkMode = () => {
-        setDarkMode(!darkMode)
-    }
+    // const handDarkMode = () => {
+    //     setDarkMode(!darkMode)
+    // }
 
     return (
         <header className="header bg-white dark:bg-[#1b1b1f]">
@@ -47,11 +47,11 @@ export default function Header() {
             </button>
             <div style={{ height: "40px"}} className='flex items-center'>
 
-                <div className="mr-3 display-none">
+                {/* <div className="mr-3 display-none">
                     { darkMode ? 
                         <Moon className="dark:text-white hover:cursor-pointer" onClick={handDarkMode}/>
                          : <Sun className="dark:text-white hover:cursor-pointer" onClick={handDarkMode}/>}
-                </div>
+                </div> */}
 
                 <SelectedLanguage/>
 

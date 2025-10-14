@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 interface DateTimePickerProps {
     disabled?: boolean,
     enableTime?:  boolean,
+    noCalendar?: boolean,
+    time_24hr?: boolean,
     dateFormat?: string
     className?: string,
     initialDateTime?: string; // default ISO string
@@ -14,7 +16,7 @@ interface DateTimePickerProps {
     placeHolder?: string
 }
 
-const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enableTime = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange, placeHolder }) => {
+const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enableTime = true, noCalendar = false, time_24hr = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange, placeHolder }) => {
     const lang = useTranslation().i18n.language.split('-')[0]
     const inputRef = useRef<HTMLInputElement>(null);
     const fpInstance = useRef<flatpickr.Instance | null>(null);
@@ -24,13 +26,14 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enabl
     useEffect(() => {
         if (inputRef.current) {
             fpInstance.current = flatpickr(inputRef.current, {
-                minuteIncrement: 1,
+                minuteIncrement: 30,
                 enableTime: enableTime,
-                noCalendar: false, 
+                noCalendar: noCalendar, 
                 dateFormat: dateFormat,
-                time_24hr: true,
+                time_24hr: time_24hr,
                 locale: lang == 'vi' ? Vietnamese : 'default',
                 defaultDate: initialDateTime,
+                
                 onChange: (selectedDates, dateStr, instance) => {
                     setSelectedDateTime(dateStr);
                     if (onChange) {

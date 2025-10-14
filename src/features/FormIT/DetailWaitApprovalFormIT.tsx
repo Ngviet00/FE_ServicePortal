@@ -4,8 +4,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ShowToast, STATUS_ENUM } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
-import itFormApi, { useApprovalITForm, useAssignedTaskITForm } from '@/api/itFormApi';
-import { useNavigate, useParams } from 'react-router-dom';
+import itFormApi, { useApprovalITForm, useAssignedTaskITForm, useConfirmFormITNeedFormPurchase } from '@/api/itFormApi';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ModalConfirm from '@/components/ModalConfirm';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,6 +32,7 @@ const DetailWaitApprovalFormIT = () => {
     
     const approval = useApprovalITForm() //approval normal
     const assignTask = useAssignedTaskITForm() //manager assign task for staff
+    const confirmNeedFormPurchase = useConfirmFormITNeedFormPurchase()
 
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['itForm', id],
@@ -66,8 +67,7 @@ const DetailWaitApprovalFormIT = () => {
         queryFn: async () => {
             const res = await itFormApi.getMemberITAssigned()
             return res.data.data
-        },
-        enabled: isManagerITapproval
+        }
     });
 
     const handleCheckboxChangeUserAssigned = (event: React.ChangeEvent<HTMLInputElement>, item: {nvMaNV: string, nvHoTen: string, email: string}) => {
@@ -89,31 +89,43 @@ const DetailWaitApprovalFormIT = () => {
         }
 
         try {
-            if (isManagerITapproval) {
-                await assignTask.mutateAsync({
-                    UserCodeApproval: user?.userCode,
-                    UserNameApproval: user?.userName ?? '',
-                    NoteManager: note,
+            if (statusModalConfirm == 'confirmed') {
+                await confirmNeedFormPurchase.mutateAsync({
+                    UserCode: user?.userCode,
+                    UserName: user?.userName ?? '',
+                    Note: note,
                     OrgPositionId: user?.orgPositionId,
                     ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-                    ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
-                    UserAssignedTasks: selectedUserAssigned
                 })
-                
+                navigate("/approval/wait-confirm")
             }
             else {
-                await approval.mutateAsync({
-                    UserCodeApproval: user?.userCode,
-                    UserNameApproval: user?.userName ?? "",
-                    OrgPositionId: user?.orgPositionId,
-                    Status: type == 'approval' ? true : false,
-                    Note: note,
-                    ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-                    ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
-                    RequestTypeId: formData?.applicationFormItem?.applicationForm?.requestTypeId,
-                })
+                if (isManagerITapproval) {
+                    await assignTask.mutateAsync({
+                        UserCodeApproval: user?.userCode,
+                        UserNameApproval: user?.userName ?? '',
+                        NoteManager: note,
+                        OrgPositionId: user?.orgPositionId,
+                        ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                        ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
+                        UserAssignedTasks: selectedUserAssigned
+                    })
+                }
+                else {
+                    await approval.mutateAsync({
+                        UserCodeApproval: user?.userCode,
+                        UserNameApproval: user?.userName ?? "",
+                        OrgPositionId: user?.orgPositionId,
+                        Status: type == 'approval' ? true : false,
+                        Note: note,
+                        ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                        ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
+                        RequestTypeId: formData?.applicationFormItem?.applicationForm?.requestTypeId,
+                    })
+                }
+                navigate("/approval/pending-approval")
             }
-            navigate("/approval/pending-approval")
+
             setStatusModalConfirm('')
             queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
         } catch (err) {
@@ -161,7 +173,7 @@ const DetailWaitApprovalFormIT = () => {
                             </div>
                         </div>
                         {
-                            isManagerITapproval && (
+                            isManagerITapproval && formData?.applicationFormItem?.applicationForm?.assignedTasks?.length == 0 ? (
                                 <div>
                                     <div className="form-group">
                                         <label className="block text-sm font-medium text-gray-700">
@@ -185,21 +197,65 @@ const DetailWaitApprovalFormIT = () => {
                                         </div>
                                     </div>
                                 </div>
+                            ) : (
+                                <div className='w-full'>
+                                    <Label className='mb-1'>{t('create.assigned')} </Label>
+                                    <div className="flex flex-col gap-2 mt-2">
+                                        {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                             
+                                            const isExist = formData?.applicationFormItem?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
+                                            if (isExist) {
+                                                return (
+                                                    <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
+                                                        <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
+                                                    </label>
+                                                );
+                                            }                                                        
+                                        })}
+                                    </div>
+                                </div>
                             )
                         }
                         <div className='flex justify-end'>
-                            <Button
-                                disabled={assignTask.isPending}
-                                onClick={() => setStatusModalConfirm('approval')}
-                                className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
-                            >
-                                {assignTask.isPending ? <Spinner size="small" className='text-white'/> : tCommon('approval')}
-                            </Button>
                             {
-                                !isManagerITapproval && (
-                                    <Button onClick={() => setStatusModalConfirm('reject')} className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base">
-                                        {tCommon('reject')}
-                                    </Button>
+                                formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.WAIT_CONFIRM ? (
+                                    <>
+                                        {
+                                            user?.userCode == formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm ? (
+                                                <div>
+                                                    <span className='text-sm text-red-700 underline'>{lang == 'vi' ? '(Đơn mua hàng liên kết với đơn IT)' : '(The purchase order will be linked to the IT order)'}</span>
+                                                    <Link to={`/purchase/create?applicationFormCode=${formData?.applicationFormItem?.applicationForm?.code}`} 
+                                                        className="px-4 py-2 ml-2 bg-orange-600 text-white rounded-[3px] shadow-lg hover:bg-orange-700 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer">
+                                                        {lang == 'vi' ? 'Tạo đơn mua bán' : 'Create Purchase Request'}
+                                                    </Link>
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    disabled={assignTask.isPending}
+                                                    onClick={() => setStatusModalConfirm('confirmed')}
+                                                    className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                                                >
+                                                    {assignTask.isPending ? <Spinner size="small" className='text-white'/> : (lang == 'vi' ? 'Xác nhận' : 'Confirm')}
+                                                </Button>
+                                            )
+                                        }
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            disabled={assignTask.isPending}
+                                            onClick={() => setStatusModalConfirm('approval')}
+                                            className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                                        >
+                                            {assignTask.isPending ? <Spinner size="small" className='text-white'/> : tCommon('approval')}
+                                        </Button>
+                                        {
+                                            !isManagerITapproval && (
+                                                <Button onClick={() => setStatusModalConfirm('reject')} className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base">
+                                                    {tCommon('reject')}
+                                                </Button>
+                                            )
+                                        }
+                                    </>
                                 )
                             }
                         </div>

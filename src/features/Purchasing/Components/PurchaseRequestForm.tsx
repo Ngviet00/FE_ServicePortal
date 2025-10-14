@@ -13,16 +13,19 @@ import DotRequireComponent from "@/components/DotRequireComponent";
 import { Plus, Trash2 } from "lucide-react";
 import Select from 'react-select'
 import { NumericInput } from "@/components/NumericInput";
+
 interface PurchaseRequestFormProps {
     mode: 'create' | 'edit' | 'view' | 'approval' | 'manager_purchase_approval' | 'assigned' 
     formData?: any
     onSubmit?: (data: any) => void,
-    costCenter?: { value: string, label: string }[],
+    costCenter?: { value: string, label: string, departmentId: number | null }[],
     departments?: { id: number, name: string, nameE: string }[],
+    requestStatuses?: { id: number, name: string, nameE: string }[],
     isPending?: boolean;
+    onUpdatePOAndStatus?: (data: { purchaseOrder: string; status: number }) => void;
 }
 
-const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formData, onSubmit, costCenter, departments, isPending }) => {
+const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formData, onSubmit, costCenter, departments, requestStatuses, isPending, onUpdatePOAndStatus }) => {
     const { t } = useTranslation('purchase')
     const { t: tCommon  } = useTranslation('common')
     const lang = useTranslation().i18n.language.split('-')[0]
@@ -48,7 +51,9 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
         departmentName: z.string().optional(),
         departmentId: z.string().nonempty({ message: "Bắt buộc." }),
         request_date: z.string().nonempty({ message: "Bắt buộc." }),
-        purchases: z.array(purchaseRequestSchema)
+        purchases: z.array(purchaseRequestSchema),
+        purchaseOrder: z.string().optional(),
+        status: z.string().optional(),
     });
     
     type PurchaseForm = z.infer<typeof purchaseSchema>;
@@ -78,7 +83,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
         },
     });
 
-    const { register, control, handleSubmit, reset } = form;
+    const { register, control, handleSubmit, reset, watch } = form;
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -87,24 +92,30 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
 
     useEffect(() => {
         if (formData && mode != 'create') {
+            const appForm = formData.applicationFormItem?.applicationForm;
             reset({
-                usercode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedBy ?? '',
-                username: formData?.applicationFormItem?.applicationForm?.createdBy ?? '',
-                departmentId: formData.departmentId.toString() ?? -1,
-                departmentName: formData.orgUnit?.name ?? '',
-                request_date: formData.requestedDate?.split('T')[0] ?? '',
-                purchases: formData.purchaseDetails?.map((pd: { id: any, itemName: any; itemDescription: any; quantity: { toString: () => any; }; unitMeasurement: any; requiredDate: string; costCenterId: { toString: () => any; }; note: any; }) => ({
-                    id: pd.id ?? null,
+                usercode: appForm?.userCodeCreatedForm ?? '',
+                username: appForm?.userNameCreatedForm ?? '',
+                departmentId: 
+                    appForm?.departmentId?.toString() ??
+                    appForm?.orgUnit?.id?.toString() ??
+                    '',
+                departmentName: appForm?.orgUnit?.name ?? '',
+                request_date: formData?.requestedDate?.split('T')[0] ?? '',
+                purchases: formData.purchaseDetails?.map((pd: any) => ({
+                    id: pd.id?.toString() ?? null,
                     name_category: pd.itemName ?? '',
                     description: pd.itemDescription ?? '',
                     quantity: pd.quantity?.toString() ?? '',
                     unit_measurement: pd.unitMeasurement ?? '',
                     required_date: pd.requiredDate
-                    ? pd.requiredDate.split('T')[0]
-                    : new Date().toISOString().slice(0, 10),
+                        ? pd.requiredDate.split('T')[0]
+                        : new Date().toISOString().slice(0, 10),
                     cost_center: pd.costCenterId?.toString() ?? '',
                     note: pd.note ?? '',
                 })) ?? [defaultSinglePurchaseRequest],
+                purchaseOrder: formData?.purchaseOrder ?? '',
+                status: formData?.requestStatusId ?? ''
             });
         }
         if (mode === "create") {
@@ -134,11 +145,28 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
         }
     }
 
+    const handleUpdateStatusAndPO = () => {
+        const { purchaseOrder, status } = form.getValues();
+        if (onUpdatePOAndStatus) {
+            onUpdatePOAndStatus({ purchaseOrder: purchaseOrder ?? '', status: Number(status) });
+        }
+    }
+
+    const departmentId = watch('departmentId');
+
+    const filteredCostCenters = useMemo(() => {
+        if (!departmentId) return costCenter ?? [];
+        const filtered = costCenter?.filter(
+            (cc: any) => cc.departmentId?.toString() == departmentId
+        );
+        return filtered?.length ? filtered : costCenter ?? [];
+    }, [departmentId, costCenter]);
+
     return (
-        <form onSubmit={handleSubmit(onInternalSubmit)} >
+        <form onSubmit={handleSubmit(onInternalSubmit)}>
             <div className="space-y-6">
                 <div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4 max-w-4xl">
+                    <div className="grid grid-cols-1 md:grid-cols-7 gap-7 mb-4 max-w-8xl items-end">
                         <div className="form-group">
                             <label htmlFor="requester.employeeId" className="block text-sm font-medium text-gray-700">
                                 {tCommon('usercode')}<DotRequireComponent />
@@ -208,6 +236,52 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                 )}
                             />
                         </div>
+                        {
+                            mode == 'assigned' || mode == 'view' ? (
+                                <div className="form-group">
+                                    <label htmlFor="requester.name" className="block text-sm font-medium text-gray-700">
+                                        {'PO'}
+                                    </label>
+                                    <input
+                                        disabled={mode != 'assigned'}
+                                        {...register('purchaseOrder')}
+                                        type="text"
+                                        id="PO"
+                                        placeholder={`PO`}
+                                        className={`border-gray-300 mt-1 w-full p-2 rounded-[5px] text-sm border ${mode != 'assigned' ? 'bg-gray-100' : ''}`}
+                                    />
+                                </div>
+                            ) : (<></>)
+                        }
+                        {
+                            mode == 'assigned' ? (
+                                <>
+                                    <div className="form-group">
+                                        <label className="mb-1 block text-sm font-medium text-gray-700">
+                                            {lang == 'vi' ? 'Trạng thái' : 'Status'}
+                                        </label>
+                                        
+                                        <select
+                                            {...register('status')}
+                                            className={`border w-full cursor-pointer rounded-[5px]`} style={{padding: '6.7px'}}>
+                                            <option value="">--{ lang == 'vi' ? 'Chọn' : 'Select' }--</option>
+                                            {
+                                                requestStatuses?.map((item: { id: number, name: string, nameE: string }, idx: number) => (
+                                                    <option key={idx} value={item.id}>{lang == 'vi' ? item.name : item.nameE}</option>
+                                                ))
+                                            }
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Button onClick={handleUpdateStatusAndPO} className="rounded-[4px] hover:cursor-pointer">
+                                            {lang == 'vi' ? 'Cập nhật' : 'Update'}
+                                        </Button>
+                                    </div>
+                                </>
+                            ) : (
+                                <></>
+                            )
+                        }
                     </div>
                     <h2 className="font-semibold text-xl text-[#007cc0]">{t('create.text_title_category_buy')}</h2>
                     {
@@ -287,7 +361,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                     <p className="text-sm text-red-500 mt-1">{errors.required_date.message}</p>
                                                 )}
                                             </div>
-                                            <div className="mr-2">
+                                            <div className="mr-2 w-[12%]">
                                                 <label className="block mb-1">{t('create.cost_center')} <DotRequireComponent /></label>
                                                 <Controller
                                                     name={`purchases.${index}.cost_center`}
@@ -297,9 +371,9 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                             <Select
                                                                 isDisabled={!isCreateOrEdit}
                                                                 {...field}
-                                                                options={costCenter}
+                                                                options={filteredCostCenters}
                                                                 className={`cursor-pointer ${!isCreateOrEdit ? 'bg-gray-100' : ''}`}
-                                                                value={costCenter?.find(option => option.value == field.value) || null}
+                                                                value={filteredCostCenters?.find(option => option.value == field.value) || null}
                                                                 onChange={(selectedOption) => {field.onChange(selectedOption?.value?.toString())}}
                                                                 styles={{
                                                                     control: (base) => ({
@@ -315,7 +389,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                                             />
                                                             {fieldState.error && (
                                                                 <p className="text-sm text-red-500 mt-1">
-                                                                {fieldState.error.message}
+                                                                    {fieldState.error.message}
                                                                 </p>
                                                             )}
                                                         </>

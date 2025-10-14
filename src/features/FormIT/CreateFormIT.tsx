@@ -71,8 +71,6 @@ const CreateFormIT = () => {
             formData.append('IdDeleteFile', String(id));
         });
 
-        console.log(data);
-
         if (isEdit) {
             await updateItForm.mutateAsync({id: id, data: formData})
         }

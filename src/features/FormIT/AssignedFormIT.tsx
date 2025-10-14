@@ -8,15 +8,16 @@ import itCategoryApi from '@/api/itCategoryApi';
 import { useState } from 'react';
 import DotRequireComponent from '@/components/DotRequireComponent';
 import { useAuthStore } from '@/store/authStore';
-import itFormApi, { useResolvedTaskITForm } from '@/api/itFormApi';
+import itFormApi, { useResolvedTaskITForm, useStaffITReferenceToManagerIT } from '@/api/itFormApi';
 import { Spinner } from '@/components/ui/spinner';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ITRequestForm from './Components/ITRequestForm';
 import ModalConfirm from '@/components/ModalConfirm';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import userApi from '@/api/userApi';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
+import { STATUS_ENUM } from '@/lib';
 
 const AssignedFormIT = () => {
     const { t } = useTranslation('formIT');
@@ -27,6 +28,7 @@ const AssignedFormIT = () => {
     const [statusModalConfirm, setStatusModalConfirm] = useState('')
     const [targetDate, setTargetDate] = useState<any>(new Date().toISOString().split('T')[0]);
     const [actualDate, setActualDate] = useState<any>(new Date().toISOString().split('T')[0]);
+    const [note, setNote] = useState("")
 
     const { id } = useParams<{ id: string }>();
     const isAssigned = !!id;
@@ -43,17 +45,29 @@ const AssignedFormIT = () => {
     const mode = 'assigned'
     const initialFormData = isAssigned ? formData : {};
 
+    const staffITReferenceToManagerIT = useStaffITReferenceToManagerIT()
     const resolvedTask = useResolvedTaskITForm()
     
     const handleSaveModalConfirm = async () => {
-        await resolvedTask.mutateAsync({
-            UserCodeApproval: user?.userCode,
-            UserNameApproval: user?.userName ?? '',
-            ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-            ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
-            TargetCompletionDate: targetDate,
-            ActualCompletionDate: actualDate
-        })
+        if (statusModalConfirm == 'reference') {
+            await staffITReferenceToManagerIT.mutateAsync({
+                UserCode: user?.userCode,
+                UserName: user?.userName ?? '',
+                ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                OrgPositionId: user?.orgPositionId,
+                Note: note
+            })
+        }
+        else {
+            await resolvedTask.mutateAsync({
+                UserCodeApproval: user?.userCode,
+                UserNameApproval: user?.userName ?? '',
+                ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
+                TargetCompletionDate: targetDate,
+                ActualCompletionDate: actualDate
+            })
+        }
 
         navigate("/approval/assigned-tasks")
         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
@@ -96,6 +110,16 @@ const AssignedFormIT = () => {
                 </Button>
             </div>
 
+            {
+                formData?.applicationFormItem?.applicationForm?.reference?.code && (
+                    <div className='mb-4 mt-2 text-base text-black bg-orange-200 p-2 rounded'>
+                        <span>
+                            {lang == 'vi' ? 'Đơn IT này liên kết với đơn mua bán' : 'The IT order linked to purchase order'}: <Link className='text-purple-600 font-bold underline' to={`/view/purchase/${formData?.applicationFormItem?.applicationForm?.reference?.code}`}>{formData?.applicationFormItem?.applicationForm?.reference?.code}</Link> 
+                        </span>
+                    </div>
+                )
+            }
+
             <ModalConfirm
                 type={statusModalConfirm}
                 isOpen={statusModalConfirm != ''}
@@ -137,7 +161,7 @@ const AssignedFormIT = () => {
                             })}
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                         <div className="form-group">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 {t('create.target_completion_date')}<DotRequireComponent />
@@ -166,7 +190,28 @@ const AssignedFormIT = () => {
                             />
                         </div>
                     </div>
+                    <div className='w-full mt-5'>
+                        <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'></span></Label>
+                        <Textarea 
+                            placeholder={t('create.note')} 
+                            value={note} 
+                            onChange={(e) => setNote(e.target.value)} 
+                            className={`border-gray-300`}
+                        />
+                    </div>
                     <div className='flex gap-4 justify-end mt-4'>
+                        {
+                            formData?.applicationFormItem?.applicationForm?.reference?.requestStatusId != STATUS_ENUM.COMPLETED && (
+                                <Button
+                                    onClick={() => setStatusModalConfirm('reference')}
+                                    disabled={staffITReferenceToManagerIT.isPending}
+                                    type='submit'
+                                    className='px-6 py-2 bg-green-500 hover:bg-green-600 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
+                                >
+                                    {staffITReferenceToManagerIT.isPending ? <Spinner size="small" className='text-white'/> : lang == 'vi' ? 'Yêu cầu đơn mua bán' : 'Request form purchase'}
+                                </Button>
+                            )
+                        }
                         <Button
                             onClick={() => setStatusModalConfirm('approval')}
                             disabled={resolvedTask.isPending}

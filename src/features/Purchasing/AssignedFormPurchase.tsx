@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Spinner } from '@/components/ui/spinner';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ModalConfirm from '@/components/ModalConfirm';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +13,9 @@ import PurchaseRequestForm from './Components/PurchaseRequestForm';
 import { useApproval } from '@/api/approvalApi';
 import costCenterApi from '@/api/costCenterApi';
 import purchaseApi, { useAssignedTaskPurchaseForm, useResolvedTaskPurchaseForm } from '@/api/purchaseApi';
-import { STATUS_ENUM } from '@/lib';
+import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
+import orgUnitApi from '@/api/orgUnitApi';
+import requestStatusApi from '@/api/requestStatusApi';
 
 const AssignedFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -28,6 +30,17 @@ const AssignedFormPurchase = () => {
     const approval = useApproval()
     const assignedTaskPurchase = useAssignedTaskPurchaseForm()
 
+    const { data: requestStatuses = [] } = useQuery({
+		queryKey: ['get-all-status'],
+		queryFn: async () => {
+			const res = await requestStatusApi.getAll()
+            const results = res.data.data.filter((status: { id: number }) => 
+                status.id == STATUS_ENUM.WAIT_DELIVERY 
+                || status.id == STATUS_ENUM.WAIT_PO || status.id == STATUS_ENUM.WAIT_QUOTE)
+			return results
+		}
+	});
+
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['purchaseForm', id],
         queryFn: async () => {
@@ -37,23 +50,32 @@ const AssignedFormPurchase = () => {
         enabled: isHasId,
     });
 
+    const { data: departments = [] } = useQuery({
+		queryKey: ['get-all-department'],
+		queryFn: async () => {
+			const res = await orgUnitApi.GetAllDepartment()
+			return res.data.data
+		}
+	});
+
     const { data: costCenters } = useQuery({
         queryKey: ['get-all-cost-center'],
         queryFn: async () => {
             const res = await costCenterApi.getAll()
 
-            const options: { value: string; label: string }[] = res?.data?.data?.map((center: { id: number; code: string }) => ({
+            const options: { value: string; label: string, departmentId: number | null }[] = res?.data?.data?.map((center: { id: number; code: string, departmentId: number, orgUnit?: { name?: string } }) => ({
                 value: center.id,
-                label: center.code
+                label: center?.orgUnit ? `${center.code}__${center?.orgUnit?.name}` : `${center?.code}`,
+                departmentId: center.departmentId,
             })) || [];
 
-            options.unshift({ value: '', label: '--Chọn--' });
+            options.unshift({ value: '', label: '--Chọn--', departmentId: null });
 
             return options
         }
     });
 
-    const mode = isHasId && formData?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_purchase_approval' : 'approval'
+    const mode = isHasId && formData?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_purchase_approval' : 'assigned'
     const initialFormData = isHasId ? formData : {};
 
     const { data: purchaseMembers = [] } = useQuery({
@@ -67,17 +89,43 @@ const AssignedFormPurchase = () => {
     const resolvedTask = useResolvedTaskPurchaseForm()
     
     const handleSaveModalConfirm = async () => {
+        if (formData?.purchaseOrder == null || formData?.purchaseOrder == undefined || formData?.purchaseOrder == '') {
+            ShowToast(lang == 'vi' ? 'Phải có PO thì mới có thể đóng đơn được' : 'PO is required to close the order', 'error')
+            return
+        }
+
         await resolvedTask.mutateAsync({
             UserCodeApproval: user?.userCode,
             UserNameApproval: user?.userName ?? '',
-            PurchaseId: id, 
             Note: note,
-            UrlFrontend: window.location.origin,
+            ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+            ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
         })
 
         navigate("/approval/assigned-tasks")
         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
     };
+
+    const handleUpdatePOAndStatus = async (data: { purchaseOrder: string; status: number }) => {
+        // if (data.purchaseOrder == null || data.purchaseOrder == undefined || data.purchaseOrder == '') {
+        //     ShowToast(lang == 'vi' ? 'Phải có PO thì mới có thể cập nhật được' : 'PO is required to update', 'error')
+        //     return
+        // }
+        try {
+            await purchaseApi.updatePOAndStatus(formData?.applicationFormItem?.applicationForm?.code ?? '', {
+                userCode: user?.userCode ?? '',
+                userName: user?.userName ?? '',
+                purchaseOrder: data.purchaseOrder,
+                statusId: data.status
+            })
+            queryClient.invalidateQueries({ queryKey: ['purchaseForm', id] });
+            navigate("/approval/assigned-tasks")
+            ShowToast('Success')
+        }
+        catch(err) {
+            ShowToast(getErrorMessage(err), 'error')
+        }
+    }
 
     if (isHasId && isFormDataLoading) {
         return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
@@ -98,13 +146,26 @@ const AssignedFormPurchase = () => {
                 </Button>
             </div>
 
+           {
+                formData?.applicationFormItem?.applicationForm?.reference?.code && (
+                    <div className='mb-4 mt-2 text-base text-black bg-orange-200 p-2 rounded'>
+                        <span>
+                            {lang == 'vi' ? 'Đơn mua bán này liên kết với đơn IT' : 'The purchase order linked to IT order'}: <Link className='text-purple-600 font-bold underline' to={`/view/form-it/${formData?.applicationFormItem?.applicationForm?.reference?.code}`}>{formData?.applicationFormItem?.applicationForm?.reference?.code}</Link> 
+                        </span>
+                    </div>
+                )
+            }
+
             <div className="flex flex-col min-h-screen">
                 <div className="w-full bg-white rounded-xl pl-0">
                     <PurchaseRequestForm
                         mode={mode}
                         costCenter={costCenters} 
                         formData={initialFormData}
+                        departments={departments}
+                        requestStatuses={requestStatuses}
                         isPending={assignedTaskPurchase.isPending || approval.isPending}
+                        onUpdatePOAndStatus={(data) => {handleUpdatePOAndStatus(data)}}
                     />
                 </div>
                 <div className='mt-8 border-t border-dashed border-gray-300 pt-5'>

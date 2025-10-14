@@ -68,6 +68,10 @@ import DetailApprovalMissTimeKeeping from '@/features/MissTimeKeeping/DetailAppr
 import ListInternalMemoHR from '@/features/InternalMemoHR/ListInternalMemoHR';
 import CreateInternalMemoHR from '@/features/InternalMemoHR/CreateInternalMemoHR';
 import ViewAndApprovalInternalMemoHR from '@/features/InternalMemoHR/ViewAndApprovalInternalMemoHR';
+import WaitConfirm from '@/features/Approval/WaitConfirm';
+import WaitQuote from '@/features/Approval/WaitQuote';
+import ListItemWaitQuote from '@/features/Purchasing/ListItemWaitQuote';
+import ListITFormWaitFormPurchase from '@/features/FormIT/ListITFormWaitFormPurchase';
 
 function App() {
 	const location = useLocation();
@@ -157,24 +161,25 @@ function App() {
 		{ path: "/view-form-it-approval/:id", element: <DetailWaitApprovalFormIT />},
 		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
 		{ path: "/view/form-it/:id", element: <ViewOnlyFormIT />},
+		{ path: "/form-it/list-item-wait-form-purchase", element: <ListITFormWaitFormPurchase />},
 
 		//purchasing
 		{ path: "/purchase/statistical", element: <StatisticalFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
 		{ path: "/purchase/create", element: <CreateFormPurchase />},
 		{ path: "/purchase", element: <ListFormPurchase />},
 		{ path: "/purchase/edit/:id", element: <CreateFormPurchase />},
+		{ path: "/view/purchase/:id", element: <ViewOnlyFormPurchase />},
+		{ path: "/view-purchase-approval/:id", element: <DetailWaitApprovalFormPurchase />},
 		{ path: "/purchase/all-form-purchase", element: <AllFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
+		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
+		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />},
 
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},
 		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},
 		{ path: "/approval/approval-history", element: <ApprovalHistory />},
-
-
-
-		{ path: "/approval/approval-purchase/:id", element: <DetailWaitApprovalFormPurchase />},
-		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
-		{ path: "/approval/view-purchase/:id", element: <ViewOnlyFormPurchase />},
+		{ path: "/approval/wait-confirm", element: <WaitConfirm />},
+		{ path: "/approval/wait-quote", element: <WaitQuote />}
 	];
   
 	return (

@@ -10,6 +10,7 @@ export interface User {
     IsActive?: number;
     isChangePassword?: number;
     orgPositionId?: number,
+    unitId?: number,
     dateOfBirth?: Date,
     email?: string,
     nvGioiTinh?: boolean,

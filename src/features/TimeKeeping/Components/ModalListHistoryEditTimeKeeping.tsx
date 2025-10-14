@@ -121,12 +121,16 @@ const ModalListHistoryEditTimeKeeping: React.FC<ModalListHistoryEditTimeKeepingP
                                             </TableCell>
                                             <TableCell className="font-medium text-left">
                                                 {
-                                                    item.isSentToHR == false ? (<span className="bg-gray-300 text-gray-900 p-1 rounded-[3px]">Pending</span>)
+                                                    item?.isSentToHR == false ? (<span className="bg-gray-300 text-gray-900 p-1 rounded-[3px]">Pending</span>)
                                                     : (<span className="bg-green-300 text-green-900 p-1 rounded-[3px]">Submitted</span>)
                                                 }
                                             </TableCell>
                                             <TableCell className="font-medium text-center">
-                                                <button className="bg-black text-white px-3 py-0.5 rounded-[3px] cursor-pointer" onClick={() => handleDelete(item?.id ?? 0)}>{lang == 'vi' ? 'Xóa' : 'Delete'}</button>
+                                                {
+                                                    item?.isSentToHR == false ? (
+                                                        <button className="bg-black text-white px-3 py-0.5 rounded-[3px] cursor-pointer" onClick={() => handleDelete(item?.id ?? 0)}>{lang == 'vi' ? 'Xóa' : 'Delete'}</button>
+                                                    ) : (<span>--</span>)
+                                                }
                                             </TableCell>
                                         </TableRow>
                                     ))

@@ -152,7 +152,11 @@ export enum STATUS_ENUM {
     WAIT_HR = 4,
     REJECT = 5,
     FINAL_APPROVAL = 6,
-    ASSIGNED = 7
+    ASSIGNED = 7,
+    WAIT_CONFIRM = 8,
+    WAIT_QUOTE = 9,
+    WAIT_PO = 10,
+    WAIT_DELIVERY = 11,
 }
 
 export enum REQUEST_TYPE {
@@ -184,7 +188,10 @@ export enum UNIT_ENUM {
     COMPANY = 1,
     MNG_DEPARTMENT = 2,
     DEPARTMENT = 3,
-    TEAM = 4
+    TEAM = 4,
+    GM = 5,
+    Manager = 6,
+    AM = 7
 }
 
 export interface IApplicationForm {
@@ -209,4 +216,60 @@ export interface IApplicationForm {
     orgUnit?: OrgUnit;
     assignedTasks: IAssignedTask[];
     historyApplicationForms: HistoryApplicationForm[];
+}
+
+export function GetUrlWaitApproval(requestTypeId: number, code: string) {
+    let result = ''
+
+	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = `/view-leave-request-approval/${code}'}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/view-memo-notify-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
+		result = `/view-form-it-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
+		result = `/view-purchase-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
+		result = `/view-overtime-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
+		result = `/view-miss-timekeeping-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
+		result = `/internal-memo-hr/${code}?mode=approval`
+	}
+
+	return result
+}
+
+export function GetUrlViewDetail(requestTypeId: number, code: string) {
+    let result = ''
+
+	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+		result = `/view-leave-request-approval/${code}'}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+		result = `/view-memo-notify-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
+		result = `/view/form-it/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
+		result = `/view/purchase/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
+		result = `/view-overtime-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
+		result = `/view-miss-timekeeping-approval/${code}`
+	}
+	else if (requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
+		result = `/internal-memo-hr/${code}?mode=approval`
+	}
+
+	return result
 }

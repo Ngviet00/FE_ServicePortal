@@ -52,6 +52,28 @@ export interface IListAssigned {
     RequestTypeId?: number | null
 }
 
+//#region Approval All 
+export interface ApprovalItem {
+  ApplicationFormId: number;
+  ApplicationFormCode: string;
+  RequestTypeId: number;
+}
+
+export interface ApprovalAllRequest {
+  Items: ApprovalItem[];
+  UserCodeApproval: string;
+  UserNameApproval: string;
+  OrgPositionId: number;
+}
+
+export interface ApprovalAllResponse {
+    code?: string,
+    success?: boolean,
+    error?: string
+}
+
+//#endregion
+
 const approvalApi = {
     CountWaitApprovalAndAssignedInSidebar(params: CountWaitApprovalAndAssignedInSidebar) {
         return axiosClient.get('/approval/count-wait-approval-and-assigned-in-sidebar', {params})
@@ -67,7 +89,31 @@ const approvalApi = {
     },
     GetListAssigned(params: IListAssigned) {
         return axiosClient.get('/approval/list-assigned', {params})
+    },
+    ApprovalAll(data: ApprovalAllRequest) {
+        return axiosClient.post(`/approval/approval-all`, data)
+    },
+    GetListWaitConfirm(params: ListWaitApprovalRequest) {
+        return axiosClient.get('/approval/list-wait-confirm', {params})
+    },
+    GetListWaitQuote(params: ListWaitApprovalRequest) {
+        return axiosClient.get('/approval/list-wait-quote', {params})
     }
+}
+
+export function useApprovalAll() {
+    return useMutation<ApprovalAllResponse[], Error, ApprovalAllRequest>({
+        mutationFn: async (data: ApprovalAllRequest) => {
+            const res = await approvalApi.ApprovalAll(data);
+            return res.data.data;
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    });
 }
 
 export function useApproval() {

@@ -173,7 +173,9 @@ export default function CreateOverTime() {
     };
 
     const updateRow = (id: any, key: string, value: string) => {
-        setRows(rows.map(row => row.id === id ? { ...row, [key]: value } : row));
+        setRows(prevRows => 
+            prevRows.map(r => r.id === id ? { ...r, [key]: value } : r)
+        );
     };
 
     const handleSubmit = async () => {
@@ -277,6 +279,36 @@ export default function CreateOverTime() {
         finally {
             setIsSearchingUser(false)
         }
+    }
+
+    const calculatorNumberHour = (id: string, fromHour: string, toHour: string) => {
+        setRows(prevRows => {
+            return prevRows.map(row => {
+                if (row.id !== id) return row;
+
+                if (!fromHour || !toHour) return { ...row, numberHour: '' };
+
+                const normalizeTime = (time: string) => {
+                    const parts = time.split(':');
+                    if (parts.length === 1) return `${parts[0]}:00`;
+                    return time;
+                };
+
+                const fromParts = normalizeTime(fromHour).split(':').map(Number);
+                const toParts = normalizeTime(toHour).split(':').map(Number);
+                const [fromH, fromM] = fromParts;
+                const [toH, toM] = toParts;
+
+                if ([fromH, fromM, toH, toM].some(isNaN)) return { ...row, numberHour: '' };
+
+                let diff = (toH * 60 + toM) - (fromH * 60 + fromM);
+                if (diff < 0) diff += 24 * 60;
+
+                const hours = diff / 60;
+
+                return { ...row, numberHour: hours.toFixed(2) };
+            });
+        });
     }
 
     if (isEdit && isFormDataLoading) {
@@ -481,6 +513,7 @@ export default function CreateOverTime() {
                                                             const val = e.target.value;
                                                             if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
                                                                 updateRow(row.id, 'fromHour', val);
+                                                                calculatorNumberHour(row.id, val, row.toHour);
                                                             }
                                                         }}
                                                         placeholder={t('overtime.list.from_hour')}
@@ -498,6 +531,7 @@ export default function CreateOverTime() {
                                                             const val = e.target.value;
                                                             if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
                                                                 updateRow(row.id, 'toHour', val);
+                                                                calculatorNumberHour(row.id, row.fromHour, val);
                                                             }
                                                         }}
                                                         placeholder={t('overtime.list.to_hour')}
@@ -508,18 +542,11 @@ export default function CreateOverTime() {
                                             
                                                 <td className="border px-2 py-2 text-center">
                                                     <input
+                                                        readOnly={true}
                                                         type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('numberHour') ? 'border-red-500' : '' }`}
+                                                        className={`border bg-gray-100 rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('numberHour') ? 'border-red-500' : '' }`}
                                                         value={row.numberHour}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (/^(?:\d+([.,]\d{0,1})?)?$/.test(val)) { 
-                                                                updateRow(row.id, 'numberHour', e.target.value)
-                                                            }
-                                                        }}
                                                         placeholder={t('overtime.list.number_hour')}
-                                                        inputMode="decimal"
-                                                        pattern="^\d+([.,]\d{1})?$"
                                                     />
                                                 </td>
                                                 

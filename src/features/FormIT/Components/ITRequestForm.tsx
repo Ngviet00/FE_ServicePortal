@@ -103,24 +103,50 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
 
     useEffect(() => {
         if (formData) {
-            setUploadedFiles(formData?.files)
-            reset({
+            setUploadedFiles(formData?.files ?? []);
+            reset((values) => ({
+                ...values,
                 requester: {
+                    ...values.requester,
                     userCode: formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm ?? '',
                     name: formData?.applicationFormItem?.applicationForm?.userNameCreatedForm ?? '',
                     email: formData?.email ?? '',
                     department: formData?.orgUnit?.name ?? '',
                     departmentId: formData?.orgUnit?.id ?? -1,
-                    orgPositionId: user?.orgPositionId,
                     position: formData?.position ?? '',
                 },
                 itRequest: {
+                    ...values.itRequest,
                     dateRequired: formData?.requestDate ?? new Date().toISOString().split('T')[0],
                     dateCompleted: formData?.requiredCompletionDate ?? new Date().toISOString().split('T')[0],
-                    itCategory: formData?.itFormCategories?.map((item: {itCategoryId: number}) => item.itCategoryId) ?? [],
+                    itCategory: formData?.itFormCategories?.map((item: { itCategoryId: number }) => item.itCategoryId) ?? [],
                     reason: formData?.reason ?? '',
                     priority: formData?.priorityId ?? 1,
-                }
+                },
+            }));
+        } else {
+            setUploadedFiles([]);
+            setLocalFiles([]);
+            setIdDeleteFile([]);
+
+            reset({
+                requester: {
+                    userCode: '',
+                    name: '',
+                    email: '',
+                    department: '',
+                    departmentId: user?.departmentId ?? -1,
+                    orgPositionId: user?.orgPositionId ?? -1,
+                    position: '',
+                },
+                itRequest: {
+                    dateRequired: new Date().toISOString().split('T')[0],
+                    dateCompleted: new Date().toISOString().split('T')[0],
+                    itCategory: [],
+                    reason: '',
+                    priority: 1,
+                    attachments: [],
+                },
             });
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -128,7 +154,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
 
     const onInternalSubmit = (data: any) => {
         if (shouldShowUpload) {
-            if (localFiles.length == 0 && uploadedFiles.length == 0) {
+            if (localFiles.length == 0 && (uploadedFiles?.length == 0 || uploadedFiles == undefined)) {
                 ShowToast(lang == 'vi' ? 'Vui lòng chọn file đính kèm' : 'Please select file attachment', 'error')
                 return false
             }
@@ -211,16 +237,28 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
 
         const newFiles = Array.from(files);
 
-        if (newFiles.length + localFiles.length + uploadedFiles.length > 5) {
+        const totalCount = (newFiles?.length ?? 0) + (localFiles?.length ?? 0) + (uploadedFiles?.length ?? 0);
+
+        if (totalCount > MAX_FILE_COUNT) {
             e.target.value = "";
-            ShowToast(lang == 'vi' ? `Chỉ được upload tối đa ${MAX_FILE_COUNT} file` : `Only upload maximun ${MAX_FILE_COUNT} file`, 'error');
+            ShowToast(
+                lang == 'vi'
+                    ? `Chỉ được upload tối đa ${MAX_FILE_COUNT} file`
+                    : `Only upload maximum ${MAX_FILE_COUNT} file`,
+                'error'
+            );
             return;
         }
 
-        const oversized = newFiles.find(f => f.size > 5 * 1024 * 1024);
+        const oversized = newFiles.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024);
         if (oversized) {
             e.target.value = "";
-            ShowToast(lang == 'vi' ? `File ${oversized.name} vượt quá ${MAX_FILE_SIZE_MB}MB` : `The file ${oversized.name} exceeds ${MAX_FILE_SIZE_MB}MB.`, 'error');
+            ShowToast(
+                lang == 'vi'
+                    ? `File ${oversized.name} vượt quá ${MAX_FILE_SIZE_MB}MB`
+                    : `The file ${oversized.name} exceeds ${MAX_FILE_SIZE_MB}MB.`,
+                'error'
+            );
             return;
         }
 

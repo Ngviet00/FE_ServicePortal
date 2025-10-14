@@ -3,6 +3,7 @@ import axiosClient from './axiosClient';
 import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
 import { OrgUnit } from './orgUnitApi';
 import { IAssignedTask, IResolvedTask } from './itFormApi';
+import { ApprovalRequest, ListWaitApprovalRequest } from './approvalApi';
 
 interface GetAll {
     UserCode?: string,
@@ -36,6 +37,7 @@ export interface ICreatePurchase {
     OrgPositionId?: number,
     RequestedDate?: string | Date,
     UrlFrontend: string,
+    ApplicationFormCodeReference?: string | null,
     CreatePurchaseDetailRequests?: IPurchaseDetail[],
 }
 
@@ -63,6 +65,23 @@ export interface IStatisticalPurchase {
     year?: number
 }
 
+export interface RequestForQuote {
+    UserCode?: string,
+    UserName?: string
+    UserCodeQuote?: string
+    UserNameQuote?: string
+    ApplicationFormId?: number,
+    Note?: string
+}
+
+export interface ResponseForQuote {
+    UserCode?: string,
+    UserName?: string
+    ApplicationFormId?: number,
+    Note?: string
+}
+
+
 const purchaseApi = {
     statistical(params: IStatisticalPurchase) {
         return axiosClient.get('/purchase/statistical-purchase', {params})
@@ -70,17 +89,17 @@ const purchaseApi = {
     getAll(params: GetAll) {
         return axiosClient.get('/purchase', {params})
     },
-    getById(id: string) {
-        return axiosClient.get(`/purchase/${id}`)
+    getById(applicationFormCode: string) {
+        return axiosClient.get(`/purchase/${applicationFormCode}`)
     },
     create(data: ICreatePurchase) {
         return axiosClient.post('/purchase', data)
     },
-    update(id: string, data: IUpdatePurchase){
-        return axiosClient.put(`/purchase/${id}`, data)
+    update(applicationFormCode: string, data: IUpdatePurchase){
+        return axiosClient.put(`/purchase/${applicationFormCode}`, data)
     },
-    delete(id: string) {
-        return axiosClient.delete(`/purchase/${id}`)
+    delete(applicationFormCode: string) {
+        return axiosClient.delete(`/purchase/${applicationFormCode}`)
     },
     assignedTask(data: IAssignedTask) {
         return axiosClient.post('/purchase/assigned-task', data)
@@ -90,7 +109,64 @@ const purchaseApi = {
     },
     getMemberPurchaseAssigned() {
         return axiosClient.get('/purchase/get-member-purchase-assigned')
+    },
+    approval(data: ApprovalRequest) {
+        return axiosClient.post(`/purchase/approval`, data)
+    },
+    requestForQuote(data: RequestForQuote) {
+        return axiosClient.post('/purchase/request-for-quote', data)
+    },
+    responseForQuote(data: ResponseForQuote) {
+        return axiosClient.post('/purchase/response-for-quote', data)
+    },
+    getListWaitResponseQuote(params: ListWaitApprovalRequest) {
+        return axiosClient.get('/purchase/list-wait-response-quote', {params})
+    },
+    updatePOAndStatus(applicationFormCode: string, data: { userName: string, userCode: string, purchaseOrder: string; statusId: number }) {
+        return axiosClient.put(`/purchase/update-po-and-status/${applicationFormCode}`, data)
     }
+}
+
+export function useRequestForQuote() {
+    return useMutation({
+        mutationFn: async (data: RequestForQuote) => {
+            await purchaseApi.requestForQuote(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useResponseForQuote() {
+    return useMutation({
+        mutationFn: async (data: ResponseForQuote) => {
+            await purchaseApi.responseForQuote(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useApprovalPurchase() {
+    return useMutation({
+        mutationFn: async (data: ApprovalRequest) => {
+            await purchaseApi.approval(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useCreatePurchase() {

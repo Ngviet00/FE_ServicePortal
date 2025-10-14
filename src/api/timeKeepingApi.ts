@@ -17,7 +17,8 @@ interface GetManagementTimeKeepingRequest {
     pageSize?: number,
     keySearch?: string,
     team?: number | null,
-    deptId?: number | null
+    deptId?: number | null,
+    typePerson?: number | null
 }
 
 export interface WorkingDay {
