@@ -91,7 +91,7 @@
 			"title": "Purchasing",
 			"statistical": "Statistical",
 			"create": "Create new request",
-			"quote": "Item wait quote"
+			"quote": "Response quote"
 		},
 		"approval": {
 			"title": "Approval",

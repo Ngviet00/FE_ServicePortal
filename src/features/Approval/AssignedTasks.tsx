@@ -5,13 +5,11 @@ import { REQUEST_TYPE, STATUS_ENUM } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import approvalApi from "@/api/approvalApi";
-import { Label } from "@/components/ui/label";
-import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
 import { PendingApprovalResponse } from "./PendingApproval";
 
 function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
@@ -36,12 +34,6 @@ export default function AssignedTasks() {
 	const [pageSize, setPageSize] = useState(10)
 	const [totalPage, setTotalPage] = useState(0)
 	const { user } = useAuthStore()
-	const [requestType, setRequestType] = useState('')
-
-	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
-		setPage(1)
-		setRequestType(e.target.value)
-	}
 
 	function setCurrentPage(page: number): void {
 		setPage(page)
@@ -53,50 +45,22 @@ export default function AssignedTasks() {
 	}
 
 	const { data: ListAssignedTask = [], isPending, isError, error } = useQuery({
-		queryKey: ['get-list-assigned-task', page, pageSize, requestType],
+		queryKey: ['get-list-assigned-task', page, pageSize],
 		queryFn: async () => {
 			const res = await approvalApi.GetListAssigned({
 				Page: page,
 				PageSize: pageSize,
 				UserCode: user?.userCode,
-				RequestTypeId: requestType == '' ? null : Number(requestType),
 			});
 			setTotalPage(res.data.total_pages)
 			return res.data.data;
 		},
 	});
 
-	const { data: requestTypes = []} = useQuery({
-        queryKey: ['get-all-request-type'],
-        queryFn: async () => {
-            const res = await requestTypeApi.getAll({
-                page: 1,
-                pageSize: 200,
-            });
-            return res.data.data;
-        }
-    });
-
 	return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
-			<div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-2">
+			<div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-3">
 				<h3 className="font-bold text-xl md:text-2xl m-0">{t('assigned.title')}</h3>
-			</div>
-
-			<div className="flex mt-3 mb-5">
-				<div className='w-[12%]'>
-					<Label className="mb-2">{t('history_approval_processed.request_type')}</Label>
-					<select className="border p-1 rounded w-full cursor-pointer" value={requestType} onChange={(e) => handleOnChangeRequestType(e)}>
-						<option value="">
-							{ lang == 'vi' ? 'Tất cả' : 'All' }
-						</option>
-						{
-							requestTypes.map((item: IRequestType, idx: number) => (
-								<option key={idx} value={item.id}>{lang == 'vi' ? item.name : item.nameE}</option>
-							))
-						}
-					</select>
-				</div>
 			</div>
 
 			<div>

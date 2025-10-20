@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { ShowToast, STATUS_ENUM } from '@/lib';
+import { useEffect, useState } from 'react';
+import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
 import itFormApi, { useApprovalITForm, useAssignedTaskITForm, useConfirmFormITNeedFormPurchase } from '@/api/itFormApi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -16,6 +17,8 @@ import ITRequestForm from './Components/ITRequestForm';
 import priorityApi from '@/api/priorityApi';
 import itCategoryApi from '@/api/itCategoryApi';
 import DotRequireComponent from '@/components/DotRequireComponent';
+import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
+import memoNotificationApi from '@/api/memoNotificationApi';
 
 const DetailWaitApprovalFormIT = () => {
     const { t } = useTranslation('formIT');
@@ -29,6 +32,7 @@ const DetailWaitApprovalFormIT = () => {
     const [selectedUserAssigned, setSelectedUserAssigned] = useState<ISelectedUserAssigned[]>([]);
     const { id } = useParams<{ id: string }>()
     const isHasId = !!id
+    const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
     
     const approval = useApprovalITForm() //approval normal
     const assignTask = useAssignedTaskITForm() //manager assign task for staff
@@ -41,6 +45,12 @@ const DetailWaitApprovalFormIT = () => {
             return res.data.data;
         }
     });
+
+    useEffect(() => {
+        if (formData) {
+            setUploadedFiles(formData?.applicationFormItem?.applicationForm?.files || []);
+        }
+    }, [formData])
 
     const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_it_approval' : 'approval'
     const isManagerITapproval = mode == 'manager_it_approval'
@@ -133,6 +143,21 @@ const DetailWaitApprovalFormIT = () => {
         }
     }
 
+    
+    const handleDownloadFile = async (file: UploadedFileType) => {
+        try {
+            const result = await memoNotificationApi.downloadFile(file.id)
+            const url = window.URL.createObjectURL(result.data);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            ShowToast(`Download file failed,${getErrorMessage(err)}`, "error")
+        }
+    }
+
     if (isHasId && isFormDataLoading) {
         return <div>Đang tải dữ liệu...</div>;
     }
@@ -160,7 +185,7 @@ const DetailWaitApprovalFormIT = () => {
                     />
                 </div>
                 <div className='pl-5 border-l-1 ml-5 w-full'>
-                    <div className="flex justify-end flex-col gap-4 mt-8">
+                    <div className="flex justify-end flex-col gap-4">
                         <div className='flex-1'>
                             <div className='w-full'>
                                 <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'>{isManagerITapproval ? '(Manager IT)' : ''}</span></Label>
@@ -199,20 +224,36 @@ const DetailWaitApprovalFormIT = () => {
                                 </div>
                             ) : (
                                 <div className='w-full'>
-                                    <Label className='mb-1'>{t('create.assigned')} </Label>
-                                    <div className="flex flex-col gap-2 mt-2">
-                                        {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                             
-                                            const isExist = formData?.applicationFormItem?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
-                                            if (isExist) {
-                                                return (
-                                                    <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
-                                                        <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
-                                                    </label>
-                                                );
-                                            }                                                        
-                                        })}
-                                    </div>
+                                    {
+                                        formData?.applicationFormItem?.applicationForm?.assignedTasks?.length > 0 && (
+                                            <>
+                                                <Label className='mb-1'>{t('create.assigned')} </Label>
+                                                <div className="flex flex-col gap-2 mt-2">
+                                                    {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                             
+                                                        const isExist = formData?.applicationFormItem?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
+                                                        if (isExist) {
+                                                            return (
+                                                                <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
+                                                                    <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
+                                                                </label>
+                                                            );
+                                                        }                                                        
+                                                    })}
+                                                </div>
+                                            </>
+                                        )
+                                    }
                                 </div>
+                            )
+                        }
+                        {
+                            formData?.applicationFormItem?.applicationForm?.files?.length > 0 ? (
+                                <div className=''>
+                                    <Label className='mb-2 text-red-700 inline-block'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
+                                    <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles} isShowCheckbox={false}/>
+                                </div>
+                            ) : (
+                                <span></span>
                             )
                         }
                         <div className='flex justify-end'>

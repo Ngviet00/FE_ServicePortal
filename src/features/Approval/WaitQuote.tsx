@@ -63,7 +63,7 @@ export default function WaitQuote() {
 
     return (
         <div className="p-1 pl-1 pt-0 space-y-4">
-            <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
+            <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-3">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{lang == 'vi' ? 'Danh sách chờ báo giá' : 'List wait quote'}</h3>
             </div>
 
@@ -118,7 +118,7 @@ export default function WaitQuote() {
                                         {item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : "--"}
                                     </td>
                                     <td className="px-4 py-2 border text-center">
-                                        <StatusLeaveRequest status="Pending" />
+                                        <StatusLeaveRequest status={item?.requestStatusId} />
                                     </td>
                                     <td className="px-4 py-2 border text-center space-x-1">
                                         <Link
@@ -160,7 +160,7 @@ export default function WaitQuote() {
                                         >
                                             {item.code}
                                         </Link>
-                                        <StatusLeaveRequest status="Pending" />
+                                        <StatusLeaveRequest status={item?.requestStatusId} />
                                     </div>
 
                                     <div className="text-sm text-gray-700 mt-1 space-y-1">

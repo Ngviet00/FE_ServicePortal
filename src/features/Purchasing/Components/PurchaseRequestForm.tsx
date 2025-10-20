@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/store/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -13,24 +13,36 @@ import DotRequireComponent from "@/components/DotRequireComponent";
 import { Plus, Trash2 } from "lucide-react";
 import Select from 'react-select'
 import { NumericInput } from "@/components/NumericInput";
+import FileListPreview, { FileListPreviewDownload, UploadedFileType } from "@/components/ComponentCustom/FileListPreviewMemoNotify";
+import { getErrorMessage, ShowToast, STATUS_ENUM } from "@/lib";
+import memoNotificationApi from "@/api/memoNotificationApi";
+import { Label } from "@/components/ui/label";
 
 interface PurchaseRequestFormProps {
     mode: 'create' | 'edit' | 'view' | 'approval' | 'manager_purchase_approval' | 'assigned' 
-    formData?: any
+    formData?: any,
+    formDataIT?: any,
     onSubmit?: (data: any) => void,
     costCenter?: { value: string, label: string, departmentId: number | null }[],
     departments?: { id: number, name: string, nameE: string }[],
     requestStatuses?: { id: number, name: string, nameE: string }[],
     isPending?: boolean;
     onUpdatePOAndStatus?: (data: { purchaseOrder: string; status: number }) => void;
+    onHasUploadedFilesChange?: (hasFiles: boolean) => void;
+    onChangeResponseQuote?: (data: { uploadedFiles: UploadedFileType[]; newFiles: File[] }) => void;
 }
 
-const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formData, onSubmit, costCenter, departments, requestStatuses, isPending, onUpdatePOAndStatus }) => {
+const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ 
+    mode, formData, formDataIT, onSubmit, costCenter, departments, requestStatuses, isPending, onUpdatePOAndStatus, onHasUploadedFilesChange,
+    onChangeResponseQuote
+ }) => {
     const { t } = useTranslation('purchase')
     const { t: tCommon  } = useTranslation('common')
     const lang = useTranslation().i18n.language.split('-')[0]
     const { user } = useAuthStore()
     const navigate = useNavigate()
+    const [uploadedFiles, setUploadedFiles] = useState<UploadedFileType[]>([]);
+    const [newFiles, setNewFiles] = useState<File[]>([]);
 
     const isCreateOrEdit = mode == 'create' || mode == 'edit'
 
@@ -115,8 +127,24 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                     note: pd.note ?? '',
                 })) ?? [defaultSinglePurchaseRequest],
                 purchaseOrder: formData?.purchaseOrder ?? '',
-                status: formData?.requestStatusId ?? ''
+                status: formData?.requestStatusId?.toString() ?? ''
             });
+
+            if (formData.quotes?.length > 0) {
+                const allQuoteFiles = formData.quotes.flatMap((q: any) =>
+                    (q.files || []).map((f: any) => ({
+                        id: f.id,
+                        fileName: f.fileName,
+                        contentType: f.contentType,
+                        filePath: f.filePath ?? null,
+                        quoteId: q.id,
+                        isSelectedQuote: q.isSelected
+                    }))
+                );
+                setUploadedFiles(allQuoteFiles);
+            } else {
+                setUploadedFiles([]);
+            }
         }
         if (mode === "create") {
             reset({
@@ -132,7 +160,11 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
 
     const onInternalSubmit = (data: any) => {
         if (onSubmit) {
-            onSubmit(data);
+            onSubmit({
+                ...data,
+                AvailableQuotes: uploadedFiles.map(f => f.id),
+                NewQuotes: newFiles
+            });
         }
     };
 
@@ -161,6 +193,71 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
         );
         return filtered?.length ? filtered : costCenter ?? [];
     }, [departmentId, costCenter]);
+
+    const handleFileRemove = (index: number) => setNewFiles(prev => prev.filter((_, i) => i !== index));
+    const handleUploadedRemove = (index: number) => setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+
+    const handleAddFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files ? Array.from(e.target.files) : [];
+        if (!files.length) return;
+
+        const totalFiles = uploadedFiles.length + newFiles.length + files.length;
+        if (totalFiles > 5) {
+            ShowToast("Tổng số file không được vượt quá 5!", 'error');
+            e.target.value = "";
+            return;
+        }
+
+        const invalid = files.find(f => f.size > 2 * 1024 * 1024);
+        if (invalid) {
+            ShowToast(`File "${invalid.name}" vượt quá 2MB!`, 'error');
+            e.target.value = "";
+            return;
+        }
+
+        setNewFiles(prev => [...prev, ...files]);
+        e.target.value = "";
+    };
+
+    const handleDownloadFile = async (file: UploadedFileType) => {
+        try {
+            const result = await memoNotificationApi.downloadFile(file.id)
+            const url = window.URL.createObjectURL(result.data);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            ShowToast(`Download file failed, ${getErrorMessage(err)}`, "error")
+        }
+    };
+
+    useEffect(() => {
+        if (mode == 'create') {
+            if (formDataIT) {
+                const mappedFiles = formDataIT.applicationFormItem.applicationForm.files.map((f: any) => ({
+                    id: f.id,
+                    fileName: f.fileName,
+                    contentType: f.contentType,
+                    filePath: f.filePath,
+                }));
+                setUploadedFiles(mappedFiles);
+            } else {
+                setUploadedFiles([])
+            }
+        }
+    }, [formDataIT, mode]);
+
+    useEffect(() => {
+        onHasUploadedFilesChange?.(uploadedFiles.length > 0);
+    }, [uploadedFiles, onHasUploadedFilesChange]);
+
+    useEffect(() => {
+        if (onChangeResponseQuote) {
+            onChangeResponseQuote?.({ uploadedFiles, newFiles });
+        }
+    }, [uploadedFiles, newFiles, onChangeResponseQuote]);
 
     return (
         <form onSubmit={handleSubmit(onInternalSubmit)}>
@@ -237,25 +334,21 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                             />
                         </div>
                         {
-                            mode == 'assigned' || mode == 'view' ? (
-                                <div className="form-group">
-                                    <label htmlFor="requester.name" className="block text-sm font-medium text-gray-700">
-                                        {'PO'}
-                                    </label>
-                                    <input
-                                        disabled={mode != 'assigned'}
-                                        {...register('purchaseOrder')}
-                                        type="text"
-                                        id="PO"
-                                        placeholder={`PO`}
-                                        className={`border-gray-300 mt-1 w-full p-2 rounded-[5px] text-sm border ${mode != 'assigned' ? 'bg-gray-100' : ''}`}
-                                    />
-                                </div>
-                            ) : (<></>)
-                        }
-                        {
-                            mode == 'assigned' ? (
+                            (formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED) || mode == 'view' ? (
                                 <>
+                                    <div className="form-group">
+                                        <label htmlFor="requester.name" className="block text-sm font-medium text-gray-700">
+                                            {'PO'}
+                                        </label>
+                                        <input
+                                            {...register('purchaseOrder')}
+                                            disabled={mode != 'assigned'}
+                                            type="text"
+                                            id="PO"
+                                            placeholder={`PO`}
+                                            className={`border-gray-300 mt-1 w-full p-2 rounded-[5px] text-sm border ${mode != 'assigned' ? 'bg-gray-100' : ''}`}
+                                        />
+                                    </div>
                                     <div className="form-group">
                                         <label className="mb-1 block text-sm font-medium text-gray-700">
                                             {lang == 'vi' ? 'Trạng thái' : 'Status'}
@@ -263,7 +356,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                         
                                         <select
                                             {...register('status')}
-                                            className={`border w-full cursor-pointer rounded-[5px]`} style={{padding: '6.7px'}}>
+                                            disabled={mode != 'assigned'}
+                                            className={`border w-full cursor-pointer rounded-[5px] ${mode != 'assigned' ? 'bg-gray-100' : ''}`} style={{padding: '6.7px'}}>
                                             <option value="">--{ lang == 'vi' ? 'Chọn' : 'Select' }--</option>
                                             {
                                                 requestStatuses?.map((item: { id: number, name: string, nameE: string }, idx: number) => (
@@ -272,6 +366,12 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                             }
                                         </select>
                                     </div>
+                                </>
+                            ) : (<></>)
+                        }
+                        {
+                            formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED && mode == 'assigned' ? (
+                                <>
                                     <div>
                                         <Button onClick={handleUpdateStatusAndPO} className="rounded-[4px] hover:cursor-pointer">
                                             {lang == 'vi' ? 'Cập nhật' : 'Update'}
@@ -282,6 +382,66 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
                                 <></>
                             )
                         }
+                    </div>
+                    <div className="space-y-2">
+                        <div className="flex items-end">
+                            <div>
+                                <Label className='mb-1 text-red-700 text-[16px]'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
+                            </div>
+                            {
+                                (mode == 'create' || mode == 'edit' || mode == 'assigned') && !uploadedFiles.some(f => f.quoteId) ? (
+                                    <div className="ml-5">
+                                        <div className="mt-1">
+                                            <input
+                                                id="quotation-files"
+                                                type="file"
+                                                multiple
+                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                                                onChange={handleAddFiles}
+                                                disabled={uploadedFiles.length + newFiles.length >= 5}
+                                                className="hidden"
+                                            />
+                                            <label
+                                                htmlFor="quotation-files"
+                                                className={`inline-flex items-center gap-2 border px-3 py-1 rounded-md text-sm font-medium 
+                                                    ${uploadedFiles.length + newFiles.length >= 5
+                                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                    : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 cursor-pointer"}`}
+                                            >
+                                                + {lang === "vi" ? "Thêm file báo giá" : "Add quotation file"}
+                                            </label>
+                                        </div>
+                                    </div>
+                                ) : (<></>)
+                            }
+                        </div>
+
+                        <div className="my-3">
+                            {
+                                uploadedFiles?.length > 0 && (
+                                    <FileListPreviewDownload
+                                        uploadedFiles={uploadedFiles}
+                                        onDownload={handleDownloadFile}
+                                        onRemoveUploaded={
+                                            (mode === 'create' || mode === 'edit' || mode === 'assigned') &&
+                                            !uploadedFiles.some(f => f.quoteId)
+                                            ? handleUploadedRemove
+                                            : undefined
+                                        }
+                                    />
+                                )
+                            }
+                        </div>
+
+                        <div>
+                            {newFiles.length > 0 && (
+                                <FileListPreview
+                                    files={newFiles.map((f: any) => ({ name: f.name, type: f.type }))}
+                                    uploadedFiles={[]}
+                                    onRemove={handleFileRemove}
+                                />
+                            )}
+                        </div>           
                     </div>
                     <h2 className="font-semibold text-xl text-[#007cc0]">{t('create.text_title_category_buy')}</h2>
                     {
@@ -436,6 +596,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ mode, formDat
             {
                 isCreateOrEdit ? (
                     <>
+                    
                         <div className="mt-5">
                             <button type="button" className="dark:bg-black bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400" onClick={() => append({...defaultSinglePurchaseRequest})}>
                                 <Plus size={16}/>

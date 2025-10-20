@@ -114,6 +114,7 @@ export interface StaffITReferenceManagerITRequest {
     UserCode?: string;
     UserName?: string;
     Note?: string;
+    Files?: File[];
 }
 
 export interface ConfirmFormITNeedFormPurchase {
@@ -167,8 +168,12 @@ const itFormApi = {
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/it-form/approval`, data)
     },
-    staffITReferenceToManagerIT(data: StaffITReferenceManagerITRequest) {
-        return axiosClient.post(`/it-form/staff-it-reference-manager-it`, data)
+    staffITReferenceToManagerIT(data: FormData) {
+        return axiosClient.post(`/it-form/staff-it-reference-manager-it`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     },
     listFormITWaitConfirm(params: ListWaitApprovalRequest) {
         return axiosClient.get('/it-form/list-form-it-wait-confirm', {params})
@@ -194,7 +199,7 @@ export function useConfirmFormITNeedFormPurchase() {
 
 export function useStaffITReferenceToManagerIT() {
     return useMutation({
-        mutationFn: async (data: StaffITReferenceManagerITRequest) => {
+        mutationFn: async (data: FormData) => {
             await itFormApi.staffITReferenceToManagerIT(data)
         },
         onSuccess: () => {

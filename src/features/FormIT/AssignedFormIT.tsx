@@ -17,7 +17,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import userApi from '@/api/userApi';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
-import { STATUS_ENUM } from '@/lib';
+import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
+import FileListPreview, { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
+import memoNotificationApi from '@/api/memoNotificationApi';
 
 const AssignedFormIT = () => {
     const { t } = useTranslation('formIT');
@@ -29,6 +31,12 @@ const AssignedFormIT = () => {
     const [targetDate, setTargetDate] = useState<any>(new Date().toISOString().split('T')[0]);
     const [actualDate, setActualDate] = useState<any>(new Date().toISOString().split('T')[0]);
     const [note, setNote] = useState("")
+    const [localFiles, setLocalFiles] = useState<File[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+    const [idDeleteFile, setIdDeleteFile] = useState<number[]>([]);
+
+    const MAX_FILE_SIZE_MB = 2;
+    const MAX_FILE_COUNT = 5;
 
     const { id } = useParams<{ id: string }>();
     const isAssigned = !!id;
@@ -50,13 +58,19 @@ const AssignedFormIT = () => {
     
     const handleSaveModalConfirm = async () => {
         if (statusModalConfirm == 'reference') {
-            await staffITReferenceToManagerIT.mutateAsync({
-                UserCode: user?.userCode,
-                UserName: user?.userName ?? '',
-                ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-                OrgPositionId: user?.orgPositionId,
-                Note: note
-            })
+            const formDataToSend = new FormData();
+
+            formDataToSend.append('UserCode', user?.userCode ?? '');
+            formDataToSend.append('UserName', user?.userName ?? '');
+            formDataToSend.append('ApplicationFormId', formData?.applicationFormItem?.applicationForm?.id ?? '');
+            formDataToSend.append('OrgPositionId', user?.orgPositionId?.toString() ?? '');
+            formDataToSend.append('Note', note ?? '');
+            if (localFiles && Array.isArray(localFiles)) {
+                localFiles.forEach((file) => {
+                    formDataToSend.append('Files', file);
+                });
+            }
+            await staffITReferenceToManagerIT.mutateAsync(formDataToSend);
         }
         else {
             await resolvedTask.mutateAsync({
@@ -96,6 +110,55 @@ const AssignedFormIT = () => {
             return res.data.data
         },
     });
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        const newFiles = Array.from(files);
+
+        const totalCount = (newFiles?.length ?? 0) + (localFiles?.length ?? 0) + (uploadedFiles?.length ?? 0);
+
+        if (totalCount > MAX_FILE_COUNT) {
+            e.target.value = "";
+            ShowToast(
+                lang == 'vi'
+                    ? `Chỉ được upload tối đa ${MAX_FILE_COUNT} file`
+                    : `Only upload maximum ${MAX_FILE_COUNT} file`,
+                'error'
+            );
+            return;
+        }
+
+        const oversized = newFiles.find(f => f.size > MAX_FILE_SIZE_MB * 1024 * 1024);
+        if (oversized) {
+            e.target.value = "";
+            ShowToast(
+                lang == 'vi'
+                    ? `File ${oversized.name} vượt quá ${MAX_FILE_SIZE_MB}MB`
+                    : `The file ${oversized.name} exceeds ${MAX_FILE_SIZE_MB}MB.`,
+                'error'
+            );
+            return;
+        }
+
+        setLocalFiles(prev => [...prev, ...newFiles]);
+        e.target.value = "";
+    };
+
+    const handleDownloadFile = async (file: UploadedFileType) => {
+        try {
+            const result = await memoNotificationApi.downloadFile(file.id)
+            const url = window.URL.createObjectURL(result.data);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            ShowToast(`Download file failed,${getErrorMessage(err)}`, "error")
+        }
+    }
 
     if (isAssigned && isFormDataLoading) {
         return <div>Đang tải dữ liệu...</div>;
@@ -198,6 +261,54 @@ const AssignedFormIT = () => {
                             onChange={(e) => setNote(e.target.value)} 
                             className={`border-gray-300`}
                         />
+                    </div>
+                    <div className='w-full mt-5'>
+                        {
+                            mode == 'assigned' ? (
+                                <>
+                                    <Label className='mb-1 text-red-700'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
+                                    <input
+                                        id="file-upload"
+                                        type="file"
+                                        multiple
+                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+
+                                    <div className="w-max mt-2">
+                                        <label
+                                            htmlFor="file-upload"
+                                            className="inline-block cursor-pointer w-auto text-sm rounded-md bg-blue-800 px-3 py-2 text-white text-center hover:bg-blue-900 transition select-none"
+                                        >
+                                            {lang == 'vi' ? 'Chọn file' : 'Choose file'}
+                                        </label>
+                                    </div>
+
+                                    <FileListPreview 
+                                        files={localFiles} 
+                                        uploadedFiles={uploadedFiles}
+                                        onRemove={(index) => {
+                                            const updated = [...localFiles];
+                                            updated.splice(index, 1);
+                                            setLocalFiles(updated);
+                                        }}
+                                        onRemoveUploaded={(index) => {
+                                            const removed = uploadedFiles[index];
+                                            const updated = [...uploadedFiles];
+                                            updated.splice(index, 1);
+                                            setUploadedFiles(updated);
+                                            setIdDeleteFile((prev) => [...prev, removed.id]);
+                                        }}
+                                    />
+                                </>
+                            ) : (
+                                <div>
+                                    <Label className='mb-1 text-red-700'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
+                                    <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles}/>
+                                </div>
+                            )
+                        }
                     </div>
                     <div className='flex gap-4 justify-end mt-4'>
                         {

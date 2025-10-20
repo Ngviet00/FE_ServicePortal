@@ -11,6 +11,10 @@ import HistoryApproval from '../Approval/Components/HistoryApproval';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import ITRequestForm from './Components/ITRequestForm';
+import { useEffect, useState } from 'react';
+import { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
+import memoNotificationApi from '@/api/memoNotificationApi';
+import { getErrorMessage, ShowToast } from '@/lib';
 
 const ViewOnlyFormIT = () => {
     const { t } = useTranslation('formIT');
@@ -18,6 +22,8 @@ const ViewOnlyFormIT = () => {
     const { id } = useParams<{ id: string }>();
     const isAssigned = !!id;
     const lang = useTranslation().i18n.language.split('-')[0]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['itForm', id],
@@ -28,6 +34,12 @@ const ViewOnlyFormIT = () => {
         enabled: isAssigned,
         staleTime: 0
     });
+
+    useEffect(() => {
+        if (formData) {
+            setUploadedFiles(formData?.applicationFormItem?.applicationForm?.files || []);
+        }
+    }, [formData])
 
     const { data: priorities = [] } = useQuery({
         queryKey: ['get-all-priority'],
@@ -55,6 +67,20 @@ const ViewOnlyFormIT = () => {
 
     const mode = 'view'
     const initialFormData = isAssigned ? formData : {};
+
+    const handleDownloadFile = async (file: UploadedFileType) => {
+        try {
+            const result = await memoNotificationApi.downloadFile(file.id)
+            const url = window.URL.createObjectURL(result.data);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = file.fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            ShowToast(`Download file failed,${getErrorMessage(err)}`, "error")
+        }
+    }
 
     if (isAssigned && isFormDataLoading) {
         return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
@@ -152,7 +178,16 @@ const ViewOnlyFormIT = () => {
                             </div>
                         ) : (<></>) 
                     }
-                    
+                    {
+                        formData?.applicationFormItem?.applicationForm?.files?.length > 0 ? (
+                            <div className='mt-2'>
+                                <Label className='mb-2 text-red-700 inline-block'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
+                                <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles} isShowCheckbox={false}/>
+                            </div>
+                        ) : (
+                            <span></span>
+                        )
+                    }
                     <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
                 </div>
             </div>

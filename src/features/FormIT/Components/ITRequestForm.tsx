@@ -512,7 +512,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                                         </>
                                     ) : (
                                         <div>
-                                            <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles}/>
+                                            <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles} isShowCheckbox={false}/>
                                         </div>
                                     )
                                 }

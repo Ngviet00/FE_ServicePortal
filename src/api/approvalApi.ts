@@ -25,6 +25,8 @@ export interface ApprovalRequest {
     OrgPositionId?: number,
     Status?: boolean,
     Note?: string,
+    StatusRequest?: number,
+    SelectedQuoteId?: number
 }
 
 export interface ListHistoryApprovalOrProcessedRequest {

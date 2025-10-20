@@ -31,6 +31,7 @@ export default function Sidebar() {
 	const hasHRRole = useHasRole([RoleEnum.HR])
 	// const isUnion = useHasRole([RoleEnum.UNION])
 	const isIT = useHasRole([RoleEnum.IT])
+	const isPurchase = useHasRole([RoleEnum.PURCHASING])
 
 	// const hasPermissionCreateNotification = useHasPermission(['memo_notification.create'])
 	const isMobile = useIsReponsive()
@@ -144,11 +145,23 @@ export default function Sidebar() {
 
 										if (!isIT 
 												&& (
-													child.route == '/form-it/statistical' || child.route == '/form-it/all-form-it'
+													child.route == '/form-it/statistical' || child.route == '/form-it/all-form-it' || child.route == '/form-it/list-item-wait-form-purchase'
 												))
 										{
 											return null
 										}
+
+										if (!isPurchase 
+												&& (
+													child.route == '/purchase/statistical' || child.route == '/purchase/list-item-wait-quote'
+												))
+										{
+											return null
+										}
+
+										// if (child.route === "/purchase/statistical" && !isPurchase) {
+										// 	return null
+										// }
 
 										// if (child.route === '/management-time-keeping') {
 										// 	if (!havePermissionMngTimeKeeping) {

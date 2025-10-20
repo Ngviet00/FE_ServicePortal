@@ -161,10 +161,10 @@ function App() {
 		{ path: "/view-form-it-approval/:id", element: <DetailWaitApprovalFormIT />},
 		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />},
 		{ path: "/view/form-it/:id", element: <ViewOnlyFormIT />},
-		{ path: "/form-it/list-item-wait-form-purchase", element: <ListITFormWaitFormPurchase />},
+		{ path: "/form-it/list-item-wait-form-purchase", element: <ListITFormWaitFormPurchase />, allowedRoles: [RoleEnum.IT]},
 
 		//purchasing
-		{ path: "/purchase/statistical", element: <StatisticalFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
+		{ path: "/purchase/statistical", element: <StatisticalFormPurchase />, allowedRoles: [RoleEnum.PURCHASING]},
 		{ path: "/purchase/create", element: <CreateFormPurchase />},
 		{ path: "/purchase", element: <ListFormPurchase />},
 		{ path: "/purchase/edit/:id", element: <CreateFormPurchase />},
@@ -172,7 +172,8 @@ function App() {
 		{ path: "/view-purchase-approval/:id", element: <DetailWaitApprovalFormPurchase />},
 		{ path: "/purchase/all-form-purchase", element: <AllFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
 		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
-		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />},
+		{ path: "/purchase/response-quote-purchase/:id", element: <AssignedFormPurchase />},
+		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />, allowedRoles: [RoleEnum.PURCHASING]},
 
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},

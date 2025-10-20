@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import orgUnitApi from '@/api/orgUnitApi';
 import { STATUS_ENUM } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
+import requestStatusApi from '@/api/requestStatusApi';
 
 const ViewOnlyFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -30,6 +31,17 @@ const ViewOnlyFormPurchase = () => {
 		}
 	});
 
+    const { data: requestStatuses = [] } = useQuery({
+		queryKey: ['get-all-status'],
+		queryFn: async () => {
+			const res = await requestStatusApi.getAll()
+            const results = res.data.data.filter((status: { id: number }) => 
+                status.id == STATUS_ENUM.WAIT_DELIVERY 
+                || status.id == STATUS_ENUM.WAIT_PO || status.id == STATUS_ENUM.WAIT_QUOTE || status.id == STATUS_ENUM.COMPLETED)
+			return results
+		}
+	});
+
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['purchaseForm', id],
         queryFn: async () => {
@@ -45,7 +57,7 @@ const ViewOnlyFormPurchase = () => {
                 throw error;
             }
         },
-        enabled: isHasId,
+        enabled: isHasId && requestStatuses.length > 0,
     });
 
     const { data: costCenters } = useQuery({
@@ -120,6 +132,7 @@ const ViewOnlyFormPurchase = () => {
                         costCenter={costCenters} 
                         formData={initialFormData}
                         departments={departments}
+                        requestStatuses={requestStatuses}
                         isPending={assignedTaskPurchase.isPending || approval.isPending}
                     />
                 </div>

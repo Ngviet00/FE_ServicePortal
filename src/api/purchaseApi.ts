@@ -36,9 +36,10 @@ export interface ICreatePurchase {
     DepartmentId?: number,
     OrgPositionId?: number,
     RequestedDate?: string | Date,
-    UrlFrontend: string,
     ApplicationFormCodeReference?: string | null,
     CreatePurchaseDetailRequests?: IPurchaseDetail[],
+    AvailableQuotes?: number[],
+    NewQuotes?: File[]
 }
 
 export interface IUpdatePurchase {
@@ -65,22 +66,12 @@ export interface IStatisticalPurchase {
     year?: number
 }
 
-export interface RequestForQuote {
-    UserCode?: string,
-    UserName?: string
-    UserCodeQuote?: string
-    UserNameQuote?: string
-    ApplicationFormId?: number,
-    Note?: string
-}
-
 export interface ResponseForQuote {
     UserCode?: string,
     UserName?: string
     ApplicationFormId?: number,
     Note?: string
 }
-
 
 const purchaseApi = {
     statistical(params: IStatisticalPurchase) {
@@ -92,11 +83,19 @@ const purchaseApi = {
     getById(applicationFormCode: string) {
         return axiosClient.get(`/purchase/${applicationFormCode}`)
     },
-    create(data: ICreatePurchase) {
-        return axiosClient.post('/purchase', data)
+    create(data: FormData) {
+        return axiosClient.post('/purchase', data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     },
-    update(applicationFormCode: string, data: IUpdatePurchase){
-        return axiosClient.put(`/purchase/${applicationFormCode}`, data)
+    update(applicationFormCode: string, data: FormData){
+        return axiosClient.put(`/purchase/${applicationFormCode}`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     },
     delete(applicationFormCode: string) {
         return axiosClient.delete(`/purchase/${applicationFormCode}`)
@@ -113,11 +112,12 @@ const purchaseApi = {
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/purchase/approval`, data)
     },
-    requestForQuote(data: RequestForQuote) {
-        return axiosClient.post('/purchase/request-for-quote', data)
-    },
-    responseForQuote(data: ResponseForQuote) {
-        return axiosClient.post('/purchase/response-for-quote', data)
+    responseForQuote(data: FormData) {
+        return axiosClient.post('/purchase/response-for-quote', data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     },
     getListWaitResponseQuote(params: ListWaitApprovalRequest) {
         return axiosClient.get('/purchase/list-wait-response-quote', {params})
@@ -127,23 +127,9 @@ const purchaseApi = {
     }
 }
 
-export function useRequestForQuote() {
-    return useMutation({
-        mutationFn: async (data: RequestForQuote) => {
-            await purchaseApi.requestForQuote(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
 export function useResponseForQuote() {
     return useMutation({
-        mutationFn: async (data: ResponseForQuote) => {
+        mutationFn: async (data: FormData) => {
             await purchaseApi.responseForQuote(data)
         },
         onSuccess: () => {
@@ -171,7 +157,7 @@ export function useApprovalPurchase() {
 
 export function useCreatePurchase() {
     return useMutation({
-        mutationFn: async (data: ICreatePurchase) => {
+        mutationFn: async (data: FormData) => {
             await purchaseApi.create(data)
         },
         onSuccess: () => {
@@ -185,7 +171,7 @@ export function useCreatePurchase() {
 
 export function useUpdatePurchase() {
     return useMutation({
-        mutationFn: async ({id, data} : {id: string, data: IUpdatePurchase}) => {
+        mutationFn: async ({id, data} : {id: string, data: FormData}) => {
             await purchaseApi.update(id, data)
         },
         onSuccess: () => {

@@ -112,7 +112,7 @@ export default function ListITFormWaitFormPurchase() {
                                         {item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : "--"}
                                     </td>
                                     <td className="px-4 py-2 border text-center">
-                                        <StatusLeaveRequest status="Pending" />
+                                        <StatusLeaveRequest status={item?.requestStatusId} />
                                     </td>
                                     <td className="px-4 py-2 border text-center space-x-1">
                                         <Link
@@ -154,7 +154,7 @@ export default function ListITFormWaitFormPurchase() {
                                         >
                                             {item.code}
                                         </Link>
-                                        <StatusLeaveRequest status="Pending" />
+                                        <StatusLeaveRequest status={item?.requestStatusId} />
                                     </div>
 
                                     <div className="text-sm text-gray-700 mt-1 space-y-1">

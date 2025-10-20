@@ -12,10 +12,11 @@ import HistoryApproval from '../Approval/Components/HistoryApproval';
 import PurchaseRequestForm from './Components/PurchaseRequestForm';
 import { useApproval } from '@/api/approvalApi';
 import costCenterApi from '@/api/costCenterApi';
-import purchaseApi, { useAssignedTaskPurchaseForm, useResolvedTaskPurchaseForm } from '@/api/purchaseApi';
+import purchaseApi, { useAssignedTaskPurchaseForm, useResolvedTaskPurchaseForm, useResponseForQuote } from '@/api/purchaseApi';
 import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
 import orgUnitApi from '@/api/orgUnitApi';
 import requestStatusApi from '@/api/requestStatusApi';
+import { UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
 
 const AssignedFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -29,6 +30,7 @@ const AssignedFormPurchase = () => {
     const isHasId = !!id;
     const approval = useApproval()
     const assignedTaskPurchase = useAssignedTaskPurchaseForm()
+    const responseQuotePurchase = useResponseForQuote()
 
     const { data: requestStatuses = [] } = useQuery({
 		queryKey: ['get-all-status'],
@@ -36,7 +38,7 @@ const AssignedFormPurchase = () => {
 			const res = await requestStatusApi.getAll()
             const results = res.data.data.filter((status: { id: number }) => 
                 status.id == STATUS_ENUM.WAIT_DELIVERY 
-                || status.id == STATUS_ENUM.WAIT_PO || status.id == STATUS_ENUM.WAIT_QUOTE)
+                || status.id == STATUS_ENUM.WAIT_PO || status.id == STATUS_ENUM.WAIT_QUOTE || status.id == STATUS_ENUM.COMPLETED)
 			return results
 		}
 	});
@@ -89,28 +91,46 @@ const AssignedFormPurchase = () => {
     const resolvedTask = useResolvedTaskPurchaseForm()
     
     const handleSaveModalConfirm = async () => {
-        if (formData?.purchaseOrder == null || formData?.purchaseOrder == undefined || formData?.purchaseOrder == '') {
-            ShowToast(lang == 'vi' ? 'Phải có PO thì mới có thể đóng đơn được' : 'PO is required to close the order', 'error')
-            return
+        if (statusModalConfirm == 'response_quote') {
+            const formDataSend = new FormData()
+
+            formDataSend.append("UserCode", user?.userCode ?? '');
+            formDataSend.append("UserName", user?.userName ?? '');
+            formDataSend.append("Note", note);
+            formDataSend.append("ApplicationFormId", formData?.applicationFormItem?.applicationForm?.id);
+            
+            dataResponseQuote?.uploadedFiles?.forEach((item: UploadedFileType, index: number) => {
+                formDataSend.append(`AvailableQuotes[${index}]`, item?.id.toString());
+            });
+
+            dataResponseQuote.newFiles?.forEach((file: File) => {
+                formDataSend.append("NewQuotes", file);
+            });
+            await responseQuotePurchase.mutateAsync(formDataSend)
+            navigate('/purchase/list-item-wait-quote')
+        }
+        else
+        {
+            if (formData?.purchaseOrder == null || formData?.purchaseOrder == undefined || formData?.purchaseOrder == '') {
+                ShowToast(lang == 'vi' ? 'Phải có PO thì mới có thể đóng đơn được' : 'PO is required to close the order', 'error')
+                return
+            }
+
+            await resolvedTask.mutateAsync({
+                UserCodeApproval: user?.userCode,
+                UserNameApproval: user?.userName ?? '',
+                Note: note,
+                ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
+            })
+            
+            navigate("/approval/assigned-tasks")
         }
 
-        await resolvedTask.mutateAsync({
-            UserCodeApproval: user?.userCode,
-            UserNameApproval: user?.userName ?? '',
-            Note: note,
-            ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-            ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
-        })
-
-        navigate("/approval/assigned-tasks")
         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
     };
 
     const handleUpdatePOAndStatus = async (data: { purchaseOrder: string; status: number }) => {
-        // if (data.purchaseOrder == null || data.purchaseOrder == undefined || data.purchaseOrder == '') {
-        //     ShowToast(lang == 'vi' ? 'Phải có PO thì mới có thể cập nhật được' : 'PO is required to update', 'error')
-        //     return
-        // }
         try {
             await purchaseApi.updatePOAndStatus(formData?.applicationFormItem?.applicationForm?.code ?? '', {
                 userCode: user?.userCode ?? '',
@@ -126,6 +146,14 @@ const AssignedFormPurchase = () => {
             ShowToast(getErrorMessage(err), 'error')
         }
     }
+
+    const [dataResponseQuote, setDataResponseQuote] = useState<{
+        uploadedFiles: UploadedFileType[];
+        newFiles: File[];
+    }>({
+        uploadedFiles: [],
+        newFiles: [],
+    });
 
     if (isHasId && isFormDataLoading) {
         return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
@@ -166,6 +194,7 @@ const AssignedFormPurchase = () => {
                         requestStatuses={requestStatuses}
                         isPending={assignedTaskPurchase.isPending || approval.isPending}
                         onUpdatePOAndStatus={(data) => {handleUpdatePOAndStatus(data)}}
+                        onChangeResponseQuote={setDataResponseQuote}
                     />
                 </div>
                 <div className='mt-8 border-t border-dashed border-gray-300 pt-5'>
@@ -203,14 +232,27 @@ const AssignedFormPurchase = () => {
                 }
                 
                 <div className='flex gap-4 justify-end mt-4'>
-                    <Button
-                        onClick={() => setStatusModalConfirm('approval')}
-                        disabled={resolvedTask.isPending}
-                        type='submit'
-                        className='px-6 py-2 bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
-                    >
-                        {resolvedTask.isPending ? <Spinner size="small" className='text-white'/> : lang == 'vi' ? 'Đã xử lý' : 'Resolved'}
-                    </Button>
+                    {
+                        formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED ? (
+                            <Button
+                                onClick={() => setStatusModalConfirm('approval')}
+                                disabled={resolvedTask.isPending}
+                                type='submit'
+                                className='px-6 py-2 bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
+                            >
+                                {resolvedTask.isPending ? <Spinner size="small" className='text-white'/> : lang == 'vi' ? 'Đã xử lý' : 'Resolved'}
+                            </Button>
+                        ) : (
+                            <Button
+                                onClick={() => setStatusModalConfirm('response_quote')}
+                                disabled={responseQuotePurchase.isPending}
+                                type='submit'
+                                className='px-6 py-2 bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
+                            >
+                                {responseQuotePurchase.isPending ? <Spinner size="small" className='text-white'/> : lang == 'vi' ? 'Phản hồi báo giá' : 'Response quote'}
+                            </Button>
+                        )
+                    }
                 </div>
                 <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
             </div>

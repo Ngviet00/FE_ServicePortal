@@ -6,8 +6,9 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import PurchaseRequestForm from './Components/PurchaseRequestForm';
 import costCenterApi from '@/api/costCenterApi';
 import { useTranslation } from 'react-i18next';
-import purchaseApi, { ICreatePurchase, useCreatePurchase, useUpdatePurchase } from '@/api/purchaseApi';
+import purchaseApi, { useCreatePurchase, useUpdatePurchase } from '@/api/purchaseApi';
 import orgUnitApi from '@/api/orgUnitApi';
+import itFormApi from '@/api/itFormApi';
 
 const CreateFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -37,6 +38,15 @@ const CreateFormPurchase = () => {
         enabled: isEdit,
     });
 
+    const { data: formDataIT, isLoading: isFormDataITLoading } = useQuery({
+        queryKey: ['itForm', applicationFormCode],
+        queryFn: async () => {
+            const res = await itFormApi.getById(applicationFormCode ?? '');
+            return res.data.data;
+        },
+        enabled: applicationFormCode != null,
+    });
+
     const { data: costCenters } = useQuery({
         queryKey: ['get-all-cost-center'],
         queryFn: async () => {
@@ -58,15 +68,40 @@ const CreateFormPurchase = () => {
     const updatePurchase = useUpdatePurchase()
 
     const handleFormSubmit = async (data: any) => {
-        const payload = formatPurchaseRequest(data)
+        const formDataToSend = new FormData();
+
+        formDataToSend.append("UserCode", data.usercode);
+        formDataToSend.append("UserName", data.username);
+        formDataToSend.append("DepartmentId", data.departmentId);
+        formDataToSend.append("RequestedDate", data.request_date);
+        formDataToSend.append("OrgPositionId", user?.orgPositionId?.toString() || "");
+        formDataToSend.append("ApplicationFormCodeReference", applicationFormCode || "");
+
+        data.purchases.forEach((p: any, index: number) => {
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].Id`, p.id ?? "");
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].ItemName`, p.name_category ?? "");
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].ItemDescription`, p.description ?? "");
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].Quantity`, p.quantity ?? "");
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].UnitMeasurement`, p.unit_measurement ?? "");
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].RequiredDate`, p.required_date ?? "");
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].CostCenterId`, p.cost_center ?? "");
+            formDataToSend.append(`CreatePurchaseDetailRequests[${index}].Note`, p.note ?? "");
+        });
+
+        data.AvailableQuotes?.forEach((id: number, index: number) => {
+            formDataToSend.append(`AvailableQuotes[${index}]`, id.toString());
+        });
+
+        data.NewQuotes?.forEach((file: File) => {
+            formDataToSend.append("NewQuotes", file);
+        });
 
         if (isEdit) {
-            await updatePurchase.mutateAsync({id: id, data: payload})
+            await updatePurchase.mutateAsync({id: id, data: formDataToSend})
         }
         else {
-            await createPurchase.mutateAsync(payload)
+            await createPurchase.mutateAsync(formDataToSend);
         }
-
         navigate("/purchase")
         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
     }
@@ -74,30 +109,12 @@ const CreateFormPurchase = () => {
     const mode = isEdit ? 'edit' : 'create';
     const initialFormData = isEdit ? formData : {};
 
-    function formatPurchaseRequest(data: any): ICreatePurchase {
-        return {
-            UserCode: data.usercode,
-            UserName: data.username,
-            DepartmentId: data.departmentId,
-            RequestedDate: data.request_date,
-            UrlFrontend: window.location.origin,
-            OrgPositionId: user?.orgPositionId,
-            ApplicationFormCodeReference: applicationFormCode || null,
-            CreatePurchaseDetailRequests: data.purchases.map((p: { id: any, name_category: any; description: any; quantity: any; unit_measurement: any; required_date: any; cost_center: any; note: any; }) => ({
-                id: p.id,
-                ItemName: p.name_category,
-                ItemDescription: p.description,
-                Quantity: p.quantity,
-                UnitMeasurement: p.unit_measurement,
-                RequiredDate: p.required_date,
-                CostCenterId: p.cost_center,
-                Note: p.note
-            }))
-        };
+    if ((isEdit && isFormDataLoading) || (applicationFormCode && isFormDataITLoading)) {
+        return <div>{lang === 'vi' ? 'Đang tải dữ liệu...' : 'Loading data...'}</div>;
     }
 
-    if (isEdit && isFormDataLoading) {
-        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
+    if (applicationFormCode && !formDataIT) {
+        return <div>{lang === 'vi' ? 'Đang tải IT Form...' : 'Loading IT Form...'}</div>;
     }
 
     return (
@@ -129,13 +146,14 @@ const CreateFormPurchase = () => {
                 )
             }
 
-            <div className="flex flex-col min-h-screen">
+            <div className="flex flex-col">
                 <div className="w-full bg-white rounded-xl pl-0">
                     <PurchaseRequestForm
                         mode={mode}
                         costCenter={costCenters}
                         departments={departments}
                         formData={initialFormData}
+                        formDataIT={formDataIT}
                         onSubmit={handleFormSubmit}
                         isPending={createPurchase.isPending || updatePurchase.isPending}
                     />

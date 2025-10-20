@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PurchaseRequestForm from './Components/PurchaseRequestForm';
-import purchaseApi, { useApprovalPurchase, useAssignedTaskPurchaseForm, useRequestForQuote, useResponseForQuote } from '@/api/purchaseApi';
+import purchaseApi, { useApprovalPurchase, useAssignedTaskPurchaseForm } from '@/api/purchaseApi';
 import costCenterApi from '@/api/costCenterApi';
 import ModalConfirm from '@/components/ModalConfirm';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { ISelectedUserAssigned } from '@/api/userApi';
 import DotRequireComponent from '@/components/DotRequireComponent';
 import orgUnitApi from '@/api/orgUnitApi';
+import { useAppStore } from '@/store/appStore';
 
 const DetailWaitApprovalFormPurchase = () => {
     const { t } = useTranslation('purchase')
@@ -31,9 +32,9 @@ const DetailWaitApprovalFormPurchase = () => {
     const isHasId = !!id;
     const approval = useApprovalPurchase()
     const assignedTaskPurchase = useAssignedTaskPurchaseForm()
-    const [selectedUserQuote, setSelectedUserQuote] = useState<{ userCode: string; userName: string } | null>(null);
-    const requestForQuote = useRequestForQuote()
-    const responseForQuote = useResponseForQuote()
+    const [hasQuoteFiles, setHasQuoteFiles] = useState(false);
+    const selectedQuoteId = useAppStore(s => s.selectedQuoteId)
+    const setSelectedQuoteId = useAppStore(s => s.setSelectedQuoteId);
     
     const { data: departments = [] } = useQuery({
 		queryKey: ['get-all-department'],
@@ -78,7 +79,11 @@ const DetailWaitApprovalFormPurchase = () => {
         }
     });
 
-    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_purchase_approval' : 'approval'
+    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.WAIT_QUOTE 
+        || formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL
+        ? 'manager_purchase_approval'
+        : 'approval'
+
     const isManagerPurchaseApproval = mode == 'manager_purchase_approval'
     const initialFormData = isHasId ? formData : {};
 
@@ -100,41 +105,38 @@ const DetailWaitApprovalFormPurchase = () => {
         }
 
         try {
-            if (statusModalConfirm == 'responseForQuote') {
-                await responseForQuote.mutateAsync({
-                    UserCode: user?.userCode ?? '',
-                    UserName: user?.userName ?? '',
+            if (isManagerPurchaseApproval) {
+                await assignedTaskPurchase.mutateAsync({
+                    UserCodeApproval: user?.userCode,
+                    UserNameApproval: user?.userName ?? '',
+                    NoteManager: note,
+                    OrgPositionId: user?.orgPositionId,
                     ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-                    Note: note
+                    ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
+                    UserAssignedTasks: selectedUserAssigned
                 })
-                navigate("/purchase/list-item-wait-quote")
             }
             else {
-                if (isManagerPurchaseApproval) {
-                    await assignedTaskPurchase.mutateAsync({
-                        UserCodeApproval: user?.userCode,
-                        UserNameApproval: user?.userName ?? '',
-                        NoteManager: note,
-                        OrgPositionId: user?.orgPositionId,
-                        ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-                        ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
-                        UserAssignedTasks: selectedUserAssigned
-                    })
+                if (type == 'approval' && user?.unitId == UNIT_ENUM.GM) {
+                    if (formData?.quotes?.length > 0 && (!selectedQuoteId || selectedQuoteId === 0)) {
+                        ShowToast(lang == 'vi' ? 'Vui lòng chọn báo giá' : 'Please select a quote', 'error')
+                        return
+                    }
                 }
-                else {
-                    await approval.mutateAsync({
-                        UserCodeApproval: user?.userCode,
-                        UserNameApproval: user?.userName ?? "",
-                        OrgPositionId: user?.orgPositionId,
-                        Status: type == 'approval' ? true : false,
-                        Note: note,
-                        ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-                        ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
-                        RequestTypeId: formData?.applicationFormItem?.applicationForm?.requestTypeId,
-                    })
-                }
-                navigate("/approval/pending-approval")
+                await approval.mutateAsync({
+                    UserCodeApproval: user?.userCode,
+                    UserNameApproval: user?.userName ?? "",
+                    OrgPositionId: user?.orgPositionId,
+                    StatusRequest: type == 'approval' ? STATUS_ENUM.IN_PROCESS : type == 'reject' ? STATUS_ENUM.REJECT : STATUS_ENUM.WAIT_QUOTE,
+                    Note: note,
+                    ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
+                    ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
+                    RequestTypeId: formData?.applicationFormItem?.applicationForm?.requestTypeId,
+                    SelectedQuoteId: selectedQuoteId
+                })
+                setSelectedQuoteId(0)
             }
+            navigate("/approval/pending-approval")
             queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
         } catch (err) {
             console.log(err);
@@ -148,37 +150,6 @@ const DetailWaitApprovalFormPurchase = () => {
         } else {
             setSelectedUserAssigned(prevSelected => prevSelected.filter(u => u.userCode !== item.nvMaNV));
         }
-    };
-
-    const handleChangeUserQuote = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const code = e.target.value;
-        const user = purchaseMembers.find((x: {nvMaNV: string}) => String(x.nvMaNV) === code);
-        if (user) {
-            setSelectedUserQuote({
-                userCode: user.nvMaNV,
-                userName: user.nvHoTen,
-            });
-        } else {
-            setSelectedUserQuote(null);
-        }
-    };
-
-    const handleSubmitQuote = async () => {
-        if (!selectedUserQuote) {
-            ShowToast(lang == 'vi' ? 'Vui lòng chọn nhân viên muốn báo giá' : 'Please select the employee you want to quote', "error")
-            return
-        }
-
-        await requestForQuote.mutateAsync({
-            UserCode: user?.userCode ?? '',
-            UserName: user?.userName ?? '',
-            UserCodeQuote: selectedUserQuote.userCode,
-            UserNameQuote: selectedUserQuote.userName,
-            ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
-            Note: note
-        })
-        navigate("/approval/pending-approval")
-        queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
     };
 
     if (isHasId && isFormDataLoading) {
@@ -222,6 +193,7 @@ const DetailWaitApprovalFormPurchase = () => {
                         departments={departments}
                         formData={initialFormData}
                         isPending={assignedTaskPurchase.isPending || approval.isPending}
+                        onHasUploadedFilesChange={setHasQuoteFiles}
                     />
                 </div>
                 <div className='mt-2 border-gray-300 pt-5'>
@@ -264,75 +236,33 @@ const DetailWaitApprovalFormPurchase = () => {
                     )
                 }
                 
-                <div className='flex justify-between mt-3'>
-                    <div>
-                        {
-                            user?.unitId == UNIT_ENUM.GM && (
-                                <>
-                                    <div className='flex items-end'>
-                                        <div>
-                                            <label htmlFor="" className="mb-1 mt-1 block text-sm font-medium text-gray-700">
-                                                {lang == 'vi' ? 'Chọn nhân viên muốn báo giá' : 'Select the employee you want to quote'}<DotRequireComponent />
-                                            </label>
-                                            
-                                            <select
-                                                onChange={handleChangeUserQuote}
-                                                className={`border w-full cursor-pointer rounded-[5px]`} style={{padding: '6.7px'}}>
-                                                <option value="">
-                                                    { lang == 'vi' ? '--Chọn--' : '--Select--' }
-                                                </option>
-                                                {
-                                                    purchaseMembers?.map((item: { nvMaNV: number, nvHoTen: string }, idx: number) => (
-                                                        <option key={idx} value={item.nvMaNV}>{item.nvHoTen}__{item.nvMaNV}</option>
-                                                    ))
-                                                }
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <Button
-                                                disabled={requestForQuote.isPending}
-                                                onClick={handleSubmitQuote}
-                                                className="px-4 py-2 ml-2  text-white rounded-[3px] transition-all duration-200 text-base hover:cursor-pointer"
-                                            >
-                                                {requestForQuote.isPending ? <Spinner className='text-white' size={`small`}/> : (lang == 'vi' ? 'Xác nhận' : 'Confirm')}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </>
-                            )
-                        }
-                    </div>
-                    <div className='flex'>
-                        {
-                            formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.WAIT_QUOTE ? (
-                                <>
-                                    <Button
-                                        disabled={responseForQuote.isPending}
-                                        onClick={() => setStatusModalConfirm('responseForQuote')}
-                                        className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer">
-                                        {responseForQuote.isPending ? <Spinner className='text-white' size={`small`}/> :  (lang == 'vi' ? 'Báo giá' : 'Quote')}
-                                    </Button>
-                                </>
-                            ) : (
-                                <>
-                                    <Button
-                                        disabled={approval.isPending || assignedTaskPurchase.isPending}
-                                        onClick={() => setStatusModalConfirm('approval')}
-                                        className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
-                                    >
-                                        {approval.isPending || assignedTaskPurchase.isPending ? <Spinner size="small" className='text-white'/> : tCommon('approval')}
-                                    </Button>
-                                    {
-                                        !isManagerPurchaseApproval && (
-                                            <Button onClick={() => setStatusModalConfirm('reject')} className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base">
-                                                {tCommon('reject')}
-                                            </Button>
-                                        )
-                                    }
-                                </>
-                            )
-                        }
-                    </div>
+                <div className='flex justify-end mt-3'>
+                    {
+                        user?.unitId == UNIT_ENUM.GM && hasQuoteFiles == false && (
+                            <Button
+                                disabled={approval.isPending || assignedTaskPurchase.isPending}
+                                onClick={() => setStatusModalConfirm('need_quote')}
+                                className="px-4 py-2 mr-2 bg-purple-700 text-white rounded-[3px] shadow-lg hover:bg-purple-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                            >
+                                {approval.isPending || assignedTaskPurchase.isPending ? <Spinner size="small" className='text-white'/> : (lang == 'vi' ? 'Cần báo giá' : 'Need quote')}
+                            </Button>
+                        )
+                    }
+
+                    <Button
+                        disabled={approval.isPending || assignedTaskPurchase.isPending}
+                        onClick={() => setStatusModalConfirm('approval')}
+                        className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                    >
+                        {approval.isPending || assignedTaskPurchase.isPending ? <Spinner size="small" className='text-white'/> : tCommon('approval')}
+                    </Button>
+                    {
+                        !isManagerPurchaseApproval && (
+                            <Button onClick={() => setStatusModalConfirm('reject')} className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base">
+                                {tCommon('reject')}
+                            </Button>
+                        )
+                    }
                 </div>
                 <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
             </div>
