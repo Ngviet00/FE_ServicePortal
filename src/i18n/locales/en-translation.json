@@ -93,6 +93,11 @@
 			"create": "Create new request",
 			"quote": "Response quote"
 		},
+		"vote": {
+			"title": "Vote",
+			"create": "Create vote",
+			"list": "List vote"
+		},
 		"approval": {
 			"title": "Approval",
 			"pending_approval": "Pending approval",
