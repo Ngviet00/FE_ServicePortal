@@ -93,6 +93,11 @@
 			"create": "Tạo yêu cầu mới",
 			"quote": "Phản hồi báo giá"
 		},
+		"vote": {
+			"title": "Bình chọn",
+			"create": "Tạo mới",
+			"list": "Danh sách"
+		},
 		"approval": {
 			"title": "Phê duyệt",
 			"pending_approval": "Chờ duyệt",

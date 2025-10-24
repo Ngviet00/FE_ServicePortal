@@ -24,11 +24,14 @@ interface QuillInstance {
 interface QuillEditorCDNProps {
     onChange?: (html: string) => void;
     initialContent?: string;
+    height?: number;
 }
 
 function QuillEditorCDNComponent({
     onChange,
     initialContent = '',
+    height = 300
+    
 }: QuillEditorCDNProps) {
     const editorRef = useRef<HTMLDivElement>(null);
     const quillInstanceRef = useRef<QuillInstance | null>(null);
@@ -101,7 +104,7 @@ function QuillEditorCDNComponent({
         };
     }, []);
 
-  return <div ref={editorRef} style={{ height: 300, marginBottom: 0 }} />;
+  return <div ref={editorRef} style={{ height: height, marginBottom: 0 }} />;
 }
 
 const QuillEditorCDN = memo(QuillEditorCDNComponent);

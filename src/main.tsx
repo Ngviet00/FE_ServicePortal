@@ -7,6 +7,7 @@ import App from './components/RootComponent/App.tsx';
 import './components/RootComponent/index.css'
 import './components/RootComponent/App.css'
 import './i18n/i18n.ts';
+import './../public/libs/quill/quill.snow.css';
 
 const queryClient = new QueryClient();
 

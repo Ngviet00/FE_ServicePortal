@@ -88,7 +88,7 @@ const ViewOnlyMemoNotification: React.FC = () => {
 
                 <div className="w-full overflow-x-auto">
                     <div
-                        className="text-left text-gray-800 leading-relaxed prose max-w-none"
+                        className="ql-editor text-left text-gray-800 leading-relaxed prose max-w-none"
                         dangerouslySetInnerHTML={{ __html: memo.content }}
                     />
                 </div>

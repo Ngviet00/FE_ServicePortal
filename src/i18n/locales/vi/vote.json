@@ -1,0 +1,31 @@
+{
+    "create": {
+        "title_page": "Tạo mới bình chọn",
+        "title": "Tiêu đề",
+        "description": "Mô tả",
+        "publish_date": "Ngày phát hành",
+        "date_range": "Thời gian hiển thị",
+        "option": "Lựa chọn",
+        "add_options": "Thêm lựa chọn mới",
+        "img_option": "Ảnh",
+        "save": "Lưu"
+    },
+    "list": {
+        "title": "Danh sách bình chọn",
+        "button_new_vote": "Tạo mới",
+        "search": "Tìm kiếm",
+        "status": "Trạng thái",
+        "start_date": "Ngày bắt đầu",
+        "end_date": "Ngày kết thúc",
+        "action": "Hành động"
+    },
+    "detail": {
+        "title": "Chi tiết phiếu bình chọn",
+        "vote": "Bình chọn",
+        "user_not_vote": "Danh sách những người chưa bình chọn",
+        "people": "Người",
+        "person": "Người",
+        "select": "Chọn",
+        "selected": "Đã chọn"
+    }
+}
