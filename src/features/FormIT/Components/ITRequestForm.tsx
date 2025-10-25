@@ -196,6 +196,8 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
             return
         }
 
+        //orgPositionName
+
         try {
             setIsSearchingUser(true)
             await new Promise(resolve => setTimeout(resolve, 300));
@@ -207,6 +209,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
                 setValue('requester.name', '', { shouldValidate: true })
                 setValue('requester.department', '', { shouldValidate: true })
                 setValue('requester.email', '', { shouldValidate: true })
+                setValue('requester.position', '', { shouldValidate: true })
 
                 return
             }
@@ -222,6 +225,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
             setValue('requester.department', result?.departmentName, { shouldValidate: true })
             setValue('requester.departmentId', result?.departmentId, { shouldValidate: true })
             setValue('requester.email', result?.email ?? '', { shouldValidate: true })
+            setValue('requester.position', result?.position ?? '', { shouldValidate: true })
         }
         catch (err) {
             ShowToast(getErrorMessage(err), "error");
