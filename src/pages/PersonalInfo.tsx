@@ -10,15 +10,17 @@ import { useQuery } from "@tanstack/react-query";
 import DotRequireComponent from "@/components/DotRequireComponent";
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import userApi, { UpdatePersonalInfo, useUpdatePersonalInfo } from "@/api/userApi";
+import { useTranslation } from "react-i18next";
 
 const formSchema = z.object({
-    phone: z.string().nonempty({ message: "Required" }),
+    phone: z.string().optional().nullable(),
     email: z.string().nonempty({ message: "Required" }),
     dob: z.string().nonempty({ message: "Required" }),
 });
 
 export default function PersonalInfo () {
     const { user } = useAuthStore()
+    const lang = useTranslation().i18n.language.split('-')[0]
     const updatePersonalInfo = useUpdatePersonalInfo();
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -53,7 +55,7 @@ export default function PersonalInfo () {
 
         const data: UpdatePersonalInfo = {
             email: values.email,
-            phone: values.phone,
+            phone: values.phone ?? '',
             dateOfBirth: values.dob
         }
 
@@ -66,7 +68,7 @@ export default function PersonalInfo () {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">Cập nhật thông tin cá nhân</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{lang == 'vi' ? 'Cập nhật thông tin cá nhân' : 'Update personal info'}</h3>
             </div>
             
             <div className="w-[50%] mt-5">
@@ -78,10 +80,10 @@ export default function PersonalInfo () {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        Số điện thoại <DotRequireComponent/>
+                                        {lang == 'vi' ? 'Số điện thoai' : 'Phone'}
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Số điện thoại" {...field} />
+                                        <Input placeholder="Số điện thoại" {...field} value={field.value ?? ""} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -109,7 +111,7 @@ export default function PersonalInfo () {
                             name="dob"
                             render={({ field: rhfField, fieldState }) => (
                                 <FormItem className="flex flex-col w-[180px]">
-                                    <FormLabel className="mb-1">Ngày sinh <DotRequireComponent/></FormLabel>
+                                    <FormLabel className="mb-1">{lang == 'vi' ? 'Ngày sinh' : 'Date of birth'} <DotRequireComponent/></FormLabel>
                                     <FormControl>
                                         <DateTimePicker
                                             enableTime={false}

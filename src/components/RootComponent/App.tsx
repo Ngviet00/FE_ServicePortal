@@ -72,6 +72,9 @@ import WaitConfirm from '@/features/Approval/WaitConfirm';
 import WaitQuote from '@/features/Approval/WaitQuote';
 import ListItemWaitQuote from '@/features/Purchasing/ListItemWaitQuote';
 import ListITFormWaitFormPurchase from '@/features/FormIT/ListITFormWaitFormPurchase';
+import { CreateVote } from '@/features/Vote/CreateVote';
+import ListVote from '@/features/Vote/ListVote';
+import DetailVote from '@/features/Vote/DetailVote';
 
 function App() {
 	const location = useLocation();
@@ -174,6 +177,12 @@ function App() {
 		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
 		{ path: "/purchase/response-quote-purchase/:id", element: <AssignedFormPurchase />},
 		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />, allowedRoles: [RoleEnum.PURCHASING]},
+
+		//vote
+		{ path: "/vote/create", element: <CreateVote />, allowedRoles: [RoleEnum.UNION] },
+		{ path: "/vote/edit/:id", element: <CreateVote />, allowedRoles: [RoleEnum.UNION] },
+		{ path: "/vote", element: <ListVote />},
+		{ path: "/vote/:id", element: <DetailVote />},
 
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},

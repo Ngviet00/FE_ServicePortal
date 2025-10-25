@@ -10,12 +10,14 @@ import { ConfirmDialogToHR } from "./Components/ConfirmDialogToHR";
 import { calculateRoundedTime, getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
 import { AttendanceStatus, UpdateTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
-import { useDebounce } from "@/lib";
+import { RoleEnum, useDebounce } from "@/lib";
 import { Button } from "@/components/ui/button";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import ModalUpdateTimeKeeping from "./Components/ModalUpdateTimeKeeping";
 import ModalHistoryEditTimeKeeping from "./Components/ModalListHistoryEditTimeKeeping";
 import orgUnitApi from "@/api/orgUnitApi";
+import useHasPermission from "@/hooks/useHasPermission";
+import useHasRole from "@/hooks/useHasRole";
 
 export default function MngTimekeeping () {
     const { t } = useTranslation()
@@ -70,6 +72,9 @@ export default function MngTimekeeping () {
         }
     });
 
+    const hasPermissionHRMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
+    const isHrAndHRPermissionMngTimeKeeping = useHasRole([RoleEnum.HR]) && hasPermissionHRMngTimeKeeping; 
+
     const { isLoading, isError, error } = useQuery({
         queryKey: ['management-timekeeping', year, month, page, pageSize, debouncedKeySearch, deptId, typePerson],
         queryFn: async () => {
@@ -82,7 +87,8 @@ export default function MngTimekeeping () {
                 keySearch: debouncedKeySearch,
                 team: team ? Number(team) : null,
                 deptId: deptId ? Number(deptId) : null,
-                typePerson: typePerson ? Number(typePerson) : null
+                typePerson: typePerson ? Number(typePerson) : null,
+                isHrMngTimeKeeping: isHrAndHRPermissionMngTimeKeeping
             })
             setDataAttendances(res.data.data)
             setTotalPage(res.data.total_pages)

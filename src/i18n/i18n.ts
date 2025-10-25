@@ -41,6 +41,9 @@ import viPurchase from './locales/vi/purchase.json'
 import enHr from './locales/en/hr.json'
 import viHr from './locales/vi/hr.json'
 
+import enVote from './locales/en/vote.json'
+import viVote from './locales/vi/vote.json'
+
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
@@ -60,10 +63,12 @@ i18n
 		'changeOrgUnit', 
 		'formIT',
 		'permission',
-		'hr'
+		'hr',
+		'vote'
 	],
     resources: {
 		en: {
+			vote: enVote,
 			hr: enHr,
 			purchase: enPurchase,
 			admin: enAdmin,
@@ -79,6 +84,7 @@ i18n
 			changeOrgUnit: enChangeOrgUnit
 		},
 		vi: {
+			vote: viVote,
 			hr: viHr,
 			purchase: viPurchase,
 			admin: viAdmin,

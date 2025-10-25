@@ -1,0 +1,33 @@
+{
+    "create": {
+        "title_page": "Create vote",
+        "title": "Title",
+        "description": "Description",
+        "publish_date": "Date publish",
+        "date_range": "Display time",
+        "option": "Option",
+        "add_options": "Add option",
+        "title_option": "Title option",
+        "content_option": "Content option",
+        "img_option": "Image",
+        "save": "Save"
+    },
+    "list": {
+        "title": "List vote",
+        "button_new_vote": "Create",
+        "search": "Search",
+        "status": "Status",
+        "start_date": "Start date",
+        "end_date": "End date",
+        "action": "Action"
+    },
+    "detail": {
+        "title": "Detail vote",
+        "vote": "Vote",
+        "user_not_vote": "List of people who have not voted yet",
+        "people": "People",
+        "person": "Person",
+        "select": "Select",
+        "selected": "Selected"
+    }
+}

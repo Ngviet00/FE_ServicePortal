@@ -54,7 +54,7 @@ export interface GetListUserData {
 
 export interface UpdatePersonalInfo {
     email: string,
-    phone: string,
+    phone?: string | null | undefined,
     dateOfBirth?: string
 }
 

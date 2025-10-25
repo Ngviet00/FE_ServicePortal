@@ -21,7 +21,7 @@ export default function Sidebar() {
 		isOpen,
 		submenusVisible,
 		toggleSubmenu,
-		closeAllSubmenus,
+		// closeAllSubmenus,
 		// closeMenuIfNotChild,
 		setVisibleSubmenuByPath,
 	} = useSidebarStore();
@@ -56,7 +56,7 @@ export default function Sidebar() {
 		if (isMobile) closeSidebar();
 	}, [closeSidebar, currentPath, isMobile, setVisibleSubmenuByPath]);
 
-	const handleMenuHomeClick = () => closeAllSubmenus();
+	// const handleMenuHomeClick = () => closeAllSubmenus();
 
 	return (
 		<div className={`sidebar ${isOpen ? "collapsed" : ""} bg-white dark:bg-[#1b1b1f] w-[250px]`}>
@@ -76,16 +76,12 @@ export default function Sidebar() {
 					if (menu.key === "home") {
 						return (
 							<div className="menu-group" key={menu.key}>
-								<Link
-									onClick={handleMenuHomeClick}
-									to={menu.route ?? "/"}
-									className={`sidebar-link flex items-center hover:bg-[#e3e3e3] text-blue-900 dark:hover:bg-[#e3e3e3] dark:hover:text-black ${
+								<a href="/" className={`sidebar-link flex items-center hover:bg-[#e3e3e3] text-blue-900 dark:hover:bg-[#e3e3e3] dark:hover:text-black ${
 										currentPath === menu.route ? "bg-[#e3e3e3] dark:text-black" : "dark:text-white"
-									}`}
-								>
+									}`}>
 									<menu.icon size={20} />
 									<span className="pl-5">{t(menu.label)}</span>
-								</Link>
+								</a>
 							</div>
 						);
 					}
@@ -121,6 +117,12 @@ export default function Sidebar() {
 									{
 										countWaitApprovalSidebar?.countWaitResponseQuote > 0 && menu.key == "Purchase"
 											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countWaitResponseQuote})</span>
+											: <></>
+									}
+
+									{
+										countWaitApprovalSidebar?.countVoteIsOpen > 0 && menu.key == "Vote"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countVoteIsOpen})</span>
 											: <></>
 									}
 									
@@ -215,6 +217,11 @@ export default function Sidebar() {
 														{countWaitApprovalSidebar?.countWaitResponseQuote > 0 && child.route == "/purchase/list-item-wait-quote" && (
 															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
 																({countWaitApprovalSidebar?.countWaitResponseQuote})
+															</span>
+														)}
+														{countWaitApprovalSidebar?.countVoteIsOpen > 0 && child.route == "/vote" && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.countVoteIsOpen})
 															</span>
 														)}
 													</span>

@@ -257,7 +257,7 @@ export default function CreateOverTime() {
         userCode = userCode.trim()
 
         if (userCode == '') {
-            setRows(rows.map(row => row.id === index ? { ...row, userName: '', userCode: '' } : row));
+            setRows(rows.map(row => row.id === index ? { ...row, userName: '', userCode: '', position: '' } : row));
             lastUserCodesRef.current[index] = '';
             return
         }
@@ -271,7 +271,7 @@ export default function CreateOverTime() {
                 usercode: userCode
             });
             const result = fetchData?.data?.data
-            setRows(rows.map(row => row.id === index ? { ...row, userName: result?.NVHoTen } : row));
+            setRows(rows.map(row => row.id === index ? { ...row, userName: result?.NVHoTen, position: result?.Position } : row));
         }
         catch(err) {
             ShowToast(getErrorMessage(err), 'error')
