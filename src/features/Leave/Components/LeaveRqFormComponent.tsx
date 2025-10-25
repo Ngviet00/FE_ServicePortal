@@ -130,6 +130,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             setValue(`leaveRequests.${index}.name`, result?.NVHoTen, { shouldValidate: true });
             setValue(`leaveRequests.${index}.department`, result?.DepartmentName, { shouldValidate: true });
             setValue(`leaveRequests.${index}.departmentId`, result?.DepartmentId);
+            setValue(`leaveRequests.${index}.position`, result?.Position ?? '');
         }
         catch (err) {
             ShowToast(getErrorMessage(err), "error")

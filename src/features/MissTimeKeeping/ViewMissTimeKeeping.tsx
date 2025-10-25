@@ -4,8 +4,13 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { X } from "lucide-react"
-import missTimeKeepingApi from "@/api/missTimeKeepingApi"
+import missTimeKeepingApi, { useHrExportExcelMissTimeKeeping } from "@/api/missTimeKeepingApi"
 import { formatDate } from "@/lib/time"
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
+import { RoleEnum } from "@/lib"
+import useHasRole from "@/hooks/useHasRole"
+import useHasPermission from "@/hooks/useHasPermission"
 
 export default function ViewMissTimeKeeping() {
     const { t } = useTranslation('hr')
@@ -21,6 +26,14 @@ export default function ViewMissTimeKeeping() {
         },
         enabled: hasId,
     });
+    
+    const hrExportExcelMissTimeKeeping = useHrExportExcelMissTimeKeeping();
+    const handleExport = async () => {
+        await hrExportExcelMissTimeKeeping.mutateAsync(formData?.applicationForm?.id)
+    };
+
+    const hasPermissionHRMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
+    const isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR = useHasRole([RoleEnum.HR]) && hasPermissionHRMngLeaveRq
 
     if (hasId && isFormDataLoading) {
         return <div>{lang == 'vi' ? 'Loading' : 'Đang tải'}...</div>;
@@ -30,6 +43,18 @@ export default function ViewMissTimeKeeping() {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('miss_timekeeping.list.title_view')}</h3>
+                {
+                    isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && (
+                        <Button
+                            variant="outline"
+                            disabled={hrExportExcelMissTimeKeeping.isPending}
+                            onClick={handleExport}
+                            className="text-xs px-2 bg-blue-700 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                        >
+                            {hrExportExcelMissTimeKeeping.isPending ? <Spinner className="text-white" size="small"/> : (lang == 'vi' ? 'Xuất Excel' : 'Export excel')}
+                        </Button>
+                    )
+                }
             </div>
             <div className="text-left mb-6 border-gray-400 pt-2 w-[100%]">
                 <div className="flex mb-2">

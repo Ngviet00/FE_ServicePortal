@@ -18,7 +18,8 @@ interface GetManagementTimeKeepingRequest {
     keySearch?: string,
     team?: number | null,
     deptId?: number | null,
-    typePerson?: number | null
+    typePerson?: number | null,
+    isHrMngTimeKeeping?: boolean
 }
 
 export interface WorkingDay {

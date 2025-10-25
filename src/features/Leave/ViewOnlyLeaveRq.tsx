@@ -3,9 +3,14 @@ import HistoryApproval from "../Approval/Components/HistoryApproval"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
-import leaveRequestApi from "@/api/leaveRequestApi"
+import leaveRequestApi, { useHrExportExcelLeaveRequest } from "@/api/leaveRequestApi"
 import { formatDate } from "@/lib/time"
 import { X } from "lucide-react"
+import useHasPermission from "@/hooks/useHasPermission"
+import useHasRole from "@/hooks/useHasRole"
+import { RoleEnum } from "@/lib"
+import { Spinner } from "@/components/ui/spinner"
+import { Button } from "@/components/ui/button"
 
 const dict = {
     vi: {
@@ -54,6 +59,14 @@ const ViewOnlyLeaveRq = () => {
         enabled: hasId,
     });
 
+    const hrExportExcelLeaveRequest = useHrExportExcelLeaveRequest();
+    const handleExport = async () => {
+        await hrExportExcelLeaveRequest.mutateAsync(formData?.applicationForm?.id)
+    };
+
+    const hasPermissionHRMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
+    const isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR = useHasRole([RoleEnum.HR]) && hasPermissionHRMngLeaveRq; 
+
     if (hasId && isFormDataLoading) {
         return <div>{tLocal.loading}...</div>;
     }
@@ -62,6 +75,18 @@ const ViewOnlyLeaveRq = () => {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0 pb-2">{tApproval('detail_approval_leave_request.title')}</h3>
+                {
+                    isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && (
+                        <Button
+                            variant="outline"
+                            disabled={hrExportExcelLeaveRequest.isPending}
+                            onClick={handleExport}
+                            className="text-xs px-2 bg-blue-700 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                        >
+                            {hrExportExcelLeaveRequest.isPending ? <Spinner className="text-white" size="small"/> : (lang == 'vi' ? 'Xuất Excel' : 'Export excel')}
+                        </Button>
+                    )
+                }
             </div>
             <div className="text-left mb-6 border-gray-400 pt-2 w-[100%]">
                 {
