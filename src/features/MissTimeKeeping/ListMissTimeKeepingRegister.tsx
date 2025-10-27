@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
 import missTimeKeepingApi from "@/api/missTimeKeepingApi"
+import { Button } from "@/components/ui/button"
 
 export default function ListMissTimeKeepingRegister () {
     const { t } = useTranslation('hr')
@@ -91,6 +92,11 @@ export default function ListMissTimeKeepingRegister () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {t('miss_timekeeping.list_register.title')}
                 </h3>
+                <Button asChild className="w-full md:w-auto">
+                    <Link to="/miss-timekeeping/create">
+                        {lang == 'vi' ? 'Tạo đơn bù chấm công' : 'Create miss timekeeping'}
+                    </Link>
+                </Button>
             </div>
 
             <div className="mb-5 pb-3">
@@ -192,7 +198,7 @@ export default function ListMissTimeKeepingRegister () {
                                         <div key={idx} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/view/miss-timekeeping/${item?.id}`} className="text-blue-600 underline">
+                                                <Link to={`/view/miss-timekeeping/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>
@@ -216,7 +222,7 @@ export default function ListMissTimeKeepingRegister () {
                                                 {
                                                     item?.requestStatus?.id == 1 ? (
                                                         <>
-                                                            <Link to={`//miss-timekeeping/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
+                                                            <Link to={`/miss-timekeeping/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                                 {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                             </Link>
                                                             <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />

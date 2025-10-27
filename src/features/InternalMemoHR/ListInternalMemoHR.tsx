@@ -275,7 +275,7 @@ export default function ListInternalMemoHR () {
                                                 <>
                                                     <Link
                                                         to={`/internal-memo-hr/edit/${item?.code}`}
-                                                        className="bg-black text-white px-[10px] py-[2.5px] rounded-[3px] text-sm mr-2"
+                                                        className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm mr-1"
                                                     >
                                                         {lang == "vi" ? "Sửa" : "Edit"}
                                                     </Link>

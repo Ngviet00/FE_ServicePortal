@@ -103,38 +103,53 @@ const ApprovalHistory: React.FC = () => {
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('history_approval_processed.title')}</h3>
             </div>
 
-			<div className="flex mt-3 mb-5">
-				<div className='w-[12%]'>
-					<Label className="mb-2">{t('history_approval_processed.request_type')}</Label>
-					<select className="border p-1 rounded w-full cursor-pointer" value={requestType} onChange={(e) => handleOnChangeRequestType(e)}>
+			<div className="flex flex-wrap gap-3 mt-3 mb-5">
+				<div className="flex flex-col w-full sm:w-[48%] md:w-[200px]">
+					<Label className="mb-1 text-sm font-medium text-gray-700">
+						{t('history_approval_processed.request_type')}
+					</Label>
+					<select
+						className="border border-gray-300 rounded-md p-2 text-sm cursor-pointer focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
+						value={requestType}
+						onChange={(e) => handleOnChangeRequestType(e)}
+					>
 						<option value="">
-							{ lang == 'vi' ? 'Tất cả' : 'All' }
+							{lang == 'vi' ? 'Tất cả' : 'All'}
 						</option>
-						{
-							requestTypes.map((item: IRequestType, idx: number) => (
-								<option key={idx} value={item.id}>{lang == 'vi' ? item.name : item.nameE}</option>
-							))
-						}
+						{requestTypes.map((item: IRequestType, idx: number) => (
+							<option key={idx} value={item.id}>
+							{lang == 'vi' ? item.name : item.nameE}
+							</option>
+						))}
 					</select>
 				</div>
-				<div className="w-[12%] mx-5">
-					<Label className="mb-2">{t('history_approval_processed.status')}</Label>
-					<select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
-						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
-						{
-							Object.entries(STATUS_ENUM).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
-								.map(([key, value]) => (
-									<option key={value} value={value}>
-										{key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
-									</option>
-								))
-						}
+
+				<div className="flex flex-col w-full sm:w-[48%] md:w-[200px]">
+					<Label className="mb-1 text-sm font-medium text-gray-700">
+						{t('history_approval_processed.status')}
+					</Label>
+					<select
+						value={selectedStatus}
+						onChange={(e) => handleOnChangeStatus(e)}
+						className="border border-gray-300 rounded-md p-2 text-sm cursor-pointer focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
+					>
+						<option value="">{lang == 'vi' ? 'Tất cả' : 'All'}</option>
+						{Object.entries(STATUS_ENUM)
+							.filter(
+							([, value]) =>
+								typeof value === 'number' && [1, 2, 3, 5].includes(value)
+							)
+							.map(([key, value]) => (
+								<option key={value} value={value}>
+									{key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
+								</option>
+							))}
 					</select>
 				</div>
 			</div>
 
 			<div>
-				<div className="overflow-x-auto bg-white rounded border-gray-200">
+				<div className="overflow-x-auto bg-white rounded border-gray-200 hidden md:block">
 					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
@@ -196,6 +211,90 @@ const ApprovalHistory: React.FC = () => {
 							}
 						</tbody>
 					</table>
+				</div>
+				<div className="md:hidden space-y-3 mt-3">
+					{isPending ? (
+						Array.from({ length: 3 }).map((_, idx) => (
+							<div key={idx} className="border rounded-lg p-3 shadow-sm bg-white">
+								<Skeleton className="h-4 w-[80%] mb-2 bg-gray-300" />
+								<Skeleton className="h-4 w-[60%] mb-2 bg-gray-300" />
+								<Skeleton className="h-4 w-[50%] bg-gray-300" />
+							</div>
+						))
+					) : isError || ListHistoryApprovalsProcessed?.length == 0 ? (
+						<div className="text-center text-red-600 font-semibold">
+							{error?.message ?? tCommon('no_results')}
+						</div>
+					) : (
+						ListHistoryApprovalsProcessed.map((item: any, idx: number) => {
+							const reqStatusId = item?.requestStatusId;
+							return (
+								<div
+									key={idx}
+									className="border rounded-lg p-3 shadow-sm bg-white mb-3"
+								>
+									<div className="flex justify-between items-center">
+										<Link
+										to={GetUrlDetailWaitApproval(item)}
+										className="font-semibold text-blue-700 underline"
+										>
+										{item.code}
+										</Link>
+										<StatusLeaveRequest
+										status={
+											reqStatusId == STATUS_ENUM.ASSIGNED ||
+											reqStatusId == STATUS_ENUM.FINAL_APPROVAL
+											? STATUS_ENUM.IN_PROCESS
+											: reqStatusId
+										}
+										/>
+									</div>
+
+									<div className="text-sm text-gray-700 mt-2 space-y-1">
+										<p>
+											<span className="font-medium">
+												{t('history_approval_processed.request_type')}:{' '}
+											</span>
+											{lang == 'vi'
+												? item?.requestTypeName
+												: item?.requestTypeNameE}
+										</p>
+										<p>
+											<span className="font-medium">
+												{t('history_approval_processed.user_request')}:{' '}
+											</span>
+											{item?.userNameCreatedForm}
+										</p>
+
+										<p>
+											<span className="font-medium">
+												{t('history_approval_processed.approval_at')}:{' '}
+											</span>
+											{item?.actionAt
+												? formatDate(item?.actionAt, 'yyyy/MM/dd HH:mm')
+												: '--'}
+										</p>
+
+										<p>
+											<span className="font-medium">
+												{t('history_approval_processed.action')}:{' '}
+											</span>
+											{item?.action}
+										</p>
+									</div>
+
+									<div className="mt-3 flex justify-end">
+										<Link
+											to={GetUrlDetailWaitApproval(item)}
+											className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+										>
+											{lang == 'vi' ? 'Chi tiết' : 'Detail'}
+										</Link>
+									</div>
+								</div>
+							);
+						})
+					)}
 				</div>
 			</div>
 			{

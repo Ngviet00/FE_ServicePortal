@@ -250,7 +250,7 @@ export default function ListFormIT () {
                                 <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                     <div className="mb-1">
                                         <strong>{t('list.code')}: </strong>
-                                        <Link to={`/approval/view-form-it/${item?.id ?? '1'}`} className="text-blue-700 underline font-semibold">{item?.code ?? '--'}</Link>
+                                        <Link to={`/view/form-it/${item?.code ?? '1'}`} className="text-blue-700 underline font-semibold">{item?.code ?? '--'}</Link>
                                     </div>
                                     <div className="mb-1"><strong>{t('list.reason')}:</strong> {item?.reason}</div>
                                     <div className="mb-1"><strong>{t('list.user_requestor')}: </strong> {item?.createdBy ?? '--'}</div>

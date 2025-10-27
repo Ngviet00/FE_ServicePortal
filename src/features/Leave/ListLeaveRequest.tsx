@@ -59,11 +59,11 @@ export default function ListLeaveRequest () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
                 <h3 className="font-bold text-xl md:text-2xl m-0">
-                    Xin nghỉ phép của tôi
+                    {lang == 'vi' ? 'Đơn nghỉ phép của tôi' : 'My Leave Requests'}
                 </h3>
                 <Button asChild className="w-full md:w-auto">
-                    <Link to="/leave/leave-registered">
-                        Danh sách đơn nghỉ phép đã đăng ký
+                    <Link to="/leave/create">
+                        {lang == 'vi' ? 'Tạo đơn nghỉ phép' : 'Create leave request'}
                     </Link>
                 </Button>
             </div>
@@ -168,7 +168,7 @@ export default function ListLeaveRequest () {
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/leave/view/${item.leaveRequestId}`} className="text-blue-600 underline">
+                                                <Link to={`/view/leave-request/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

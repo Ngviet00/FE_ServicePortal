@@ -57,20 +57,29 @@ export default function ViewOverTime() {
                 }
             </div>
             <div className="text-left mb-6 border-gray-400 pt-2 w-[100%]">
-                <div className="flex mb-2">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-3 text-base">
                     <div>
-                        {t('overtime.list.unit')}: <strong>{formData?.applicationForm?.orgUnitCompany?.name}</strong>
+                        {t('overtime.list.unit')}:{" "}
+                        <strong>{formData?.applicationForm?.orgUnitCompany?.name}</strong>
                     </div>
-                     <div className="mx-10">
-                        {t('overtime.list.type_overtime')}: <strong>
-                            {lang == 'vi' ? formData?.applicationForm?.typeOverTime?.name : formData?.applicationForm?.typeOverTime?.nameE}
+
+                    <div>
+                        {t('overtime.list.type_overtime')}:{" "}
+                        <strong>
+                        {lang === 'vi'
+                            ? formData?.applicationForm?.typeOverTime?.name
+                            : formData?.applicationForm?.typeOverTime?.nameE}
                         </strong>
                     </div>
-                    <div className="mr-10">
-                        {t('overtime.list.date_register')}: <strong>{formatDate(formData?.applicationForm?.dateRegister ?? '', 'yyyy-MM-dd') }</strong>
-                    </div>
+
                     <div>
-                        {t('overtime.list.department')}: <strong>{formData?.applicationForm?.orgUnit?.name}</strong>
+                        {t('overtime.list.date_register')}:{" "}
+                        <strong>{formatDate(formData?.applicationForm?.dateRegister ?? '', 'yyyy-MM-dd')}</strong>
+                    </div>
+
+                    <div>
+                        {t('overtime.list.department')}:{" "}
+                        <strong>{formData?.applicationForm?.orgUnit?.name}</strong>
                     </div>
                 </div>
                 {

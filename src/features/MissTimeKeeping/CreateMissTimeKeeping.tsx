@@ -241,62 +241,89 @@ export default function CreateMissTimeKeeping() {
                         </h3>
                     </div>
                 </div>
-                <Button onClick={() => navigate("/miss-timekeeping")} className="w-full md:w-auto hover:cursor-pointer">
-                    { lang == 'vi' ? 'Danh sách bù chấm công của tôi' : 'My list miss timekeeping' }
-                </Button>
+                <div>
+                    <Button onClick={() => navigate("/miss-timekeeping")} className="w-full md:w-auto hover:cursor-pointer mr-1 mb-1">
+                        { lang == 'vi' ? 'Danh sách bù chấm công của tôi' : 'My Miss Timekeeping Request' }
+                    </Button>
+                    <Button onClick={() => navigate("/miss-timekeeping/registered")} className="w-full md:w-auto hover:cursor-pointer">
+                        { lang == 'vi' ? 'Danh sách bù chấm công đã đăng ký' : 'Registered Miss Timekeeping Requests' }
+                    </Button>
+                </div>
             </div>
-
-            <div className="flex items-end">
-                <div className="mb-3">
-                    <label className="block mb-2 font-semibold text-gray-700">{t('miss_timekeeping.list.department')} <DotRequireComponent/></label>
+            
+            <div className="flex flex-wrap items-end gap-3 mb-3">
+                <div className="w-full sm:w-auto">
+                    <label className="block mb-2 font-semibold text-gray-700">
+                        {t('miss_timekeeping.list.department')} <DotRequireComponent />
+                    </label>
                     <select
                         onChange={(e) => setDepartmentId(Number(e.target.value))}
-                        className="border cursor-pointer border-gray-300 rounded px-3 py-1"
+                        className="border cursor-pointer border-gray-300 rounded px-3 py-1 w-full sm:w-[220px]"
                         value={departmentId ?? ''}
                     >
-                        <option value="">--{lang == 'vi' ? 'Chọn' : 'Select'}--</option>
-                        {
-                            departments?.map((item: any, idx: number) => {
-                                return (
-                                    <option key={idx} value={item?.id ?? ''}>{item?.name}</option>
-                                )
-                            })
-                        }
+                        <option value="">
+                            --{lang === 'vi' ? 'Chọn' : 'Select'}--
+                        </option>
+                        {departments?.map((item: any, idx: number) => (
+                            <option key={idx} value={item?.id ?? ''}>
+                            {item?.name}
+                            </option>
+                        ))}
                     </select>
                 </div>
-                <div className="ml-5">
-                    <div className="flex space-x-2 mb-4">
-                        <button type="button" onClick={handleAddRow} className="px-2 py-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">{t('overtime.create.add')}</button>
-                        <button type="button" onClick={handleDeleteRows} className="px-2 py-1 bg-red-600 cursor-pointer text-white text-sm rounded hover:bg-red-600">{t('overtime.create.delete')}</button>
-                        {
-                            selectedIds.length == 0 ? (
-                                <>
-                                    {
-                                        isEdit ? (
-                                            <button type="button" disabled={updateMissTimeKeeping.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
-                                                {updateMissTimeKeeping.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.update')}
-                                            </button>
-                                        ) : (
-                                            <button type="button" disabled={createMissTimeKeeping.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
-                                                {createMissTimeKeeping.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.save')}
-                                            </button>
-                                        )
-                                    }
-                                </>
-                            ) : (<></>)
-                        }
-                    </div>
+
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        onClick={handleAddRow}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors hover:cursor-pointer"
+                    >
+                        {t('overtime.create.add')}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleDeleteRows}
+                        className="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors hover:cursor-pointer"
+                    >
+                        {t('overtime.create.delete')}
+                    </button>
+
+                    {selectedIds.length === 0 && (
+                        isEdit ? (
+                            <button
+                            type="button"
+                            disabled={updateMissTimeKeeping.isPending}
+                            onClick={handleSubmit}
+                            className="px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors disabled:opacity-70 hover:cursor-pointer"
+                            >
+                            {updateMissTimeKeeping.isPending
+                                ? <Spinner className="text-white" size="small" />
+                                : t('overtime.create.update')}
+                            </button>
+                        ) : (
+                            <button
+                            type="button"
+                            disabled={createMissTimeKeeping.isPending}
+                            onClick={handleSubmit}
+                            className="px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors disabled:opacity-70 hover:cursor-pointer"
+                            >
+                            {createMissTimeKeeping.isPending
+                                ? <Spinner className="text-white" size="small" />
+                                : t('overtime.create.save')}
+                            </button>
+                        )
+                    )}
                 </div>
             </div>
-
-            <div className="w-[100%]">
+            <div className="w-full">
                 <div className="bg-white">
                     {errorMsg && <div className="mb-4 text-red-600 font-semibold">{errorMsg}</div>}
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full table-fixed text-sm border border-gray-200 rounded-lg">
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        <table className="min-w-[1500px] table-fixed text-sm border border-gray-200 rounded-lg">
                             <thead className="bg-gray-100 rounded-t-lg">
                                 <tr>
-                                    <th className="px-4 py-2 border text-center w-[20px]" rowSpan={2}>
+                                    <th className="px-4 py-2 border text-center w-[40px]" rowSpan={2}>
                                         <input 
                                             type="checkbox" 
                                             className="scale-[1.2] hover:cursor-pointer"
@@ -310,22 +337,38 @@ export default function CreateMissTimeKeeping() {
                                             }}
                                         />
                                     </th>
-                                    <th rowSpan={2} className="px-4 py-2 border w-[70px]">{ t('miss_timekeeping.list.usercode')} <DotRequireComponent/></th>
-                                    <th rowSpan={2} className="px-4 py-2 border w-[200px]">{t('miss_timekeeping.list.username')} <DotRequireComponent/></th>
-                                    <th rowSpan={2} className="px-4 py-2 border w-[100px]">{t('miss_timekeeping.list.date')} <DotRequireComponent/></th>
-                                    <th rowSpan={2} className="px-4 py-2 border w-[80px]">{t('miss_timekeeping.list.shift')} <DotRequireComponent/></th>
-                                    <th colSpan={2} className="px-4 py-2 border">{t('miss_timekeeping.list.additional')}</th>
-                                    <th colSpan={2} className="px-4 py-2 border text-center w-[200px]">{t('miss_timekeeping.list.facial_recognition')}</th>
-                                    <th colSpan={2} className="px-4 py-2 border w-[130px]">{t('miss_timekeeping.list.gate')}</th>
-                                    <th rowSpan={2} className="px-4 py-2 border">{t('miss_timekeeping.list.reason')}</th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[120px] whitespace-nowrap">
+                                        {t('miss_timekeeping.list.usercode')} <DotRequireComponent/>
+                                    </th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[220px] whitespace-nowrap">
+                                        {t('miss_timekeeping.list.username')} <DotRequireComponent/>
+                                    </th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[120px] whitespace-nowrap">
+                                        {t('miss_timekeeping.list.date')} <DotRequireComponent/>
+                                    </th>
+                                    <th rowSpan={2} className="px-4 py-2 border w-[80px] whitespace-nowrap">
+                                        {t('miss_timekeeping.list.shift')} <DotRequireComponent/>
+                                    </th>
+                                    <th colSpan={2} className="px-4 py-2 border whitespace-nowrap">
+                                        {t('miss_timekeeping.list.additional')}
+                                    </th>
+                                    <th colSpan={2} className="px-4 py-2 border text-center w-[200px] whitespace-nowrap">
+                                        {t('miss_timekeeping.list.facial_recognition')}
+                                    </th>
+                                    <th colSpan={2} className="px-4 py-2 border w-[130px] whitespace-nowrap">
+                                        {t('miss_timekeeping.list.gate')}
+                                    </th>
+                                    <th rowSpan={2} className="px-4 py-2 border whitespace-nowrap">
+                                        {t('miss_timekeeping.list.reason')}
+                                    </th>
                                 </tr>
                                 <tr>
-                                    <th className="py-1 border-r w-[30px]">{t('miss_timekeeping.list.in')}</th>
-                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.out')}</th>
-                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.in')}</th>
-                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.out')}</th>
-                                    <th className="border-r w-[30px]">{t('miss_timekeeping.list.in')}</th>
-                                    <th className="w-[30px]">{t('miss_timekeeping.list.out')}</th>
+                                    <th className="py-1 border-r w-[60px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="border-r w-[60px]">{t('miss_timekeeping.list.out')}</th>
+                                    <th className="border-r w-[60px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="border-r w-[60px]">{t('miss_timekeeping.list.out')}</th>
+                                    <th className="border-r w-[60px]">{t('miss_timekeeping.list.in')}</th>
+                                    <th className="w-[60px]">{t('miss_timekeeping.list.out')}</th>
                                 </tr>
                             </thead>
 
@@ -340,17 +383,23 @@ export default function CreateMissTimeKeeping() {
                                                 onChange={() => toggleCheck(row.id)}
                                             />
                                         </td>
-                                        <td className="border px-2 py-2">
+
+                                        <td className="border px-2 py-2 whitespace-nowrap">
                                             <input
+                                                disabled={mode != 'create'}
                                                 type="text"
-                                                className={`border rounded px-2 py-1 ${errorFields[row.id]?.includes('userCode') ? 'border-red-500' : '' }`}
+                                                className={`border rounded px-2 py-1 w-full ${mode != 'create' ? 'bg-gray-50' : ''} ${errorFields[row.id]?.includes('userCode') ? 'border-red-500 bg-red-50' : '' }`}
                                                 value={row.userCode ?? ''}
                                                 onChange={(e) => updateRow(row.id, 'userCode', e.target.value)}
                                                 onBlur={(e) => handleFindUser(e.target.value, row.id)}
                                                 placeholder={t('miss_timekeeping.list.usercode')}
                                             />
                                         </td>
-                                        <td className={`border rounded px-2 py-1 text-center`}>{row.userName || '--'}</td> 
+
+                                        <td className="border px-2 py-2 text-center whitespace-nowrap">
+                                            {row.userName || '--'}
+                                        </td> 
+
                                         <td className="border px-2 py-2">
                                             <DateTimePicker
                                                 enableTime={false}
@@ -359,19 +408,16 @@ export default function CreateMissTimeKeeping() {
                                                 onChange={(_selectedDates, dateStr) => {
                                                     updateRow(row.id, 'dateRegister', dateStr)
                                                 }}
-                                                className={`dark:bg-[#454545] text-sm border border-gray-300 p-1.5 rounded-[3px] w-[120px]`}
+                                                className={`dark:bg-[#454545] text-sm border border-gray-300 p-1.5 rounded w-[120px]`}
                                             />
                                         </td>
                                         
                                         <td className="border px-2 py-2">
                                             <input
                                                 type="text"
-                                                className={`border rounded w-[50px] px-2 py-1 ${errorFields[row.id]?.includes('shift') ? 'border-red-500' : '' }`}
+                                                className={`border rounded w-[60px] px-2 py-1 ${errorFields[row.id]?.includes('shift') ? 'border-red-500 bg-red-50' : '' }`}
                                                 value={row.shift ?? ''}
-                                                onChange={(e) => {
-                                                    const val = e.target.value;
-                                                    updateRow(row.id, 'shift', val);
-                                                }}
+                                                onChange={(e) => updateRow(row.id, 'shift', e.target.value)}
                                                 placeholder={t('miss_timekeeping.list.shift')}
                                             />
                                         </td>
@@ -379,7 +425,7 @@ export default function CreateMissTimeKeeping() {
                                         <td className="border px-2 py-2 text-center">
                                             <input
                                                 type="text"
-                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('additionalIn') ? 'border-red-500' : '' }`}
+                                                className={`border rounded px-2 py-1 w-[70px] ${errorFields[row.id]?.includes('additionalIn') ? 'border-red-500 bg-red-50' : '' }`}
                                                 value={row.additionalIn}
                                                 onChange={(e) => {
                                                     const val = e.target.value;
@@ -389,7 +435,6 @@ export default function CreateMissTimeKeeping() {
                                                 }}
                                                 placeholder={t('miss_timekeeping.list.in')}
                                                 inputMode="numeric"
-                                                pattern="^\d{1,2}(:\d{1,2})?$"
                                             />
                                         </td>
 
@@ -406,7 +451,6 @@ export default function CreateMissTimeKeeping() {
                                                 }}
                                                 placeholder={t('miss_timekeeping.list.out')}
                                                 inputMode="numeric"
-                                                pattern="^\d{1,2}(:\d{1,2})?$"
                                             />
                                         </td>
 
@@ -423,7 +467,6 @@ export default function CreateMissTimeKeeping() {
                                                 }}
                                                 placeholder={t('miss_timekeeping.list.in')}
                                                 inputMode="numeric"
-                                                pattern="^\d{1,2}(:\d{1,2})?$"
                                             />
                                         </td>
 
@@ -440,9 +483,9 @@ export default function CreateMissTimeKeeping() {
                                                 }}
                                                 placeholder={t('miss_timekeeping.list.out')}
                                                 inputMode="numeric"
-                                                pattern="^\d{1,2}(:\d{1,2})?$"
                                             />
                                         </td>
+
                                         <td className="border px-2 py-2 text-center">
                                             <input
                                                 type="text"
@@ -456,7 +499,6 @@ export default function CreateMissTimeKeeping() {
                                                 }}
                                                 placeholder={t('miss_timekeeping.list.in')}
                                                 inputMode="numeric"
-                                                pattern="^\d{1,2}(:\d{1,2})?$"
                                             />
                                         </td>
 
@@ -473,7 +515,6 @@ export default function CreateMissTimeKeeping() {
                                                 }}
                                                 placeholder={t('miss_timekeeping.list.out')}
                                                 inputMode="numeric"
-                                                pattern="^\d{1,2}(:\d{1,2})?$"
                                             />
                                         </td>
                                         

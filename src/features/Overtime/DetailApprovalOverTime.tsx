@@ -152,29 +152,37 @@ export default function DetailApprovalOverTime() {
                             onClick={handleExport}
                             className="text-xs px-2 bg-blue-700 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
                         >
-                            {hrExportExcelOverTime.isPending ? <Spinner className="text-white" size="small"/> : 'Export excel'}
+                            {hrExportExcelOverTime.isPending ? <Spinner className="text-white" size="small"/> : lang == 'vi' ? 'Xuất excel' : 'Export excel' }
                         </Button>
                     )
                 }
             </div>
 
-            <div className="flex mb-3">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-3 text-base">
                 <div>
-                    {t('overtime.list.unit')}: <strong>{formData?.applicationForm?.orgUnitCompany?.name}</strong>
+                    {t('overtime.list.unit')}:{" "}
+                    <strong>{formData?.applicationForm?.orgUnitCompany?.name}</strong>
                 </div>
-                    <div className="mx-10">
-                    {t('overtime.list.type_overtime')}: <strong>
-                        {lang == 'vi' ? formData?.applicationForm?.typeOverTime?.name : formData?.applicationForm?.typeOverTime?.nameE}
+
+                <div>
+                    {t('overtime.list.type_overtime')}:{" "}
+                    <strong>
+                    {lang === 'vi'
+                        ? formData?.applicationForm?.typeOverTime?.name
+                        : formData?.applicationForm?.typeOverTime?.nameE}
                     </strong>
                 </div>
-                <div className="mr-10">
-                    {t('overtime.list.date_register')}: <strong>{formatDate(formData?.applicationForm?.dateRegister ?? '', 'yyyy-MM-dd') }</strong>
-                </div>
+
                 <div>
-                    {t('overtime.list.department')}: <strong>{formData?.applicationForm?.orgUnit?.name}</strong>
+                    {t('overtime.list.date_register')}:{" "}
+                    <strong>{formatDate(formData?.applicationForm?.dateRegister ?? '', 'yyyy-MM-dd')}</strong>
+                </div>
+
+                <div>
+                    {t('overtime.list.department')}:{" "}
+                    <strong>{formData?.applicationForm?.orgUnit?.name}</strong>
                 </div>
             </div>
-
             {
                 formData?.overTimes?.length > 1 && (
                     <div className="select-none flex items-center pl-1">
@@ -238,28 +246,36 @@ export default function DetailApprovalOverTime() {
                                             {t('overtime.list.note')}: <strong className="text-red-600">{item?.note ?? "--"}</strong>
                                         </span>
                                     </div>
-                                    {
-                                        isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && (
-                                            <div className="mt-2">
-                                                <label htmlFor={`note_of_hr_${idx}`} className="font-bold text-[13px]">{lang == 'vi' ? 'HR ghi chú' : 'HR Note'}: </label>
-                                                <input 
-                                                    required 
-                                                    type="text" 
-                                                    className="border px-2 py-1 w-[30%] rounded-[3px] text-[13px]" 
-                                                    id={`note_of_hr_${idx}`} 
-                                                    onChange={(e) => handleNoteChange(item.id, e.target.value)} 
-                                                    value={hrNotes[item.id] || ""}
-                                                />
-                                                <button
-                                                    disabled={hrNoteOverTime.isPending}
-                                                    onClick={() => handleHrNote(item.id)}
-                                                    className="ml-1 bg-green-400 hover:bg-green-500 p-1.5 rounded-[3px] text-[13px] cursor-pointer"
-                                                >
-                                                    {hrNoteOverTime.isPending ? <Spinner className="text-white" size="small"/> : lang == 'vi' ? 'Xác nhận' : 'Save'}
-                                                </button>
-                                            </div>
-                                        )
-                                    }
+                                    {isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && (
+                                        <div className="mt-1 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                                            <label
+                                                htmlFor={`note_of_hr_${idx}`}
+                                                className="font-bold text-[13px] mb-1 sm:mb-0 sm:w-auto"
+                                            >
+                                                {lang === 'vi' ? 'HR ghi chú' : 'HR Note'}:
+                                            </label>
+
+                                            <input
+                                                required
+                                                type="text"
+                                                id={`note_of_hr_${idx}`}
+                                                className="border px-2 py-1 w-full sm:w-[30%] rounded-[3px] text-[13px]"
+                                                onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                                                value={hrNotes[item.id] || ""}
+                                            />
+
+                                            <button
+                                                disabled={hrNoteOverTime.isPending}
+                                                onClick={() => handleHrNote(item.id)}
+                                                className="mt-2 sm:mt-0 sm:ml-1 bg-green-400 hover:bg-green-500 p-1.5 rounded-[3px] text-[13px] cursor-pointer disabled:opacity-50"
+                                            >
+                                                {hrNoteOverTime.isPending ? (
+                                                    <Spinner className="text-white" size="small" />
+                                                ) : lang === 'vi' ? 'Xác nhận' : 'Save'}
+                                            </button>
+                                        </div>
+                                    )}
+
                                 </div>
                             </div>
                         )

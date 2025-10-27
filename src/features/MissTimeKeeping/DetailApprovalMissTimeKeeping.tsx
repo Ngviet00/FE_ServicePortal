@@ -179,12 +179,12 @@ export default function DetailApprovalMissTimeKeeping() {
                                     </div>
                                     {
                                         isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && (
-                                            <div className="mt-2">
-                                                <label htmlFor={`note_of_hr_${idx}`} className="font-bold text-[13px]">{lang == 'vi' ? 'HR ghi chú' : 'HR Note'}: </label>
+                                            <div className="mt-1 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                                                <label htmlFor={`note_of_hr_${idx}`} className="font-bold text-[13px] mb-1 sm:mb-0 sm:w-auto">{lang == 'vi' ? 'HR ghi chú' : 'HR Note'}: </label>
                                                 <input 
                                                     required 
                                                     type="text" 
-                                                    className="border px-2 py-1 w-[30%] rounded-[3px] text-[13px]" 
+                                                    className="border px-2 py-1 w-full sm:w-[30%] rounded-[3px] text-[13px]" 
                                                     id={`note_of_hr_${idx}`} 
                                                     onChange={(e) => handleNoteChange(item.id, e.target.value)} 
                                                     value={hrNotes[item.id] || ""}
@@ -192,7 +192,7 @@ export default function DetailApprovalMissTimeKeeping() {
                                                 <button
                                                     disabled={hrNoteMissTimeKeeping.isPending}
                                                     onClick={() => handleHrNote(item.id)}
-                                                    className="ml-1 bg-green-400 hover:bg-green-500 p-1.5 rounded-[3px] text-[13px] cursor-pointer"
+                                                    className="mt-2 sm:mt-0 sm:ml-1 bg-green-400 hover:bg-green-500 p-1.5 rounded-[3px] text-[13px] cursor-pointer disabled:opacity-50"
                                                 >
                                                     {hrNoteMissTimeKeeping.isPending ? <Spinner className="text-white" size="small"/> : lang == 'vi' ? 'Xác nhận' : 'Save'}
                                                 </button>

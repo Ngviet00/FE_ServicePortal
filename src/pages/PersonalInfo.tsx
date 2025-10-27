@@ -71,7 +71,7 @@ export default function PersonalInfo () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">{lang == 'vi' ? 'Cập nhật thông tin cá nhân' : 'Update personal info'}</h3>
             </div>
             
-            <div className="w-[50%] mt-5">
+            <div className="w-full md:w-[80%] lg:w-[50%] mt-5">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
                         <FormField
@@ -110,7 +110,7 @@ export default function PersonalInfo () {
                             control={form.control}
                             name="dob"
                             render={({ field: rhfField, fieldState }) => (
-                                <FormItem className="flex flex-col w-[180px]">
+                                <FormItem className="flex flex-col w-full sm:w-[180px]">
                                     <FormLabel className="mb-1">{lang == 'vi' ? 'Ngày sinh' : 'Date of birth'} <DotRequireComponent/></FormLabel>
                                     <FormControl>
                                         <DateTimePicker
@@ -130,7 +130,10 @@ export default function PersonalInfo () {
                             )}
                         />
 
-                        <Button disabled={updatePersonalInfo.isPending} type="submit" className="hover:cursor-pointer w-[30%]">
+                        <Button 
+                            disabled={updatePersonalInfo.isPending} 
+                            type="submit" 
+                            className="hover:cursor-pointer w-full sm:w-[50%] md:w-[30%]">
                             {updatePersonalInfo.isPending ? <Spinner className="text-white" /> : 'Save'}
                         </Button>
                     </form>

@@ -210,26 +210,32 @@ const DetailWaitApprovalFormPurchase = () => {
 
                 {
                     isManagerPurchaseApproval && (
-                        <div className='mt-4'>
+                        <div className="mt-4">
                             <div className="form-group">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    {t('create.assigned')}<DotRequireComponent />
+                                    {t('create.assigned')} <DotRequireComponent />
                                 </label>
-                                <div className="flex flex-wrap gap-2 mt-2 max-w-[50%]">
-                                    {purchaseMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                            
-                                        return (
-                                            <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
+
+                                <div className="mt-2 flex flex-wrap gap-3 sm:max-w-[100%] lg:max-w-[70%]">
+                                    {purchaseMembers?.map(
+                                        (item: { nvMaNV: string; nvHoTen: string; email: string }, idx: number) => (
+                                            <label
+                                                key={idx}
+                                                className="w-full sm:w-[48%] flex items-center space-x-2 cursor-pointer"
+                                            >
                                                 <input
                                                     type="checkbox"
-                                                    checked={selectedUserAssigned.some(e => e.userCode == item.nvMaNV)}
+                                                    checked={selectedUserAssigned.some((e) => e.userCode == item.nvMaNV)}
                                                     value={item.nvMaNV}
-                                                    className="border-gray-300 scale-[1.4] accent-black"
+                                                    className="border-gray-300 scale-[1.2] accent-blue-600"
                                                     onChange={(e) => handleCheckboxChangeUserAssigned(e, item)}
                                                 />
-                                                <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
+                                                <span className="text-base">
+                                                    <strong>({item.nvMaNV})</strong> {item.nvHoTen}
+                                                </span>
                                             </label>
-                                        );
-                                    })}
+                                        )
+                                    )}
                                 </div>
                             </div>
                         </div>

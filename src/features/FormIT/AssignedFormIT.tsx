@@ -167,172 +167,242 @@ const AssignedFormIT = () => {
     return (
         <div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">{t('create.title')}</h3>
-                <Button onClick={() => navigate("/form-it")} className="w-full md:w-auto hover:cursor-pointer">
-                    Danh sách đã tạo
+                <h3 className="font-bold text-xl md:text-2xl m-0">{lang == 'vi' ? 'Chi tiết đơn IT' : 'Detail form IT'}</h3>
+                <Button
+                    onClick={() => navigate("/form-it")}
+                    className="w-full md:w-auto hover:cursor-pointer"
+                >
+                    {lang === "vi" ? "Danh sách đã tạo" : "Created list"}
                 </Button>
             </div>
 
-            {
-                formData?.applicationFormItem?.applicationForm?.reference?.code && (
-                    <div className='mb-4 mt-2 text-base text-black bg-orange-200 p-2 rounded'>
-                        <span>
-                            {lang == 'vi' ? 'Đơn IT này liên kết với đơn mua bán' : 'The IT order linked to purchase order'}: <Link className='text-purple-600 font-bold underline' to={`/view/purchase/${formData?.applicationFormItem?.applicationForm?.reference?.code}`}>{formData?.applicationFormItem?.applicationForm?.reference?.code}</Link> 
-                        </span>
-                    </div>
-                )
-            }
+            {formData?.applicationFormItem?.applicationForm?.reference?.code && (
+                <div className="mb-4 mt-2 text-base text-black bg-orange-200 p-2 rounded">
+                    <span>
+                    {lang == "vi"
+                        ? "Đơn IT này liên kết với đơn mua bán"
+                        : "The IT order linked to purchase order"}
+                    :{" "}
+                    <Link
+                        className="text-purple-600 font-bold underline"
+                        to={`/view/purchase/${formData?.applicationFormItem?.applicationForm?.reference?.code}`}
+                    >
+                        {formData?.applicationFormItem?.applicationForm?.reference?.code}
+                    </Link>
+                    </span>
+                </div>
+            )}
 
             <ModalConfirm
                 type={statusModalConfirm}
-                isOpen={statusModalConfirm != ''}
-                onClose={() => setStatusModalConfirm('')}
+                isOpen={statusModalConfirm != ""}
+                onClose={() => setStatusModalConfirm("")}
                 onSave={handleSaveModalConfirm}
             />
 
-            <div className="flex">
-                <div className="w-full max-w-3xl bg-white rounded-xl pl-0">
+            <div className="flex flex-col md:flex-row md:space-x-5">
+                <div className="w-full md:max-w-3xl bg-white rounded-xl">
                     <ITRequestForm
                         mode={mode}
-                        priorities={priorities} 
+                        priorities={priorities}
                         itCategories={ItCategories}
                         formData={initialFormData}
                     />
                 </div>
-                <div className='pl-5 border-l-1 ml-5 w-full'>
-                    <div className='w-full'>
-                        <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'>(Manager IT)</span></Label>
-                        <Textarea 
+
+                <div className="w-full mt-6 md:mt-0 md:pl-5 md:border-l border-gray-300">
+                    <div className="w-full mb-5">
+                        <Label className="mb-1">
+                            {t("create.note")}{" "}
+                            <span className="italic text-red-500">(Manager IT)</span>
+                        </Label>
+                        <Textarea
                             readOnly={true}
-                            placeholder={t('create.note')} 
-                            value={formData?.noteManagerIT} 
-                            className={`bg-gray-100 border-gray-300`}
+                            placeholder={t("create.note")}
+                            value={formData?.noteManagerIT}
+                            className="bg-gray-100 border-gray-300 w-full"
                         />
                     </div>
-                    <div className='w-full mt-5'>
-                        <Label className='mb-1'>{t('create.assigned')} </Label>
-                        <div className="flex flex-col gap-2 mt-2">
-                            {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                             
-                                const isExist = formData?.applicationFormItem?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
-                                if (isExist) {
-                                    return (
-                                        <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
-                                            <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
-                                        </label>
+
+                    <div className="w-full mb-5">
+                        <Label className="mb-1">{t("create.assigned")}</Label>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {ItMembers?.map(
+                                (
+                                    item: { nvMaNV: string; nvHoTen: string; email: string },
+                                    idx: number
+                                ) => {
+                                    const isExist =
+                                    formData?.applicationFormItem?.applicationForm?.assignedTasks?.some(
+                                        (e: { userCode: string }) => e.userCode === item.nvMaNV
                                     );
-                                }                                                        
-                            })}
+                                    if (isExist) {
+                                        return (
+                                            <label
+                                            key={idx}
+                                            className="w-full sm:w-[48%] flex items-center space-x-2 cursor-pointer"
+                                            >
+                                            <span>
+                                                <strong>({item.nvMaNV})</strong> {item.nvHoTen}
+                                            </span>
+                                            </label>
+                                        );
+                                    }
+                                }
+                            )}
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="form-group">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                {t('create.target_completion_date')}<DotRequireComponent />
+                                {t("create.target_completion_date")}
+                                <DotRequireComponent />
                             </label>
                             <DateTimePicker
-                                key={'target_date'}
+                                key={"target_date"}
                                 enableTime={false}
                                 dateFormat="Y-m-d"
-                                initialDateTime={targetDate ?? new Date().toISOString().split('T')[0]}
+                                initialDateTime={
+                                    targetDate ?? new Date().toISOString().split("T")[0]
+                                }
                                 onChange={(_selectedDates, dateStr) => setTargetDate(dateStr)}
-                                className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 ${!isAssigned ? 'bg-gray-100' : ''} p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 ${
+                                    !isAssigned ? "bg-gray-100" : ""
+                                } p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                             />
                         </div>
 
                         <div className="form-group">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                {t('create.actual_completion_date')}<DotRequireComponent />
+                                {t("create.actual_completion_date")}
+                                <DotRequireComponent />
                             </label>
-                            <DateTimePicker
-                                key={'actual_date'}
+                                <DateTimePicker
+                                key={"actual_date"}
                                 enableTime={false}
                                 dateFormat="Y-m-d"
-                                initialDateTime={actualDate ?? new Date().toISOString().split('T')[0]}
+                                initialDateTime={
+                                    actualDate ?? new Date().toISOString().split("T")[0]
+                                }
                                 onChange={(_selectedDates, dateStr) => setActualDate(dateStr)}
-                                className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 ${!isAssigned ? 'bg-gray-100' : ''} p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 ${
+                                    !isAssigned ? "bg-gray-100" : ""
+                                } p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                             />
                         </div>
                     </div>
-                    <div className='w-full mt-5'>
-                        <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'></span></Label>
-                        <Textarea 
-                            placeholder={t('create.note')} 
-                            value={note} 
-                            onChange={(e) => setNote(e.target.value)} 
-                            className={`border-gray-300`}
+
+                    <div className="w-full mt-5">
+                        <Label className="mb-1">{t("create.note")}</Label>
+                        <Textarea
+                            placeholder={t("create.note")}
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            className="border-gray-300 w-full"
                         />
                     </div>
-                    <div className='w-full mt-5'>
-                        {
-                            mode == 'assigned' ? (
-                                <>
-                                    <Label className='mb-1 text-red-700'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
-                                    <input
-                                        id="file-upload"
-                                        type="file"
-                                        multiple
-                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx"
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                    />
 
-                                    <div className="w-max mt-2">
-                                        <label
-                                            htmlFor="file-upload"
-                                            className="inline-block cursor-pointer w-auto text-sm rounded-md bg-blue-800 px-3 py-2 text-white text-center hover:bg-blue-900 transition select-none"
-                                        >
-                                            {lang == 'vi' ? 'Chọn file' : 'Choose file'}
-                                        </label>
-                                    </div>
+                    <div className="w-full mt-5">
+                        {mode === "assigned" ? (
+                            <>
+                            <Label className="mb-1 text-red-700">
+                                {lang == "vi"
+                                ? "Đính kèm file báo giá (nếu có)"
+                                : "Attach quotation file (if any)"}
+                            </Label>
+                            <input
+                                id="file-upload"
+                                type="file"
+                                multiple
+                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx"
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
 
-                                    <FileListPreview 
-                                        files={localFiles} 
-                                        uploadedFiles={uploadedFiles}
-                                        onRemove={(index) => {
-                                            const updated = [...localFiles];
-                                            updated.splice(index, 1);
-                                            setLocalFiles(updated);
-                                        }}
-                                        onRemoveUploaded={(index) => {
-                                            const removed = uploadedFiles[index];
-                                            const updated = [...uploadedFiles];
-                                            updated.splice(index, 1);
-                                            setUploadedFiles(updated);
-                                            setIdDeleteFile((prev) => [...prev, removed.id]);
-                                        }}
-                                    />
-                                </>
-                            ) : (
-                                <div>
-                                    <Label className='mb-1 text-red-700'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
-                                    <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles}/>
-                                </div>
-                            )
-                        }
-                    </div>
-                    <div className='flex gap-4 justify-end mt-4'>
-                        {
-                            formData?.applicationFormItem?.applicationForm?.reference?.requestStatusId != STATUS_ENUM.COMPLETED && (
-                                <Button
-                                    onClick={() => setStatusModalConfirm('reference')}
-                                    disabled={staffITReferenceToManagerIT.isPending}
-                                    type='submit'
-                                    className='px-6 py-2 bg-green-500 hover:bg-green-600 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
+                            <div className="mt-2">
+                                <label
+                                htmlFor="file-upload"
+                                className="inline-block cursor-pointer w-auto text-sm rounded-md bg-blue-800 px-3 py-2 text-white text-center hover:bg-blue-900 transition select-none"
                                 >
-                                    {staffITReferenceToManagerIT.isPending ? <Spinner size="small" className='text-white'/> : lang == 'vi' ? 'Yêu cầu đơn mua bán' : 'Request form purchase'}
-                                </Button>
-                            )
-                        }
+                                {lang == "vi" ? "Chọn file" : "Choose file"}
+                                </label>
+                            </div>
+
+                            <FileListPreview
+                                files={localFiles}
+                                uploadedFiles={uploadedFiles}
+                                onRemove={(index) => {
+                                const updated = [...localFiles];
+                                updated.splice(index, 1);
+                                setLocalFiles(updated);
+                                }}
+                                onRemoveUploaded={(index) => {
+                                const removed = uploadedFiles[index];
+                                const updated = [...uploadedFiles];
+                                updated.splice(index, 1);
+                                setUploadedFiles(updated);
+                                setIdDeleteFile((prev) => [...prev, removed.id]);
+                                }}
+                            />
+                            </>
+                        ) : (
+                            <div>
+                                <Label className="mb-1 text-red-700">
+                                    {lang == "vi"
+                                    ? "Đính kèm file báo giá (nếu có)"
+                                    : "Attach quotation file (if any)"}
+                                </Label>
+                                <FileListPreviewDownload
+                                    onDownload={(file) => handleDownloadFile(file)}
+                                    uploadedFiles={uploadedFiles}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 justify-end mt-5">
+                        {formData?.applicationFormItem?.applicationForm?.reference
+                            ?.requestStatusId != STATUS_ENUM.COMPLETED && (
+                            <Button
+                                onClick={() => setStatusModalConfirm("reference")}
+                                disabled={staffITReferenceToManagerIT.isPending}
+                                type="submit"
+                                className="px-6 py-2 bg-green-500 hover:bg-green-600 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer w-full sm:w-auto"
+                            >
+                                {staffITReferenceToManagerIT.isPending ? (
+                                    <Spinner size="small" className="text-white" />
+                                ) : lang == "vi" ? (
+                                    "Yêu cầu đơn mua bán"
+                                ) : (
+                                    "Request form purchase"
+                                )}
+                            </Button>
+                        )}
                         <Button
-                            onClick={() => setStatusModalConfirm('approval')}
+                            onClick={() => setStatusModalConfirm("approval")}
                             disabled={resolvedTask.isPending}
-                            type='submit'
-                            className='px-6 py-2 bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer'
+                            type="submit"
+                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 border border-transparent rounded-md text-sm font-medium text-white cursor-pointer w-full sm:w-auto"
                         >
-                            {resolvedTask.isPending ? <Spinner size="small" className='text-white'/> : lang == 'vi' ? 'Đã xử lý' : 'Resolved'}
+                            {resolvedTask.isPending ? (
+                            <Spinner size="small" className="text-white" />
+                            ) : lang == "vi" ? (
+                                "Đã xử lý"
+                            ) : (
+                                "Resolved"
+                            )}
                         </Button>
                     </div>
-                    <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
+
+                    <div className="mt-6">
+                        <HistoryApproval
+                            historyApplicationForm={
+                            formData?.applicationFormItem?.applicationForm
+                                ?.historyApplicationForms
+                            }
+                        />
+                    </div>
                 </div>
             </div>
         </div>

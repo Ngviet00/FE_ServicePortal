@@ -131,8 +131,8 @@ const DetailVote: React.FC = () => {
 	const handleVote = async (voteOptionId: number) => {
 		const today = new Date();
 		const isVotingAllowed =
-			new Date(today.toDateString()) >= new Date(new Date(voteDetail?.startDate).toDateString()) &&
-			new Date(today.toDateString()) <= new Date(new Date(voteDetail?.endDate).toDateString());
+			new Date(today.toDateString()) >= new Date(new Date(voteDetail?.vote?.StartDate).toDateString()) &&
+			new Date(today.toDateString()) <= new Date(new Date(voteDetail?.vote?.EndDate).toDateString());
 
 		if (isVotingAllowed == false) {
 			ShowToast(lang == 'vi' ? 'Cuộc bình chọn đã đóng, không thể bình chọn' : 'This poll is closed and voting is not allowed', 'error')

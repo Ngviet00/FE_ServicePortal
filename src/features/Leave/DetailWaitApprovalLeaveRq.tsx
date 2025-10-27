@@ -282,28 +282,33 @@ const DetailWaitApprovalLeaveRq = () => {
                                             {tLocal.reason}: <strong className="text-red-600">{item?.reason ?? "--"}</strong>
                                         </span>
                                     </div>
-                                    {
-                                        isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && (
-                                            <div className="mt-1">
-                                                <label htmlFor={`note_of_hr_${idx}`} className="font-bold text-[13px]">HR ghi chú: </label>
-                                                <input 
-                                                    required 
-                                                    type="text" 
-                                                    className="border px-2 py-1 w-[30%] rounded-[3px] text-[13px]" 
-                                                    id={`note_of_hr_${idx}`} 
-                                                    onChange={(e) => handleNoteChange(item.id, e.target.value)} 
-                                                    value={hrNotes[item.id] || ""}
-                                                />
-                                                <button
-                                                    disabled={hrNote.isPending}
-                                                    onClick={() => handleHrNote(item.id)}
-                                                    className="ml-1 bg-green-400 hover:bg-green-500 p-1.5 rounded-[3px] text-[13px] cursor-pointer"
+                                    {isHrAndHRPermissionMngLeaverqAndLeaveIsWaitHR && (
+                                        <div className="mt-1 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                                            <label
+                                                htmlFor={`note_of_hr_${idx}`}
+                                                className="font-bold text-[13px] mb-1 sm:mb-0 sm:w-auto"
+                                            >
+                                                {lang == 'vi' ? 'HR ghi chú' : 'Note of HR'}:
+                                            </label>
+
+                                            <input
+                                                required
+                                                type="text"
+                                                className="border px-2 py-1 w-full sm:w-[30%] rounded-[3px] text-[13px]"
+                                                id={`note_of_hr_${idx}`}
+                                                onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                                                value={hrNotes[item.id] || ""}
+                                            />
+
+                                            <button
+                                                disabled={hrNote.isPending}
+                                                onClick={() => handleHrNote(item.id)}
+                                                className="mt-2 sm:mt-0 sm:ml-1 bg-green-400 hover:bg-green-500 p-1.5 rounded-[3px] text-[13px] cursor-pointer disabled:opacity-50"
                                                 >
-                                                    Xác nhận
-                                                </button>
-                                            </div>
-                                        )
-                                    }
+                                                {lang === 'vi' ? 'Xác nhận' : 'Confirm'}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )

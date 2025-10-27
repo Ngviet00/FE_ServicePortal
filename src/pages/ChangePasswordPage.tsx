@@ -13,6 +13,7 @@ import DotRequireComponent from "@/components/DotRequireComponent";
 
 export default function ChangePasswordPage() {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [email, setEmail] = useState("")
     const [emailError, setEmailError] = useState('')
     const [newPassword, setNewPassword] = useState("")
@@ -162,6 +163,7 @@ export default function ChangePasswordPage() {
                                 {showConfirmPw ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
+                        <span className="text-gray-500 text-sm italic mt-2 inline-block">{lang == 'vi' ? 'Ví dụ' : 'Ex'}: Quan8386# | Hoang8888@ | Duc6789@</span>
                         <PasswordRequirementIndicator password={newPassword} />
                     </div>
                     <div>

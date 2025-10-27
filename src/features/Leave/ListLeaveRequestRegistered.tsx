@@ -21,6 +21,7 @@ import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
 import { IRequestStatus } from "@/api/itFormApi"
 import { IRequestType } from "@/api/requestTypeApi"
+import { Button } from "@/components/ui/button"
 
 interface GetMyLeaveRequestRegistered {
     id?: string,
@@ -98,8 +99,13 @@ export default function ListLeaveRequestRegistered () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
                 <h3 className="font-bold text-xl md:text-2xl m-0">
-                    Đơn đã đăng ký nghỉ phép
+                    { lang == 'vi' ? 'Danh sách đơn đã đăng ký' : 'Registered Leave Requests'}
                 </h3>
+                <Button asChild className="w-full md:w-auto">
+                    <Link to="/leave/create">
+                        {lang == 'vi' ? 'Tạo đơn nghỉ phép' : 'Create leave request'}
+                    </Link>
+                </Button>
             </div>
 
             <div className="mb-5 pb-3">
@@ -201,7 +207,7 @@ export default function ListLeaveRequestRegistered () {
                                         <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/leave/edit/${item?.id}`} className="text-blue-600 underline">
+                                                <Link to={`/leave/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

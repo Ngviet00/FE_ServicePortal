@@ -17,7 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { getVietnamTime } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ShowToast } from "@/lib";
 
 export const CreateVote: React.FC = () => {
@@ -189,11 +189,15 @@ export const CreateVote: React.FC = () => {
     }
 
     return (
-        <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="p-1 space-y-6"
-            >
-                <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t("create.title_page")}</h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-1 space-y-6 max-w-full">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-1">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+                    {t("create.title_page")}
+                </h2>
+            	<button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition hover:cursor-pointer">
+                    <Link to="/vote">{t("list.title")}</Link>
+				</button>
+			</div>
 
             <div className="space-y-2">
                 <Label htmlFor="title">{t("create.title")}</Label>
@@ -201,35 +205,40 @@ export const CreateVote: React.FC = () => {
                     id="title"
                     {...register("title")}
                     placeholder={t("create.title")}
-                    className={errors.title ? "border-red-500" : ""}
+                    className={`w-full ${errors.title ? "border-red-500" : ""}`}
                 />
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
             </div>
 
             <div className="space-y-2">
                 <Label htmlFor="note">{t("create.description")}</Label>
-                <Textarea id="note" {...register("note")} placeholder={t("create.description")} />
+                <Textarea
+                    id="note"
+                    {...register("note")}
+                    placeholder={t("create.description")}
+                    className="w-full min-h-[80px]"
+                />
             </div>
 
-            <div className="flex space-x-4">
-                <div className="space-y-2">
-                    <Label>{t("create.publish_date")}</Label>
-                    <Controller
-                        control={control}
-                        name="publishDate"
-                        render={({ field }) => (
-                            <DateTimePicker
-                                enableTime={true}
-                                dateFormat="Y-m-d"
-                                initialDateTime={field.value}
-                                onChange={(_s, dateStr) => field.onChange(dateStr)}
-                                className="dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2"
-                            />
-                        )}
-                    />
+            <div className="flex flex-col md:flex-row md:items-end md:space-x-6 gap-y-4">
+                <div className="flex-1 space-y-2">
+                <Label>{t("create.publish_date")}</Label>
+                <Controller
+                    control={control}
+                    name="publishDate"
+                    render={({ field }) => (
+                        <DateTimePicker
+                            enableTime={true}
+                            dateFormat="Y-m-d"
+                            initialDateTime={field.value}
+                            onChange={(_s, dateStr) => field.onChange(dateStr)}
+                            className="dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2 w-full"
+                        />
+                    )}
+                />
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex-1 space-y-2">
                     <Label>{t("create.date_range")}</Label>
                     <Controller
                         control={control}
@@ -238,15 +247,15 @@ export const CreateVote: React.FC = () => {
                         const from = field.value?.from;
                         const to = field.value?.to;
                         const key = from?.toISOString() + to?.toISOString();
-                        return (
-                            <DateRangePicker
-                                key={key}
-                                initialDateFrom={field.value.from}
-                                initialDateTo={field.value.to}
-                                onUpdate={({ range }) => field.onChange(range)}
-                                align="start"
-                                locale="vi-VN"
-                                showCompare={false}
+                            return (
+                                <DateRangePicker
+                                    key={key}
+                                    initialDateFrom={field.value.from}
+                                    initialDateTo={field.value.to}
+                                    onUpdate={({ range }) => field.onChange(range)}
+                                    align="start"
+                                    locale="vi-VN"
+                                    showCompare={false}
                                 />
                             );
                         }}
@@ -254,156 +263,185 @@ export const CreateVote: React.FC = () => {
                 </div>
             </div>
 
-            <div>
-                <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-800">{t("create.option")}</h3>
-                    <Button variant="outline" type="button" onClick={addOption} className="cursor-pointer">
-                        + {t("create.add_options")}
-                    </Button>
+            <div className="mt-6">
+                <div className="flex flex-wrap justify-between items-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-800">
+                    {t("create.option")}
+                </h3>
+                <Button
+                    variant="outline"
+                    type="button"
+                    onClick={addOption}
+                    className="cursor-pointer"
+                >
+                    + {t("create.add_options")}
+                </Button>
                 </div>
 
                 <div className="space-y-4 mt-3">
-                    {fields.map((field, idx) => (
-                        <div key={field.id} className="border rounded-lg p-4 bg-gray-50 transition">
-                            <div className="flex justify-between items-center mb-1">
-                                <Label className="font-semibold text-red-500 text-xl">
-                                {t("create.option")} #{idx + 1}
-                                </Label>
-                                {fields.length > 1 && (
-                                <Button variant="destructive" size="sm" type="button" onClick={() => removeOption(idx)} className="cursor-pointer">
-                                    <X />
-                                </Button>
-                                )}
-                            </div>
+                {fields.map((field, idx) => (
+                    <div
+                    key={field.id}
+                    className="border rounded-lg p-4 bg-gray-50 transition w-full"
+                    >
+                    <div className="flex justify-between items-center mb-2 flex-wrap gap-y-2">
+                        <Label className="font-semibold text-red-500 text-lg">
+                        {t("create.option")} #{idx + 1}
+                        </Label>
+                        {fields.length > 1 && (
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            type="button"
+                            onClick={() => removeOption(idx)}
+                            className="cursor-pointer"
+                        >
+                            <X />
+                        </Button>
+                        )}
+                    </div>
 
-                            <Input
-                                placeholder={t("create.title")}
-                                className={errors.options?.[idx]?.title ? "border-red-500" : ""}
-                                {...register(`options.${idx}.title` as const)}
+                    <Input
+                        placeholder={t("create.title")}
+                        className={`w-full ${errors.options?.[idx]?.title ? "border-red-500" : ""}`}
+                        {...register(`options.${idx}.title` as const)}
+                    />
+                    {errors.options?.[idx]?.title && (
+                        <p className="text-red-500 text-sm mt-1">
+                        {errors.options[idx]?.title?.message}
+                        </p>
+                    )}
+
+                    <div className="my-3">
+                        <Label className="mb-2">{t("create.description")}</Label>
+                        <Controller
+                        control={control}
+                        name={`options.${idx}.note` as const}
+                        render={({ field }) => (
+                            <QuillEditorCDN
+                            initialContent={field.value || ""}
+                            onChange={field.onChange}
+                            height={250}
                             />
-                            {errors.options?.[idx]?.title && (
-                                <p className="text-red-500 text-sm mt-1">{errors.options[idx]?.title?.message}</p>
-                            )}
+                        )}
+                        />
+                    </div>
 
-                            <div className="my-3">
-                                <Label className="mb-2">{t("create.description")}</Label>
-                                <Controller
-                                    control={control}
-                                    name={`options.${idx}.note` as const}
-                                    render={({ field }) => (
-                                        <QuillEditorCDN initialContent={field.value || ""} onChange={field.onChange} height={300} />
-                                    )}
+                    <div className="my-3">
+                        <Label className="mb-2">{t("create.img_option")}</Label>
+                        <Controller
+                        name={`options.${idx}.img` as const}
+                        control={control}
+                        render={({ field }) => {
+                            const imgs = field.value || [];
+                            const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                            const files = e.target.files;
+                            if (!files) return;
+                            field.onChange([...imgs, ...Array.from(files)]);
+                            };
+                            const handleRemoveFile = (i: number) => {
+                            field.onChange(imgs.filter((_, j) => j !== i));
+                            };
+
+                            return (
+                            <div>
+                                <Button
+                                type="button"
+                                variant="secondary"
+                                className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 mb-2 hover:cursor-pointer"
+                                onClick={() =>
+                                    document.getElementById(`file-upload-${idx}`)?.click()
+                                }
+                                >
+                                📸 {t("create.img_option")}
+                                </Button>
+                                <input
+                                id={`file-upload-${idx}`}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleFileChange}
+                                className="hidden"
                                 />
-                            </div>
 
-                            <div className="my-3">
-                                <Label className="mb-2">{t("create.img_option")}</Label>
-                                <Controller
-                                    name={`options.${idx}.img` as const}
-                                    control={control}
-                                    render={({ field }) => {
-                                        const imgs = field.value || [];
-                                        const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                                            const files = e.target.files;
-                                            if (!files) return;
-                                            field.onChange([...imgs, ...Array.from(files)]);
-                                        };
-                                        const handleRemoveFile = (i: number) => {
-                                            field.onChange(imgs.filter((_, j) => j !== i));
-                                        };
-
-                                        return (
-                                            <div>
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                    className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 mb-2 hover:cursor-pointer"
-                                                    onClick={() => document.getElementById(`file-upload-${idx}`)?.click()}
-                                                >
-                                                    📸 Image
-                                                </Button>
-                                                <input
-                                                    id={`file-upload-${idx}`}
-                                                    type="file"
-                                                    accept="image/*"
-                                                    multiple
-                                                    onChange={handleFileChange}
-                                                    className="hidden"
-                                                />
-
-                                                <div className="flex flex-wrap gap-2">
-                                                    {(watch(`options.${idx}.existingImgs`) ?? []).map((f: any, i: number) => (
-                                                        <div key={`server-${f.id}`} className="relative">
-                                                            <img
-                                                                src={`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`}
-                                                                alt={f.fileName}
-                                                                className="w-20 h-20 object-cover rounded-md border cursor-pointer"
-                                                                onClick={() =>
-                                                                setPreviewImage(`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`)
-                                                                }
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                const cur = watch(`options.${idx}.existingImgs`) || [];
-                                                                setValue(
-                                                                    `options.${idx}.existingImgs`,
-                                                                    cur.filter((_: any, j: number) => j !== i)
-                                                                );
-                                                                }}
-                                                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center cursor-pointer"
-                                                            >
-                                                                <X size={18} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                    {imgs.map((file: File, i: number) => {
-                                                        const url = URL.createObjectURL(file);
-                                                        return (
-                                                            <div key={i} className="relative">
-                                                                <img
-                                                                    src={url}
-                                                                    alt={file.name}
-                                                                    className="w-20 h-20 object-cover rounded-md border cursor-pointer"
-                                                                    onClick={() => setPreviewImage(url)}
-                                                                />
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleRemoveFile(i)}
-                                                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
-                                                                >
-                                                                    <X size={18} />
-                                                                </button>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
+                                {/* preview ảnh */}
+                                <div className="flex flex-wrap gap-2">
+                                {(watch(`options.${idx}.existingImgs`) ?? []).map((f: any, i: number) => (
+                                    <div key={`server-${f.id}`} className="relative">
+                                    <img
+                                        src={`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`}
+                                        alt={f.fileName}
+                                        className="w-20 h-20 object-cover rounded-md border cursor-pointer"
+                                        onClick={() =>
+                                        setPreviewImage(`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`)
+                                        }
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                        const cur = watch(`options.${idx}.existingImgs`) || [];
+                                        setValue(
+                                            `options.${idx}.existingImgs`,
+                                            cur.filter((_: any, j: number) => j !== i)
                                         );
-                                    }}
-                                />
+                                        }}
+                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center cursor-pointer"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                    </div>
+                                ))}
+                                {imgs.map((file: File, i: number) => {
+                                    const url = URL.createObjectURL(file);
+                                    return (
+                                    <div key={i} className="relative">
+                                        <img
+                                        src={url}
+                                        alt={file.name}
+                                        className="w-20 h-20 object-cover rounded-md border cursor-pointer"
+                                        onClick={() => setPreviewImage(url)}
+                                        />
+                                        <button
+                                        type="button"
+                                        onClick={() => handleRemoveFile(i)}
+                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                                        >
+                                        <X size={18} />
+                                        </button>
+                                    </div>
+                                    );
+                                })}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                            );
+                        }}
+                        />
+                    </div>
+                    </div>
+                ))}
                 </div>
             </div>
 
-            <div>
+            <div className="pt-3 flex justify-end">
                 <Button
-                    disabled={createVote.isPending || updateVote.isPending}
-                    type="submit"
-                    className="bg-primary text-white px-6 rounded-md cursor-pointer"
+                disabled={createVote.isPending || updateVote.isPending}
+                type="submit"
+                className="bg-primary text-white px-6 rounded-md cursor-pointer w-full md:w-auto"
                 >
-                    {createVote.isPending || updateVote.isPending ? <Spinner /> : t("create.save")}
+                {createVote.isPending || updateVote.isPending ? <Spinner /> : t("create.save")}
                 </Button>
             </div>
 
             {previewImage && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-                    onClick={() => setPreviewImage(null)}
+                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+                onClick={() => setPreviewImage(null)}
                 >
-                    <img src={previewImage} alt="preview" className="max-h-[90vh] max-w-[90vw] rounded-md shadow-lg" />
+                <img
+                    src={previewImage}
+                    alt="preview"
+                    className="max-h-[90vh] max-w-[90vw] rounded-md shadow-lg"
+                />
                 </div>
             )}
         </form>

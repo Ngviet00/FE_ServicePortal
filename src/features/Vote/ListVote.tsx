@@ -119,16 +119,16 @@ export default function ListVote() {
 				<table className="w-full text-sm text-left border-collapse">
 					<thead className="bg-gray-100 text-black">
 						<tr>
-							<th className="p-3 font-semibold border-b text-left w-[35%]">
+							<th className="p-3 font-semibold border-b text-left w-[35%] border-r">
 								{t("create.title")}
 							</th>
-							<th className="p-3 font-semibold border-b text-center w-[20%]">
+							<th className="p-3 font-semibold border-b text-center w-[20%] border-r">
 								{t("list.start_date")}
 							</th>
-							<th className="p-3 font-semibold border-b text-center w-[20%]">
+							<th className="p-3 font-semibold border-b text-center w-[20%] border-r">
 								{t("list.end_date")}
 							</th>
-							<th className="p-3 font-semibold border-b text-center w-[15%]">
+							<th className="p-3 font-semibold border-b text-center w-[15%] border-r">
 								{t("list.status")}
 							</th>
 							<th className="p-3 font-semibold border-b text-right w-[15%]">
@@ -164,12 +164,12 @@ export default function ListVote() {
 									key={idx}
 									className="hover:bg-gray-50 transition border-b last:border-b-0"
 								>
-									<td className="p-3 font-medium text-blue-600 truncate text-[15px]">
+									<td className="p-3 font-medium text-blue-600 truncate text-[15px] border-r">
                                         <Link className="underline" to={`/vote/${vote?.Id}`}>{vote?.Title}</Link>
 									</td>
-									<td className="p-3 text-black text-center">{formatDate(vote?.StartDate, 'yyyy-MM-dd')}</td>
-									<td className="p-3 text-black text-center">{formatDate(vote?.EndDate, 'yyyy-MM-dd')}</td>
-									<td className="p-3 text-center">
+									<td className="p-3 text-black text-center border-r">{formatDate(vote?.StartDate, 'yyyy-MM-dd')}</td>
+									<td className="p-3 text-black text-center border-r">{formatDate(vote?.EndDate, 'yyyy-MM-dd')}</td>
+									<td className="p-3 text-center border-r">
 										<span
 											className={`px-2 py-1 text-xs font-semibold rounded ${
 												vote.Status == 3

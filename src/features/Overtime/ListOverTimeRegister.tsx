@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label"
 import { IRequestStatus } from "@/api/itFormApi"
 import { IRequestType } from "@/api/requestTypeApi"
 import overTimeApi from "@/api/overTimeApi"
+import { Button } from "@/components/ui/button"
 
 interface GetMyLeaveRequestRegistered {
     id?: string,
@@ -103,6 +104,11 @@ export default function ListOverTimeRegister () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {t('overtime.list_register.title')}
                 </h3>
+                <Button asChild className="w-full md:w-auto">
+                    <Link to="/overtime/create">
+                        {t('overtime.create.title_create')}
+                    </Link>
+                </Button>
             </div>
 
             <div className="mb-5 pb-3">
@@ -204,7 +210,7 @@ export default function ListOverTimeRegister () {
                                         <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/view/overtime/${item?.id}`} className="text-blue-600 underline">
+                                                <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

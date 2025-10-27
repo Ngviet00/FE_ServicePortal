@@ -126,37 +126,44 @@ export default function Timekeeping () {
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('time_keeping.time_keeping')}</h3>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-                <label>{t('time_keeping.from')}</label>
-                <DateTimePicker
-                    enableTime={false}
-                    dateFormat="Y-m-d"
-                    initialDateTime={fromDate}
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    onChange={(_selectedDates, dateStr, _instance) => {
-                        handleFromDateChange(dateStr)
-                    }}
-                    className={`dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer`}
-                />
+            <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <label className="text-sm font-medium whitespace-nowrap">
+                        {t('time_keeping.from')}
+                    </label>
+                    <DateTimePicker
+                        enableTime={false}
+                        dateFormat="Y-m-d"
+                        initialDateTime={fromDate}
+                        onChange={(_selectedDates, dateStr) => handleFromDateChange(dateStr)}
+                        className="dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
+                    />
+                </div>
 
-                <div className="flex flex-wrap items-center gap-2 ml-4">
-                    <label>{t('time_keeping.to')}</label>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <label className="text-sm font-medium whitespace-nowrap">
+                        {t('time_keeping.to')}
+                    </label>
                     <DateTimePicker
                         enableTime={false}
                         dateFormat="Y-m-d"
                         initialDateTime={toDate}
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        onChange={(_selectedDates, dateStr, _instance) => {
-                            handleToDateChange(dateStr)
-                        }}
-                        className={`dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer`}
+                        onChange={(_selectedDates, dateStr) => handleToDateChange(dateStr)}
+                        className="dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
                     />
                 </div>
 
-                <Button className="w-full sm:w-auto mt-2 sm:mt-0 hover:cursor-pointer" onClick={handleSearch} disabled={btnLoading}>
-                    {btnLoading ? <Spinner className="text-white"/> : t('time_keeping.btn_search')}
-                </Button>
+                <div className="w-full sm:w-auto">
+                    <Button
+                        className="w-full sm:w-auto mt-1 sm:mt-0 hover:cursor-pointer"
+                        onClick={handleSearch}
+                        disabled={btnLoading}
+                    >
+                        {btnLoading ? <Spinner className="text-white" /> : t('time_keeping.btn_search')}
+                    </Button>
+                </div>
             </div>
+
             <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 gap-y-2 mt-4">
                 <span>{t('time_keeping.total_date_work')}: <span className="font-bold text-red-800">{totalWork}</span></span>
                 <span>{t('time_keeping.day_ot')}: <span className="font-bold text-red-800">{(otDay/60).toFixed(1)}</span></span>

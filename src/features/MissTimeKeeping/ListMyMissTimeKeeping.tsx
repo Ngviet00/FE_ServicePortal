@@ -56,8 +56,8 @@ export default function ListMyMissTimeKeeping () {
                     {t('miss_timekeeping.list.title')}
                 </h3>
                 <Button asChild className="w-full md:w-auto">
-                    <Link to="/miss-timekeeping/registered">
-                        {t('miss_timekeeping.list.button_link_page_register')}
+                    <Link to="/miss-timekeeping/create">
+                        {lang == 'vi' ? 'Tạo đơn bù chấm công' : 'Create miss timekeeping'}
                     </Link>
                 </Button>
             </div>
