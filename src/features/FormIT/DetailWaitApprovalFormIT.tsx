@@ -175,133 +175,171 @@ const DetailWaitApprovalFormIT = () => {
                 onSave={handleSaveModalConfirm}
             />
 
-            <div className="flex">
-                <div className="w-full max-w-3xl bg-white rounded-xl pl-0">
+            <div className="flex flex-col md:flex-row gap-6">
+                <div className="w-full md:w-[60%] bg-white rounded-xl p-2 md:p-1">
                     <ITRequestForm
                         mode={mode}
-                        priorities={priorities} 
+                        priorities={priorities}
                         itCategories={ItCategories}
                         formData={initialFormData}
                     />
                 </div>
-                <div className='pl-5 border-l-1 ml-5 w-full'>
-                    <div className="flex justify-end flex-col gap-4">
-                        <div className='flex-1'>
-                            <div className='w-full'>
-                                <Label className='mb-1'>{t('create.note')} <span className='italic text-red-500'>{isManagerITapproval ? '(Manager IT)' : ''}</span></Label>
-                                <Textarea 
-                                    placeholder={t('create.note')} 
-                                    value={note} 
-                                    onChange={(e) => setNote(e.target.value)} 
-                                    className={`border-gray-300`}
-                                />
+
+                <div className="w-full md:w-[40%] md:pl-5 md:border-l border-gray-200 flex flex-col gap-5">
+                    <div className="w-full">
+                        <Label className="mb-1">
+                            {t('create.note')}{" "}
+                            {isManagerITapproval && (
+                                <span className="italic text-red-500">(Manager IT)</span>
+                            )}
+                        </Label>
+                        <Textarea
+                            placeholder={t('create.note')}
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            className="border-gray-300 w-full"
+                        />
+                    </div>
+
+                    {isManagerITapproval &&
+                    formData?.applicationFormItem?.applicationForm?.assignedTasks?.length == 0 ? (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                                {t('create.assigned')}<DotRequireComponent />
+                            </label>
+                            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 mt-2">
+                                {ItMembers?.map((item: any, idx: number) => (
+                                    <label
+                                        key={idx}
+                                        className="flex items-center space-x-2 cursor-pointer w-full sm:w-[48%]"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedUserAssigned.some(
+                                                (e) => e.userCode == item.nvMaNV
+                                            )}
+                                            value={item.nvMaNV}
+                                            className="border-gray-300 scale-[1.4] accent-black"
+                                            onChange={(e) =>
+                                                handleCheckboxChangeUserAssigned(e, item)
+                                            }
+                                        />
+                                        <span>
+                                            <strong>({item.nvMaNV})</strong> {item.nvHoTen}
+                                        </span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
-                        {
-                            isManagerITapproval && formData?.applicationFormItem?.applicationForm?.assignedTasks?.length == 0 ? (
-                                <div>
-                                    <div className="form-group">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            {t('create.assigned')}<DotRequireComponent />
-                                        </label>
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                            
-                                                return (
-                                                    <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedUserAssigned.some(e => e.userCode == item.nvMaNV)}
-                                                            value={item.nvMaNV}
-                                                            className="border-gray-300 scale-[1.4] accent-black"
-                                                            onChange={(e) => handleCheckboxChangeUserAssigned(e, item)}
-                                                        />
-                                                        <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className='w-full'>
-                                    {
-                                        formData?.applicationFormItem?.applicationForm?.assignedTasks?.length > 0 && (
-                                            <>
-                                                <Label className='mb-1'>{t('create.assigned')} </Label>
-                                                <div className="flex flex-col gap-2 mt-2">
-                                                    {ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => {                                             
-                                                        const isExist = formData?.applicationFormItem?.applicationForm?.assignedTasks.some((e: { userCode: string; }) => e.userCode === item.nvMaNV)
-                                                        if (isExist) {
-                                                            return (
-                                                                <label key={idx} className="w-[48%] flex items-center space-x-2 cursor-pointer">
-                                                                    <span><strong>({item.nvMaNV})</strong> {item.nvHoTen}</span>
-                                                                </label>
-                                                            );
-                                                        }                                                        
-                                                    })}
-                                                </div>
-                                            </>
-                                        )
-                                    }
-                                </div>
-                            )
-                        }
-                        {
-                            formData?.applicationFormItem?.applicationForm?.files?.length > 0 ? (
-                                <div className=''>
-                                    <Label className='mb-2 text-red-700 inline-block'>{lang == 'vi' ? 'Đính kèm file báo giá (nếu có)' : 'Attach quotation file (if any) '}</Label>
-                                    <FileListPreviewDownload onDownload={(file) => {handleDownloadFile(file)}} uploadedFiles={uploadedFiles} isShowCheckbox={false}/>
-                                </div>
-                            ) : (
-                                <span></span>
-                            )
-                        }
-                        <div className='flex justify-end'>
-                            {
-                                formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.WAIT_CONFIRM ? (
-                                    <>
-                                        {
-                                            user?.userCode == formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm ? (
-                                                <div>
-                                                    <span className='text-sm text-red-700 underline'>{lang == 'vi' ? '(Đơn mua hàng liên kết với đơn IT)' : '(The purchase order will be linked to the IT order)'}</span>
-                                                    <Link to={`/purchase/create?applicationFormCode=${formData?.applicationFormItem?.applicationForm?.code}`} 
-                                                        className="px-4 py-2 ml-2 bg-orange-600 text-white rounded-[3px] shadow-lg hover:bg-orange-700 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer">
-                                                        {lang == 'vi' ? 'Tạo đơn mua bán' : 'Create Purchase Request'}
-                                                    </Link>
-                                                </div>
-                                            ) : (
-                                                <Button
-                                                    disabled={assignTask.isPending}
-                                                    onClick={() => setStatusModalConfirm('confirmed')}
-                                                    className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
+                    ) : (
+                        formData?.applicationFormItem?.applicationForm?.assignedTasks?.length > 0 && (
+                            <div className="w-full">
+                                <Label className="mb-1">{t('create.assigned')}</Label>
+                                <div className="flex flex-col gap-2 mt-2">
+                                    {ItMembers?.map((item: any, idx: number) => {
+                                        const isExist =
+                                            formData?.applicationFormItem?.applicationForm?.assignedTasks.some(
+                                                (e: any) => e.userCode === item.nvMaNV
+                                            );
+                                        if (isExist)
+                                            return (
+                                                <label
+                                                    key={idx}
+                                                    className="flex items-center space-x-2 cursor-pointer"
                                                 >
-                                                    {assignTask.isPending ? <Spinner size="small" className='text-white'/> : (lang == 'vi' ? 'Xác nhận' : 'Confirm')}
-                                                </Button>
-                                            )
-                                        }
-                                    </>
-                                ) : (
-                                    <>
-                                        <Button
-                                            disabled={assignTask.isPending}
-                                            onClick={() => setStatusModalConfirm('approval')}
-                                            className="px-4 py-2 mr-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer"
-                                        >
-                                            {assignTask.isPending ? <Spinner size="small" className='text-white'/> : tCommon('approval')}
-                                        </Button>
-                                        {
-                                            !isManagerITapproval && (
-                                                <Button onClick={() => setStatusModalConfirm('reject')} className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 hover:shadow-xl transform transition-all duration-200 text-base">
-                                                    {tCommon('reject')}
-                                                </Button>
-                                            )
-                                        }
-                                    </>
-                                )
-                            }
+                                                    <span>
+                                                        <strong>({item.nvMaNV})</strong> {item.nvHoTen}
+                                                    </span>
+                                                </label>
+                                            );
+                                    })}
+                                </div>
+                            </div>
+                        )
+                    )}
+
+                    {formData?.applicationFormItem?.applicationForm?.files?.length > 0 && (
+                        <div>
+                            <Label className="mb-2 text-red-700 inline-block">
+                                {lang == "vi"
+                                    ? "Đính kèm file báo giá (nếu có)"
+                                    : "Attach quotation file (if any)"}
+                            </Label>
+                            <FileListPreviewDownload
+                                onDownload={(file) => handleDownloadFile(file)}
+                                uploadedFiles={uploadedFiles}
+                                isShowCheckbox={false}
+                            />
                         </div>
-                        <HistoryApproval historyApplicationForm={formData?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row justify-end gap-2">
+                        {formData?.applicationFormItem?.applicationForm?.requestStatusId ==
+                        STATUS_ENUM.WAIT_CONFIRM ? (
+                            <>
+                                {user?.userCode ==
+                                formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm ? (
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center">
+                                        <span className="text-sm text-red-700 underline mb-2 sm:mb-0">
+                                            {lang == "vi"
+                                                ? "(Đơn mua hàng liên kết với đơn IT)"
+                                                : "(The purchase order will be linked to the IT order)"}
+                                        </span>
+                                        <Link
+                                            to={`/purchase/create?applicationFormCode=${formData?.applicationFormItem?.applicationForm?.code}`}
+                                            className="px-4 py-2 sm:ml-2 bg-orange-600 text-white rounded-[3px] shadow-lg hover:bg-orange-700 transition-all duration-200 text-base hover:cursor-pointer"
+                                        >
+                                            {lang == "vi"
+                                                ? "Tạo đơn mua bán"
+                                                : "Create Purchase Request"}
+                                        </Link>
+                                    </div>
+                                ) : (
+                                    <Button
+                                        disabled={assignTask.isPending}
+                                        onClick={() => setStatusModalConfirm("confirmed")}
+                                        className="px-4 py-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 transition-all duration-200 text-base hover:cursor-pointer"
+                                    >
+                                        {assignTask.isPending ? (
+                                            <Spinner size="small" className="text-white" />
+                                        ) : lang == "vi" ? (
+                                            "Xác nhận"
+                                        ) : (
+                                            "Confirm"
+                                        )}
+                                    </Button>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    disabled={assignTask.isPending}
+                                    onClick={() => setStatusModalConfirm("approval")}
+                                    className="px-4 py-2 bg-blue-700 text-white rounded-[3px] shadow-lg hover:bg-blue-800 transition-all duration-200 text-base hover:cursor-pointer"
+                                >
+                                    {assignTask.isPending ? (
+                                        <Spinner size="small" className="text-white" />
+                                    ) : (
+                                        tCommon("approval")
+                                    )}
+                                </Button>
+                                {!isManagerITapproval && (
+                                    <Button
+                                        onClick={() => setStatusModalConfirm("reject")}
+                                        className="px-4 py-2 bg-red-600 text-white rounded-[3px] shadow-lg hover:bg-red-700 transition-all duration-200 text-base"
+                                    >
+                                        {tCommon("reject")}
+                                    </Button>
+                                )}
+                            </>
+                        )}
                     </div>
+
+                    <HistoryApproval
+                        historyApplicationForm={
+                            formData?.applicationFormItem?.applicationForm?.historyApplicationForms
+                        }
+                    />
                 </div>
             </div>
         </div>

@@ -60,8 +60,9 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enabl
     return (
         <>
             <input
+                style={{border: '1px solid gray '}}
                 disabled={disabled}
-                className={`${className} pl-3 ${disabled ? 'hover:cursor-not-allowed' : ''} z-50`}
+                className={`${className} pl-3 ${disabled ? 'hover:cursor-not-allowed' : ''} z-50 border border-[#d1d5dc]`}
                 type="text"
                 id="dateTimePicker"
                 ref={inputRef}

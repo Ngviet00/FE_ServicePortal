@@ -155,7 +155,7 @@ export default function Sidebar() {
 
 										if (!isPurchase 
 												&& (
-													child.route == '/purchase/statistical' || child.route == '/purchase/list-item-wait-quote'
+													child.route == '/purchase/statistical'
 												))
 										{
 											return null

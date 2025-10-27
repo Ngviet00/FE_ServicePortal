@@ -27,8 +27,8 @@ export default function LeaveRequestFormForOthers() {
 
     const [selectedRadio, setSelectedRadio] = useState<string>("normal")
     const options: RadioOption[] = [
-        { label: lang == 'vi' ? 'Đăng ký thủ công' : 'Manual', value: "normal" },
-        { label: lang == 'vi' ? "Đăng ký bằng excel" : 'Excel', value: "excel" },
+        { label: lang == 'vi' ? 'Thủ công' : 'Manual', value: "normal" },
+        { label: lang == 'vi' ? 'Excel' : 'Excel', value: "excel" },
     ];
     
     const { id } = useParams<{ id: string }>();
@@ -89,7 +89,8 @@ export default function LeaveRequestFormForOthers() {
             }
             navigate("/leave/leave-registered");
         } catch (err) {
-            console.log(err);
+            console.error(err);
+            ShowToast(getErrorMessage(err), "error");
         }
     };
 
@@ -114,7 +115,7 @@ export default function LeaveRequestFormForOthers() {
         if (receiveEmail) {
             setCheckReceiveEmail(receiveEmail.value == "true")
         } else {
-            setCheckReceiveEmail(true);
+            setCheckReceiveEmail(true); 
         }
     }, [receiveEmail])
     
@@ -126,56 +127,55 @@ export default function LeaveRequestFormForOthers() {
                 value: checked ? "true" : "false",
             });
             setCheckReceiveEmail(checked)
-            ShowToast("Success")
+            ShowToast(lang == 'vi' ? "Cập nhật thành công" : "Success")
         } catch (error) {
             ShowToast(getErrorMessage(error), "error")
         }
     }
 
     const handleFormSubmitByExcel = async (file: File) => {
-        const formData = new FormData();
-
-        formData.append("EmailCreated", user?.email ?? '');
-        formData.append("OrgPositionId", String(user?.orgPositionId ?? '0'));
-        formData.append("UserCodeCreated", user?.userCode ?? '');
-        formData.append("UserNameCreated", user?.userName ?? '');
-        formData.append("file", file)
-
         try {
-            await createLeaveRequest.mutateAsync(formData);
-            navigate("/leave/leave-registered");
-            return true
+            const formData = new FormData();
 
-        } catch (err) {
-            ShowToast(getErrorMessage(err), "error")
-            return false
+            formData.append("EmailCreated", user?.email ?? '');
+            formData.append("OrgPositionId", String(user?.orgPositionId ?? '0'));
+            formData.append("UserCodeCreated", user?.userCode ?? '');
+            formData.append("UserNameCreated", user?.userName ?? '');
+            formData.append("file", file);
+
+            await createLeaveRequest.mutateAsync(formData);
+
+            return true;
+        } catch (error) {
+            console.error("Upload Excel error:", error);
+            return false;
         }
     };
 
     if (isEdit && isFormDataLoading) {
-        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
+        return <div className="p-4 text-center">{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
     }
 
     return (
-        <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-2">
-                <div className="flex flex-col gap-2">
-                    <div className="flex">
-                        <h3 className="font-bold text-xl md:text-2xl">
+        <div className="p-1 space-y-6 leave-request-form">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
+                <div className="flex flex-col gap-2 w-full md:w-auto"> 
+                    <div className="flex flex-wrap items-center">
+                        <h3 className="font-bold text-xl md:text-2xl mr-4">
                             <span>{ isEdit ? t('title_update') : t('sub_title') } </span>
                         </h3>
                         {
                             mode == 'create' && (
-                                <div className="flex items-center ml-5">
+                                <div className="flex items-center mt-2 md:mt-0">
                                     <Checkbox
                                         checked={checkReceiveEmail}
                                         onCheckedChange={(checked) => handleCheckChange(!!checked)}
                                         id="receive-mail"
-                                        className="w-[20px] h-[20px] md:w-[25px] md:h-[25px] hover:cursor-pointer"
+                                        className="w-5 h-5 md:w-6 md:h-6 hover:cursor-pointer"
                                     />
                                     <label
                                         htmlFor="receive-mail"
-                                        className="ml-2 text-sm md:text-base font-medium leading-none hover:cursor-pointer"
+                                        className="ml-2 text-sm md:text-base font-medium leading-tight hover:cursor-pointer"
                                     >
                                         {lang == 'vi' ? 'Nhận thông báo qua email' : 'Receive notifications via email'}
                                     </label>
@@ -185,23 +185,34 @@ export default function LeaveRequestFormForOthers() {
                     </div>
                 </div>
 
-                <Button onClick={() => navigate("/leave")} className="w-full md:w-auto hover:cursor-pointer">
-                    { lang == 'vi' ? 'Đơn nghỉ phép của tôi' : 'My leave application'  }
-                </Button>
+                <div>
+                    <Button 
+                        onClick={() => navigate("/leave")} 
+                        className="w-full md:w-auto hover:cursor-pointer mr-1 mb-1"
+                    >
+                        { lang == 'vi' ? 'Đơn nghỉ phép của tôi' : 'My Leave Requests'}
+                    </Button>
+                    <Button 
+                        onClick={() => navigate("/leave/leave-registered")} 
+                        className="w-full md:w-auto hover:cursor-pointer"
+                    >
+                        { lang == 'vi' ? 'Danh sách đơn đã đăng ký' : 'Registered Leave Requests'}
+                    </Button>
+                </div>
+
             </div>
             
             {
                 mode == 'create' && (
-                    <div className="flex flex-col md:flex-row md:items-start gap-2">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-1"> 
                         <RadioGroup
                             label={lang == 'vi' ? 'Chọn loại đăng ký' : 'Select type register'}
                             options={options}
                             value={selectedRadio}
                             onChange={setSelectedRadio}
                         />
-
-                        <div className="md:ml-3">
-                            <div className="bg-red-400 p-1 text-sm text-white rounded-[3px] w-full md:w-auto">
+                        <div className="mt-2 lg:mt-0 lg:ml-4"> 
+                            <div className="bg-red-400 p-2 text-sm text-white rounded-[3px] w-full lg:w-auto">
                                 ** {
                                     lang == 'vi'
                                         ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ'
@@ -214,7 +225,7 @@ export default function LeaveRequestFormForOthers() {
             }
             {
                 selectedRadio == "normal" ? (
-                    <div className="w-[100%]">
+                    <div> 
                         <LeaveRqFormComponent 
                             mode={mode}
                             formData={initialFormData}

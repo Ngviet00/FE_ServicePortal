@@ -176,7 +176,7 @@ function App() {
 		{ path: "/purchase/all-form-purchase", element: <AllFormPurchase />, }, //allowedRoles: [RoleEnum.PURCHASING]
 		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />},
 		{ path: "/purchase/response-quote-purchase/:id", element: <AssignedFormPurchase />},
-		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />, allowedRoles: [RoleEnum.PURCHASING]},
+		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />},
 
 		//vote
 		{ path: "/vote/create", element: <CreateVote />, allowedRoles: [RoleEnum.UNION] },

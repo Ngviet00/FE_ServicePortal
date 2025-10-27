@@ -34,6 +34,23 @@ export default function LoginPage() {
         }
     };
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const input = e.target.value;
+        if (showPassword) {
+            setPassword(input);
+        } else {
+            const prev = password;
+            if (input.length < prev.length) {
+                setPassword(prev.slice(0, -1));
+            } else {
+                const newChar = input[input.length - 1];
+                setPassword(prev + newChar);
+            }
+        }
+    };
+
+    const displayValue = showPassword ? password : "•".repeat(password.length);
+
     return (
         <div className="flex min-h-full flex-1 flex-col justify-start h-[100vh] py-12 lg:px-8 bg-white login-page">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -56,6 +73,7 @@ export default function LoginPage() {
                         </label>
                         <div className="mt-2">
                             <input
+                                placeholder="..."
                                 autoFocus
                                 id="usercode"
                                 name="usercode"
@@ -76,14 +94,15 @@ export default function LoginPage() {
                         </div>
                         <div className="mt-2 relative">
                             <input
+                                placeholder="..."
                                 id="password"
                                 name="password"
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                type="text"
+                                value={displayValue}
+                                onChange={handleChange}
                                 required
-                                autoComplete="current-password"
-                                className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
+                                autoComplete="off"
+                                className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6 password-fix"
                             />
                             <button
                                 type="button"

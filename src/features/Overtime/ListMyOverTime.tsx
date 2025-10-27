@@ -64,8 +64,8 @@ export default function ListMyOverTime () {
                     {t('overtime.list.title')}
                 </h3>
                 <Button asChild className="w-full md:w-auto">
-                    <Link to="/overtime/overtime-registered">
-                        {t('overtime.list.button_link_page_register')}
+                    <Link to="/overtime/create">
+                        {t('overtime.create.title_create')}
                     </Link>
                 </Button>
             </div>

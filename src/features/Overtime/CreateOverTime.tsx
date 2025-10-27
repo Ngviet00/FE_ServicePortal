@@ -33,8 +33,8 @@ export default function CreateOverTime() {
     
     const [selectedRadio, setSelectedRadio] = useState<string>("normal")
     const options: RadioOption[] = [
-        { label: lang == 'vi' ? 'Đăng ký thủ công' : 'Manual', value: "normal" },
-        { label: lang == 'vi' ? "Đăng ký bằng excel" : 'Excel', value: "excel" },
+        { label: lang == 'vi' ? 'Thủ công' : 'Manual', value: "normal" },
+        { label: lang == 'vi' ? 'Excel' : 'Excel', value: "excel" },
     ];
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     
@@ -328,9 +328,14 @@ export default function CreateOverTime() {
                         </h3>
                     </div>
                 </div>
-                <Button onClick={() => navigate("/overtime")} className="w-full md:w-auto hover:cursor-pointer">
-                    { lang == 'vi' ? 'Danh sách tăng ca của tôi' : 'My list overtime' }
-                </Button>
+                <div>
+                    <Button onClick={() => navigate("/overtime")} className="w-full md:w-auto hover:cursor-pointer mr-1 mb-1">
+                        { lang == 'vi' ? 'Đơn tăng ca của tôi' : 'My Overtime Requests' }
+                    </Button>
+                    <Button onClick={() => navigate("/overtime/overtime-registered")} className="w-full md:w-auto hover:cursor-pointer">
+                        { lang == 'vi' ? 'Danh sách đơn tăng ca đã đăng ký' : 'Registered Overtime Requests' }
+                    </Button>
+                </div>
             </div>
             {
                 mode == 'create' && (
@@ -385,7 +390,7 @@ export default function CreateOverTime() {
                     </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row md:space-x-8 items-start mt-4 md:mt-0">
+                <div className="flex flex-col md:flex-row md:space-x-8 items-start md:mt-0">
                     <div className="mb-4 md:mb-0">
                         <label className="block mb-2 font-semibold text-gray-700">{t('overtime.list.date_register')} <DotRequireComponent/></label>
                         <DateTimePicker
@@ -420,22 +425,22 @@ export default function CreateOverTime() {
             </div>
             {
                 selectedRadio == "normal" ? (
-                    <div className="w-[100%]">
+                    <div className="w-[100%] mt-3">
                         <div className="bg-white">
                             {errorMsg && <div className="mb-4 text-red-600 font-semibold">{errorMsg}</div>}
                             <div className="flex space-x-2 mb-4">
-                                <button type="button" onClick={handleAddRow} className="px-2 py-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">{t('overtime.create.add')}</button>
-                                <button type="button" onClick={handleDeleteRows} className="px-2 py-1 bg-red-600 cursor-pointer text-white text-sm rounded hover:bg-red-600">{t('overtime.create.delete')}</button>
+                                <button type="button" onClick={handleAddRow} className="px-4 py-2 mb-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">{t('overtime.create.add')}</button>
+                                <button type="button" onClick={handleDeleteRows} className="px-4 py-2 mb-1 bg-red-600 cursor-pointer text-white text-sm rounded hover:bg-red-600">{t('overtime.create.delete')}</button>
                                 {
                                     selectedIds.length == 0 ? (
                                         <>
                                             {
                                                 isEdit ? (
-                                                    <button type="button" disabled={updateOverTime.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                                                    <button type="button" disabled={updateOverTime.isPending} onClick={handleSubmit} className="px-4 py-2 mb-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
                                                         {updateOverTime.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.update')}
                                                     </button>
                                                 ) : (
-                                                    <button type="button" disabled={createOverTime.isPending} onClick={handleSubmit} className="px-2 py-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                                                    <button type="button" disabled={createOverTime.isPending} onClick={handleSubmit} className="px-4 py-2 mb-1 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
                                                         {createOverTime.isPending ? <Spinner className="text-white" size="small"/> : t('overtime.create.save')}
                                                     </button>
                                                 )
@@ -445,112 +450,119 @@ export default function CreateOverTime() {
                                 }
                             </div>
                             
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full text-sm border border-gray-200 rounded-lg">
-                                    <thead className="bg-gray-100 rounded-t-lg">
-                                        <tr>
+                            <div className="w-full overflow-x-auto">
+                                <div className="min-w-[900px]">
+                                    <table className="w-full text-sm border border-gray-200 rounded-lg">
+                                        <thead className="bg-gray-100">
+                                            <tr>
                                             <th className="px-4 py-2 border w-12 text-center">
                                                 <input 
                                                     type="checkbox" 
                                                     className="scale-[1.2] hover:cursor-pointer"
                                                     checked={rows.length > 0 && rows.every((row) => selectedIds.includes(row.id))}
-										            onChange={(e) => {
+                                                    onChange={(e) => {
                                                         if (e.target.checked) {
-                                                            setSelectedIds(rows.map((row) => row.id))
+                                                        setSelectedIds(rows.map((row) => row.id))
                                                         } else {
-                                                            setSelectedIds([]);
+                                                        setSelectedIds([]);
                                                         }
                                                     }}
                                                 />
                                             </th>
-                                            <th className="px-4 py-2 border">{ t('overtime.list.usercode')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-[350px]">{t('overtime.list.username')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border">{t('overtime.list.position')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40">{t('overtime.list.from_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40">{t('overtime.list.to_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-40 text-center">{t('overtime.list.number_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border">{t('overtime.list.note')}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row) => (
-                                            <tr key={row.id} className="hover:bg-gray-50">
-                                                <td className="border px-2 py-2 text-center">
-                                                    <input
-                                                        className="scale-[1.2] hover:cursor-pointer"
-                                                        type="checkbox"
-                                                        checked={selectedIds.includes(row.id)}
-                                                        onChange={() => toggleCheck(row.id)}
-                                                    />
-                                                </td>
-                                                <td className="border px-2 py-2">
+                                            <th className="px-4 py-2 border min-w-[120px]">{t('overtime.list.usercode')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border min-w-[200px]">{t('overtime.list.username')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border min-w-[180px]">{t('overtime.list.position')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border min-w-[130px]">{t('overtime.list.from_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border min-w-[130px]">{t('overtime.list.to_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border min-w-[120px] text-center">{t('overtime.list.number_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border min-w-[200px]">{t('overtime.list.note')}</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {rows.map((row) => (
+                                                <tr key={row.id} className="hover:bg-gray-50">
+                                                    <td className="border px-2 py-2 text-center">
+                                                        <input
+                                                            className="scale-[1.2] hover:cursor-pointer"
+                                                            type="checkbox"
+                                                            checked={selectedIds.includes(row.id)}
+                                                            onChange={() => toggleCheck(row.id)}
+                                                        />
+                                                    </td>
+                                                    <td className="border px-2 py-2">
+                                                        <input
+                                                            disabled={mode != 'create'}
+                                                            type="text"
+                                                            className={`border rounded px-2 py-1 w-full ${mode != 'create' ? 'bg-gray-50' : ''} ${
+                                                            errorFields[row.id]?.includes('userCode') ? 'border-red-500 bg-red-50' : ''
+                                                            }`}
+                                                            value={row.userCode ?? ''}
+                                                            onChange={(e) => updateRow(row.id, 'userCode', e.target.value)}
+                                                            onBlur={(e) => handleFindUser(e.target.value, row.id)}
+                                                            placeholder={t('overtime.list.usercode')}
+                                                        />
+                                                    </td>
+                                                    <td className="border px-2 py-2 text-center">{row.userName || '--'}</td>
+                                                    <td className="border px-2 py-2">
                                                     <input
                                                         type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('userCode') ? 'border-red-500' : '' }`}
-                                                        value={row.userCode ?? ''}
-                                                        onChange={(e) => updateRow(row.id, 'userCode', e.target.value)}
-                                                        onBlur={(e) => handleFindUser(e.target.value, row.id)}
-                                                        placeholder={t('overtime.list.usercode')}
-                                                    />
-                                                </td>
-                                                <td className={`border rounded px-2 py-1 text-center`}>{row.userName || '--'}</td> 
-                                                <td className="border px-2 py-2">
-                                                    <input
-                                                        type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('position') ? 'border-red-500' : '' }`}
+                                                        className={`border rounded px-2 py-1 w-full ${
+                                                        errorFields[row.id]?.includes('position') ? 'border-red-500 bg-red-50' : ''
+                                                        }`}
                                                         value={row.position}
                                                         onChange={(e) => updateRow(row.id, 'position', e.target.value)}
                                                         placeholder={t('overtime.list.position')}
                                                     />
-                                                </td>
-                                                
-                                                <td className="border px-2 py-2">
+                                                    </td>
+                                                    <td className="border px-2 py-2">
                                                     <input
                                                         type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('fromHour') ? 'border-red-500' : '' }`}
+                                                        className={`border rounded px-2 py-1 w-full ${
+                                                        errorFields[row.id]?.includes('fromHour') ? 'border-red-500 bg-red-50' : ''
+                                                        }`}
                                                         value={row.fromHour}
                                                         onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
-                                                                updateRow(row.id, 'fromHour', val);
-                                                                calculatorNumberHour(row.id, val, row.toHour);
-                                                            }
+                                                        const val = e.target.value;
+                                                        if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                            updateRow(row.id, 'fromHour', val);
+                                                            calculatorNumberHour(row.id, val, row.toHour);
+                                                        }
                                                         }}
                                                         placeholder={t('overtime.list.from_hour')}
                                                         inputMode="numeric"
-                                                        pattern="^\d{1,2}(:\d{1,2})?$"
                                                     />
-                                                </td>
-                                                
-                                                <td className="border px-2 py-2">
+                                                    </td>
+                                                    <td className="border px-2 py-2">
                                                     <input
                                                         type="text"
-                                                        className={`border rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('toHour') ? 'border-red-500' : '' }`}
+                                                        className={`border rounded px-2 py-1 w-full ${
+                                                        errorFields[row.id]?.includes('toHour') ? 'border-red-500 bg-red-50' : ''
+                                                        }`}
                                                         value={row.toHour}
                                                         onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
-                                                                updateRow(row.id, 'toHour', val);
-                                                                calculatorNumberHour(row.id, row.fromHour, val);
-                                                            }
+                                                        const val = e.target.value;
+                                                        if (/^(?:\d{0,2})(?::\d{0,2})?$/.test(val)) {
+                                                            updateRow(row.id, 'toHour', val);
+                                                            calculatorNumberHour(row.id, row.fromHour, val);
+                                                        }
                                                         }}
                                                         placeholder={t('overtime.list.to_hour')}
                                                         inputMode="numeric"
-                                                        pattern="^\d{1,2}(:\d{1,2})?$"
                                                     />
-                                                </td>
-                                            
-                                                <td className="border px-2 py-2 text-center">
+                                                    </td>
+                                                    <td className="border px-2 py-2 text-center">
                                                     <input
-                                                        readOnly={true}
+                                                        readOnly
                                                         type="text"
-                                                        className={`border bg-gray-100 rounded px-2 py-1 w-full ${errorFields[row.id]?.includes('numberHour') ? 'border-red-500' : '' }`}
+                                                        className={`border bg-gray-100 rounded px-2 py-1 w-full ${
+                                                        errorFields[row.id]?.includes('numberHour') ? 'border-red-500 bg-red-50' : ''
+                                                        }`}
                                                         value={row.numberHour}
                                                         placeholder={t('overtime.list.number_hour')}
                                                     />
-                                                </td>
-                                                
-                                                <td className="border px-2 py-2">
+                                                    </td>
+                                                    <td className="border px-2 py-2">
                                                     <input
                                                         type="text"
                                                         className="border rounded px-2 py-1 w-full"
@@ -558,11 +570,12 @@ export default function CreateOverTime() {
                                                         onChange={(e) => updateRow(row.id, 'note', e.target.value)}
                                                         placeholder={t('overtime.list.note')}
                                                     />
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>

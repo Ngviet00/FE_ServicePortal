@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
 import DotRequireComponent from "@/components/DotRequireComponent";
@@ -12,6 +11,7 @@ import { getErrorMessage, ShowToast, TIME_LEAVE } from "@/lib";
 import leaveRequestApi from "@/api/leaveRequestApi";
 import FullscreenLoader from "@/components/FullscreenLoader";
 import { useTranslation } from "react-i18next";
+import { Trash2 } from "lucide-react";
 
 interface ILeaveRqFormProps {
     mode: 'create' | 'edit' | 'view' | 'approval' | 'hr',
@@ -74,7 +74,6 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             type_leave: formData?.typeLeave?.id,
             time_leave: formData?.timeLeave?.id,
             reason: formData?.reason,
-
         };
     }, [formData, user?.userCode]);
 
@@ -121,7 +120,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
 
         try {
             setIsSearchingUser(true)
-            await new Promise(resolve => setTimeout(resolve, 200));
+            // await new Promise(resolve => setTimeout(resolve, 200));
             const fetchData = await leaveRequestApi.SearchUserRegisterLeaveRequest({
                 userCodeRegister: user?.userCode ?? "",
                 usercode: userCode
@@ -129,8 +128,8 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             const result = fetchData?.data?.data
             setValue(`leaveRequests.${index}.name`, result?.NVHoTen, { shouldValidate: true });
             setValue(`leaveRequests.${index}.department`, result?.DepartmentName, { shouldValidate: true });
-            setValue(`leaveRequests.${index}.departmentId`, result?.DepartmentId);
-            setValue(`leaveRequests.${index}.position`, result?.Position ?? '');
+            setValue(`leaveRequests.${index}.departmentId`, result?.DepartmentId, { shouldValidate: true });
+            setValue(`leaveRequests.${index}.position`, result?.Position ?? '', { shouldValidate: true });
         }
         catch (err) {
             ShowToast(getErrorMessage(err), "error")
@@ -148,6 +147,30 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
             setIsSearchingUser(false)
         }
     };
+
+    useEffect(() => {
+        if (mode == 'create') {
+            reset({
+                leaveRequests: [
+                    {
+                        ...defaultSingleLeaveRequest,
+                        user_code: "",
+                        user_code_register: user?.userCode ?? "",
+                        name: "",
+                        department: "",
+                        departmentId: -1,
+                        position: "",
+                        from_date: `${new Date().toISOString().slice(0, 10)} 08:00`,
+                        to_date: `${new Date().toISOString().slice(0, 10)} 17:00`,
+                        type_leave: "",
+                        time_leave: "",
+                        reason: "",
+                    },
+                ],
+            });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mode]);
 
     useEffect(() => {
         if (isEdit && formData && formData.length > 0) {
@@ -180,211 +203,216 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
     }, [defaultSingleLeaveRequest, formData, isCreate, isEdit, reset, user?.userCode]);
     
     return (
-        <form onSubmit={handleSubmit(handleSubmitForm, (errors) => {
-                console.log("❌ Form errors:", errors);
-            })}
+        <form 
+            onSubmit={handleSubmit(handleSubmitForm)}
             onKeyDown={(e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
                 }
-            }}>
-            {
-                isSearchingUser && <FullscreenLoader />
-            }
-            {
-                fields.map((field, index) => {
+            }}
+        >
+            {isSearchingUser && <FullscreenLoader />}
+
+            <div className="my-1 hidden items-center md:flex">
+                <button type="button" onClick={() => append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", id: null})} className="my-1 px-4 py-2 mb-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">
+                    {lang == 'vi' ? 'Thêm' : 'Add'}
+                </button>
+
+                <button type="submit" disabled={isPending} className="ml-2 px-4 py-2 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                    {isPending ? <Spinner size="small" className="text-white" /> : mode == 'create' ? (lang == 'vi' ? 'Đăng ký' : 'Register') : (lang == 'vi' ? 'Cập nhật' : 'Update')}
+                </button>
+            </div>
+
+            <div className="space-y-3 border border-gray-200 rounded-lg p-3 bg-white">
+                {fields.map((field, index) => {
                     const errors = form.formState.errors.leaveRequests?.[index];
                     const isNewRow = !getValues(`leaveRequests.${index}.id`);
+
                     return (
-                        <div key={field.id} className="space-y-4">
-                            {
-                                isCreate && (<h2 className="font-bold text-xl text-red-600 dark:text-white mb-1">{`#` + (index + 1)}</h2>)
-                            }
-                            <div className="flex flex-wrap gap-4 justify-between md:justify-between">
-                                <div>
-                                    <label htmlFor={`usercode-${index}`} className="block mb-1">{ t('usercode') } <DotRequireComponent /></label>
+                        <div key={field.id} className="bg-white mb-1">
+                            {isCreate && (
+                                <h2 className="font-bold text-xl text-red-600 dark:text-white mb-1 block xl:hidden">
+                                    {`#` + (index + 1)}
+                                </h2>
+                            )}
+                            <div className="mb-1 grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap gap-3 items-start">
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[120px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("usercode")} <DotRequireComponent />
+                                    </label>
                                     <input
                                         disabled={!isNewRow}
-                                        id={`usercode-${index}`}
                                         {...control.register(`leaveRequests.${index}.user_code`)}
-                                        placeholder={ t('usercode') }
-                                        className={`w-full p-2 border rounded text-sm ${errors?.user_code ? "border-red-500 bg-red-50" : ""} ${!(isCreate || isNewRow) ? 'bg-gray-100' : ''}`}
-                                        onBlur={() => handleFindUser(getValues(`leaveRequests.${index}.user_code`), index)}
+                                        placeholder={t("usercode")}
+                                        className={`p-2 border rounded text-sm w-full ${
+                                            errors?.user_code
+                                            ? "border-red-500 bg-red-50"
+                                            : "border-gray-300"
+                                        } ${!(isCreate || isNewRow) ? "bg-gray-100" : ""}`}
+                                        onBlur={() =>
+                                            handleFindUser(getValues(`leaveRequests.${index}.user_code`), index)
+                                        }
                                     />
-                                    {errors?.user_code && (
-                                        <p className="text-sm text-red-500 mt-1">{errors.user_code.message}</p>
-                                    )}
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1">{ t('name') } <DotRequireComponent /></label>
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[160px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("name")} <DotRequireComponent />
+                                    </label>
                                     <input
                                         {...control.register(`leaveRequests.${index}.name`)}
-                                        placeholder={ t('name') }
-                                        className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.name ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
                                         disabled
+                                        placeholder={t("name")}
+                                        className={`dark:bg-[#454545] p-2 text-sm border rounded border-gray-300 bg-gray-100 w-full ${errors?.name ? 'border-red-500 bg-red-50' : 'border-gray-300' }`}
                                     />
-                                    {errors?.name && (
-                                        <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
-                                    )}
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1">{ t('department') } <DotRequireComponent /></label>
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[150px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("department")} <DotRequireComponent />
+                                    </label>
                                     <input
                                         {...control.register(`leaveRequests.${index}.department`)}
-                                        placeholder={ t('department') }
-                                        className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${errors?.department ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
                                         disabled
+                                        placeholder={t("department")}
+                                        className={`dark:bg-[#454545] p-2 text-sm border rounded border-gray-300 bg-gray-100 w-full ${errors?.department ? 'border-red-500 bg-red-50' : 'border-gray-300' }`}
                                     />
-                                    {errors?.department && (
-                                        <p className="text-sm text-red-500 mt-1">{errors.department.message}</p>
-                                    )}
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1">{ t('position') } <DotRequireComponent /></label>
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[150px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("position")} <DotRequireComponent />
+                                    </label>
                                     <input
                                         disabled={!isCreate && !isEdit}
                                         {...control.register(`leaveRequests.${index}.position`)}
-                                        placeholder={ t('position') }
-                                        className={`w-full p-2 text-sm border rounded ${errors?.position ? "border-red-500 bg-red-50" : ""} ${!isCreate && !isEdit ? 'bg-gray-100' : ''}`}
+                                        placeholder={t("position")}
+                                        className={`p-2 text-sm border rounded w-full ${
+                                            errors?.position
+                                            ? "border-red-500 bg-red-50"
+                                            : "border-gray-300"
+                                        } ${!isCreate && !isEdit ? "bg-gray-100" : ""}`}
                                     />
-                                    {errors?.position && (
-                                        <p className="text-sm text-red-500 mt-1">{errors.position.message}</p>
-                                    )}
                                 </div>
 
-                                <div>
-                                    <label htmlFor={`type-leave-${index}`} className="block mb-1">{ t('type_leave') } <DotRequireComponent /></label>
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[160px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("type_leave")} <DotRequireComponent />
+                                    </label>
                                     <select
                                         disabled={!isCreate && !isEdit}
-                                        id={`type-leave-${index}`} {...control.register(`leaveRequests.${index}.type_leave`)} 
-                                        className={`w-full p-2 text-sm border hover:cursor-pointer rounded ${errors?.type_leave ? "border-red-500 bg-red-50" : ""} ${!isCreate && !isEdit ? 'bg-gray-100' : ''}`}
+                                        {...control.register(`leaveRequests.${index}.type_leave`)}
+                                        className={`p-2 text-sm border rounded hover:cursor-pointer w-full ${
+                                            errors?.type_leave
+                                            ? "border-red-500 bg-red-50"
+                                            : "border-gray-300"
+                                        } ${!isCreate && !isEdit ? "bg-gray-100" : ""}`}
                                     >
-                                        <option value="">{t('choose')}</option>
-                                        {
-                                            typeLeaves?.map((item) => (
-                                                <option key={item.id} value={item.id}>
-                                                    {
-                                                        lang == 'vi' ? t(item.name) : t(item.nameE)
-                                                    }
-                                                    &nbsp;__&nbsp;{item.code}
-                                                </option>
-                                            ))
-                                        }
+                                    <option value="">{t("choose")}</option>
+                                        {typeLeaves?.map((item) => (
+                                            <option key={item.id} value={item.id}>
+                                                {lang == "vi" ? t(item.name) : t(item.nameE)}_{item.code}
+                                            </option>
+                                        ))}
                                     </select>
-                                    {errors?.type_leave && (
-                                        <p className="text-sm text-red-500 mt-1">{errors.type_leave.message}</p>
-                                    )}
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1">{ t('time_leave') } <DotRequireComponent /></label>
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[130px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("time_leave")} <DotRequireComponent />
+                                    </label>
                                     <select
                                         disabled={!isCreate && !isEdit}
-                                        {...control.register(`leaveRequests.${index}.time_leave`)} 
-                                        className={`w-full p-2 text-sm border hover:cursor-pointer rounded ${errors?.time_leave ? "border-red-500 bg-red-50" : ""} ${!isCreate && !isEdit ? 'bg-gray-100' : ''}`}
+                                        {...control.register(`leaveRequests.${index}.time_leave`)}
+                                        className={`p-2 text-sm border rounded hover:cursor-pointer w-full ${
+                                            errors?.time_leave
+                                            ? "border-red-500 bg-red-50"
+                                            : "border-gray-300"
+                                        } ${!isCreate && !isEdit ? "bg-gray-100" : ""}`}
                                     >
-                                        <option value="">{t('choose')}</option>
-                                        {
-                                            TIME_LEAVE.map((item) => (
-                                                <option key={item.value} value={item.value}>
-                                                    {tCommon(item.label)}
-                                                </option>
-                                            ))
-                                        }
+                                    <option value="">{t("choose")}</option>
+                                        {TIME_LEAVE.map((item) => (
+                                            <option key={item.value} value={item.value}>
+                                            {tCommon(item.label)}
+                                            </option>
+                                        ))}
                                     </select>
-                                    {errors?.time_leave && (
-                                        <p className="text-sm text-red-500 mt-1">{errors.time_leave.message}</p>
-                                    )}
                                 </div>
-                                
-                                <div>
-                                    <label className="block mb-1">{ t('from_date') } <DotRequireComponent /></label>
+
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[130px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("from_date")} <DotRequireComponent />
+                                    </label>
                                     <DateTimePicker
                                         disabled={!isCreate && !isEdit}
                                         enableTime={true}
                                         dateFormat="Y-m-d H:i"
                                         initialDateTime={getValues(`leaveRequests.${index}.from_date`)}
-                                        onChange={(_selectedDates, dateStr, _instance) => {
-                                            setValue(`leaveRequests.${index}.from_date`, dateStr);
-                                        }}
-                                        className={`dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2 ${!isCreate && !isEdit ? 'bg-gray-100' : ''}`}
+                                        onChange={(_selectedDates, dateStr) =>
+                                            setValue(`leaveRequests.${index}.from_date`, dateStr)
+                                        }
+                                        className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
                                     />
-                                    {errors?.from_date && (
-                                        <p className="text-sm text-red-500 mt-1 max-w-[170px]">{errors.from_date.message}</p>
-                                    )}
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1">{ t('to_date') } <DotRequireComponent /></label>
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[130px]">
+                                    <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                        {t("to_date")} <DotRequireComponent />
+                                    </label>
                                     <DateTimePicker
                                         disabled={!isCreate && !isEdit}
                                         enableTime={true}
                                         dateFormat="Y-m-d H:i"
                                         initialDateTime={getValues(`leaveRequests.${index}.to_date`)}
-                                        onChange={(_selectedDates, dateStr, _instance) => {
-                                            setValue(`leaveRequests.${index}.to_date`, dateStr);
-                                        }}
-                                        className={`dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2 ${!isCreate && !isEdit ? 'bg-gray-100' : ''}`}
+                                        onChange={(_selectedDates, dateStr) =>
+                                            setValue(`leaveRequests.${index}.to_date`, dateStr)
+                                        }
+                                        className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
                                     />
-                                    {errors?.to_date && (
-                                        <p className="text-sm text-red-500 mt-1">{errors.to_date.message}</p>
+                                </div>
+
+                                <div className=" flex items-end gap-2 flex-1 sm:col-span-4 col-span-2 min-w-[200px]">
+                                    <div className="flex-1">
+                                        <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                            {t("reason")} <DotRequireComponent />
+                                        </label>
+                                        <input
+                                            disabled={!isCreate && !isEdit}
+                                            {...control.register(`leaveRequests.${index}.reason`)}
+                                            placeholder={t("reason")}
+                                            className={`p-2 text-sm border rounded w-full ${
+                                            errors?.reason
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-300"
+                                            } ${!isCreate && !isEdit ? "bg-gray-100" : ""}`}
+                                        />
+                                    </div>
+
+                                    {(isCreate || isEdit) && fields.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => remove(index)}
+                                            className="bg-red-500 text-white rounded p-2 hover:bg-red-600 transition hover:cursor-pointer"
+                                            title={t("delete")}
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
                                     )}
                                 </div>
                             </div>
-                            <div>
-                                <label className="block mb-1">{ t('reason') } <DotRequireComponent /></label>
-                                <textarea
-                                    disabled={!isCreate && !isEdit}
-                                    {...control.register(`leaveRequests.${index}.reason`)}
-                                    placeholder={ t('reason') }
-                                    className={`w-full p-2 border rounded ${errors?.reason ? "border-red-500 bg-red-50" : ""} ${!isCreate && !isEdit ? 'bg-gray-100' : ''}`}
-                                />
-                                {errors?.reason && (
-                                    <p className="text-sm text-red-500 mt-1">{errors.reason.message}</p>
-                                )}
-                            </div>
-
-                            {fields.length > 1 && (
-                                <div className="flex justify-end">
-                                    <button
-                                        type="button"
-                                        className="bg-red-500 text-white px-3 py-1 rounded hover:cursor-pointer hover:bg-red-700"
-                                        onClick={() => remove(index)}
-                                    >
-                                        { t('delete') }
-                                    </button>
-                                </div>
-                            )}
                         </div>
-                    )
-                })
-            }
-            <div className="mb-4 flex space-x-2 mt-2">
-                {
-                    // isCreate || isEdit && (
-                        <button type="button" className="dark:bg-black bg-gray-300 px-4 py-2 rounded hover:cursor-pointer hover:bg-gray-400"
-                            onClick={() =>
-                                append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", id: null})
-                            }
-                        >
-                            +
-                    </button>
-                    // )
-                }
-                {
-                    isCreate || isEdit ? (
-                        <button
-                            type="submit"
-                            className={`bg-black text-white px-4 py-2 rounded hover:cursor-pointer hover:opacity-70`}
-                            disabled={isPending}
-                        >
-                            {isPending ? <Spinner size="small" className="text-white" /> : t('confirm')}
-                        </button>
-                    ) : (<></>)
-                }
+                    );
+                })}
+            </div>
+
+            <div className="my-1 items-center md:hidden justify-end text-right">
+                <button type="button" onClick={() => append({ ...defaultSingleLeaveRequest, user_code_register: user?.userCode ?? "", id: null})} className="my-1 px-4 py-2 mb-1 cursor-pointer bg-blue-600 text-white text-sm rounded hover:bg-blue-600">
+                    {lang == 'vi' ? 'Thêm' : 'Add'}
+                </button>
+
+                <button type="submit" disabled={isPending} className="ml-2 px-4 py-2 bg-green-500 text-white cursor-pointer text-sm rounded hover:bg-green-600">
+                    {isPending ? <Spinner size="small" className="text-white" /> : mode == 'create' ? (lang == 'vi' ? 'Đăng ký' : 'Register') : (lang == 'vi' ? 'Cập nhật' : 'Update')}
+                </button>
             </div>
         </form>
     )
