@@ -94,7 +94,7 @@ export default function MemoNotification () {
                             </tr>
                         ) : isError || MemoNotify.length === 0 ? (
                             <tr className="text-red-700 border text-center font-medium dark:text-white">
-                                <td className={`text-red-700 h-[35px] font-medium text-center`} colSpan={8}>
+                                <td className={`text-red-700 h-[35px] font-medium text-center p-0`} colSpan={8} style={{padding: '0px', height: '35px', lineHeight: '35px', textAlign: 'center'}}>
                                     { error?.message ?? tCommon('no_results') }
                                 </td>
                             </tr>

@@ -144,7 +144,7 @@ export default function ListFormPurchase () {
                                 </div>
                             ))
                         ) : isError || purchases.length === 0 ? (
-                            <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? t('list_leave_request.no_result')}</div>
+                            <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{tCommon('no_results')}</div>
                         ) : (
                             purchases.map((item: any) => (
                                 <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">

@@ -203,7 +203,7 @@ export default function ListOverTimeRegister () {
                                     </div>
                                 ))
                             ) : isError || overTimeRegisters.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
+                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') } </div>
                             ) : (
                                 overTimeRegisters.map((item: GetMyLeaveRequestRegistered) => {
                                     return (
