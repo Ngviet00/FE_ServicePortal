@@ -295,7 +295,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
                                     />
                                 </div>
 
-                                <div className="flex flex-col w-full sm:w-full lg:max-w-[160px]">
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[185px]">
                                     <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
                                         {t("type_leave")} <DotRequireComponent />
                                     </label>
@@ -317,7 +317,7 @@ const LeaveRqFormComponent: React.FC<ILeaveRqFormProps> = ({ mode, onSubmit, typ
                                     </select>
                                 </div>
 
-                                <div className="flex flex-col w-full sm:w-full lg:max-w-[130px]">
+                                <div className="flex flex-col w-full sm:w-full lg:max-w-[110px]">
                                     <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
                                         {t("time_leave")} <DotRequireComponent />
                                     </label>
