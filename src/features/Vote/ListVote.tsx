@@ -221,7 +221,6 @@ export default function ListVote() {
 				</table>
 			</div>
 
-            {/* mobile */}
 			<div className="md:hidden space-y-3">
 				{isPending ? (
 					Array.from({ length: 3 }).map((_, idx) => (

@@ -146,7 +146,7 @@ export default function ListLeaveRequestRegistered () {
                                         ))}
                                         </TableRow>
                                     ))
-                                ) :  isError || leaveRequestRegistered.length === 0 ? (
+                                ) : isError || leaveRequestRegistered.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
                                             {error?.message ?? t('list_leave_request.no_result')}
