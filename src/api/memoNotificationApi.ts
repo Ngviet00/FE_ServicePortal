@@ -95,7 +95,6 @@ const memoNotificationApi = {
             }
         })
     },
-
     delete(id: string | undefined) {
         return axiosClient.delete(`/memo-notification/${id}`)
     },

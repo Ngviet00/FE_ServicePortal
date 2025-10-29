@@ -125,67 +125,68 @@ export default function ListLeaveRequestRegistered () {
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</TableHead>
-                                    <TableHead className="w-[100px] text-center border">Loại đơn</TableHead>
-                                    <TableHead className="w-[100px] text-center border">Người tạo</TableHead>
-                                    <TableHead className="w-[150px] text-center border">Thời gian tạo</TableHead>
-                                    <TableHead className="w-[130px] text-center border">Trạng thái đơn</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Hành động' : 'Action'} </TableHead>
+                                    <TableHead className="w-[100px] text-center border">{lang == 'vi' ? 'Mã đơn' : 'Code'}</TableHead>
+                                    <TableHead className="w-[100px] text-center border">{lang == 'vi' ? 'Loại đơn' : 'Request Type'}</TableHead>
+                                    <TableHead className="w-[100px] text-center border">{lang == 'vi' ? 'Người tạo' : 'Created By'}</TableHead>
+                                    <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}</TableHead>
+                                    <TableHead className="w-[130px] text-center border">{lang == 'vi' ? 'Trạng thái đơn' : 'Status'}</TableHead>
+                                    <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Hành động' : 'Action'}</TableHead>
                                 </TableRow>
                             </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 3 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: 6 }).map((_, i) => (
-                                            <TableCell key={i} className="border">
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
-                                    ))
-                                ) : isError || leaveRequestRegistered.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
-                                            {error?.message ?? t('list_leave_request.no_result')}
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    leaveRequestRegistered.map((item: GetMyLeaveRequestRegistered) => {
-                                        return (
-                                            <TableRow key={item.id}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/leave/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
+
+                            <TableBody>
+                                {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <TableRow key={index}>
+                                            {Array.from({ length: 6 }).map((_, i) => (
+                                                <TableCell key={i} className="border">
+                                                    <div className="flex justify-center">
+                                                        <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                    </div>
                                                 </TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
-                                                <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                                <TableCell className="text-center border">
-                                                    <StatusLeaveRequest 
-                                                        status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className="text-center border">
-                                                    {
-                                                        item?.requestStatus?.id == 1 ? (
-                                                            <>
-                                                                <Link to={`/leave/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                    {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                                                </Link>
-                                                                <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
-                                                            </>
-                                                        ) : (
-                                                            <span>--</span>
-                                                        )
-                                                    }
-                                                </TableCell>
-                                                
+                                            ))}
                                             </TableRow>
-                                        )
-                                    })
-                                )}
+                                        ))
+                                    ) : isError || leaveRequestRegistered.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
+                                                {error?.message ?? t('list_leave_request.no_result')}
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        leaveRequestRegistered.map((item: GetMyLeaveRequestRegistered) => {
+                                            return (
+                                                <TableRow key={item.id}>
+                                                    <TableCell className="text-center border">
+                                                        <Link to={`/leave/view/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    </TableCell>
+                                                    <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
+                                                    <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
+                                                    <TableCell className="text-center border">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
+                                                    <TableCell className="text-center border">
+                                                        <StatusLeaveRequest 
+                                                            status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell className="text-center border">
+                                                        {
+                                                            item?.requestStatus?.id == 1 ? (
+                                                                <>
+                                                                    <Link to={`/leave/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                        {lang == 'vi' ? 'Sửa' : 'Edit'}
+                                                                    </Link>
+                                                                    <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
+                                                                </>
+                                                            ) : (
+                                                                <span>--</span>
+                                                            )
+                                                        }
+                                                    </TableCell>
+                                                    
+                                                </TableRow>
+                                            )
+                                        })
+                                    )}
                             </TableBody>
                         </Table>
                     </div>

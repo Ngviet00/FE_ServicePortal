@@ -37,6 +37,9 @@ function GetUrlDetailWaitApproval(item: any) {
 	else if (item?.requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
 		result = `/internal-memo-hr/${item?.code ?? '1'}?mode=view`
 	}
+	else if (item?.requestTypeId == REQUEST_TYPE.TIMEKEEPING) {
+		result = `/view/timekeeping/${item?.code ?? '1'}?mode=view`
+	}
 
 	return result
 }

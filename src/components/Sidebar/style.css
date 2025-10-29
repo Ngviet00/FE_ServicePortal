@@ -9,7 +9,7 @@
     overflow: hidden;
     overflow-y: auto;
     height: 100vh;
-    z-index: 100;
+    z-index: 50;
 }
 
 .sidebar.collapsed {

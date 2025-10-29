@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from './axiosClient';
+import { ApprovalRequest } from './approvalApi';
+import { useTranslation } from 'react-i18next';
 
 interface GetPersonalTimeKeepingRequest {
     UserCode: string,
@@ -74,6 +76,14 @@ export interface UpdateUserMngTimeKeeping {
     orgUnitId: number[]
 }
 
+interface CreateRequestApprovalTimeKeeping {
+    orgPositionId: number;
+    userName?: string;
+    userCode?: string;
+    month: number;
+    year: number;
+}
+
 const timekeepingApi = {
     getPersonalTimeKeeping(params: GetPersonalTimeKeepingRequest) {
         return axiosClient.get(`/time-keeping/get-personal-time-keeping`, {params})
@@ -81,10 +91,6 @@ const timekeepingApi = {
 
     getMngTimeKeeping(params: GetManagementTimeKeepingRequest) {
         return axiosClient.get(`/time-keeping/get-management-time-keeping`, {params})
-    },
-
-    confirmTimekeepingToHr(data: GetManagementTimeKeepingRequest) {
-        return axiosClient.post('/time-keeping/confirm-timekeeping-to-hr', data)
     },
 
     UpdateUserHavePermissionMngTimeKeeping(data: string[]) {
@@ -120,7 +126,83 @@ const timekeepingApi = {
     },
     DeleteHistoryEditTimeKeeping(id: number) {
         return axiosClient.delete(`/time-keeping/delete-history-edit-timekeeping/${id}`)
+    },
+    createRequestApprovalTimeKeeping(data: CreateRequestApprovalTimeKeeping) {
+        return axiosClient.post(`/time-keeping/create-request-approval-timekeeping`, data)
+    },
+    approval(data: ApprovalRequest) {
+        return axiosClient.post(`/time-keeping/approval`, data)
+    },
+    deleteTimeKeeping(applicationFormCode: string) {
+        return axiosClient.delete(`/time-keeping/${applicationFormCode}`)
+    },
+    getListTimeKeeping(params: { UserCode?: string, Status?: number | null, Page: number, PageSize: number}) {
+        return axiosClient.get(`/time-keeping/get-list-timekeeping`, {params})
+    },
+    getDetailTimeKeeping(applicationFormCode: string, params: { TypePerson?: string, KeySearch?: string, Page: number, PageSize: number }) {
+        return axiosClient.get(`/time-keeping/${applicationFormCode}`, {params})
+    },
+    exportExcelTimeKeeping(applicationFormCode: string) {
+        return axiosClient.post(`/time-keeping/export-excel?applicationFormCode=${applicationFormCode}`)
     }
+}
+
+export function useExportExcelTimeKeeping() {
+    const lang = useTranslation().i18n.language.split('-')[0]
+    
+    return useMutation({
+        mutationFn: async (applicationFormCode: string) => {
+            await timekeepingApi.exportExcelTimeKeeping(applicationFormCode)
+        },
+        onSuccess: () => {
+            ShowToast(lang == 'vi' ? 'Sau khi xuất excel thành công thì sẽ gửi qua email' : 'After successfully exporting Excel, it will be sent via email')
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useDeleteTimeKeeping() {
+    return useMutation({
+        mutationFn: async (applicationFormCode: string) => {
+            await timekeepingApi.deleteTimeKeeping(applicationFormCode)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useCreateRequestTimeKeeping() {
+    return useMutation({
+        mutationFn: async (data: CreateRequestApprovalTimeKeeping) => {
+            await timekeepingApi.createRequestApprovalTimeKeeping(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useApprovalTimeKeeping() {
+    return useMutation({
+        mutationFn: async (data: ApprovalRequest) => {
+            await timekeepingApi.approval(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useDeleteHistoryEditTimeKeeping() {
@@ -156,20 +238,6 @@ export function useAttachUserManageOrgUnit() {
     return useMutation({
         mutationFn: async (data: {userCode: string, orgUnitIds: number[]}) => {
             await timekeepingApi.AttachUserManageOrgUnit(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useConfirmTimeKeeping() {
-    return useMutation({
-        mutationFn: async (data: GetManagementTimeKeepingRequest) => {
-            await timekeepingApi.confirmTimekeepingToHr(data)
         },
         onSuccess: () => {
             ShowToast("Success");
