@@ -75,6 +75,8 @@ import ListITFormWaitFormPurchase from '@/features/FormIT/ListITFormWaitFormPurc
 import { CreateVote } from '@/features/Vote/CreateVote';
 import ListVote from '@/features/Vote/ListVote';
 import DetailVote from '@/features/Vote/DetailVote';
+import ListTimeKeeping from '@/features/TimeKeeping/ListTimeKeeping';
+import ViewTimeKeeping from '@/features/TimeKeeping/ViewTimeKeeping';
 
 function App() {
 	const location = useLocation();
@@ -150,7 +152,9 @@ function App() {
 		{ path: "/internal-memo-hr/:id", element: <ViewAndApprovalInternalMemoHR/> },
 
 		{ path: "/time-keeping", element: <Timekeeping/>},
-		{ path: "/management-time-keeping", element: <MngTimekeeping/>}, //, allowedPermissions: ['time_keeping.mng_time_keeping']
+		{ path: "/management-time-keeping", element: <MngTimekeeping/>},
+		{ path: "/list-time-keeping", element: <ListTimeKeeping/>},
+		{ path: "/view/timekeeping/:id", element: <ViewTimeKeeping/>},
 
 		{ path: "/leave/statistical", element: <StatisticalLeaveRqForm />},
 		{ path: "/leave/all-form-leave-request", element: <AllFormLeaveRequest />},

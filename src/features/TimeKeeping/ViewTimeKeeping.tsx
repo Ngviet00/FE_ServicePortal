@@ -3,50 +3,80 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"
-import timekeepingApi, { useCreateRequestTimeKeeping, useEditTimeAttendanceHistory } from "@/api/timeKeepingApi";
-import { calculateRoundedTime, getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
+import timekeepingApi, { useApprovalTimeKeeping, useExportExcelTimeKeeping } from "@/api/timeKeepingApi";
+import { calculateRoundedTime, getDaysInMonth} from "./Components/functions";
 import { AttendanceStatus, UpdateTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
 import { RoleEnum, useDebounce } from "@/lib";
 import { Button } from "@/components/ui/button";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
-import ModalUpdateTimeKeeping from "./Components/ModalUpdateTimeKeeping";
-import ModalHistoryEditTimeKeeping from "./Components/ModalListHistoryEditTimeKeeping";
-import orgUnitApi from "@/api/orgUnitApi";
-import useHasPermission from "@/hooks/useHasPermission";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import HistoryApproval from "../Approval/Components/HistoryApproval";
+import ModalConfirm from "@/components/ModalConfirm";
+import { Textarea } from "@/components/ui/textarea";
 import useHasRole from "@/hooks/useHasRole";
-import { useNavigate } from "react-router-dom";
+import useHasPermission from "@/hooks/useHasPermission";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function MngTimekeeping () {
+export default function ViewTimeKeeping () {
     const { t } = useTranslation()
     const lang = useTranslation().i18n.language.split('-')[0]
     const {user} = useAuthStore()
     const { t: tCommon } = useTranslation('common')
-    const today = getToday()
-    const defaultMonth = getDefaultMonth(today)
-    const defaultYear = getDefaultYear(today)
-    const [month, setMonth] = useState(defaultMonth)
-    const [year, setYear] = useState(defaultYear)
-    const [team] = useState<string>("")
-    const [deptId, setDeptId] = useState<string>("")
     const [typePerson, setTypePerson] = useState<string>("")
-    // const confirmTimeKeeping = useConfirmTimeKeeping();
-    const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
     const [dataAttendances, setDataAttendances] = useState<UpdateTimeKeeping[]>([])
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(50)
     const [keySearch, setKeySearch] = useState("")
+    const [month, setMonth] = useState(0)
+    const [year, setYear] = useState(0)
     const debouncedKeySearch = useDebounce(keySearch, 300);
-    const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
-    const [isOpenModalListHistoryEditTimeKeeping, setOpenModalListHistoryEditTimeKeeping] = useState(false);
-    const queryClient = useQueryClient();
-    const [countHistoryEditTimeKeepingNotSendHR, setCountHistoryEditTimeKeepingNotSendHR] = useState(0)
     const navigate = useNavigate()
-    const createRequestApprovalTimeKeeping = useCreateRequestTimeKeeping()
+    const [note, setNote] = useState("")
+
+    const queryClient = useQueryClient()
+
+    const [searchParams] = useSearchParams();
+    const modeView = searchParams.get("mode") ?? 'view'; 
+
+    const { id } = useParams<{ id: string }>();
+    const isHasId = !!id;
+
+    const [statusModalConfirm, setStatusModalConfirm] = useState('')
+
+    const { data: formData, isLoading: isFormDataLoading, isError, error } = useQuery({
+        queryKey: ['timekeeping', id, page, pageSize, debouncedKeySearch, typePerson],
+        queryFn: async () => {
+            try {
+                const res = await timekeepingApi.getDetailTimeKeeping(id ?? '', {
+                    Page: page,
+                    PageSize: pageSize,
+                    TypePerson: typePerson,
+                    KeySearch: debouncedKeySearch
+                });
+                return res.data.data;
+            } catch (error: any) {
+                if (error.response?.status === 404) {
+                    console.warn('Purchase not found');
+                    return null;
+                }
+                throw error;
+            }
+        },
+        enabled: isHasId,
+    });
+
+    useEffect(() => {
+        if (formData) {
+            setMonth(formData?.timeKeepingInfo?.month)
+            setYear(formData?.timeKeepingInfo?.year)
+            setTotalPage(formData.timeKeepingData.totalPages)
+            setDataAttendances(formData?.timeKeepingData?.data)
+        }
+    }, [formData])
 
     const daysInMonth = getDaysInMonth(year, month)
     const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
@@ -58,82 +88,6 @@ export default function MngTimekeeping () {
         };
     });
 
-    const { data: departments = [] } = useQuery({
-        queryKey: ['get-all-departments'],
-        queryFn: async () => {
-            const res = await orgUnitApi.GetAllDepartment()
-            return res.data.data
-        },
-    });
-    
-    useQuery({
-        queryKey: ['count-history-edit-timekeeping-not-send-hr'],
-        queryFn: async () => {
-            const res = await timekeepingApi.CountHistoryEditTimeKeepingNotSendHR(user?.userCode ?? '')
-            setCountHistoryEditTimeKeepingNotSendHR(res.data.data)
-            return res.data.data
-        }
-    });
-
-    const hasPermissionHRMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
-    const isHrAndHRPermissionMngTimeKeeping = useHasRole([RoleEnum.HR]) && hasPermissionHRMngTimeKeeping; 
-
-    const { isLoading, isError, error } = useQuery({
-        queryKey: ['management-timekeeping', year, month, page, pageSize, debouncedKeySearch, deptId, typePerson],
-        queryFn: async () => {
-            const res = await timekeepingApi.getMngTimeKeeping({
-                UserCode: user?.userCode ?? "",
-                Year: year,
-                Month: month,
-                page: page,
-                pageSize: pageSize,
-                keySearch: debouncedKeySearch,
-                team: team ? Number(team) : null,
-                deptId: deptId ? Number(deptId) : null,
-                typePerson: typePerson ? Number(typePerson) : null,
-                isHrMngTimeKeeping: isHrAndHRPermissionMngTimeKeeping
-            })
-            setDataAttendances(res.data.data)
-            setTotalPage(res.data.total_pages)
-            return res.data.data
-        },
-        enabled: !!year && !!month && !!user?.userCode
-    });
-
-    const handleCreateRequestApprovalTimeKeeping = async () => {
-        await createRequestApprovalTimeKeeping.mutateAsync({
-            orgPositionId: user?.orgPositionId ?? -1,
-            userName: user?.userName ?? '',
-            userCode: user?.userCode,
-            month: month,
-            year: year
-        });
-
-        setCountHistoryEditTimeKeepingNotSendHR(0)
-
-        navigate('/list-time-keeping')
-    }
-
-    const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
-    const saveChangeUpdateTimeKeeping = async (finalResult: string, currentUserCode: string, currentDate: string) => {
-        if (selectedData?.Result === finalResult) {
-            setOpenModalUpdateTimeKeeping(false);
-            return;
-        }
-        await editTimeAttendanceHistory.mutateAsync({
-            Datetime: currentDate,
-            OldValue: selectedData?.Result,
-            CurrentValue: finalResult,
-            UserCode: currentUserCode,
-            UserCodeUpdate: user?.userCode,
-            UpdatedBy: user?.userName ?? ''
-        });
-
-        queryClient.invalidateQueries({ queryKey: ['management-timekeeping'] });
-        queryClient.invalidateQueries({ queryKey: ['count-history-edit-timekeeping-not-send-hr'] });
-        setOpenModalUpdateTimeKeeping(false);
-    }
-
     function setCurrentPage(page: number): void {
         setPage(page)
     }
@@ -143,29 +97,58 @@ export default function MngTimekeeping () {
         setPageSize(size)
     }
 
+    const approvalTimeKeeping = useApprovalTimeKeeping()
+    const handleSaveModalConfirm = async (type: string) => {
+        try {
+            await approvalTimeKeeping.mutateAsync({
+                ApplicationFormCode: id,
+                UserCodeApproval: user?.userCode,
+                UserNameApproval: user?.userName ?? "",
+                OrgPositionId: user?.orgPositionId,
+                Status: type == 'approval' ? true : false,
+                Note: note,
+                ApplicationFormId: formData?.timeKeepingInfo?.applicationFormItem?.applicationFormId,
+                RequestTypeId: formData?.timeKeepingInfo?.applicationFormItem?.applicationForm?.requestTypeId
+            })
+            
+            navigate('/approval/pending-approval')
+            queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+        }
+        catch {
+            console.log('Error can not approve timekeeping');
+        }
+    }
+
+    const hasPermissionHRMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
+    const isHrMngLeaveRqAndTimeKeeping = useHasRole([RoleEnum.HR]) && hasPermissionHRMngLeaveRq; 
+
+    const exportExcelTimeKeeping  = useExportExcelTimeKeeping()
+    const handleExportExcelTimeKeeping = async () => {
+        await exportExcelTimeKeeping.mutateAsync(id ?? '')
+    }
+    
+    if (isHasId && isFormDataLoading) {
+        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
+    }
+
+    if (!formData) {
+        return  <div className='text-red-700 font-semibold'>{lang == 'vi' ? 'Không tìm thấy dữ liệu' : 'Not found data'}</div>;
+    }
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('mng_time_keeping.mng_time_keeping')}</h3>
+                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{lang == 'vi' ? 'Chi tiết chấm công' : 'Detail timekeeping'}</h3>
             </div>
+            <ModalConfirm
+                type={statusModalConfirm}
+                isOpen={statusModalConfirm != ''}
+                onClose={() => setStatusModalConfirm('')}
+                onSave={handleSaveModalConfirm}
+            />
+
             <div className="flex flex-wrap gap-4 items-center mt-3 mb-3 lg:justify-between">
                 <div className="flex space-x-4">
-                    <div>
-                        <Label className="mb-1">{t('mng_time_keeping.month')}</Label>
-                        <select className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
-                            {Array.from({ length: 12 }, (_, i) => (
-                                <option key={i+1} value={i+1}>{i+1}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <Label className="mb-1">{t('mng_time_keeping.year')}</Label>
-                        <select className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={year} onChange={(e) => setYear(Number(e.target.value))}>
-                            <option value={defaultYear - 1}>{defaultYear - 1}</option>
-                            <option value={defaultYear}>{defaultYear}</option>
-                            <option value={defaultYear + 1}>{defaultYear + 1}</option>
-                        </select>
-                    </div>
                     <div>
                         <Label className="mb-1">{t("mng_time_keeping.usercode")}</Label>
                         <input
@@ -178,21 +161,6 @@ export default function MngTimekeeping () {
                             className="border p-1 rounded-[5px] pl-1 text-sm border-gray-300" 
                             placeholder="Mã nhân viên"
                         />
-                    </div>
-                    <div>
-                        <Label className="mb-1">{t("mng_time_keeping.dept")}</Label>
-                        <select className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer" value={deptId} 
-                            onChange={(e) => {
-                                setPage(1)
-                                setDeptId(e.target.value)
-                            }}>
-                            <option value="" className="text-sm">--{lang == 'vi' ? 'Tất cả' : 'All'}--</option>
-                            {
-                                departments.map((item: {id: number, name: string}, idx: number) => (
-                                    <option key={idx} className="text-sm" value={item.id}>{item.name}</option>
-                                ))
-                            }
-                        </select>
                     </div>
                     <div>
                         <Label className="mb-1">{lang == 'vi' ? 'Chính thức,thời vụ,..' : 'Type'}</Label>
@@ -208,33 +176,19 @@ export default function MngTimekeeping () {
                         </select>
                     </div>
                 </div>
+                <div className="font-bold text-3xl">
+                    {month.toString().padStart(2, "0")}__{year}
+                </div>
                 <div className="flex flex-wrap gap-2 mt-3">
-                    {dataAttendances.length > 0 && (
-                        <>
+                    {
+                        isHrMngLeaveRqAndTimeKeeping && (
                             <Button
-                                className="bg-black hover:bg-gray-900 text-white flex-1 sm:flex-none hover:cursor-pointer"
-                                onClick={() => navigate('/list-time-keeping')}
+                                onClick={handleExportExcelTimeKeeping}
+                                disabled={exportExcelTimeKeeping.isPending}
+                                className="px-2 py-1 bg-blue-700 text-white rounded-[3px] hover:bg-blue-800 transition-all duration-200 text-sm hover:cursor-pointer mr-2"
                             >
-                                {lang === 'vi' ? 'Danh sách đã tạo' : 'List'}
+                                {exportExcelTimeKeeping.isPending ? <Spinner/> : lang == 'vi' ? 'Xuất excel' : 'Export excel'}
                             </Button>
-
-                            <Button
-                                className="bg-red-700 hover:bg-red-800 text-white flex-1 sm:flex-none hover:cursor-pointer"
-                                onClick={() => setOpenModalListHistoryEditTimeKeeping(true)}
-                            >
-                                {lang === 'vi' ? 'Lịch sử chỉnh sửa' : 'History edit'} ({countHistoryEditTimeKeepingNotSendHR ?? 0})
-                            </Button>
-
-                             <button
-                                onClick={handleCreateRequestApprovalTimeKeeping}
-                                disabled={createRequestApprovalTimeKeeping.isPending}
-                                className={`${
-                                    createRequestApprovalTimeKeeping.isPending ? 'opacity-70 cursor-not-allowed' : 'hover:cursor-pointer'
-                                } px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-green-500 hover:bg-green-600 w-full sm:w-auto`}
-                            >
-                                {createRequestApprovalTimeKeeping.isPending ? <Spinner/> : (lang == 'vi' ? 'Đăng ký' : 'Register')}
-                            </button>
-                        </>
                         )
                     }
                 </div>
@@ -284,7 +238,7 @@ export default function MngTimekeeping () {
                         </thead>
                         <tbody>
                             {
-                                isLoading ? (
+                                isFormDataLoading ? (
                                     Array.from({ length: 5 }).map((_, index) => (
                                         <tr key={index}>
                                             <td className="w-[130px] text-center p-2">
@@ -326,7 +280,7 @@ export default function MngTimekeeping () {
                                             <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">{item.UserCode}</td>
                                             <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
                                             <td className="text-left border-r pl-2 text-sm w-[130px]">{item.Department}</td>
-                                            {daysHeader.map(({ dayStr }, colIdx: number) => {
+                                            {daysHeader.map(({ dayStr }) => {
                                                 let bgColor = "#FFFFFF";
                                                 let textColor = "#000000";
                                                 const dayNumber = parseInt(dayStr, 10);
@@ -369,22 +323,6 @@ export default function MngTimekeeping () {
                                                         key={dayStr}
                                                         style={{ backgroundColor: bgColor, color: textColor }}
                                                         className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
-                                                        onClick={() => {
-                                                        const invalidResults = ["X", "CN_X", "NM"];
-                                                        if (!invalidResults.includes(result)) {
-                                                            setSelectedData({
-                                                                Name: item.Name,
-                                                                UserCode: item.UserCode,
-                                                                CurrentDate: fullDate,
-                                                                Result: result,
-                                                                Den: den,
-                                                                Ve: ve,
-                                                                RowIndex: idx,
-                                                                ColIndex: colIdx,
-                                                            });
-                                                            setOpenModalUpdateTimeKeeping(true);
-                                                        }
-                                                        }}
                                                     >
                                                         <div className="flex justify-center text-xs">{result}</div>
                                                     </td>
@@ -398,18 +336,6 @@ export default function MngTimekeeping () {
                     </table>
                 </div>
             </div>
-
-            <ModalHistoryEditTimeKeeping
-                isOpen={isOpenModalListHistoryEditTimeKeeping}
-                onClose={() => setOpenModalListHistoryEditTimeKeeping(false)}
-            />
-
-            <ModalUpdateTimeKeeping
-                isOpen={isOpenModalUpdateTimeKeeping}
-                onClose={() => setOpenModalUpdateTimeKeeping(false)}
-                selectedData={selectedData}
-                onSave={saveChangeUpdateTimeKeeping}
-            />
             {
                 dataAttendances.length > 0 ? (<PaginationControl
                     currentPage={page}
@@ -419,6 +345,33 @@ export default function MngTimekeeping () {
                     onPageSizeChange={handlePageSizeChange}
                 />) : (null)
             }
+             <div>
+                <Label className='mb-1'>{t('note')}</Label>
+                <Textarea placeholder='Note' disabled={modeView != 'approval'} value={note} onChange={(e) => setNote(e.target.value)} className={`border-gray-300`}/>
+            </div>
+            <div className="flex justify-end">
+                {
+                    modeView != 'view' && (
+                        <>
+                            <Button
+                                onClick={() => setStatusModalConfirm('approval')}
+                                disabled={approvalTimeKeeping.isPending}
+                                className="px-4 py-2 bg-blue-700 text-white rounded-[3px] hover:bg-blue-800 transition-all duration-200 text-base hover:cursor-pointer mr-2"
+                            >
+                                {t('approval')}
+                            </Button>
+                            <Button
+                                onClick={() => setStatusModalConfirm('reject')}
+                                disabled={approvalTimeKeeping.isPending}
+                                className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] hover:bg-red-700 transform transition-all duration-200 text-base"
+                            >
+                                {t('reject')}
+                            </Button>
+                        </>
+                    )
+                }
+            </div>
+            <HistoryApproval historyApplicationForm={formData?.timeKeepingInfo?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
         </div>
     )
 }

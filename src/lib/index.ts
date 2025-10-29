@@ -167,6 +167,7 @@ export enum REQUEST_TYPE {
     OVERTIME = 5,
     MISS_TIMEKEEPING = 6,
     INTERNAL_MEMO_HR = 7,
+    TIMEKEEPING = 8
 }
 
 export enum IT_CATEGORY {
