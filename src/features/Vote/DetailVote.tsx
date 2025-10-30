@@ -147,6 +147,7 @@ const DetailVote: React.FC = () => {
 			UserCode: user?.userCode ?? ''
 		})
         queryClient.invalidateQueries({ queryKey: ['vote-detail', id] });
+		setDeptUsersCache({});
 	}
 
 	const handleExportListVote = useExportExcelUserHaveVoted()
