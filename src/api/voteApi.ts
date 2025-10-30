@@ -63,7 +63,40 @@ const voteApi = {
     },
     getListUserNotVoteByDepartmentId(params: GetListUserNotVoteByDepartmentId) {
         return axiosClient.get(`/vote/get-list-user-not-vote-by-department-id`, {params})
-    }
+    },
+    exportExcel(voteId: number) {
+        return axiosClient.post('/vote/export-excel-voted', voteId, {
+            responseType: 'blob'
+        })
+    },
+}
+
+export function useExportExcelUserHaveVoted() {
+    return useMutation({
+        mutationFn: async (voteId: number) => {
+            const response = await voteApi.exportExcel(voteId)
+
+            const d = new Date();
+            const f = (n: number, l: number) => n.toString().padStart(l, '0');
+            const name = `List_voted_${d.getFullYear()}_${f(d.getMonth()+1,2)}_${f(d.getDate(),2)}_${f(d.getHours(),2)}_${f(d.getMinutes(),2)}_${f(d.getSeconds(),2)}.xlsx`;
+
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', name);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useGetVoteById(id?: number) {

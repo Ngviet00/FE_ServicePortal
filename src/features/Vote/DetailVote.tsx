@@ -3,10 +3,12 @@ import React, { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import voteApi, { useVote } from "@/api/voteApi";
+import voteApi, { useExportExcelUserHaveVoted, useVote } from "@/api/voteApi";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
-import { ShowToast } from "@/lib";
+import { RoleEnum, ShowToast } from "@/lib";
+import { Spinner } from "@/components/ui/spinner";
+import useHasRole from "@/hooks/useHasRole";
 
 const PAGE_SIZE = 100;
 
@@ -135,7 +137,7 @@ const DetailVote: React.FC = () => {
 			new Date(today.toDateString()) <= new Date(new Date(voteDetail?.vote?.EndDate).toDateString());
 
 		if (isVotingAllowed == false) {
-			ShowToast(lang == 'vi' ? 'Cuộc bình chọn đã đóng, không thể bình chọn' : 'This poll is closed and voting is not allowed', 'error')
+			ShowToast(lang == 'vi' ? 'Cuộc bình chọn không mở nên không thể bình chọn' : 'The poll is not open so voting is not possible', 'error')
 			return
 		}
 		setSelectedOptionId(voteOptionId);
@@ -146,6 +148,13 @@ const DetailVote: React.FC = () => {
 		})
         queryClient.invalidateQueries({ queryKey: ['vote-detail', id] });
 	}
+
+	const handleExportListVote = useExportExcelUserHaveVoted()
+	const handleExportExcel = async () => {
+		await handleExportListVote.mutateAsync(Number(id))
+	}
+
+	const isUnion = useHasRole([RoleEnum.UNION])
 
 	if (!!id && isLoadingVote) {
 		return <div>{lang === "vi" ? "Đang tải..." : "Loading..."}</div>;
@@ -167,6 +176,15 @@ const DetailVote: React.FC = () => {
 				<div className="text-[17px]">
 					<span className="font-medium text-red-600">{t('create.description')}:</span> {voteDetail?.vote?.Description}
 				</div>
+				{
+					isUnion && (
+						<div className="text-right">
+							<button onClick={handleExportExcel} className="bg-black px-3 py-2 rounded-[3px] text-white text-sm hover:cursor-pointer">
+								{handleExportListVote.isPending ? <Spinner/> : lang == 'vi' ? 'Xuất excel' : 'Export excel'}
+							</button>
+						</div>
+					)
+				}
 			</div>
 
 			{voteDetail?.options.map((opt: any, idx: number) => {

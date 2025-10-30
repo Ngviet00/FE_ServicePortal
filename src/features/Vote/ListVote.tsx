@@ -211,7 +211,6 @@ export default function ListVote() {
                                                     </>
                                                 )
                                             }
-
                                         </div>
                                     </td>
 								</tr>
@@ -269,24 +268,29 @@ export default function ListVote() {
 							</div>
 
 							<div className="flex items-center justify-end gap-2"> 
-                                <Link 
-                                    to={`/vote/${vote?.Id}`} 
-                                    className="bg-blue-600 text-white px-3 py-1 rounded-[3px] text-sm inline-flex items-center justify-center whitespace-nowrap text-[15px] h-7" 
-                                >
-                                    {lang == 'vi' ? 'Chi tiết' : 'Detail'}
-                                </Link>
-                                
-                                <Link 
-                                    to={`/vote/edit/${vote?.Id}`} 
-                                    className="bg-yellow-600 text-white px-[10px] py-1 rounded-[3px] text-sm inline-flex items-center justify-center whitespace-nowrap text-[15px] h-7" 
-                                >
-                                    {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                </Link>
-                                
-                                <ButtonDeleteComponent
-                                    id={vote?.Id}
-                                    onDelete={() => handleDelete(vote?.Id)}
-                                />
+								<Link 
+									to={`/vote/${vote?.Id}`} 
+									className="bg-blue-600 text-white px-3 py-1 rounded-[3px] text-sm inline-flex items-center justify-center whitespace-nowrap text-[15px] h-6" 
+								>
+									{lang == 'vi' ? 'Chi tiết' : 'Detail'}
+								</Link>
+								{
+									isUnion && vote.Status != 3 && (
+										<>
+											<Link 
+												to={`/vote/edit/${vote?.Id}`} 
+												className="bg-yellow-600 text-white px-[10px] py-1 rounded-[3px] text-sm inline-flex items-center justify-center whitespace-nowrap text-[15px] h-6" 
+											>
+												{lang == 'vi' ? 'Sửa' : 'Edit'}
+											</Link>
+											
+											<ButtonDeleteComponent
+												id={vote?.Id}
+												onDelete={() => handleDelete(vote?.Id)}
+											/>
+										</>
+									)
+								}
                             </div>
 						</div>
 					))
