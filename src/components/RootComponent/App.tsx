@@ -187,7 +187,7 @@ function App() {
 		{ path: "/vote/edit/:id", element: <CreateVote />, allowedRoles: [RoleEnum.UNION] },
 		{ path: "/vote", element: <ListVote />},
 		{ path: "/vote/:id", element: <DetailVote />},
-
+		
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},
 		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},

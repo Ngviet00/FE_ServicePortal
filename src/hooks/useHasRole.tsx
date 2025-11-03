@@ -1,3 +1,4 @@
+import { RoleEnum } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
 
 const useHasRole = (allowedRoles: string[]): boolean => {
@@ -7,7 +8,7 @@ const useHasRole = (allowedRoles: string[]): boolean => {
 		return false
 	}
 
-	if (roles.includes('SuperAdmin')) {
+	if (roles.includes(RoleEnum.SUPERADMIN)) {
 		return true;
 	}
 

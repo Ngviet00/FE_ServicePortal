@@ -72,7 +72,7 @@
 		},
 		"leave_request": {
 			"statistical": "Statistical",
-			"title": "Leave, timekeeping",
+			"title": "HR",
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
 			"over_time": "Overtime",
@@ -93,8 +93,8 @@
 			"create": "Create new request",
 			"quote": "Response quote"
 		},
-		"vote": {
-			"title": "Vote",
+		"union": {
+			"title": "Union",
 			"create": "Create vote",
 			"list": "List vote"
 		},

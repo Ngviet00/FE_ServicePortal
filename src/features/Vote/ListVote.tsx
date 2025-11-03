@@ -6,10 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import useHasRole from "@/hooks/useHasRole";
 import { RoleEnum, useDebounce } from "@/lib";
 import { formatDate } from "@/lib/time";
+import { useAuthStore } from "@/store/authStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function ListVote() {
 	const { t } = useTranslation("vote")
@@ -18,6 +19,8 @@ export default function ListVote() {
 	const [searchTitle, setsearchTitle] = useState("");
 	const [statusId, setStatusId] = useState(1);
 	const queryClient = useQueryClient();
+
+	const user = useAuthStore((u) => u.user);
 
 	const [totalPage, setTotalPage] = useState(0);
 	const [page, setPage] = useState(1);
@@ -28,14 +31,20 @@ export default function ListVote() {
 
     const isUnion = useHasRole([RoleEnum.UNION])
 
+	const [searchParams] = useSearchParams();
+	const roleCode = searchParams.get("role");
+
 	const { data: votes = [], isPending, isError, error } = useQuery({
-		queryKey: ["get-all-votes", { page, pageSize, debounceSearchTitle, statusId }],
+		queryKey: ["get-all-votes", { page, pageSize, debounceSearchTitle, statusId, roleCode }],
 		queryFn: async () => {
 			const res = await voteApi.getAll({
 				Page: page,
 				PageSize: pageSize,
 				SearchTitle: debounceSearchTitle ?? '',
-                StatusId: statusId
+                StatusId: statusId,
+				RoleCode: roleCode ?? '',
+				UserCode: user?.userCode ?? '',
+				DepartmentId: user?.departmentId
 			});
 			setTotalPage(res.data.total_pages);
 			return res.data.data;
@@ -79,9 +88,13 @@ export default function ListVote() {
 				<h2 className="text-2xl font-semibold text-gray-800">
 					{t("list.title")}
 				</h2>
-				<button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition hover:cursor-pointer">
-                    <Link to="/vote/create">+ {t("list.button_new_vote")}</Link>
-				</button>
+				{
+					useHasRole([roleCode ?? '']) && (
+						<button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition hover:cursor-pointer">
+							<Link to={`/vote/create?role=${roleCode}`}>{t("list.button_new_vote")}</Link>
+						</button>
+					)
+				}
 			</div>
 
 			<div className="flex flex-col md:flex-row md:items-end gap-4">
@@ -198,7 +211,7 @@ export default function ListVote() {
                                                 isUnion && vote.Status != 3 && (
                                                     <>
                                                         <Link 
-                                                            to={`/vote/edit/${vote?.Id}`} 
+                                                            to={`/vote/edit/${vote?.Id}?role=${roleCode}`} 
                                                             className="bg-yellow-600 text-white px-[10px] py-1 rounded-[3px] text-sm inline-flex items-center justify-center whitespace-nowrap text-[15px] h-6" 
                                                         >
                                                             {lang == 'vi' ? 'Sửa' : 'Edit'}
@@ -278,7 +291,7 @@ export default function ListVote() {
 									isUnion && vote.Status != 3 && (
 										<>
 											<Link 
-												to={`/vote/edit/${vote?.Id}`} 
+												to={`/vote/edit/${vote?.Id}?role=${roleCode}`} 
 												className="bg-yellow-600 text-white px-[10px] py-1 rounded-[3px] text-sm inline-flex items-center justify-center whitespace-nowrap text-[15px] h-6" 
 											>
 												{lang == 'vi' ? 'Sửa' : 'Edit'}

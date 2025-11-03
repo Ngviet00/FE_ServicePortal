@@ -131,13 +131,13 @@ export const handleInputClickShowPicker = (e: React.FocusEvent<HTMLInputElement>
 };
 
 export enum RoleEnum {
-    SUPERADMIN = "SuperAdmin",
+    SUPERADMIN = "SUPERADMIN",
     HR = "HR",
     IT = "IT",
-    UNION = "Union",
-    USER = "User",
+    UNION = "UNION",
+    USER = "USER",
     GM = "GM",
-    PURCHASING = "Purchasing"
+    PURCHASING = "PURCHASING"
 }
 
 export const isValidEmail = (email: string): boolean => {

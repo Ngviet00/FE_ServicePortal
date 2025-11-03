@@ -10,7 +10,8 @@
         "title_option": "Title option",
         "content_option": "Content option",
         "img_option": "Image",
-        "save": "Save"
+        "save": "Save",
+        "department_apply": "Department apply"
     },
     "list": {
         "title": "List vote",

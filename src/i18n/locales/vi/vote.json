@@ -8,7 +8,8 @@
         "option": "Lựa chọn",
         "add_options": "Thêm lựa chọn mới",
         "img_option": "Ảnh",
-        "save": "Lưu"
+        "save": "Lưu",
+        "department_apply": "Bộ phận/Phòng ban áp dùng"
     },
     "list": {
         "title": "Danh sách bình chọn",

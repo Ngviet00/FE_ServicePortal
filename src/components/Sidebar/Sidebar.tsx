@@ -42,7 +42,8 @@ export default function Sidebar() {
 		queryKey: ["count-wait-approval-sidebar"],
 		queryFn: async () => {
 			const res = await approvalApi.CountWaitApprovalAndAssignedInSidebar({
-				UserCode: user?.userCode,
+				DepartmentId: user?.departmentId,
+				UserCode: user?.userCode,	
 				OrgPositionId: user?.orgPositionId ?? -9999,
 			});
 			return res.data.data;
@@ -104,6 +105,11 @@ export default function Sidebar() {
 								<menu.icon size={20} />
 								<span className="pl-5 flex-1">
 									{t(menu.label)}
+									{
+										countWaitApprovalSidebar?.countVote?.countVoteHROpen > 0 && menu.key == "leave_request"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countVote?.countVoteHROpen})</span>
+											: <></>
+									}
 									{ 
 										countWaitApprovalSidebar?.total > 0 && menu.key == "approval"
 											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.total})</span>
@@ -119,10 +125,9 @@ export default function Sidebar() {
 											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countWaitResponseQuote})</span>
 											: <></>
 									}
-
 									{
-										countWaitApprovalSidebar?.countVoteIsOpen > 0 && menu.key == "Vote"
-											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countVoteIsOpen})</span>
+										countWaitApprovalSidebar?.countVote?.countVoteUnionOpen > 0 && menu.key == "Union"
+											? <span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>({countWaitApprovalSidebar?.countVote?.countVoteUnionOpen})</span>
 											: <></>
 									}
 									
@@ -219,9 +224,14 @@ export default function Sidebar() {
 																({countWaitApprovalSidebar?.countWaitResponseQuote})
 															</span>
 														)}
-														{countWaitApprovalSidebar?.countVoteIsOpen > 0 && child.route == "/vote" && (
+														{countWaitApprovalSidebar?.countVote?.countVoteHROpen > 0 && child.route == `/vote?role=${RoleEnum.HR}` && (
 															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
-																({countWaitApprovalSidebar?.countVoteIsOpen})
+																({countWaitApprovalSidebar?.countVote?.countVoteHROpen})
+															</span>
+														)}
+														{countWaitApprovalSidebar?.countVote?.countVoteUnionOpen > 0 && child.route == `/vote?role=${RoleEnum.UNION}` && (
+															<span className="text-red-500 font-bold" style={{paddingLeft: '5px'}}>
+																({countWaitApprovalSidebar?.countVote?.countVoteUnionOpen})
 															</span>
 														)}
 													</span>

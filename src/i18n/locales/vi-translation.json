@@ -93,10 +93,10 @@
 			"create": "Tạo yêu cầu mới",
 			"quote": "Phản hồi báo giá"
 		},
-		"vote": {
-			"title": "Bình chọn",
+		"union": {
+			"title": "Công đoàn",
 			"create": "Tạo mới",
-			"list": "Danh sách"
+			"list": "Danh sách bỏ phiếu"
 		},
 		"approval": {
 			"title": "Phê duyệt",

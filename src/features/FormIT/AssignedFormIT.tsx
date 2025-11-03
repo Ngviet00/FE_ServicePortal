@@ -15,7 +15,6 @@ import ITRequestForm from './Components/ITRequestForm';
 import ModalConfirm from '@/components/ModalConfirm';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import userApi from '@/api/userApi';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
 import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
 import FileListPreview, { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
@@ -106,7 +105,7 @@ const AssignedFormIT = () => {
     const { data: ItMembers = [] } = useQuery({
         queryKey: ['get-all-it-member'],
         queryFn: async () => {
-            const res = await userApi.GetMultipleUserViclockByOrgPositionId(9)
+            const res = await itFormApi.getMemberITAssigned()
             return res.data.data
         },
     });

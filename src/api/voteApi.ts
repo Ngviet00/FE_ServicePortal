@@ -6,7 +6,10 @@ export interface GetAllVote {
     Page: number;
     PageSize: number;
     SearchTitle?: string
-    StatusId?: number
+    StatusId?: number,
+    RoleCode?: string,
+    UserCode?: string,
+    DepartmentId?: number | null
 }
 
 export interface IRole {
@@ -19,6 +22,7 @@ interface VoteRequest {
     VoteId: number,
     VoteOptionId: number,
     UserCode: string,
+    DepartmentId?: number | null
 }
 
 interface GetListUserNotVoteByDepartmentId {

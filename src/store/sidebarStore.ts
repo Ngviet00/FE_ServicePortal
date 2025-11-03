@@ -1,4 +1,5 @@
-import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, Vote } from "lucide-react";
+import { RoleEnum } from "@/lib";
+import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, ShieldCheck } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -63,6 +64,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ label: "sidebar.leave_request.over_time", route: "/overtime/create" },
 			{ label: "sidebar.leave_request.missing_attendace_data", route: "/miss-timekeeping/create" },
 			{ label: "sidebar.leave_request.internal_memo_hr", route: "/internal-memo-hr/create" },
+			{ label: "sidebar.union.list", route: `/vote?role=${RoleEnum.HR}` },
 			{ label: "sidebar.leave_request.time_keeping", route: "/time-keeping" },
 			{ label: "sidebar.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 		],
@@ -88,12 +90,11 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		],
 	},
 	{
-		key: "Vote",
-		label: "sidebar.vote.title",
-		icon: Vote,
+		key: "Union",
+		label: "sidebar.union.title",
+		icon: ShieldCheck,
 		children: [
-			{ label: "sidebar.vote.create", route: "/vote/create" },
-			{ label: "sidebar.vote.list", route: "/vote" },
+			{ label: "sidebar.union.list", route: `/vote?role=${RoleEnum.UNION}` },
 		],
 	},
 	{

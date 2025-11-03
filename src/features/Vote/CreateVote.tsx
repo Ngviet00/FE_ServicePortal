@@ -16,9 +16,11 @@ import { useCreateVote, useUpdateVote, useGetVoteById } from "@/api/voteApi";
 import { Spinner } from "@/components/ui/spinner";
 import { getVietnamTime } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ShowToast } from "@/lib";
+import orgUnitApi from "@/api/orgUnitApi";
+import { MultiSelect } from "react-multi-select-component";
 
 export const CreateVote: React.FC = () => {
     const { t } = useTranslation("vote");
@@ -32,6 +34,9 @@ export const CreateVote: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEditMode = !!id;
+
+    const [searchParams] = useSearchParams();
+	const roleCode = searchParams.get("role");
 
     const { data: voteDetail, isLoading: isLoadingVote } = useGetVoteById(Number(id));
 
@@ -55,6 +60,7 @@ export const CreateVote: React.FC = () => {
     const voteSchema = z.object({
         title: z.string().min(1, "Bắt buộc"),
         note: z.string().optional(),
+        departments: z.array(z.number()).nonempty({ message: "Required" }),
         dateRange: z.object({
             from: z.date(),
             to: z.date(),
@@ -78,6 +84,7 @@ export const CreateVote: React.FC = () => {
         defaultValues: {
             title: "",
             note: "",
+            departments: [] as number[],
             dateRange: {
                 from: new Date(),
                 to: new Date(),
@@ -92,10 +99,25 @@ export const CreateVote: React.FC = () => {
         name: "options",
     });
 
+    const { data: departments = [] } = useQuery({
+        queryKey: ['get-all-department'],
+        queryFn: async () => {
+            const res = await orgUnitApi.GetAllDepartment()
+            return res.data.data.map((dept: {id: number, name: string}) => ({
+                value: dept.id,
+                label: dept.name,
+            }));
+        },
+    });
+
     useEffect(() => {
         if (voteDetail?.data) {
             const v = voteDetail.data;
             setValue("title", v.title || "");
+
+            const selectedDepartments = v.isGlobalCompany ? departments.map((opt: {value: string}) => opt.value) : v?.departmentApplies?.map((item: { id: any; }) => item?.id);
+            setValue("departments", selectedDepartments);
+
             setValue("note", v.description || "");
             setValue("publishDate", v.datePublish?.split("T")[0] || "");
             setValue("dateRange", {
@@ -113,6 +135,7 @@ export const CreateVote: React.FC = () => {
 
             replace(mappedOptions);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [voteDetail, setValue, replace]);
 
     useEffect(() => {
@@ -157,6 +180,15 @@ export const CreateVote: React.FC = () => {
         formDataSend.append("StartDate", String(getVietnamTime("iso", data.dateRange.from)));
         formDataSend.append("EndDate", String(getVietnamTime("iso", data.dateRange.to)));
         formDataSend.append("CreatedBy", user?.userName ?? "");
+        formDataSend.append("UserCode", user?.userCode ?? "");
+        formDataSend.append("CreateRoleCode", roleCode ?? '');
+        formDataSend.append("IsGlobalCompany", String(data.departments.length == departments.length));
+
+        if (data.departments.length != departments.length) {
+            data.departments.forEach(id => {
+                formDataSend.append("DepartmentApplies[]", String(id))
+            })
+        }
 
         data.options.forEach((opt, idx) => {
             formDataSend.append(`VoteOptionRequests[${idx}].Id`, opt?.id?.toString() ?? "");
@@ -180,7 +212,7 @@ export const CreateVote: React.FC = () => {
             ? updateVote.mutateAsync({ id: Number(id), data: formDataSend })
             : createVote.mutateAsync(formDataSend));
 
-        navigate("/vote");
+        navigate(`/vote?role=${roleCode}`);
         queryClient.invalidateQueries({ queryKey: ["count-wait-approval-sidebar"] });
     };
 
@@ -195,7 +227,7 @@ export const CreateVote: React.FC = () => {
                     {t("create.title_page")}
                 </h2>
             	<button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition hover:cursor-pointer">
-                    <Link to="/vote">{t("list.title")}</Link>
+                    <Link to={`/vote?role=${roleCode}`}>{t("list.title")}</Link>
 				</button>
 			</div>
 
@@ -217,6 +249,44 @@ export const CreateVote: React.FC = () => {
                     {...register("note")}
                     placeholder={t("create.description")}
                     className="w-full min-h-[80px]"
+                />
+            </div>
+
+            <div>
+                <Label className="mb-2">{t("create.department_apply")}</Label>
+                <Controller
+                    control={control}
+                    name="departments"
+                    render={({ field, fieldState }) => {
+                        const selectedOptions = departments.filter((opt: {value: number}) => field.value?.includes(opt.value));
+                        return (
+                            <div className={fieldState.invalid ? "border border-red-500 rounded-[5px]" : ""}>
+                                <MultiSelect
+                                    className="dark:text-black"
+                                    options={departments}
+                                    value={selectedOptions}
+                                    onChange={(selected: any[]) => {
+                                        const values = selected.map(option => option.value);
+                                        field.onChange(values);
+                                    }}
+                                    labelledBy="Select"
+                                    hasSelectAll={true}
+                                    overrideStrings={{
+                                        selectSomeItems: "Chọn phòng ban...",
+                                        search: "Tìm kiếm...",
+                                        clearSearch: "Xoá tìm kiếm",
+                                        noOptions: "Không có phòng ban nào",
+                                        allItemsAreSelected: "Tất cả phòng ban",
+                                    }}
+                                    valueRenderer={(selected: any[]) => {
+                                        if (selected.length === 0) return "Chọn phòng ban...";
+                                        if (selected.length >= 8) return `Đã chọn ${selected.length}`;
+                                        return selected.map(s => s.label).join(", ");
+                                    }}
+                                />
+                            </div>
+                        )
+                    }}
                 />
             </div>
 

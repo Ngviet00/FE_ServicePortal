@@ -1,16 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
+import {
+    Chart as ChartJS,
+    Title,
+    Tooltip,
+    Legend,
+    CategoryScale,
+    LinearScale,
+    LineElement,
+    BarElement,
+    ArcElement,
+    PointElement,
+    Filler,
+} from 'chart.js';
+import React, { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import voteApi, { useExportExcelUserHaveVoted, useVote } from "@/api/voteApi";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
-import { RoleEnum, ShowToast } from "@/lib";
+import { ShowToast } from "@/lib";
 import { Spinner } from "@/components/ui/spinner";
-import useHasRole from "@/hooks/useHasRole";
+import { Pie } from "react-chartjs-2";
 
 const PAGE_SIZE = 100;
+
+ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement, Filler);
 
 const DetailVote: React.FC = () => {
 	const { t } = useTranslation("vote")
@@ -21,6 +36,7 @@ const DetailVote: React.FC = () => {
 	const [expandedDeptId, setExpandedDeptId] = useState<number | null>(null);
 	const [previewImage, setPreviewImage] = useState<string | null>(null);
 	const queryClient = useQueryClient();
+	const [showResult, setShowResult] = useState(false)
 
 	const [deptUsersCache, setDeptUsersCache] = useState<{
 		[deptId: number]: {
@@ -37,7 +53,7 @@ const DetailVote: React.FC = () => {
     const { id } = useParams();
 
 	const { data: voteDetail, isLoading: isLoadingVote } = useQuery({
-		queryKey: ['vote-detail', id],
+		queryKey: ['vote-detail', id, user?.userCode],
 		queryFn: async () => {
 			try {
 				const res = await voteApi.GetDetailVoteById(Number(id))
@@ -50,7 +66,7 @@ const DetailVote: React.FC = () => {
                 throw error;
             }
 		},
-		enabled: !!id,
+		enabled: !!id && !!user?.userCode,
 	});
 
 	useEffect(() => {
@@ -58,11 +74,10 @@ const DetailVote: React.FC = () => {
 			const selectedOpt = voteDetail.options.find((opt: any) => opt.isSelected == 1);
 			if (selectedOpt) {
 				setSelectedOptionId(selectedOpt.optionId);
+				setShowResult(true)
 			}
 		}
 	}, [voteDetail])
-
-	const totalVotesSum = voteDetail?.options.reduce((sum: any, item: any) => sum + (item.totalVotes || 0), 0);
 
 	const toggleExpand = (id: number) => {
 		setExpandedId(expandedId === id ? null : id);
@@ -140,14 +155,17 @@ const DetailVote: React.FC = () => {
 			ShowToast(lang == 'vi' ? 'Cuộc bình chọn không mở nên không thể bình chọn' : 'The poll is not open so voting is not possible', 'error')
 			return
 		}
-		setSelectedOptionId(voteOptionId);
+		
 		await vote.mutateAsync({
 			VoteId: Number(id),
 			VoteOptionId: voteOptionId,
-			UserCode: user?.userCode ?? ''
+			UserCode: user?.userCode ?? '',
+			DepartmentId: user?.departmentId
 		})
         queryClient.invalidateQueries({ queryKey: ['vote-detail', id] });
 		setDeptUsersCache({});
+		setSelectedOptionId(voteOptionId);
+		setShowResult(true)
 	}
 
 	const handleExportListVote = useExportExcelUserHaveVoted()
@@ -155,7 +173,28 @@ const DetailVote: React.FC = () => {
 		await handleExportListVote.mutateAsync(Number(id))
 	}
 
-	const isUnion = useHasRole([RoleEnum.UNION])
+	const pieData = useMemo(() => {
+		if (!voteDetail?.options?.length)
+			return { labels: [], datasets: [] };
+
+		const labels = voteDetail.options.map((opt: any) => opt.title);
+		const data = voteDetail.options.map((opt: any) => opt.totalVotes);
+
+		const baseColors = ['#4CAF50', '#FFC107', '#2196F3', '#FF5722', '#9C27B0', '#00BCD4'];
+		const backgroundColor = data.map((_: any, i: number) => baseColors[i % baseColors.length]);
+
+		return {
+			labels,
+			datasets: [
+				{
+					label: 'Số lượng bình chọn',
+					data,
+					backgroundColor,
+					borderWidth: 1,
+				},
+			],
+		};
+	}, [voteDetail]);
 
 	if (!!id && isLoadingVote) {
 		return <div>{lang === "vi" ? "Đang tải..." : "Loading..."}</div>;
@@ -178,7 +217,7 @@ const DetailVote: React.FC = () => {
 					<span className="font-medium text-red-600">{t('create.description')}:</span> {voteDetail?.vote?.Description}
 				</div>
 				{
-					isUnion && (
+					voteDetail?.vote?.UserCodeCreated == user?.userCode && (
 						<div className="text-right">
 							<button onClick={handleExportExcel} className="bg-black px-3 py-2 rounded-[3px] text-white text-sm hover:cursor-pointer">
 								{handleExportListVote.isPending ? <Spinner/> : lang == 'vi' ? 'Xuất excel' : 'Export excel'}
@@ -188,9 +227,20 @@ const DetailVote: React.FC = () => {
 				}
 			</div>
 
+			<div className='flex justify-center'>
+				{
+					showResult && (
+						<div className="w-72 h-72">
+							<Pie
+								data={pieData}
+								options={{ responsive: true, maintainAspectRatio: false, plugins:{ legend: {display: true}} }}
+							/>
+						</div>
+					)
+				}
+			</div>
+
 			{voteDetail?.options.map((opt: any, idx: number) => {
-				const percentRaw = totalVotesSum == 0 ? 0 : (opt?.totalVotes / totalVotesSum) * 100;
-				const percent = percentRaw % 1 === 0 ? percentRaw.toFixed(0) : percentRaw.toFixed(1);
 				return (
 					<div
 						key={opt?.optionId}
@@ -222,30 +272,18 @@ const DetailVote: React.FC = () => {
 							</div>
 
 							<div className="flex items-center justify-between sm:justify-end gap-3">
-								<div className="flex flex-col items-end text-right">
-									<div className="text-2xl sm:text-3xl font-bold text-blue-600 leading-tight">
-										{Number.isInteger(parseFloat(percent))
-										? parseInt(percent)
-										: parseFloat(percent).toFixed(1)}
-										%
-									</div>
-									<div className="text-gray-500 font-normal md:text-xl sm:text-sm">
-										({opt?.totalVotes} {t("detail.vote")})
-									</div>
-								</div>
-
 								<button
 									disabled={selectedOptionId != null || vote.isPending}
 									onClick={(e) => {
 										e.stopPropagation();
 										handleVote(opt?.optionId);
 									}}
-									className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+									className={`px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 ${
 										selectedOptionId != null ? "cursor-not-allowed" : "hover:scale-105 hover:cursor-pointer"
 									} ${
 										selectedOptionId === opt?.optionId
 										? "bg-blue-600 text-white shadow-sm"
-										: "bg-gray-100 hover:bg-gray-200 text-gray-800"
+										: "bg-gray-300 hover:bg-gray-500 font-bold"
 									}`}
 								>
 								{selectedOptionId === opt?.optionId
@@ -299,58 +337,61 @@ const DetailVote: React.FC = () => {
 					);
 				})
 			}
+			{
+				voteDetail?.vote?.UserCodeCreated == user?.userCode && (
+					<div className="mt-8">
+						<h3 className="text-xl font-semibold text-red-600 mb-3">
+							{t('detail.user_not_vote')}
+						</h3>
 
-			<div className="mt-8">
-				<h3 className="text-xl font-semibold text-red-600 mb-3">
-					{t('detail.user_not_vote')}
-				</h3>
+						<div className="space-y-3">
+							{voteDetail?.departments?.map((dept: any, idx: number) => {
+								const cache = deptUsersCache[dept.DepartmentId];
+								const isExpanded = expandedDeptId === dept.DepartmentId;
 
-				<div className="space-y-3">
-					{voteDetail?.departments?.map((dept: any, idx: number) => {
-						const cache = deptUsersCache[dept.DepartmentId];
-            			const isExpanded = expandedDeptId === dept.DepartmentId;
-
-						return (
-							<div key={idx} className="border rounded-lg bg-white p-4 transition-all duration-300">
-								<div className="flex justify-between items-center cursor-pointer" onClick={() => toggleDept(dept?.DepartmentId)}>
-									<h4 className="font-semibold text-gray-700">
-										{dept?.DepartmentName}{" "}
-										<span className="text-red-500 text-sm">
-											({dept?.NotVotedCount} {dept?.NotVotedCount == 1 ? t('detail.person') : t('detail.people')})
-										</span>
-									</h4>
-									{isExpanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
-								</div>
-
-								<div className={`overflow-hidden ${ isExpanded ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}`}>
-									{cache && cache.users.length > 0 && (
-										<ul className="list-disc list-inside text-base text-gray-700 pl-3 mt-2 max-h-[300px] overflow-y-auto">
-											{cache.users.map((user: any) => (
-												<li className="text-mute font-medium" key={user.UserCode}>({user.UserCode}) {user.UserName}</li>
-											))}
-										</ul>
-									)}
-									{cache && cache.loadedPages * PAGE_SIZE < dept.NotVotedCount && (
-										<div className="mt-2 flex justify-center">
-											<button
-												className={`px-3 py-2 rounded text-sm hover:cursor-pointer ${
-													cache.loading
-													? "bg-gray-400 cursor-not-allowed text-white"
-													: "bg-blue-600 hover:bg-blue-700 text-white"
-												}`}
-												onClick={() => !cache.loading && loadMoreUsers(dept.DepartmentId)}
-												disabled={cache.loading}
-											>
-												{cache.loading ? "Loading..." : "Xem thêm"}
-											</button>
+								return (
+									<div key={idx} className="border rounded-lg bg-white p-4 transition-all duration-300">
+										<div className="flex justify-between items-center cursor-pointer" onClick={() => toggleDept(dept?.DepartmentId)}>
+											<h4 className="font-semibold text-gray-700">
+												{dept?.DepartmentName}{" "}
+												<span className="text-red-500 text-sm">
+													({dept?.NotVotedCount} {dept?.NotVotedCount == 1 ? t('detail.person') : t('detail.people')})
+												</span>
+											</h4>
+											{isExpanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
 										</div>
-									)}
-								</div>
-							</div>
-						)}
-					)}
-				</div>
-			</div>
+
+										<div className={`overflow-hidden ${ isExpanded ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}`}>
+											{cache && cache.users.length > 0 && (
+												<ul className="list-disc list-inside text-base text-gray-700 pl-3 mt-2 max-h-[300px] overflow-y-auto">
+													{cache.users.map((user: any) => (
+														<li className="text-mute font-medium" key={user.UserCode}>({user.UserCode}) {user.UserName}</li>
+													))}
+												</ul>
+											)}
+											{cache && cache.loadedPages * PAGE_SIZE < dept.NotVotedCount && (
+												<div className="mt-2 flex justify-center">
+													<button
+														className={`px-3 py-2 rounded text-sm hover:cursor-pointer ${
+															cache.loading
+															? "bg-gray-400 cursor-not-allowed text-white"
+															: "bg-blue-600 hover:bg-blue-700 text-white"
+														}`}
+														onClick={() => !cache.loading && loadMoreUsers(dept.DepartmentId)}
+														disabled={cache.loading}
+													>
+														{cache.loading ? "Loading..." : "Xem thêm"}
+													</button>
+												</div>
+											)}
+										</div>
+									</div>
+								)}
+							)}
+						</div>
+					</div>
+				)
+			}
 		</div>
 	);
 };

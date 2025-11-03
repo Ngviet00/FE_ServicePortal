@@ -3,6 +3,7 @@ import axiosClient from './axiosClient';
 import { useMutation } from '@tanstack/react-query';
 
 export interface CountWaitApprovalAndAssignedInSidebar {
+    DepartmentId?: number | null,
     UserCode?: string,
     OrgPositionId?: number
 }
