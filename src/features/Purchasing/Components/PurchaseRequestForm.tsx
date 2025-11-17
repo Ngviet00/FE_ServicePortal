@@ -405,6 +405,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
                 <div className="my-2">
                     {uploadedFiles?.length > 0 && (
                         <FileListPreviewDownload
+                            isShowCheckbox={true}
                             uploadedFiles={uploadedFiles}
                             onDownload={handleDownloadFile}
                             onRemoveUploaded={

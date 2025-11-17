@@ -99,7 +99,7 @@ export function FileListPreviewDownload ({
         uploadedFiles = [],
         onDownload,
         onRemoveUploaded,
-        isShowCheckbox = true
+        isShowCheckbox = false
     }: FileListPreviewDownloadProps) {
 
     const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
