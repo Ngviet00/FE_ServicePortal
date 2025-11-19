@@ -1,5 +1,5 @@
 import { RoleEnum } from "@/lib";
-import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, ShieldCheck } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, ShieldCheck, BookText } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -95,6 +95,17 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 		icon: ShieldCheck,
 		children: [
 			{ label: "sidebar.union.list", route: `/vote?role=${RoleEnum.UNION}` },
+		],
+	},
+	{
+		key: "SAP",
+		label: "sidebar.SAP.title",
+		icon: BookText,
+		children: [
+			{ label: "sidebar.SAP.statistics", route: `/sap/statistics` },
+			{ label: "sidebar.SAP.config", route: `/sap/config` },
+			{ label: "sidebar.SAP.create", route: `/sap/create` },
+			{ label: "sidebar.SAP.list", route: `/sap` },
 		],
 	},
 	{

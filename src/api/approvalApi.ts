@@ -27,7 +27,16 @@ export interface ApprovalRequest {
     Status?: boolean,
     Note?: string,
     StatusRequest?: number,
-    SelectedQuoteId?: number
+    SelectedQuoteId?: number,
+    SAPApprovalRequest?: {
+        AssignedUsers?: {id: string, name: string}[],
+        DisplayTitle?: string,
+        IdDefineWorkFlow?: number,
+        Step?: number,
+        Status?: string,
+        Condition?: string,
+        Files?: File[]
+    }
 }
 
 export interface ListHistoryApprovalOrProcessedRequest {

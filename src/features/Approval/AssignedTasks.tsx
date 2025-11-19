@@ -20,6 +20,8 @@ function GetUrlDetailWaitApproval(item: PendingApprovalResponse) {
 		result = `/approval/assigned-form-it/${item?.code ?? "1"}`;
 	} else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
 		result = `/approval/assigned-purchase/${item?.code ?? "1"}`;
+	} else if (requestTypeId == REQUEST_TYPE.SAP) {
+		result = `/view-sap-approval/${item?.code ?? "1"}`;
 	}
 
 	return result;

@@ -98,6 +98,13 @@
 			"create": "Tạo mới",
 			"list": "Danh sách bỏ phiếu"
 		},
+		"SAP": {
+			"title": "SAP",
+			"statistics": "Thống kê",
+			"config": "Cấu hình",
+			"create": "Tạo yêu cầu",
+			"list": "Danh sách đã tạo"
+		},
 		"approval": {
 			"title": "Phê duyệt",
 			"pending_approval": "Chờ duyệt",

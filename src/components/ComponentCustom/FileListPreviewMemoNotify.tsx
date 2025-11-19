@@ -70,15 +70,21 @@ export default function FileListPreview({
                 ))
             }
 
-            {/* new file */}
             {
                 files.map((file, index) => (
-                    <li key={`new-${index}`} className="flex items-center justify-between bg-gray-100 p-2 rounded-md">
+                    <li 
+                        key={`new-${index}`} 
+                        className="inline-flex items-center bg-gray-100 p-2 rounded-md mr-3" 
+                    >
                         <div className="flex items-center space-x-2">
                             {getFileIcon(file)}
                             <span className="text-sm">{file.name}</span>
                         </div>
-                        <button type="button" onClick={() => onRemove(index)} className="text-red-500 hover:text-red-700 hover:cursor-pointer">
+                        <button 
+                            type="button" 
+                            onClick={() => onRemove(index)} 
+                            className="text-red-500 hover:text-red-700 hover:cursor-pointer ml-4"
+                        >
                             <X size={16} />
                         </button>
                     </li>

@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { RoleEnum } from "@/lib";
+import { RoleEnum, UNIT_ENUM } from "@/lib";
 import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
 import "./style.css"
@@ -39,7 +39,7 @@ export default function Sidebar() {
 	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgPositionId !== null && user.orgPositionId !== undefined;
 
 	const { data: countWaitApprovalSidebar } = useQuery({
-		queryKey: ["count-wait-approval-sidebar"],
+		queryKey: ["count-wait-approval-sidebar", user?.userCode],
 		queryFn: async () => {
 			const res = await approvalApi.CountWaitApprovalAndAssignedInSidebar({
 				DepartmentId: user?.departmentId,
@@ -166,19 +166,13 @@ export default function Sidebar() {
 											return null
 										}
 
-										// if (child.route === "/purchase/statistical" && !isPurchase) {
-										// 	return null
-										// }
+										if (child.route == '/sap/statistics' && (!isSuperAdmin || !isIT)) {
+											return null;
+										}
 
-										// if (child.route === '/management-time-keeping') {
-										// 	if (!havePermissionMngTimeKeeping) {
-										// 		return null;
-										// 	}
-
-										// 	if (!hasHRRole && !havePermissionMngTimeKeeping) {
-										// 		return null
-										// 	}
-										// }
+										if (child.route == '/sap/config' && user?.unitId != UNIT_ENUM.GM && user?.unitId != UNIT_ENUM.Manager) {
+											return null;
+										}
 
 										const isActive = currentPath === child.route;
 										
