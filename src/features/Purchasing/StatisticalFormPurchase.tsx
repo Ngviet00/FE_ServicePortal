@@ -168,12 +168,8 @@ const StatisticalFormPurchase = () => {
 
                                 return (
                                     <tr key={index} className="hover:bg-gray-100 cursor-pointer border-b border-[#d3d3d3d9]">
-                                        <td className="px-3 py-2">
-                                            <Link to={`/approval/view-purchase/${item.id ?? '1'}`} className='text-blue-600 underline'>
-                                                {item.code}
-                                            </Link>
-                                        </td>
-                                        <td className="px-3 py-2">{item.userNameRequestor}</td>
+                                        <Link to={`/view/purchase/${item?.code ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                        <td className="px-3 py-2">{item.userNameCreatedForm}</td>
                                         <td className="px-3 py-2">{item.departmentName}</td>
                                         <td className="px-3 py-2">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                         <td className="px-3 py-2">

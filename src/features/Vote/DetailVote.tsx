@@ -22,6 +22,7 @@ import { useAuthStore } from "@/store/authStore";
 import { ShowToast } from "@/lib";
 import { Spinner } from "@/components/ui/spinner";
 import { Pie } from "react-chartjs-2";
+import { formatDate } from '@/lib/time';
 
 const PAGE_SIZE = 100;
 
@@ -212,9 +213,23 @@ const DetailVote: React.FC = () => {
 
 			<div className="mb-2">
 				<h2 className="text-[20px]"><span className="font-medium text-red-600">{t('create.title')}: </span>{voteDetail?.vote?.Title}</h2>
-				
-				<div className="text-[17px]">
-					<span className="font-medium text-red-600">{t('create.description')}:</span> {voteDetail?.vote?.Description}
+				{
+					voteDetail?.vote?.Description && (
+						<div className="text-[17px]">
+							<span className="font-medium text-red-600">{t('create.description')}:</span> {voteDetail?.vote?.Description}
+						</div>
+					)
+				}
+				<div className='mt-2 text-gray-500'>
+					{lang == 'vi' ? 'Người tạo' : 'Created By'}: <span className='font-bold'>{voteDetail?.vote?.CreatedBy}</span>
+					, {lang == 'vi' ? 'Thời gian tạo' : 'Created At'}: <span className='font-bold'>{formatDate(voteDetail?.vote?.CreatedAt ?? '', 'yyyy-MM-dd HH:mm:ss')}</span>
+				</div>
+				<div className='mt-2 text-gray-500'>
+					{lang == 'vi' ? 'Bộ phận áp dụng' : 'Department apply'}: <span className='font-bold'>
+						{
+							voteDetail?.vote?.IsGlobalCompany == false ? voteDetail?.departmentApplies?.map((item: {Id: number, Name: string}) => item.Name)?.join(', ') : (lang == 'vi' ? 'Tất cả phòng ban' : 'All department')
+						}
+					</span>
 				</div>
 				{
 					voteDetail?.vote?.UserCodeCreated == user?.userCode && (

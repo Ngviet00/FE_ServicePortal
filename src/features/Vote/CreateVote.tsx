@@ -180,7 +180,7 @@ export const CreateVote: React.FC = () => {
         formDataSend.append("StartDate", String(getVietnamTime("iso", data.dateRange.from)));
         formDataSend.append("EndDate", String(getVietnamTime("iso", data.dateRange.to)));
         formDataSend.append("CreatedBy", user?.userName ?? "");
-        formDataSend.append("UserCode", user?.userCode ?? "");
+        formDataSend.append("UserCodeCreated", user?.userCode ?? "");
         formDataSend.append("CreateRoleCode", roleCode ?? '');
         formDataSend.append("IsGlobalCompany", String(data.departments.length == departments.length));
 

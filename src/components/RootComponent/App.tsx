@@ -188,8 +188,8 @@ function App() {
 		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />},
 
 		//vote
-		{ path: "/vote/create", element: <CreateVote />, allowedRoles: [RoleEnum.UNION] },
-		{ path: "/vote/edit/:id", element: <CreateVote />, allowedRoles: [RoleEnum.UNION] },
+		{ path: "/vote/create", element: <CreateVote />, allowedRoles: [RoleEnum.UNION, RoleEnum.HR] },
+		{ path: "/vote/edit/:id", element: <CreateVote />, allowedRoles: [RoleEnum.UNION, RoleEnum.HR] },
 		{ path: "/vote", element: <ListVote />},
 		{ path: "/vote/:id", element: <DetailVote />},
 
