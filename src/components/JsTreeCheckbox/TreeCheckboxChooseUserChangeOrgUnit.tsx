@@ -120,6 +120,15 @@ export function TreeCheckboxChooseUserChangeOrgUnit({ data, onChange, loadChildr
 					return attachChildren(prev);
 				});
 
+				const preChecked = new Set(checkedSet);
+				for (const child of children) {
+					if (child.type === "user" && child.metaData?.hasRoleSAP === 1) {
+						preChecked.add(child.id);
+					}
+				}
+				const updated = updateParentState(node.id, preChecked);
+				setCheckedSet(updated);
+
 				if (checkedSet.has(node.id)) {
 					const newSet = new Set(checkedSet);
 					const collectAllChildIds = (nodes: TreeNode[]): string[] => {

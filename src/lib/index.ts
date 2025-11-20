@@ -137,7 +137,8 @@ export enum RoleEnum {
     UNION = "UNION",
     USER = "USER",
     GM = "GM",
-    PURCHASING = "PURCHASING"
+    PURCHASING = "PURCHASING",
+    MANAGER = "MANAGER",
 }
 
 export const isValidEmail = (email: string): boolean => {
@@ -167,7 +168,8 @@ export enum REQUEST_TYPE {
     OVERTIME = 5,
     MISS_TIMEKEEPING = 6,
     INTERNAL_MEMO_HR = 7,
-    TIMEKEEPING = 8
+    TIMEKEEPING = 8,
+    SAP = 9,
 }
 
 export enum IT_CATEGORY {
@@ -273,4 +275,15 @@ export function GetUrlViewDetail(requestTypeId: number, code: string) {
 	}
 
 	return result
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function parseJSON<T = Record<string, any>>(value: string | null | undefined): T {
+    if (!value) return {} as T;
+
+    try {
+        return JSON.parse(value) as T;
+    } catch {
+        return {} as T;
+    }
 }

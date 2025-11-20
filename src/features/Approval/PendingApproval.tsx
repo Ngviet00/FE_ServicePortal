@@ -60,6 +60,9 @@ function GetUrlDetailWaitApproval(item: any) {
 	else if (requestTypeId == REQUEST_TYPE.TIMEKEEPING) {
 		result = `/view/timekeeping/${item?.code ?? '1'}?mode=approval`
 	}
+	else if (requestTypeId == REQUEST_TYPE.SAP) {
+		result = `/view-sap-approval/${item?.code ?? '1'}`
+	}
 
 	return result
 }

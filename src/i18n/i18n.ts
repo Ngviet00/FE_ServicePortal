@@ -44,6 +44,9 @@ import viHr from './locales/vi/hr.json'
 import enVote from './locales/en/vote.json'
 import viVote from './locales/vi/vote.json'
 
+import enSAP from './locales/en/sap.json'
+import viSAP from './locales/vi/sap.json'
+
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
@@ -52,6 +55,7 @@ i18n
     debug: false,
     defaultNS: 'translation',
     ns: [
+		'sap',
 		'admin',
 		'pendingApproval',
 		'requestType',
@@ -68,6 +72,7 @@ i18n
 	],
     resources: {
 		en: {
+			sap: enSAP,
 			vote: enVote,
 			hr: enHr,
 			purchase: enPurchase,
@@ -84,6 +89,7 @@ i18n
 			changeOrgUnit: enChangeOrgUnit
 		},
 		vi: {
+			sap: viSAP,
 			vote: viVote,
 			hr: viHr,
 			purchase: viPurchase,

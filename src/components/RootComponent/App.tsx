@@ -77,6 +77,11 @@ import ListVote from '@/features/Vote/ListVote';
 import DetailVote from '@/features/Vote/DetailVote';
 import ListTimeKeeping from '@/features/TimeKeeping/ListTimeKeeping';
 import ViewTimeKeeping from '@/features/TimeKeeping/ViewTimeKeeping';
+import { SAPComponent } from '@/features/Sap/SAPComponent';
+import ConfigUserAssignSAP from '@/features/Sap/ConfigUserAssignSAP';
+import ListSAPRegistered from '@/features/Sap/ListSAPRegistered';
+import CreateSAP from '@/features/Sap/CreateSAP';
+import DetailSAPApproval from '@/features/Sap/DetailSAPApproval';
 
 function App() {
 	const location = useLocation();
@@ -187,13 +192,20 @@ function App() {
 		{ path: "/vote/edit/:id", element: <CreateVote />, allowedRoles: [RoleEnum.UNION, RoleEnum.HR] },
 		{ path: "/vote", element: <ListVote />},
 		{ path: "/vote/:id", element: <DetailVote />},
+
+		//SAP
+		{path: '/sap/statistics', element: <SAPComponent/>, allowedRoles: [RoleEnum.IT, RoleEnum.SUPERADMIN]},
+		{path: '/sap/config', element: <ConfigUserAssignSAP/>},
+		{path: '/sap/create', element: <CreateSAP/>},
+		{path: '/sap', element: <ListSAPRegistered/>},
+		{path: '/view-sap-approval/:id', element: <DetailSAPApproval/>},
 		
 		//approval
 		{ path: "/approval/pending-approval", element: <PendingApproval />},
 		{ path: "/approval/assigned-tasks", element: <AssignedTasks />},
 		{ path: "/approval/approval-history", element: <ApprovalHistory />},
 		{ path: "/approval/wait-confirm", element: <WaitConfirm />},
-		{ path: "/approval/wait-quote", element: <WaitQuote />}
+		{ path: "/approval/wait-quote", element: <WaitQuote />},
 	];
   
 	return (

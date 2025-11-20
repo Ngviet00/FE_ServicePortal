@@ -60,6 +60,7 @@ export default function RegisterPage() {
                         </label>
                         <div className="mt-2">
                             <input
+                                placeholder={t('register_page.usercode') || ''}
                                 autoFocus
                                 id="employee_code"
                                 name="employee_code"
@@ -67,7 +68,6 @@ export default function RegisterPage() {
                                 value={userCode}
                                 onChange={(e) => setUserCode(e.target.value)}
                                 required
-                                autoComplete="email"
                                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
                             />
                         </div>
@@ -77,7 +77,7 @@ export default function RegisterPage() {
                         <button
                             disabled={loading}
                             type="submit"
-                            className="bg-black hover:cursor-pointer flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            className="bg-black hover:cursor-pointer flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                             { loading ? <Spinner size='small' className="text-white"/> : t('register_page.title') }
                         </button>

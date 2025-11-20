@@ -98,6 +98,13 @@
 			"create": "Create vote",
 			"list": "List vote"
 		},
+		"SAP": {
+			"title": "SAP",
+			"statistics": "Statistics",
+			"config": "Config",
+			"create": "Create",
+			"list": "List"
+		},
 		"approval": {
 			"title": "Approval",
 			"pending_approval": "Pending approval",

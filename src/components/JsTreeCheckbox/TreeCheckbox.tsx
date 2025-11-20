@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dot, Minus, Plus } from "lucide-react";
@@ -37,6 +38,7 @@ export type TreeNode = {
 	label: string;
 	type?: "department" | "team" | "user" | "org_position_user"; 
 	children?: TreeNode[];
+	metaData?: Record<string, any>;
 };
 
 type Props = {
