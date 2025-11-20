@@ -106,12 +106,14 @@ export default function DetailSAPApproval() {
         }
     };
 
-    const handleApproval = async (stepAction: DefineWorkFlowActions) => {
+    const handleApproval = async (stepAction: DefineWorkFlowActions, paramStatus?: string | null) => {
         const conditionStepAction = parseJSON(stepAction.condition || '{}');
         let status = ''
 
         if (conditionStepAction.is_assigned == false) {
             status = 'only_approval'
+        } else if (paramStatus == 'resolved') {
+            status = 'resolved'
         }
 
         const payloadSAP = {
@@ -223,7 +225,12 @@ export default function DetailSAPApproval() {
                     {
                         formData?.defineWorkFlowActions.map((stepAction, index) => {
                             const condition = parseJSON(stepAction.condition || '{}');
-                            const currentStepApproval = currentApprovalList.find(app => app.step === stepAction.stepOrder);
+
+                            const currentStepApproval = currentApprovalList.find(app => {
+                                const conditionApproval = parseJSON(app.condition || '{}');
+                                
+                                return conditionApproval.display_title === condition.display_title;
+                            });
 
                             const currentFile = stepAction.files || [];
                             const fileSAP = currentFile.filter(f => f.step == 1)?.map(file => ({
@@ -323,15 +330,29 @@ export default function DetailSAPApproval() {
                                             stepAction.isActive == true && (stepAction.orgPositionId == user?.orgPositionId || stepAction.sapAssignTasks?.some(task => task.userCode === user?.userCode)) && (stepAction.statusId == 1 || stepAction.statusId == 7) && (
                                                 <>
                                                     <div className="flex action-box mt-4 pt-2 border-t border-dashed border-amber-300">
-                                                        <button
-                                                            disabled={approvalSAP.isPending}
-                                                            onClick={() => handleApproval(stepAction)}
-                                                            className={`btn btn-approve px-4 py-2 mr-2 border-none rounded-md cursor-pointer font-semibold transition-colors text-sm bg-green-500 text-white hover:bg-green-600`}
-                                                        >
-                                                            Phê duyệt
-                                                        </button>
                                                         {
-                                                            condition.is_assigned == true && (
+                                                            condition.is_assigned == true ? (
+                                                                <button
+                                                                    disabled={approvalSAP.isPending}
+                                                                    onClick={() => handleApproval(stepAction, 'resolved')}
+                                                                    className={`btn btn-approve px-4 py-2 mr-2 border-none rounded-md cursor-pointer font-semibold transition-colors text-sm bg-green-500 text-white hover:bg-green-600`}
+                                                                >
+                                                                    Đã xử lý
+                                                                </button> 
+                                                            ) : (
+                                                                <button
+                                                                    disabled={approvalSAP.isPending}
+                                                                    onClick={() => handleApproval(stepAction)}
+                                                                    className={`btn btn-approve px-4 py-2 mr-2 border-none rounded-md cursor-pointer font-semibold transition-colors text-sm bg-green-500 text-white hover:bg-green-600`}
+                                                                >
+                                                                    Phê duyệt
+                                                                </button> 
+                                                            )
+                                                        }
+       
+
+                                                        {
+                                                            condition.is_assigned == true && stepAction.sapAssignTasks?.length == 0 && (
                                                                 <button
                                                                     onClick={() => handleToggleAssign(stepAction.stepOrder, stepAction.departmentId || 0)}
                                                                     className="btn btn-assign px-4 py-2 mr-2 border-none rounded-md cursor-pointer font-semibold transition-colors text-sm bg-blue-500 text-white hover:bg-blue-600"
