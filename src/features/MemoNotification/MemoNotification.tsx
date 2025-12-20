@@ -8,11 +8,9 @@ import { Link } from "react-router-dom";
 import { formatDate } from "@/lib/time";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
-import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import "./style.css"
-import { STATUS_ENUM } from "@/lib";
 
 export default function MemoNotification () {
     const { t } = useTranslation()
@@ -70,31 +68,29 @@ export default function MemoNotification () {
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-auto">
                     <thead className="text-sm text-gray-700 bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th className="text-center px-4 border py-3 min-w-[150px]">{t('memo_notification.list.code')}</th>
                             <th className="text-center pl-4 border py-3 min-w-[220px] dark:text-white">{t('memo_notification.list.title')}</th>
                             <th className="text-center px-4 border py-3 min-w-[150px]">{t('memo_notification.list.department_apply')}</th>
                             <th className="text-center px-4 border py-3 min-w-[60px]">{t('memo_notification.list.display')}</th>
                             <th className="text-center px-4 border py-3 min-w-[60px]">{t('memo_notification.list.status')}</th>
+                            <th className="text-center px-4 border py-3 min-w-[100px]">{t('memo_notification.list.created_by')}</th>
                             <th className="text-center px-4 border py-3 min-w-[100px]">{t('memo_notification.list.created_at')}</th>
-                            <th className="text-center px-4 border py-3 min-w-[100px]">{t('memo_notification.list.approval_status')}</th>
                             <th className="text-center px-4 border py-3 min-w-[140px]">{t('memo_notification.list.action')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {isPending ? (
                             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <td data-label={t('memo_notification.list.code')} className="p-4 border dark:text-white"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label={t('memo_notification.list.title')} className="p-4 border dark:text-white"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label={t('memo_notification.list.department_apply')} className="px-4 border py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label={t('memo_notification.list.display')} className="px-4 border py-4"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label={t('memo_notification.list.status')} className="px-4 py-4 border"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
+                                <td data-label={t('memo_notification.list.created_by')} className="px-4 py-4 border"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label={t('memo_notification.list.created_at')} className="px-4 py-4 border"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
-                                <td data-label={t('memo_notification.list.approval_status')} className="px-4 py-4 border"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                                 <td data-label={t('memo_notification.list.action')} className="px-4 py-4 border"><Skeleton className="h-4 w-[60px] bg-gray-300" /></td>
                             </tr>
                         ) : isError || MemoNotify.length === 0 ? (
                             <tr className="text-red-700 border text-center font-medium dark:text-white">
-                                <td className={`text-red-700 h-[35px] font-medium text-center p-0`} colSpan={8} style={{padding: '0px', height: '35px', lineHeight: '35px', textAlign: 'center'}}>
+                                <td className={`text-red-700 h-[35px] font-medium text-center p-0`} colSpan={7} style={{padding: '0px', height: '35px', lineHeight: '35px', textAlign: 'center'}}>
                                     { error?.message ?? tCommon('no_results') }
                                 </td>
                             </tr>
@@ -102,9 +98,6 @@ export default function MemoNotification () {
                             MemoNotify.map((item: any, idx: number) => {
                                 return (
                                     <tr key={idx} className="pl-0 pt-0 memo-row bg-white border dark:bg-[#1e1e1e69]">
-                                        <td data-label={t('memo_notification.list.code')} className="text-center border text-black p-4 break-words whitespace-normal dark:text-white">
-                                            <Link to={`/view/memo-notify/${item.code}`} className="underline text-blue-600">{ item?.code }</Link>
-                                        </td>
                                         <td data-label={t('memo_notification.list.title')} className="border text-black px-4 py-4 dark:text-white break-words whitespace-normal clamp-content border-b-0 border-l-0 border-r-0 border-t-0" dangerouslySetInnerHTML={{ __html: item?.title ?? '' }}/>
                                         <td data-label={t('memo_notification.list.department_apply')} className="text-center border text-black px-4 py-4 break-words whitespace-normal dark:text-white">
                                             {item.applyAllDepartment ? lang == 'vi' ? 'Tất cả phòng ban' : 'All department' : item?.departments}
@@ -113,30 +106,15 @@ export default function MemoNotification () {
                                         <td data-label={t('memo_notification.list.status')} className={`text-black border px-4 py-4 font-bold dark:text-white text-center`}>
                                             <span className={`${item?.status ? 'text-green-700' : 'text-red-700'}`}>{item?.status ? "Active" : "Deadactive"}</span>
                                         </td>
+                                        <td data-label={t('memo_notification.list.created_by')} className="text-center text-black border dark:text-white px-4 py-4">{item?.userNameCreated}</td>
                                         <td data-label={t('memo_notification.list.created_at')} className="text-center text-black border dark:text-white px-4 py-4">{formatDate(item?.createdAt?.toString() ?? "", "yyyy/MM/dd HH:mm:ss")}</td>
-                                        <td data-label={t('memo_notification.list.approval_status')} className="text-black text-center border-b border-[#b1b1b169] dark:text-white px-4 py-4">
-                                            <StatusLeaveRequest status={
-                                                item?.requestStatusId == STATUS_ENUM.ASSIGNED || item?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL 
-                                                    ? STATUS_ENUM.IN_PROCESS 
-                                                : item?.requestStatusId
-                                            }/>
-                                        </td>
                                         <td data-label={t('memo_notification.list.action')} id="td-action" className="border text-black dark:text-white px-4 py-4 text-center">
-                                            {
-                                                item?.requestStatusId == STATUS_ENUM.PENDING ? (
-                                                    <>
-                                                        <Link
-                                                            to={`/memo-notify/edit/${item?.code}`}
-                                                            className="bg-black text-white px-2 py-0.5 rounded-[3px] leading-none text-sm"
-                                                        >
-                                                        {t('memo_notification.list.edit')}
-                                                        </Link>
-                                                        <ButtonDeleteComponent className="" id={item?.code} onDelete={() => handleDelete(item?.code)} />
-                                                    </>
-                                                ) : (
-                                                    <>--</>
-                                                )
-                                            }
+                                            <button className={`hover:cursor-pointer mx-1 rounded-[3px] px-[5px] py-[2px] bg-black text-white`}>
+                                                <Link to={`/memo-notify/edit/${item?.id}`}>
+                                                    {t('memo_notification.list.edit')}
+                                                </Link>
+                                            </button>
+                                            <ButtonDeleteComponent className="" id={item?.id} onDelete={() => handleDelete(item?.id)} />
                                         </td>
                                     </tr>
                                 )

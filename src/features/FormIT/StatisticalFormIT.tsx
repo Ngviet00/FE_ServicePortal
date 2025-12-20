@@ -21,7 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import itFormApi from '@/api/itFormApi';
 import { formatDate } from '@/lib/time';
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
-import { STATUS_ENUM } from '@/lib';
+import { StatusApplicationFormEnum } from '@/lib';
 
 ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement, Filler);
 
@@ -202,7 +202,7 @@ const StatisticalFormIT = () => {
                                         <td className="px-3 py-2">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                         <td className="px-3 py-2">
                                             <StatusLeaveRequest status={
-                                                requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
+                                                requestStatusId == StatusApplicationFormEnum.ASSIGNED ? StatusApplicationFormEnum.IN_PROCESS : requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL ? StatusApplicationFormEnum.PENDING : requestStatusId
                                             }
                                             />
                                         </td>

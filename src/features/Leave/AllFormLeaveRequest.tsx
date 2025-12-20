@@ -8,7 +8,7 @@ import { formatDate } from "@/lib/time"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import { Label } from "@/components/ui/label"
 import orgUnitApi from "@/api/orgUnitApi"
-import { STATUS_ENUM } from "@/lib"
+import { StatusApplicationFormEnum } from "@/lib"
 import purchaseApi, { IPurchase } from "@/api/purchaseApi"
 import { YearSelect } from "./StatisticalLeaveRqForm"
 
@@ -110,7 +110,7 @@ export default function AllFormLeaveRequest () {
                     <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
                         <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         {
-                            Object.entries(STATUS_ENUM).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
+                            Object.entries(StatusApplicationFormEnum).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
                                 .map(([key, value]) => (
                                     <option key={value} value={value}>
                                     {key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
@@ -168,7 +168,7 @@ export default function AllFormLeaveRequest () {
                                                 <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
-                                                        requestStatusId == STATUS_ENUM.ASSIGNED ? STATUS_ENUM.IN_PROCESS : requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? STATUS_ENUM.PENDING : requestStatusId
+                                                        requestStatusId == StatusApplicationFormEnum.ASSIGNED ? StatusApplicationFormEnum.IN_PROCESS : requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL ? StatusApplicationFormEnum.PENDING : requestStatusId
                                                     }
                                                 />
                                                 </td>

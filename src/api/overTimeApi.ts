@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, ShowToast } from '@/lib';
 import { ApprovalRequest } from './approvalApi';
+import { IResolvedTask } from './itFormApi';
 
 interface MyOverTimeRequest {
     UserCode?: string,
@@ -12,12 +13,13 @@ interface MyOverTimeRequest {
 }
 
 interface RejectSomeOverTimeRequest {
-    overTimeIds: number[], 
+    applicationFormItemIds: number[], 
     note?: string, 
     userCodeReject?: string, 
     userNameReject?: string,
     orgPositionId?: number
-    applicationFormCode?: string
+    applicationFormCode?: string,
+    applicationFormId?: number
 }
 
 interface HrNoteOverTimeRequest {
@@ -27,16 +29,32 @@ interface HrNoteOverTimeRequest {
     NoteOfHr?: string,
 }
 
+export interface CreateOverTimeRequest {
+    orgPositionIdUserCreatedForm?: number | null;
+    userCodeCreatedForm?: string | null;
+    userNameCreatedForm?: string | null;
+    departmentIdUserCreatedForm?: number | null;
+    infoOverTime?: string | null;
+    createListOverTimeRequests: CreateListOverTimeRequest[];
+}
+export interface CreateListOverTimeRequest {
+    id?: number | null;
+    userCode?: string | null;
+    userName?: string | null;
+    position?: string | null;
+    fromHour?: string | null;
+    toHour?: string | null;
+    numberHour?: string | null;
+    note?: string | null;
+    noteOfHR?: string | null;
+}
+
 const overTimeApi = {
     getTypeOverTime() {
         return axiosClient.get(`/overtime/type-overtime`)
     },
-    create(data: FormData) {
-        return axiosClient.post('/overtime', data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
+    create(data: CreateOverTimeRequest) {
+        return axiosClient.post('/overtime', data)
     },
     getMyOverTime(params: MyOverTimeRequest) {
         return axiosClient.get(`/overtime/get-my-overtime`, {params})
@@ -50,7 +68,7 @@ const overTimeApi = {
     getDetailOverTime(applicationFormCode: string) {
         return axiosClient.get(`/overtime/${applicationFormCode}`)
     },
-    update(applicationFormCode: string, data: FormData) {
+    update(applicationFormCode: string, data: CreateOverTimeRequest) {
         return axiosClient.put(`/overtime/${applicationFormCode}`, data, {
             headers: {
                 "Content-Type": "multipart/form-data"
@@ -71,6 +89,23 @@ const overTimeApi = {
             responseType: 'blob'
         })
     },
+    resolvedTaskOvertime(data: IResolvedTask) {
+        return axiosClient.post(`/overtime/resolved`, data)
+    },
+}
+
+export function useResolvedTaskOverTime () {
+    return useMutation({
+        mutationFn: async (data: IResolvedTask) => {
+            await overTimeApi.resolvedTaskOvertime(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useHrExportExcelOverTime() {
@@ -145,7 +180,7 @@ export function useRejectSomeOverTime() {
 
 export function useCreateOverTime() {
     return useMutation({
-        mutationFn: async (data: FormData) => {
+        mutationFn: async (data: CreateOverTimeRequest) => {
             await overTimeApi.create(data)
         },
         onSuccess: () => {
@@ -159,7 +194,7 @@ export function useCreateOverTime() {
 
 export function useUpdateOverTime() {
     return useMutation({
-        mutationFn: async ({applicationFormCode, data} : { applicationFormCode: string, data: FormData } ) => {
+        mutationFn: async ({applicationFormCode, data} : { applicationFormCode: string, data: CreateOverTimeRequest } ) => {
             await overTimeApi.update(applicationFormCode, data)
         },
         onSuccess: () => {

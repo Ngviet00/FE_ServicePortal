@@ -4,7 +4,7 @@
         "register_all": "Đăng ký",
         "department": "Phòng ban",
         "title": "Danh sách chờ duyệt",
-        "request_type": "Loại yêu cầu",
+        "RequestTypeEnum": "Loại yêu cầu",
         "code": "Mã đơn",
         "user_request": "Người yêu cầu",
         "created_at": "Thời gian tạo",
@@ -20,7 +20,7 @@
     },
     "history_approval_processed": {
         "title": "Lịch sử duyệt / xử lý",
-        "request_type": "Loại yêu cầu",
+        "RequestTypeEnum": "Loại yêu cầu",
         "code": "Mã đơn",
         "user_request": "Người yêu cầu",
         "approval_at": "Ngày duyệt/xử lý",

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { getErrorMessage, ShowToast, UNIT_ENUM } from "@/lib"
+import { getErrorMessage, ShowToast, UnitEnum } from "@/lib"
 import { useTranslation } from "react-i18next"
 import orgUnitApi, { OrgUnit } from "@/api/orgUnitApi"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -156,7 +156,7 @@ export default function CreateOrgDepartmentTeamForm({ orgUnit, listDepartmentWit
                                     <Label>Loại đơn vị</Label>
                                     <FormControl>
                                         <div className="flex gap-4">
-                                            {Object.entries(UNIT_ENUM)
+                                            {Object.entries(UnitEnum)
                                                 .filter(([, value]) => typeof value === "number")
                                                 .map(([key, value]) => (
                                                 <label key={value} className="flex items-center space-x-2 cursor-pointer">

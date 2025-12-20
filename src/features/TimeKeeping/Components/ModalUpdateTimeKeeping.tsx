@@ -13,7 +13,8 @@ interface ModalUpdateTimeKeepingProps {
     onSave: (
         currentFormValue: string,
         currentUserCode: string,
-        currentDate: string
+        currentUserName: string,
+        currentDate: string,
     ) => void;
 }
 
@@ -23,12 +24,13 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
     selectedData,
     onSave,
 }) => {
-
     const [typeLeave, setTypeLeave] = useState('');
-    const [timeOff, setTimeOff] = useState('1');
+    const [timeOff, setTimeOff] = useState('');
     const [valueLateOrEarly, setValueLateOrEarly] = useState('');
     const [selectedOption, setSelectedOption] = useState('type_leave');
     const [currentFormValue, setCurrentFormValue] = useState<string>('');
+    const [valueMorning, setValueMorning] = useState<string>('');
+    const [valueAfternoon, setValueAfternoon] = useState<string>('');
 
     useEffect(() => {
         if (isOpen && selectedData) {
@@ -46,6 +48,23 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
             const hasNumber = numberPart !== '';
             const hasLetter = letterPart !== '';
 
+            if (initialValue.includes(',')) {
+                const parts = initialValue.split(',');
+                const extractedValues = parts.map(p => {
+                    const m = p.match(/^(\d*\.?\d*)([A-Za-z]+)$/);
+                    return m?.[2] ?? '';
+                });
+                const morning = extractedValues[0] || '';
+                const afternoon = extractedValues[1] || '';
+
+                setValueMorning(morning);
+                setValueAfternoon(afternoon);
+                setValueLateOrEarly('');
+                setSelectedOption('type_leave');
+                setTimeOff('1');
+                return; 
+            }
+
             if (hasNumber && hasLetter) {
                 // VD: 0.5NPL
                 setValueLateOrEarly('');
@@ -58,12 +77,18 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
                 setTypeLeave(initialValue);
                 setSelectedOption('type_leave');
                 setTimeOff('1');
+
+                setValueMorning(selectedData?.Result ?? '')
+                setValueAfternoon(selectedData?.Result ?? '')
+
             } else if (hasNumber && !hasLetter) {
                 // VD: 0.0625
                 setValueLateOrEarly(initialValue);
                 setTypeLeave('');
                 setSelectedOption('go_late_early');
                 setTimeOff('');
+                setValueMorning('');
+                setValueAfternoon('');
             } else {
                 // fallback
                 setValueLateOrEarly('');
@@ -83,7 +108,6 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
     const handleChangeOption = useCallback((type: string) => {
         setSelectedOption(type);
         if (type === 'type_leave') {
-            setValueLateOrEarly('');
             setCurrentFormValue(typeLeave);
         } else {
             setTypeLeave('');
@@ -100,8 +124,42 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
             updatedResult = "0.5" + newValue;
         }
         setCurrentFormValue(updatedResult);
-
     }, [timeOff]);
+
+    const handleOnChangeValueMorning = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+        const newValue = e.target.value;
+        setValueMorning(newValue);
+
+        if (newValue == valueAfternoon) {
+            setCurrentFormValue(newValue);
+        } else {
+            let updatedResult = '0.5' + newValue + ',0.5';
+        
+            if (valueAfternoon == '') {
+                updatedResult += 'ABS';
+            } else {
+                updatedResult += valueAfternoon;
+                setCurrentFormValue(updatedResult);
+            }
+        }
+    }, [valueAfternoon]);
+
+    const handleOnChangeValueAfternoon = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
+        const newValue = e.target.value;
+        setValueAfternoon(newValue);
+
+        if (newValue == valueMorning) {
+            setCurrentFormValue(newValue);
+        } else {
+            let updatedResult = ''
+            if (valueMorning == '') {
+                updatedResult += `0.5ABS,0.5${newValue}`;
+            } else {
+                updatedResult += `0.5${valueMorning},0.5${newValue}`;
+            }
+            setCurrentFormValue(updatedResult);
+        }
+    }, [valueMorning]);
 
     const handleTimeOffChange = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
         const newTimeOff = e.target.value;
@@ -115,7 +173,7 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
     }, [typeLeave]);
 
     const handleSaveClick = () => {
-        onSave(currentFormValue, selectedData?.UserCode ?? '', selectedData?.CurrentDate ?? '');
+        onSave(currentFormValue, selectedData?.Name ?? '', selectedData?.UserCode ?? '', selectedData?.CurrentDate ?? '');
     };
 
     const handleChangeTimeLateAndEarly = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
@@ -196,33 +254,10 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
                     <div className="flex">
                         <div className="mr-4">
                             <Label className="mb-1">
-                                Chọn <DotRequireComponent />
-                            </Label>
-                            <select
-                                id="data-time-keeping"
-                                value={typeLeave}
-                                onChange={handleOnChangeValue}
-                                className="border border-gray-300 p-1 hover:cursor-pointer"
-                            >
-                                <option value="">--Chọn--</option>
-                                {Object.entries(statusLabels).map(([key]) => {
-                                    const define = statusDefine[key as AttendanceStatus];
-                                    const label = statusLabels[key as AttendanceStatus];
-                                    return (
-                                        <option key={key} value={key}>
-                                            {define} - {label}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                        </div>
-
-                        <div>
-                            <Label className="mb-1">
                                 Thời gian <DotRequireComponent />
                             </Label>
+                            
                             <select
-                                // disabled={true}
                                 id="select-time"
                                 value={timeOff}
                                 onChange={handleTimeOffChange}
@@ -232,6 +267,79 @@ const ModalUpdateTimeKeeping: React.FC<ModalUpdateTimeKeepingProps> = ({
                                 <option value="2">Nửa ngày</option>
                             </select>
                         </div>
+                        {
+                            timeOff == "1" || timeOff == '' ? (
+                                <>
+                                    <div className="mr-4">
+                                        <Label className="mb-1">
+                                            Sáng <DotRequireComponent />
+                                        </Label>
+                                        <select
+                                            id="data-time-keeping-morning"
+                                            value={valueMorning}
+                                            onChange={handleOnChangeValueMorning}
+                                            className="border border-gray-300 p-1 hover:cursor-pointer"
+                                        >
+                                            <option value="">--Chọn--</option>
+                                            {Object.entries(statusLabels).map(([key]) => {
+                                                const define = statusDefine[key as AttendanceStatus];
+                                                const label = statusLabels[key as AttendanceStatus];
+                                                return (
+                                                    <option key={key} value={key}>
+                                                        {define} - {label}
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Label className="mb-1">
+                                            Chiều <DotRequireComponent />
+                                        </Label>
+                                        <select
+                                            id="data-time-keeping-afternoon"
+                                            value={valueAfternoon}
+                                            onChange={handleOnChangeValueAfternoon}
+                                            className="border border-gray-300 p-1 hover:cursor-pointer"
+                                        >
+                                            <option value="">--Chọn--</option>
+                                            {Object.entries(statusLabels).map(([key]) => {
+                                                const define = statusDefine[key as AttendanceStatus];
+                                                const label = statusLabels[key as AttendanceStatus];
+                                                return (
+                                                    <option key={key} value={key}>
+                                                        {define} - {label}
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                    </div>
+                                </>
+                            ) : (
+                                <div>
+                                    <Label className="mb-1">
+                                        Chọn <DotRequireComponent />
+                                    </Label>
+                                    <select
+                                        id="data-time-keeping"
+                                        value={typeLeave}
+                                        onChange={handleOnChangeValue}
+                                        className="border border-gray-300 p-1 hover:cursor-pointer"
+                                    >
+                                        <option value="">--Chọn--</option>
+                                        {Object.entries(statusLabels).map(([key]) => {
+                                            const define = statusDefine[key as AttendanceStatus];
+                                            const label = statusLabels[key as AttendanceStatus];
+                                            return (
+                                                <option key={key} value={key}>
+                                                    {define} - {label}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+                            )
+                        }
                     </div>
                 </>
             ) : (

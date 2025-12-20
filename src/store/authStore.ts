@@ -7,15 +7,19 @@ export interface User {
     userName?: string | undefined | null,
     departmentId?: number | undefined | null,
     departmentName?: string,
-    IsActive?: number;
+    isActive?: number;
     isChangePassword?: number;
     orgPositionId?: number,
     unitId?: number,
-    dateOfBirth?: Date,
+    dateOfBirth?: string,
+    dateJoinCompany?: string,
     email?: string,
-    nvGioiTinh?: boolean,
+    sex?: boolean,
+    phone?: string,
     roles?: string[],
-    permissions?: string[] 
+    permissions?: string[] ,
+    unitName?: string,
+    unitNameV?: string
 }
 
 interface AuthState {

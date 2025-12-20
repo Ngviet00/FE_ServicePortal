@@ -13,7 +13,7 @@ import PurchaseRequestForm from './Components/PurchaseRequestForm';
 import { useApproval } from '@/api/approvalApi';
 import costCenterApi from '@/api/costCenterApi';
 import purchaseApi, { useAssignedTaskPurchaseForm, useResolvedTaskPurchaseForm, useResponseForQuote } from '@/api/purchaseApi';
-import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
+import { getErrorMessage, ShowToast, StatusApplicationFormEnum } from '@/lib';
 import orgUnitApi from '@/api/orgUnitApi';
 import requestStatusApi from '@/api/requestStatusApi';
 import { UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
@@ -37,8 +37,8 @@ const AssignedFormPurchase = () => {
 		queryFn: async () => {
 			const res = await requestStatusApi.getAll()
             const results = res.data.data.filter((status: { id: number }) => 
-                status.id == STATUS_ENUM.WAIT_DELIVERY 
-                || status.id == STATUS_ENUM.WAIT_PO || status.id == STATUS_ENUM.WAIT_QUOTE || status.id == STATUS_ENUM.COMPLETED)
+                status.id == StatusApplicationFormEnum.WAIT_DELIVERY 
+                || status.id == StatusApplicationFormEnum.WAIT_PO || status.id == StatusApplicationFormEnum.WAIT_QUOTE || status.id == StatusApplicationFormEnum.COMPLETED)
 			return results
 		}
 	});
@@ -77,7 +77,7 @@ const AssignedFormPurchase = () => {
         }
     });
 
-    const mode = isHasId && formData?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_purchase_approval' : 'assigned'
+    const mode = isHasId && formData?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL ? 'manager_purchase_approval' : 'assigned'
     const initialFormData = isHasId ? formData : {};
 
     const { data: purchaseMembers = [] } = useQuery({
@@ -233,7 +233,7 @@ const AssignedFormPurchase = () => {
                 
                 <div className='flex gap-4 justify-end mt-4'>
                     {
-                        formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED ? (
+                        formData?.applicationFormItem?.applicationForm?.requestStatusId == StatusApplicationFormEnum.ASSIGNED ? (
                             <Button
                                 onClick={() => setStatusModalConfirm('approval')}
                                 disabled={resolvedTask.isPending}

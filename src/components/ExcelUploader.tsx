@@ -13,7 +13,7 @@ const ALLOWED_TYPES = [
 
 type ExcelUploaderProps = {
     templateFileUrl: string;
-    onSubmit: (file: File) => Promise<boolean>;
+    onSubmit?: (file: File) => Promise<boolean>;
     accept?: string;
     showTemplateButton?: boolean;
     isPending?: boolean;
@@ -97,7 +97,7 @@ export default function ExcelUploader({
             return;
         }
 
-        const success = await onSubmit(file);
+        const success = await onSubmit?.(file);
 
         if (success) {
             setFile(null);

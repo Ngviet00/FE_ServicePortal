@@ -20,7 +20,7 @@ import { formatDate } from "@/lib/time"
 import { Label } from "@/components/ui/label"
 import internalMemoHrApi from "@/api/internalMemoHrApi"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
-import { getErrorMessage, ShowToast, STATUS_ENUM } from "@/lib"
+import { getErrorMessage, ShowToast, StatusApplicationFormEnum } from "@/lib"
 
 export default function ListInternalMemoHR () {
     const { t } = useTranslation('hr')
@@ -69,7 +69,7 @@ export default function ListInternalMemoHR () {
     }
 
     const mutation = useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async (id: number) => {
             await internalMemoHrApi.delete(id);
         },
         onSuccess: () => {
@@ -80,9 +80,9 @@ export default function ListInternalMemoHR () {
         }
     });
     
-    const handleDelete = async (code: string) => {
+    const handleDelete = async (applicationFormId: number) => {
         const shouldGoBack = internalMemoHrs.length === 1;
-        await mutation.mutateAsync(code);
+        await mutation.mutateAsync(applicationFormId);
         handleSuccessDelete(shouldGoBack);
     };
 
@@ -147,34 +147,27 @@ export default function ListInternalMemoHR () {
                                     </TableRow>
                                 ) : (
                                     internalMemoHrs.map((item: any, idx: number) => {
-                                        const meta = JSON.parse(item?.metaData);
-                                        const title = meta?.Title == 'other' ? meta?.TitleOther : t(`internal_memo_hr.${meta.Title}`)
-                                        
                                         return (
                                             <TableRow key={idx}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/internal-memo-hr/${item.code}?mode=view`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>
                                                 </TableCell>
-                                                <TableCell className="text-center border">{item?.userCodeCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
+                                                <TableCell className="text-center border">{item?.applicationForm?.userCodeCreatedForm}</TableCell>
+                                                <TableCell className="text-center border">{item?.applicationForm?.userNameCreatedForm}</TableCell>
                                                 <TableCell className="text-center border">{item?.orgUnit?.name}</TableCell>
-                                                <TableCell className="text-center border">{title}</TableCell>
+                                                <TableCell className="text-center border">{lang == 'vi' ? item?.title : item?.titleE}</TableCell>
                                                 <TableCell className="text-center border">{formatDate(item?.createdAt ?? "", 'yyyy-MM-dd HH:mm:ss') }</TableCell>
                                                 <TableCell className="text-center border">
-                                                    <StatusLeaveRequest 
-                                                        status={item.requestStatusId == STATUS_ENUM.PENDING ? 'Pending' 
-                                                            : item.requestStatusId == STATUS_ENUM.COMPLETED ? 'Completed' 
-                                                            : item.requestStatusId == STATUS_ENUM.REJECT ? 'Reject' : 'In Process'}
-                                                    />
+                                                    <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
                                                 </TableCell>
                                                 <TableCell className="text-center border">
                                                     {
-                                                            item?.requestStatus?.id == STATUS_ENUM.PENDING ? (
+                                                            item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
                                                                 <>
-                                                                    <Link to={`/internal-memo-hr/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2.5px] rounded-[3px] text-sm">
+                                                                    <Link to={`/internal-memo-hr/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[2.5px] rounded-[3px] text-sm">
                                                                         {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                                     </Link>
-                                                                    <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
+                                                                    <ButtonDeleteComponent id={item?.applicationForm?.id} onDelete={() => handleDelete(item?.applicationForm?.id)} />
                                                                 </>
                                                             ) : (
                                                                 <span>--</span>
@@ -209,12 +202,6 @@ export default function ListInternalMemoHR () {
                             </div>
                         ) : (
                             internalMemoHrs.map((item: any, idx: number) => {
-                                const meta = JSON.parse(item?.metaData);
-                                const title =
-                                    meta?.Title == "other"
-                                    ? meta?.TitleOther
-                                    : t(`internal_memo_hr.${meta.Title}`);
-
                                 return (
                                     <div
                                         key={idx}
@@ -222,22 +209,17 @@ export default function ListInternalMemoHR () {
                                         >
                                         <div className="mb-1">
                                             <strong>{t("internal_memo_hr.code")}: </strong>
-                                            <Link
-                                            to={`/internal-memo-hr/${item.code}?mode=view`}
-                                            className="text-blue-600 underline"
-                                            >
-                                            {item?.code}
-                                            </Link>
+                                            <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>
                                         </div>
 
                                         <div className="mb-1">
                                             <strong>{t("internal_memo_hr.user_code")}: </strong>
-                                            {item?.userCodeCreatedForm}
+                                            {item?.applicationForm?.userCodeCreatedForm}
                                         </div>
 
                                         <div className="mb-1">
                                             <strong>{t("internal_memo_hr.created_by")}: </strong>
-                                            {item?.userNameCreatedForm}
+                                            {item?.applicationForm?.userNameCreatedForm}
                                         </div>
 
                                         <div className="mb-1">
@@ -247,7 +229,7 @@ export default function ListInternalMemoHR () {
 
                                         <div className="mb-1">
                                             <strong>{t("internal_memo_hr.title")}: </strong>
-                                            {title}
+                                            {lang == 'vi' ? item?.title : item?.titleE}
                                         </div>
 
                                         <div className="mb-1">
@@ -257,31 +239,21 @@ export default function ListInternalMemoHR () {
 
                                         <div className="mb-1">
                                             <strong>{t("internal_memo_hr.status")}: </strong>
-                                            <StatusLeaveRequest
-                                            status={
-                                                item.requestStatusId == STATUS_ENUM.PENDING
-                                                ? "Pending"
-                                                : item.requestStatusId == STATUS_ENUM.COMPLETED
-                                                ? "Completed"
-                                                : item.requestStatusId == STATUS_ENUM.REJECT
-                                                ? "Reject"
-                                                : "In Process"
-                                            }
-                                            />
+                                            <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
                                         </div>
 
                                         <div className="mt-2">
-                                            {item?.requestStatus?.id == STATUS_ENUM.PENDING ? (
+                                            {item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
                                                 <>
                                                     <Link
-                                                        to={`/internal-memo-hr/edit/${item?.code}`}
+                                                        to={`/internal-memo-hr/edit/${item?.applicationForm?.code}`}
                                                         className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm mr-1"
                                                     >
                                                         {lang == "vi" ? "Sửa" : "Edit"}
                                                     </Link>
                                                     <ButtonDeleteComponent
-                                                        id={item?.code}
-                                                        onDelete={() => handleDelete(item?.code ?? "")}
+                                                        id={item?.applicationForm?.id}
+                                                        onDelete={() => handleDelete(item?.applicationForm?.id)}
                                                     />
                                                 </>
                                                 ) : (

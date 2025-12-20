@@ -8,7 +8,7 @@ const useHasRole = (allowedRoles: string[]): boolean => {
 		return false
 	}
 
-	if (roles.includes(RoleEnum.SUPERADMIN)) {
+	if (roles.includes(RoleEnum.SUPERADMIN) || roles.includes(RoleEnum.ADMINISTRATOR)) {
 		return true;
 	}
 

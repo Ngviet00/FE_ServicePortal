@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, useParams } from "react-router-dom"
 import { useTranslation } from "react-i18next"
@@ -9,19 +10,20 @@ import { HotTable, HotTableRef } from '@handsontable/react-wrapper'
 import { registerAllModules } from 'handsontable/registry'
 import internalMemoHrApi, { useCreateInternalMemo, useUpdateInternalMemo } from "@/api/internalMemoHrApi"
 import { Spinner } from "@/components/ui/spinner"
-import { ShowToast } from "@/lib"
 import orgUnitApi from "@/api/orgUnitApi"
 import Handsontable from "handsontable"
 import DotRequireComponent from "@/components/DotRequireComponent"
 import 'handsontable/styles/handsontable.css'
 import 'handsontable/styles/ht-theme-main.css'
+import { z } from 'zod';
+import { SubmitHandler, useForm } from "react-hook-form"
+import { zodResolver } from '@hookform/resolvers/zod';
 
 registerAllModules();
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const formSchemas: Record<string, { colHeaders: string[]; columns: Handsontable.ColumnSettings[] }> = {
     change_shift: {
-        colHeaders: ["Mã NV", "Họ tên", "Từ ngày", "Đến ngày", "Từ ca", "Đến ca"],
+        colHeaders: ["Mã nhân viên", "Họ tên", "Từ ngày", "Đến ngày", "Từ ca", "Đến ca"],
         columns: [
             { data: "userCode", type: "text" },
             { data: "userName", type: "text" },
@@ -32,7 +34,7 @@ export const formSchemas: Record<string, { colHeaders: string[]; columns: Handso
         ]
     },
     change_sunday: {
-        colHeaders: ["Mã NV", "Họ tên", "Thời gian chuyển", "Chủ nhật cũ", "Chủ nhật mới"],
+        colHeaders: ["Mã nhân viên", "Họ tên", "Thời gian chuyển", "Chủ nhật cũ", "Chủ nhật mới"],
         columns: [
             { data: "userCode", type: "text" },
             { data: "userName", type: "text" },
@@ -42,25 +44,37 @@ export const formSchemas: Record<string, { colHeaders: string[]; columns: Handso
         ]
     },
     use_phone: {
-        colHeaders: ["Mã NV", "Họ tên", "Chức vụ"],
+        colHeaders: ["Mã nhân viên", "Họ tên", "Chức vụ", "Địa chỉ mac của điện thoại"],
         columns: [
             { data: "userCode", type: "text" },
             { data: "userName", type: "text" },
             { data: "position", type: "text" },
+            { data: "macAddress", type: "text" },
         ]
     },
-    register_gate: {
-        colHeaders: ["Mã NV", "Họ tên", "Chức vụ", "Khu vực làm việc", "Chú thích"],
+    register_door: {
+        colHeaders: ["Mã nhân viên", "Họ tên", "Bộ phận", "Chức vụ", "Khu vực làm việc", "Chú thích"],
         columns: [
             { data: "userCode", type: "text" },
             { data: "userName", type: "text" },
+            { data: "department", type: "text" },
             { data: "position", type: "text" },
             { data: "location", type: "text" },
             { data: "note", type: "text" },
         ]
     },
+    register_restroom: {
+        colHeaders: ["Mã nhân viên", "Họ tên", "Giới tính", "Chức vụ", "Bộ phận"],
+        columns: [
+            { data: "userCode", type: "text" },
+            { data: "userName", type: "text" },
+            { data: "sex", type: "text" },
+            { data: "position", type: "text" },
+            { data: "department", type: "text" },
+        ]
+    },
     other: {
-        colHeaders: ["Mã NV", "Họ tên", "Bộ phận", "Chức vụ", "", "", "", "", "", ""],
+        colHeaders: ["Mã nhân viên", "Họ tên", "Bộ phận", "Chức vụ", "", "", "", "", "", ""],
         columns: [
             { data: "userCode", type: "text" },
             { data: "userName", type: "text" },
@@ -69,26 +83,94 @@ export const formSchemas: Record<string, { colHeaders: string[]; columns: Handso
     }
 };
 
+export const InternalMemoSchema = z.object({
+    title: z.string().min(1, "Bắt buộc"),
+    titleE: z.string().min(1, "Bắt buộc"),
+    titleCode: z.string().min(1, "Bắt buộc"),
+    otherTitle: z.string().nullable().optional(),
+    departmentId: z.string().min(1, 'Bắt buộc').optional(),
+    save: z.string().optional(),
+    note: z.string().optional(),
+    metaData: z.object({
+        headers: z.array(z.string()),
+        rows: z.array(z.array(z.any())),
+        registerDoorOptions: z.array(z.object({
+            code: z.string(),
+            name: z.string().optional(),
+            isSpecial: z.boolean().optional(),
+        })).optional()
+    })
+})
+
+export const listDoors = [
+    { code: 'BIG_OFF_DOOR', name: 'Big office Door' },
+    { code: 'OFF_TO_PROD', name: 'Office To Production (VP ra SX)' },
+    { code: 'LOCAL_CANTEEN', name: 'Local Canteen (Cửa nhà ăn tầng 2)' },
+    { code: '3F_FIN', name: '3rd Floor Kế toán' },
+    { code: 'IT', name: 'IT Door' },
+    { code: 'CMPBU_OPERATION', name: 'CMPBU Operation Room (cửa chính)' },
+    { code: 'QA_CMM', name: 'QA Door (CMM)' },
+    { code: 'MAN_CANTEEN_MALAY', name: 'Manager Canteen (Cửa nhà ăn Malaysia)' },
+    { code: 'CMPBU_OFF', name: 'CMPBU OFFICE (cạnh phòng IT)', isSpecial: true },
+    { code: 'ASSEMBLY', name: 'Assembly In/Out', isSpecial: true },
+    { code: '3F_CUSTOM_GLASS_DOOR', name: '3rd Floor Customer Glass Door', isSpecial: true },
+    { code: 'CT1', name: 'Cooling tower 1' },
+    { code: 'CT2', name: 'Cooling tower 2' },
+    { code: 'CT3', name: 'Cooling tower 3' }
+];
+
+export const listTypeInternalMemoHRs = [
+    { code: 'change_shift', name: 'Đổi ca', nameE: 'Change shift' },
+    { code: 'change_sunday', name: 'Đổi chủ nhật', nameE: 'Change sunday' },
+    { code: 'use_phone', name: 'Sử dụng điện thoại', nameE: 'Use phone' },
+    { code: 'register_door', name: 'Đăng ký ra vào cửa', nameE: 'Register door' },
+    { code: 'register_restroom', name: 'Đăng ký sử dụng nhà vệ sinh', nameE: 'Register to use the restroom' },
+    { code: 'other', name: 'Khác', nameE: 'Other' }
+]
+
 export default function CreateInternalMemoHR() {
     const { t } = useTranslation('hr')
     const lang = useTranslation().i18n.language.split('-')[0]
     const user = useAuthStore((state) => state.user)
     const navigate = useNavigate()
+    const { id } = useParams<{ id: string }>();
+    const isEdit = !!id;
+
+    const { data: departments = [] } = useQuery({ 
+        queryKey: ['get-all-department'], 
+        queryFn: async () => { 
+            const res = await orgUnitApi.GetAllDepartment();
+            return res.data.data;
+        }
+    });
 
     const hotRef = useRef<HotTableRef>(null);
-    const [formType, setFormType] = useState<keyof typeof formSchemas>("change_shift");
-    const [departmentId, setDepartmentId] = useState<number | null>(null);
-    const [note, setNote] = useState<string | null>(null);
-    const [save, setSave] = useState<string | null>(null);
-    const [formTypeOther, setFormTypeOther] = useState<string | null>(null);
+
+    const form = useForm<z.infer<typeof InternalMemoSchema>>({
+        resolver: zodResolver(InternalMemoSchema),
+        defaultValues: {
+            title: 'Đổi ca',
+            titleE: 'Change Shift',
+            titleCode: 'change_shift',
+            otherTitle: null,
+            departmentId: '',
+            save: '',
+            note: '',
+            metaData: {
+                headers: [],
+                rows: [],
+                registerDoorOptions: []
+            }
+        },
+    });
+
+    const { watch, setValue, getValues, register, handleSubmit, reset, formState: { errors }, } = form;
+
     const [tableData, setTableData] = useState<string[][]>([]);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     const createInternalMemoHr = useCreateInternalMemo()
     const updateInternalMemoHr = useUpdateInternalMemo()
-    
-    const { id } = useParams<{ id: string }>();
-    const isEdit = !!id;
 
     const { data: formDataDetail, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['internal-memo-hr', id],
@@ -99,40 +181,64 @@ export default function CreateInternalMemoHR() {
         enabled: isEdit,
     });
 
+    const detechFormType = watch('titleCode')
+    const selectedDoors = watch('metaData.registerDoorOptions') ?? [];
+
     useEffect(() => {
         if (isEdit && formDataDetail) {
-            const meta = JSON.parse(formDataDetail?.metaData);
-
-            const headers: string[] = meta.Headers ?? [];
-            const rows: any[][] = meta.Rows ?? [];
+            const meta = JSON.parse(formDataDetail?.internalMemoHr?.metaData);
+            const headers: string[] = meta.headers ?? [];
+            const rows: any[][] = meta.rows ?? [];
+            const doorOptions = meta?.registerDoorOptions ?? [];
             const emptyRows = Array.from({ length: 15 }, () =>
                 Array(headers.length).fill("")
             );
             setTableData([headers, ...rows, ...emptyRows]);
 
-            setDepartmentId(formDataDetail?.departmentId)
-            setFormType(meta?.Title)
-            setNote(formDataDetail?.note)
-            setSave(meta?.Save)
-            setIsDataLoaded(true);
+            reset({
+                title: formDataDetail?.internalMemoHr?.title,
+                titleE: formDataDetail?.internalMemoHr?.titleE,
+                titleCode: formDataDetail?.internalMemoHr?.titleCode,
+                otherTitle: formDataDetail?.internalMemoHr?.otherTitle ?? null,
+                departmentId: String(formDataDetail?.internalMemoHr?.departmentId ?? ''),
+                save: formDataDetail?.internalMemoHr?.save,
+                note: formDataDetail?.internalMemoHr?.note,
+                metaData: {
+                    headers: headers,
+                    rows: rows,
+                    registerDoorOptions: doorOptions
+                }
+            })
         } else if (!isDataLoaded) {
             setIsDataLoaded(true);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formDataDetail, isDataLoaded, isEdit]);
 
     useEffect(() => {
         if (!isEdit) {
-            const headers = [...formSchemas[formType].colHeaders];
+            const titleCode = getValues('titleCode')
+            const headers = [...formSchemas[titleCode].colHeaders];
             const emptyRows = Array.from({ length: 15 }, () =>
                 Array(headers.length).fill("")
             );
             setTableData([headers, ...emptyRows]);
-            setFormType("change_shift");
-            setDepartmentId(null);
-            setNote(null);
-            setSave(null);
-            setFormTypeOther(null);
             setIsDataLoaded(true);
+
+            reset({
+                title: 'Đổi ca',
+                titleE: 'Change Shift',
+                titleCode: 'change_shift',
+                otherTitle: null,
+                departmentId: '',
+                save: '',
+                note: '',
+                metaData: {
+                    headers: [],
+                    rows: [],
+                    registerDoorOptions: []
+                }
+            });
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isEdit]);
@@ -141,10 +247,10 @@ export default function CreateInternalMemoHR() {
         if (!isDataLoaded) {
             return;
         }
-        const currentSchema = formSchemas[formType];
+
+        const currentSchema = formSchemas[detechFormType];
         const newHeaders = [...currentSchema.colHeaders];
         const newColsCount = newHeaders.length;
-
         const currentData = hotRef.current?.hotInstance?.getData() ?? tableData;
 
         let rowsToKeep: any[][] = [];
@@ -164,33 +270,34 @@ export default function CreateInternalMemoHR() {
             Array(newColsCount).fill("")
         );
 
-        if (isEdit && formDataDetail && formType === formDataDetail.metaData?.Title) {
+        if (isEdit && formDataDetail && detechFormType === formDataDetail.metaData?.Title) {
             // Đã được khởi tạo ở useEffect 1, không làm gì ở đây
         } else {
             setTableData([newHeaders, ...rowsToKeep, ...emptyRows]);
         }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formType, isDataLoaded]);
+    }, [detechFormType, isDataLoaded]);
 
     const mode = isEdit ? 'edit' : 'create';
 
-    const { data: departments = [] } = useQuery({ queryKey: ['get-all-department'], queryFn: async () => { const res = await orgUnitApi.GetAllDepartment(); return res.data.data; } });
+    const handleOnChangeTitle = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const code = e.target.value
 
-    const handleSave = async () => {
+        const found = listTypeInternalMemoHRs.find(x => x.code === code)
+        if (!found) return
+
+        setValue("titleCode", found.code, { shouldDirty: true })
+        setValue("title", found.name, { shouldDirty: true })
+        setValue("titleE", found.nameE, { shouldDirty: true })
+
+        if (code != 'register_door') {
+            setValue('metaData.registerDoorOptions', [])
+        }
+    }
+
+    const onSubmit: SubmitHandler<z.infer<typeof InternalMemoSchema>> = async (data) => {
         const hot = hotRef.current?.hotInstance;
-        
         if (!hot) return
-
-        if (departmentId == null) {
-            ShowToast(lang == 'vi' ? 'Vui lòng chọn phòng ban' : 'Please select department', 'error')
-            return
-        }
-
-        if (formType == 'other' && (formTypeOther == '' || formTypeOther == null)) {
-            ShowToast(lang == 'vi' ? 'Vui lòng nhập tiêu đề khác' : 'Please input title other', 'error')
-            return
-        }
 
         const allData = hot.getData();
 
@@ -200,32 +307,37 @@ export default function CreateInternalMemoHR() {
         );
 
         const payload = {
-            OrgPositionId: user?.orgPositionId,
-            DepartmentId: departmentId,
-            UserCodeCreated: user?.userCode,
-            UserNameCreated: user?.userName,
-            Title: formType,
-            TitleOther: formTypeOther ?? null,
-            Note: note,
-            Save: save,
-            Headers: headers,
-            Rows: rows,
-        };
-        if (isEdit) {
-            await updateInternalMemoHr.mutateAsync({
-                applicationFormCode: formDataDetail?.code,
-                data: payload
+            UserCodeCreatedForm: user?.userCode ?? '',
+            UserNameCreatedForm: user?.userName ?? '',
+            OrgPositionIdUserCreatedForm: user?.orgPositionId,
+            DepartmentId: Number(data?.departmentId ?? -1),
+            Title: data?.title ?? '',
+            TitleE: data?.titleE,
+            TitleCode: data?.titleCode,
+            OtherTitle: data?.otherTitle ?? '',
+            Save: data?.save,
+            Note: data?.note,
+            MetaData: JSON.stringify({
+                headers,
+                rows,
+                registerDoorOptions: data?.metaData?.registerDoorOptions ?? []
             })
         }
-        else {
+
+        if (isEdit) {
+            await updateInternalMemoHr.mutateAsync({applicationFormCode: id, data: payload})
+        } else {
             await createInternalMemoHr.mutateAsync(payload)
         }
-
         navigate('/internal-memo-hr')
     };
 
     if (isEdit && isFormDataLoading) {
         return <div>{lang == 'vi' ? 'Loading' : 'Đang tải'}...</div>;
+    }
+
+    if (isEdit && !formDataDetail) {
+        return  <div className='text-red-700 font-semibold'>{lang == 'vi' ? 'Không tìm thấy dữ liệu' : 'Not found data'}</div>;
     }
     
     return (
@@ -242,86 +354,113 @@ export default function CreateInternalMemoHR() {
                     { lang == 'vi' ? 'Danh sách nội bộ' : 'List internal memo' }
                 </Button>
             </div>
-            <div className="flex items-center">
-                <label className="block mb-2 mr-2">{t('internal_memo_hr.department')} <DotRequireComponent/></label>
-                <select
-                    onChange={(e) => setDepartmentId(Number(e.target.value))}
-                    className="border cursor-pointer border-gray-300 rounded px-3 py-1"
-                    value={departmentId ?? ''}
-                >
-                    <option value="">--{lang == 'vi' ? 'Chọn' : 'Select'}--</option>
+            <div className="flex items-center mb-0">
+                <div className="flex items-center">
+                    <label className="block mr-2">{t('internal_memo_hr.department')} <DotRequireComponent/></label>
+                    <select disabled={isEdit} {...register("departmentId")} className={`border cursor-pointer border-gray-300 rounded px-3 py-1 ${isEdit ? 'bg-gray-50' : ''} ${errors.departmentId ? 'border-red-500 bg-red-50' : ''}`}>
+                        <option value="">--{lang == 'vi' ? 'Chọn' : 'Select'}--</option>
+                        {
+                            departments?.map((item: any, idx: number) => {
+                                return (
+                                    <option key={idx} value={item?.id ?? ''}>{item?.name}</option>
+                                )
+                            })
+                        }
+                    </select>
+                </div>
+                <div className=" ml-3 flex">
+                    <div className="flex items-center">
+                        <label className="block mr-2">{t('internal_memo_hr.title')} <DotRequireComponent/></label>
+                        <select disabled={isEdit} {...register("titleCode")} onChange={handleOnChangeTitle} className={`${isEdit ? 'bg-gray-50' : ''} border cursor-pointer border-gray-300 rounded px-3 py-1`}>
+                            {
+                                listTypeInternalMemoHRs?.map((item: any, idx: number) => {
+                                    return (
+                                        <option key={idx} value={item?.code}>{lang == 'vi' ? item?.name : item?.nameE}</option>
+                                    )
+                                })
+                            }
+                        </select>
+                    </div>
                     {
-                        departments?.map((item: any, idx: number) => {
-                            return (
-                                <option key={idx} value={item?.id ?? ''}>{item?.name}</option>
-                            )
-                        })
+                        detechFormType == 'other' && 
+                        <div className="flex items-center ml-2">
+                            <label className="inline-block w-[150px] mr-1">{t('internal_memo_hr.title_other')} <DotRequireComponent/></label>
+                            <input
+                                {...register("otherTitle")}
+                                placeholder={t('internal_memo_hr.title_other')}
+                                className={`dark:bg-[#454545] w-full p-2 border-gray-300 text-sm border rounded`}
+                            />
+                        </div>
                     }
-                </select>
-            </div>
-
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSave();
-                }}
-            >
-                 <div>
+                </div>
+                <div className="ml-2">
                     <label className="">{t('internal_memo_hr.created_by')}: <span className="font-semibold">{user?.userName} - {user?.userCode}</span></label> <br />
                 </div>
-                <div className="mt-2">
-                    <label className="block mb-1">{t('internal_memo_hr.title')} <DotRequireComponent/></label>
-                    <select
-                        className="border cursor-pointer border-gray-300 rounded px-3 py-1"
-                        value={formType}
-                        onChange={(e) =>
-                        setFormType(e.target.value as keyof typeof formSchemas)
-                        }
-                        style={{ marginBottom: 10 }}
-                    >
-                        <option value="change_shift">{t('internal_memo_hr.change_shift')}</option>
-                        <option value="change_sunday">{t('internal_memo_hr.change_sunday')}</option>
-                        <option value="use_phone">{t('internal_memo_hr.use_phone')}</option>
-                        <option value="register_gate">{t('internal_memo_hr.register_gate')}</option>
-                        <option value="other">{t('internal_memo_hr.other')}</option>
-                    </select>
-                    {
-                        formType == 'other' && (
-                            <div>
-                                <label htmlFor="" className="mb-1 inline-block">{t('internal_memo_hr.title_other')} <DotRequireComponent/></label>
-                                <input
-                                    value={formTypeOther ?? ''}
-                                    onChange={(e) => setFormTypeOther(e.target.value)}
-                                    placeholder={t('internal_memo_hr.title_other')}
-                                    className={`dark:bg-[#454545] w-full p-2 text-sm border rounded`}
-                                />
-                            </div>
-                        )
-                    }
-                </div>
+            </div>
 
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="mt-1">
-                    <label className="block mb-1">{t('internal_memo_hr.save')}</label>
+                    <label className="block">{t('internal_memo_hr.save')}</label>
                     <input
-                        value={save ?? ''}
-                        onChange={(e) => setSave(e.target.value)}
+                        {...register('save')}
                         placeholder={t('internal_memo_hr.save')}
                         className={`dark:bg-[#454545] w-full p-2 text-sm border rounded`}
                     />
                 </div>
-
-                <div className="mt-3">
-                    <label className="block mb-1">{t('internal_memo_hr.note')}</label>
+                <div className="mt-1.5">
+                    <label className="block">{t('internal_memo_hr.note')}</label>
                     <textarea
-                        value={note ?? ''}
-                        onChange={(e) => setNote(e.target.value)}
+                        {...register('note')}
                         placeholder={t('internal_memo_hr.note')}
                         className={`w-full p-2 border rounded`}
                     />
                 </div>
-
+                {detechFormType === 'register_door' && (
+                    <div className="mb-2">
+                        <h3 className="text-base font-bold">
+                            {lang === 'vi' ? 'Danh sách cửa' : 'List doors'}
+                        </h3>
+                        <span className="mb-2 inline-block italic text-yellow-600">({lang == 'vi' ? 'Những cửa có chữ màu vàng cần qua giám đốc điều hành phê duyệt' : 'Doors marked in yellow require Operations General Manager approval.'})</span>
+                        <div className="flex flex-wrap gap-x-6 gap-y-3">
+                            {listDoors?.map((item: any, idx: number) => (
+                                <label
+                                    key={idx}
+                                    htmlFor={`cb-door-${item?.code}`}
+                                    className="flex items-start gap-2 cursor-pointer min-w-[180px] max-w-full"
+                                >
+                                    <input
+                                        checked={selectedDoors.some((d: any) => d.code == item.code)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                            setValue('metaData.registerDoorOptions', [
+                                                ...selectedDoors,
+                                                {
+                                                    code: item.code,
+                                                    name: item.name,
+                                                    isSpecial: item.isSpecial ?? false
+                                                }
+                                            ]);
+                                            } else {
+                                                setValue(
+                                                    'metaData.registerDoorOptions',
+                                                    selectedDoors.filter((d: any) => d.code !== item.code)
+                                                );
+                                            }
+                                        }}
+                                        id={`cb-door-${item?.code}`}
+                                        type="checkbox"
+                                        className="mt-1 w-5 h-5 accent-black cursor-pointer shrink-0"
+                                    />
+                                    <span className={`leading-snug break-words ${item.isSpecial ? 'text-yellow-600': ''}`}>
+                                        {item.name}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <div className="mt-1">
-                    <label htmlFor="" className="inline-block mb-2">{t('internal_memo_hr.list')}</label>
+                    <label htmlFor="" className="inline-block mb-1">{t('internal_memo_hr.list')}</label>
                     <HotTable
                         ref={hotRef}
                         data={tableData}
@@ -336,7 +475,7 @@ export default function CreateInternalMemoHR() {
                         cells={(row) => {
                             const cellProperties = {} as Handsontable.CellProperties;
                             if (row === 0) {
-                                if (formType !== "other") {
+                                if (detechFormType !== "other") {
                                     cellProperties.readOnly = true;
                                 }
                                 cellProperties.renderer = (instance, td, r, c, prop, value, cellProps) => {

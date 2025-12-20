@@ -8,7 +8,7 @@ import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveR
 import { useAuthStore } from "@/store/authStore"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
-import { STATUS_ENUM } from "@/lib"
+import { StatusApplicationFormEnum } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import itFormApi, { useDeleteITForm } from "@/api/itFormApi"
@@ -146,7 +146,7 @@ export default function ListFormIT () {
                             <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
                                 <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                                 {
-                                    Object.entries(STATUS_ENUM).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
+                                    Object.entries(StatusApplicationFormEnum).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
                                         .map(([key, value]) => (
                                             <option key={value} value={value}>
                                             {key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
@@ -209,14 +209,14 @@ export default function ListFormIT () {
                                                 <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
-                                                        item?.requestStatusId == STATUS_ENUM.ASSIGNED || item?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL 
-                                                            ? STATUS_ENUM.IN_PROCESS 
+                                                        item?.requestStatusId == StatusApplicationFormEnum.ASSIGNED || item?.requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL 
+                                                            ? StatusApplicationFormEnum.IN_PROCESS 
                                                         : item.requestStatusId
                                                     }/>
                                                 </td>
                                                 <td className="text-center border font-bold text-red-700">
                                                     {
-                                                        item?.requestStatusId == STATUS_ENUM.PENDING ? (
+                                                        item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
                                                             <>
                                                                 <Link to={`/form-it/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {t('list.edit')}
@@ -258,14 +258,14 @@ export default function ListFormIT () {
                                     <div className="mb-1"><strong>{t('list.created_at')}: </strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                                     <div className="mb-1"><strong>{t('list.status')}: </strong>
                                         <StatusLeaveRequest status={
-                                            item?.requestStatusId == STATUS_ENUM.ASSIGNED || item?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL 
-                                                ? STATUS_ENUM.IN_PROCESS 
+                                            item?.requestStatusId == StatusApplicationFormEnum.ASSIGNED || item?.requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL 
+                                                ? StatusApplicationFormEnum.IN_PROCESS 
                                             : item.requestStatusId
                                         }/>
                                     </div>
                                     <div className="mb-1">
                                         {
-                                            item?.requestStatusId == STATUS_ENUM.PENDING ? (
+                                            item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
                                                 <>
                                                     <Link to={`/form-it/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                         {t('list.edit')}

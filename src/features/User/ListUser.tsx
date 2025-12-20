@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import { useTranslation } from "react-i18next"
 import { Label } from "@/components/ui/label"
 import { Link } from "react-router-dom"
 import orgUnitApi from "@/api/orgUnitApi"
+import { useSearchParams } from "react-router-dom";
 
 export default function ListUser () {
     const { t } = useTranslation();
@@ -30,6 +32,7 @@ export default function ListUser () {
 
     const debouncedName = useDebounce(name, 300);
     const resetPassword = useResetPassword();
+    const [searchParams, setSearchParams] = useSearchParams();
     
     //get list users 
     const { data: users = [], isPending, isError, error } = useQuery({
@@ -48,6 +51,34 @@ export default function ListUser () {
         }
     });
 
+    useEffect(() => {
+        setName(searchParams.get("name") ?? "");
+        setSelectedDepartment(searchParams.get("department") ?? "");
+        setSelectedSex(searchParams.get("sex") ?? "");
+        setSelectedStatus(searchParams.get("status") ?? "");
+        setPage(Number(searchParams.get("page") ?? 1));
+        setPageSize(Number(searchParams.get("size") ?? 10));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const updateUrlParams = (overrides: Record<string, any>) => {
+        const params: any = {
+            name,
+            department: selectedDepartment,
+            sex: selectedSex,
+            status: selectedStatus,
+            page,
+            size: pageSize,
+            ...overrides
+        };
+
+        Object.keys(params).forEach(key => {
+            if (params[key] === "" || params[key] === null) delete params[key];
+        });
+
+        setSearchParams(params);
+    };
+
     const { data: departments = [] } = useQuery({
         queryKey: ['get-all-departments'],
         queryFn: async () => {
@@ -63,15 +94,18 @@ export default function ListUser () {
     const handleSearchByName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPage(1)
         setName(e.target.value)
+        updateUrlParams({ name: e.target.value, page: 1 });
     }
 
-    function setCurrentPage(page: number): void {
-        setPage(page)
+    function setCurrentPage(p: number): void {
+        setPage(p)
+        updateUrlParams({ page: p });
     }
 
     function handlePageSizeChange(size: number): void {
         setPage(1)
         setPageSize(size)
+        updateUrlParams({ size: size });
     }
     
     const handleShowModal = (item: GetListUserData) => {
@@ -112,9 +146,11 @@ export default function ListUser () {
                         value={selectedDepartment}
                         id="department"
                         onChange={(e) => {
+                            const val = e.target.value;
                             setPage(1)
-                            setSelectedDepartment(e.target.value)}
-                        }
+                            setSelectedDepartment(val)
+                            updateUrlParams({ department: val, page: 1 });
+                        }}
                         className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="">--Chọn--</option>
@@ -130,9 +166,11 @@ export default function ListUser () {
                     <select
                         value={selectedSex}
                         onChange={(e) => {
+                            const val = e.target.value;
                             setPage(1)
-                            setSelectedSex(e.target.value)}
-                        }
+                            setSelectedSex(e.target.value)
+                            updateUrlParams({ sex: val, page: 1 });
+                        }}
                         id="sex"
                         className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
@@ -146,9 +184,11 @@ export default function ListUser () {
                     <select
                         value={selectedStatus}
                         onChange={(e) => {
-                            setPage(1)
-                            setSelectedStatus(e.target.value)}
-                        }
+                            const val = e.target.value;
+                            setPage(1);
+                            setSelectedStatus(val);
+                            updateUrlParams({ status: val, page: 1 });
+                        }}
                         id="sex"
                         className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >

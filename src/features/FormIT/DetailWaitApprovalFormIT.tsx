@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
+import { getErrorMessage, ShowToast, StatusApplicationFormEnum } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
 import itFormApi, { useApprovalITForm, useAssignedTaskITForm, useConfirmFormITNeedFormPurchase } from '@/api/itFormApi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -52,7 +52,7 @@ const DetailWaitApprovalFormIT = () => {
         }
     }, [formData])
 
-    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL ? 'manager_it_approval' : 'approval'
+    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL ? 'manager_it_approval' : 'approval'
     const isManagerITapproval = mode == 'manager_it_approval'
     const initialFormData = isHasId ? formData : {};
 
@@ -275,7 +275,7 @@ const DetailWaitApprovalFormIT = () => {
 
                     <div className="flex flex-col sm:flex-row justify-end gap-2">
                         {formData?.applicationFormItem?.applicationForm?.requestStatusId ==
-                        STATUS_ENUM.WAIT_CONFIRM ? (
+                        StatusApplicationFormEnum.WAIT_CONFIRM ? (
                             <>
                                 {user?.userCode ==
                                 formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm ? (

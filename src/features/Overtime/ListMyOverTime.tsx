@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChangeEvent, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
@@ -17,27 +17,24 @@ import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
-import { Label } from "@/components/ui/label"
 import overTimeApi from "@/api/overTimeApi"
+import { StatusApplicationFormEnum } from "@/lib"
 
 export default function ListMyOverTime () {
     const { t } = useTranslation('hr')
     const { t: tCommon } = useTranslation('common')
-    const lang = useTranslation().i18n.language.split('-')[0];
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const [status, setStatus] = useState('')
     const {user} = useAuthStore()
     
     const { data: myOverTimes = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-my-overtime', { page, pageSize, status: status }],
+        queryKey: ['get-my-overtime', { page, pageSize }],
         queryFn: async () => {
             const res = await overTimeApi.getMyOverTime({
                 UserCode: user?.userCode ?? "",
                 Page: page,
-                PageSize: pageSize,
-                Status: status == '' ? null : parseInt(status)
+                PageSize: pageSize
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -51,10 +48,6 @@ export default function ListMyOverTime () {
     function handlePageSizeChange(size: number): void {
         setPage(1)
         setPageSize(size)
-    }
-
-    const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
-        setStatus(e.target.value);
     }
 
     return (
@@ -71,17 +64,6 @@ export default function ListMyOverTime () {
             </div>
 
             <div className="mb-5 pb-3">
-                <div className="mb-2">
-                    <Label className="mb-2">{t('overtime.list.status')}</Label>
-					<select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
-						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
-                        <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
-                        <option value="2">{ lang == 'vi' ? 'Đang xử lý' : 'In Process' }</option>
-                        <option value="3">{ lang == 'vi' ? 'Hoàn thành' : 'Completed' }</option>
-                        <option value="5">{ lang == 'vi' ? 'Từ chối' : 'Rejected' }</option>
-					</select>
-                </div>
-
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
                         <Table>
@@ -122,24 +104,35 @@ export default function ListMyOverTime () {
                                     </TableRow>
                                 ) : (
                                     myOverTimes.map((item: any, idx: number) => {
+                                        const infoOverTime = JSON.parse(item?.metaData ?? '{}');
+                                        let status = null
+
+                                        if (item?.applicationFormItemStatus == false) {
+                                            status = StatusApplicationFormEnum.Reject
+                                        } else {
+                                            status = item.requestStatusId == StatusApplicationFormEnum.Pending ? 'Pending' 
+                                                    : item.requestStatusId == StatusApplicationFormEnum.Complete ? 'Completed' 
+                                                    : item.requestStatusId == StatusApplicationFormEnum.Reject ? 'Reject' : 'In Process'
+                                        }
+
                                         return (
                                             <TableRow key={idx}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/${item?.applicationFormCode}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationFormCode}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{item?.userCode}</TableCell>
                                                 <TableCell className="text-center border">{item?.userName}</TableCell>
                                                 <TableCell className="text-center border">{item?.position}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(item?.dateRegister ?? "", "yyyy-MM-dd") }</TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.typeOverTimeName : item?.typeOverTimeNameE}</TableCell>
+                                                <TableCell className="text-center border">{formatDate(infoOverTime?.date_register ?? "", "yyyy-MM-dd") }</TableCell>
+                                                <TableCell className="text-center border">{infoOverTime?.type_overtime?.name}</TableCell>
                                                 <TableCell className="text-center border">{item?.fromHour}</TableCell>
                                                 <TableCell className="text-center border">{item?.toHour}</TableCell>
                                                 <TableCell className="text-center border">{item?.numberHour}</TableCell>
                                                 <TableCell className="text-center border">{item?.note}</TableCell>
-                                                <TableCell className="text-center border">{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
+                                                <TableCell className="text-center border">{ formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
                                                 <TableCell className="text-center border">
                                                     <StatusLeaveRequest 
-                                                        status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
+                                                        status={status}
                                                     />
                                                     </TableCell>
                                             </TableRow>
@@ -163,27 +156,32 @@ export default function ListMyOverTime () {
                                 <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') }</div>
                             ) : (
                                 myOverTimes.map((item: any, idx: number) => {
+                                    const infoOverTime = JSON.parse(item?.metaData ?? '{}');
+
                                     return (
                                         <div key={idx} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{t('overtime.list.code')}: </strong>
-                                                <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">
-                                                     {item?.code}
+                                                <Link to={`/view/${item?.applicationFormCode}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">
+                                                     {item?.applicationFormCode}
                                                 </Link>
                                             </div>
-                                            <div className="mb-1"><strong>{t('overtime.list.position')}: </strong>{item?.position}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.date_register')}: </strong> {formatDate(item?.dateRegister ?? "", "yyyy-MM-dd") }</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.type_overtime')}: </strong> {lang == 'vi' ? item?.typeOverTimeName : item?.typeOverTimeNameE}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.from_hour')}: </strong> {item?.fromHour}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.to_hour')}: </strong> {item?.toHour}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.number_hour')}: </strong> {item?.numberHour}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.number_hour')}: </strong> {item?.note}</div>
-                                            <div className="mb-1"><strong>{t('overtime.list.note')}: </strong> {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
+                                            <div><strong>{t('overtime.list.position')}: </strong>{item?.position}</div>
+                                            <div><strong>{t('overtime.list.date_register')}: </strong>{formatDate(infoOverTime?.date_register ?? "", "yyyy-MM-dd")}</div>
+                                            <div><strong>{t('overtime.list.type_overtime')}: </strong>{infoOverTime?.type_overtime?.name}</div>
+                                            <div><strong>{t('overtime.list.from_hour')}: </strong>{item?.fromHour}</div>
+                                            <div><strong>{t('overtime.list.to_hour')}: </strong>{item?.toHour}</div>
+                                            <div><strong>{t('overtime.list.number_hour')}: </strong>{item?.numberHour}</div>
+                                            <div><strong>{t('overtime.list.note')}: </strong>{item?.note}</div>
+                                            <div><strong>{t('overtime.list.created_at')}: </strong>{formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                                             <div className="mb-1"><strong>
                                                 {t('overtime.list.status')}: </strong> 
                                                 <StatusLeaveRequest 
-                                                    status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
+                                                    status={item.requestStatusId == StatusApplicationFormEnum.Pending 
+                                                        ? 'Pending' 
+                                                        : item.requestStatusId == StatusApplicationFormEnum.Complete ? 'Completed' 
+                                                        : item.requestStatusId == StatusApplicationFormEnum.Reject ? 'Reject' : 'In Process'}
                                                 />
                                             </div>
                                         </div>

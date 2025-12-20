@@ -124,7 +124,7 @@ export default function ListLeaveRequest () {
                                         return (
                                             <TableRow key={item.leaveRequestId}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/view/leave-request/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{item?.userCode}</TableCell>
                                                 <TableCell className="text-center border">{item?.userName}</TableCell>
@@ -168,7 +168,7 @@ export default function ListLeaveRequest () {
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/view/leave-request/${item.code}?code=${user?.userCode}`} className="text-blue-600 underline">
+                                                <Link to={`/view/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>

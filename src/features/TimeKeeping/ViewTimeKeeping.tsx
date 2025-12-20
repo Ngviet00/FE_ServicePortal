@@ -5,22 +5,25 @@ import { useAuthStore } from "@/store/authStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"
-import timekeepingApi, { useApprovalTimeKeeping, useExportExcelTimeKeeping } from "@/api/timeKeepingApi";
+import timekeepingApi, { useApprovalTimeKeeping, useExportExcelTimeKeeping, useResolvedTaskTimeKeeping } from "@/api/HR/timeKeepingApi";
 import { calculateRoundedTime, getDaysInMonth} from "./Components/functions";
 import { AttendanceStatus, UpdateTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
-import { RoleEnum, useDebounce } from "@/lib";
+import { StatusApplicationFormEnum, useDebounce } from "@/lib";
 import { Button } from "@/components/ui/button";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import HistoryApproval from "../Approval/Components/HistoryApproval";
 import ModalConfirm from "@/components/ModalConfirm";
 import { Textarea } from "@/components/ui/textarea";
-import useHasRole from "@/hooks/useHasRole";
-import useHasPermission from "@/hooks/useHasPermission";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function ViewTimeKeeping () {
+interface ViewApprovalTimeKeepingProps {
+    id: string;
+    mode?: string
+}
+
+export default function ViewTimeKeeping ({ id, mode }: ViewApprovalTimeKeepingProps) {
     const { t } = useTranslation()
     const lang = useTranslation().i18n.language.split('-')[0]
     const {user} = useAuthStore()
@@ -36,13 +39,7 @@ export default function ViewTimeKeeping () {
     const debouncedKeySearch = useDebounce(keySearch, 300);
     const navigate = useNavigate()
     const [note, setNote] = useState("")
-
     const queryClient = useQueryClient()
-
-    const [searchParams] = useSearchParams();
-    const modeView = searchParams.get("mode") ?? 'view'; 
-
-    const { id } = useParams<{ id: string }>();
     const isHasId = !!id;
 
     const [statusModalConfirm, setStatusModalConfirm] = useState('')
@@ -98,29 +95,36 @@ export default function ViewTimeKeeping () {
     }
 
     const approvalTimeKeeping = useApprovalTimeKeeping()
+    const resolvedTaskTimeKeeping = useResolvedTaskTimeKeeping()
     const handleSaveModalConfirm = async (type: string) => {
-        try {
-            await approvalTimeKeeping.mutateAsync({
-                ApplicationFormCode: id,
-                UserCodeApproval: user?.userCode,
-                UserNameApproval: user?.userName ?? "",
-                OrgPositionId: user?.orgPositionId,
-                Status: type == 'approval' ? true : false,
-                Note: note,
-                ApplicationFormId: formData?.timeKeepingInfo?.applicationFormItem?.applicationFormId,
-                RequestTypeId: formData?.timeKeepingInfo?.applicationFormItem?.applicationForm?.requestTypeId
-            })
-            
-            navigate('/approval/pending-approval')
-            queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
-        }
-        catch {
-            console.log('Error can not approve timekeeping');
-        }
-    }
+        setStatusModalConfirm('')
 
-    const hasPermissionHRMngLeaveRq = useHasPermission(['leave_request.hr_management_leave_request'])
-    const isHrMngLeaveRqAndTimeKeeping = useHasRole([RoleEnum.HR]) && hasPermissionHRMngLeaveRq; 
+        const payload = {
+            RequestTypeId: formData?.timeKeepingInfo?.applicationForm?.requestTypeId,
+            RequestStatusId: formData?.timeKeepingInfo?.applicationForm?.requestStatusId,
+            applicationFormId: formData?.timeKeepingInfo?.applicationForm?.id,
+            applicationFormCode: formData?.timeKeepingInfo?.applicationForm?.code,
+            UserCodeApproval: user?.userCode,
+            UserNameApproval: user?.userName ?? "",
+            OrgPositionId: user?.orgPositionId,
+            Status: type == 'approval' ? true : false,
+            Note: note
+        }
+
+        if (type == 'resolved') {
+            await resolvedTaskTimeKeeping.mutateAsync(payload)
+        }
+        else if (type == 'reject' || type == 'approval') {
+            await approvalTimeKeeping.mutateAsync(payload);
+        }
+
+        if (formData?.timeKeepingInfo?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned) {
+            navigate("/approval/assigned-tasks")
+        } else {
+            navigate("/approval/pending-approval")
+        }   
+        queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+    }
 
     const exportExcelTimeKeeping  = useExportExcelTimeKeeping()
     const handleExportExcelTimeKeeping = async () => {
@@ -181,7 +185,7 @@ export default function ViewTimeKeeping () {
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
                     {
-                        isHrMngLeaveRqAndTimeKeeping && (
+                        [StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete].includes(formData?.timeKeepingInfo?.applicationForm?.requestStatusId) && 
                             <Button
                                 onClick={handleExportExcelTimeKeeping}
                                 disabled={exportExcelTimeKeeping.isPending}
@@ -189,7 +193,6 @@ export default function ViewTimeKeeping () {
                             >
                                 {exportExcelTimeKeeping.isPending ? <Spinner/> : lang == 'vi' ? 'Xuất excel' : 'Export excel'}
                             </Button>
-                        )
                     }
                 </div>
             </div>
@@ -197,7 +200,7 @@ export default function ViewTimeKeeping () {
                 {
                     Object.entries(statusLabels).map(([key]) => {
                         return (
-                            <span className="p-1 flex items-center transition-colors duration-150 ease-in-out group" key={key}>
+                            <span className="py-1 flex items-center transition-colors duration-150 ease-in-out group" key={key}>
                                 <span className={`text-black font-bold bg-gray-200 w-[37px] h-[20px]dark:text-black text-xs text-center inline-flex items-center justify-center p-[2px] rounded-[3px] mr-1 flex-shrink-0`}>
                                     {statusLabels[key as AttendanceStatus]}
                                 </span>
@@ -209,19 +212,23 @@ export default function ViewTimeKeeping () {
                     })
                 }
             </div>
-
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
                 <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
                     <table className="min-w-[1200px] border-collapse">
                         <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-black">
                             <tr className="border-b bg-[#f3f4f6] dark:bg-black dark:text-white">
-                                <th className="w-[130px] text-center border-r p-2">{t("mng_time_keeping.usercode")}</th>
-                                <th className="w-[180px] text-center border-r">{t("mng_time_keeping.name")}</th>
-                                <th className="w-[130px] text-center border-r">{t("mng_time_keeping.dept")}</th>
+                                <th className="w-[130px] text-center border-r p-2">
+                                    {t("mng_time_keeping.usercode")}
+                                </th>
+                                <th className="w-[180px] text-center border-r">
+                                    {t("mng_time_keeping.name")}
+                                </th>
+                                <th className="w-[130px] text-center border-r">
+                                    {t("mng_time_keeping.dept")}
+                                </th>
                                 {daysHeader.map(({ dayStr }) => {
                                     const fullDayStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
-                                    const bgSunday =
-                                    new Date(fullDayStr).getDay() == 0 ? statusColors["CN" as AttendanceStatus] : "";
+                                    const bgSunday = new Date(fullDayStr).getDay() == 0 ? statusColors["CN" as AttendanceStatus] : "";
                                     const colorSunday = new Date(fullDayStr).getDay() == 0 ? "#FFFFFF" : "";
 
                                     return (
@@ -229,7 +236,7 @@ export default function ViewTimeKeeping () {
                                             key={dayStr}
                                             style={{ backgroundColor: bgSunday || "", color: colorSunday }}
                                             className="w-[36px] text-center border-r text-sm"
-                                        >
+                                            >
                                             {dayStr}
                                         </th>
                                     );
@@ -237,74 +244,77 @@ export default function ViewTimeKeeping () {
                             </tr>
                         </thead>
                         <tbody>
-                            {
-                                isFormDataLoading ? (
-                                    Array.from({ length: 5 }).map((_, index) => (
-                                        <tr key={index}>
-                                            <td className="w-[130px] text-center p-2">
-                                                <div className="flex justify-center">
-                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </td>
-                                            <td className="w-[180px] text-center">
-                                                <div className="flex justify-center">
-                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </td>
-                                            <td className="w-[130px] text-center">
-                                                <div className="flex justify-center">
-                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </td>
-                                            {daysHeader.map(({ dayStr }) => (
-                                                <td key={dayStr} className="w-[36px] text-center">
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-3 w-[17px] bg-gray-300" />
-                                                </div>
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))
-                                ) : isError || dataAttendances.length == 0 ? (
-                                    <tr>
-                                        <td
-                                            colSpan={daysInMonth + 3}
-                                            className={`align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-center font-bold text-red-700`}
-                                            >
-                                            { error?.message ?? tCommon('no_results') } 
+                            {isFormDataLoading ? (
+                                Array.from({ length: 5 }).map((_, index) => (
+                                <tr key={index}>
+                                    <td className="w-[130px] text-center p-2">
+                                        <div className="flex justify-center">
+                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                        </div>
+                                    </td>
+                                    <td className="w-[180px] text-center">
+                                        <div className="flex justify-center">
+                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                        </div>
+                                    </td>
+                                    <td className="w-[130px] text-center">
+                                        <div className="flex justify-center">
+                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                        </div>
+                                    </td>
+                                    {daysHeader.map(({ dayStr }) => (
+                                        <td key={dayStr} className="w-[36px] text-center">
+                                            <div className="flex justify-center">
+                                            <Skeleton className="h-3 w-[17px] bg-gray-300" />
+                                            </div>
                                         </td>
-                                    </tr>
-                                ) : (
-                                        dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
-                                            <tr key={idx} className="border-b dark:border-[#9b9b9b]">
-                                            <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">{item.UserCode}</td>
-                                            <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
-                                            <td className="text-left border-r pl-2 text-sm w-[130px]">{item.Department}</td>
-                                            {daysHeader.map(({ dayStr }) => {
-                                                let bgColor = "#FFFFFF";
-                                                let textColor = "#000000";
-                                                const dayNumber = parseInt(dayStr, 10);
+                                    ))}
+                                </tr>
+                                ))
+                            ) : isError || dataAttendances.length == 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={daysInMonth + 3}
+                                        className={`align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-center font-bold text-red-700`}
+                                    >
+                                        {error?.message ?? tCommon("no_results")}
+                                    </td>
+                                </tr>
+                            ) : (
+                                dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
+                                    <tr key={idx} className="border-b dark:border-[#9b9b9b]">
+                                        <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">
+                                            {item.UserCode}
+                                        </td>
+                                        <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
+                                        <td className="text-left border-r pl-2 text-sm w-[130px]">
+                                            {item.Department}
+                                        </td>
+                                        {daysHeader.map(({ dayStr }) => {
+                                            let bgColor = "#FFFFFF";
+                                            let textColor = "#000000";
+                                            const dayNumber = parseInt(dayStr, 10);
 
-                                                let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
-                                                const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
-                                                const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
-                                                const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
-                                                const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
-                                                const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
-                                                const isSunday = new Date(fullDate).getDay() === 0;
+                                            let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
+                                            const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
+                                            const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
+                                            const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
+                                            const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
+                                            const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
+                                            const isSunday = new Date(fullDate).getDay() === 0;
 
-                                                if (result == "X") {
-                                                    if (isSunday) {
-                                                        result = "CN_X";
-                                                    } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
-                                                        result = "X";
-                                                    } else if (parseFloat(wh) < 8) {
-                                                        const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
-                                                        result = calculateTime == "1" ? "X" : calculateTime;
-                                                    }
-                                                } else if (result == "SH") {
-                                                    bgColor = "#3AFD13";
-                                                } else if (result == "CN") {
+                                            if (result == "X") {
+                                                if (isSunday) {
+                                                    result = "CN_X";
+                                                } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
+                                                    result = "X";
+                                                } else if (parseFloat(wh) < 8) {
+                                                    const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
+                                                    result = calculateTime == "1" ? "X" : calculateTime;
+                                                }
+                                            } else if (result == "SH") {
+                                                bgColor = "#3AFD13";
+                                            } else if (result == "CN") {
                                                 if (den != "" && ve != "" && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
                                                     result = "CN_X";
                                                     bgColor = "#FFFFFF";
@@ -312,26 +322,29 @@ export default function ViewTimeKeeping () {
                                                 } else {
                                                     bgColor = "#858585";
                                                 }
-                                                } else if (result == "ABS" || result == "MISS") {
-                                                    bgColor = "#FD5C5E";
-                                                } else if (result != "X") {
-                                                    bgColor = "#ffe378";
-                                                }
+                                            } else if (result == "ABS" || result == "MISS") {
+                                                bgColor = "#FD5C5E";
+                                            } else if (result != "X") {
+                                                bgColor = "#ffe378";
+                                            }
 
-                                                return (
-                                                    <td
-                                                        key={dayStr}
-                                                        style={{ backgroundColor: bgColor, color: textColor }}
-                                                        className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
-                                                    >
-                                                        <div className="flex justify-center text-xs">{result}</div>
-                                                    </td>
-                                                );
-                                            })}
-                                        </tr>
-                                    ))
-                                )
-                            }
+                                            return (
+                                                <td
+                                                    key={dayStr}
+                                                    style={{ backgroundColor: bgColor, color: textColor }}
+                                                    className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
+                                                >
+                                                    <div className={`flex justify-center text-xs ${result.includes(',') ? 'flex-col text-[9px]' : ''}`}>
+                                                        {
+                                                            result.includes(',') ? result.split(",").map((x: string, i: number) => <span key={i}>{x}</span>) : result
+                                                        }
+                                                    </div>
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -347,31 +360,53 @@ export default function ViewTimeKeeping () {
             }
              <div>
                 <Label className='mb-1'>{t('note')}</Label>
-                <Textarea placeholder='Note' disabled={modeView != 'approval'} value={note} onChange={(e) => setNote(e.target.value)} className={`border-gray-300`}/>
+                <Textarea placeholder='Note' value={note} onChange={(e) => setNote(e.target.value)} className={`border-gray-300`}/>
             </div>
             <div className="flex justify-end">
                 {
-                    modeView != 'view' && (
-                        <>
-                            <Button
-                                onClick={() => setStatusModalConfirm('approval')}
-                                disabled={approvalTimeKeeping.isPending}
-                                className="px-4 py-2 bg-blue-700 text-white rounded-[3px] hover:bg-blue-800 transition-all duration-200 text-base hover:cursor-pointer mr-2"
+                    formData?.timeKeepingInfo?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned ?
+                    (
+                        mode != 'view' &&
+                            <button
+                                onClick={() => setStatusModalConfirm('resolved')}
+                                disabled={resolvedTaskTimeKeeping.isPending}
+                                className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
                             >
-                                {t('approval')}
-                            </Button>
-                            <Button
+                                {lang == 'vi' ? 'Đóng' : 'Closed'}
+                            </button>
+                    ) : [StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(formData?.timeKeepingInfo?.applicationForm?.requestStatusId) ? (null) : (
+                            mode != 'view' && <>
+                            <button
                                 onClick={() => setStatusModalConfirm('reject')}
                                 disabled={approvalTimeKeeping.isPending}
-                                className="flex items-center justify-center hover:cursor-pointer px-8 py-4 bg-red-600 text-white rounded-[3px] hover:bg-red-700 transform transition-all duration-200 text-base"
+                                className="mr-2 cursor-pointer w-full sm:w-auto py-1 px-4 bg-red-600 text-white font-semibold rounded-sm shadow-lg hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
                             >
-                                {t('reject')}
-                            </Button>
+                                {lang == 'vi' ? 'Từ chối' : 'Reject'}
+                            </button>
+                            <button
+                                onClick={() => setStatusModalConfirm('approval')}
+                                disabled={approvalTimeKeeping.isPending}
+                                className="cursor-pointer w-full sm:w-auto py-3 px-5 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400"
+                            >
+                                {lang == 'vi' ? 'Duyệt đơn' : 'Approval'}
+                            </button>
                         </>
                     )
                 }
             </div>
-            <HistoryApproval historyApplicationForm={formData?.timeKeepingInfo?.applicationFormItem?.applicationForm?.historyApplicationForms}/>
+            <div className="mb-0">
+                <span className="font-bold text-black">
+                    {lang === 'vi' ? 'Quy trình' : 'Approval flow'}:
+                </span>{' '}
+                {formData?.defineAction
+                    .map((item: any, idx: number) => (
+                        <span key={idx} className="font-bold text-orange-700">
+                            ({idx + 1}) {item?.Name ?? item?.UserCode ?? 'HR'}
+                            {idx < formData.defineAction?.length - 1 ? ', ' : ''}
+                        </span>
+                    ))}
+            </div>
+            <HistoryApproval historyApplicationForm={formData?.timeKeepingInfo?.applicationForm?.historyApplicationForms}/>
         </div>
     )
 }

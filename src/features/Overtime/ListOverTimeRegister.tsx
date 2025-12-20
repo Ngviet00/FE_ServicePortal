@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
-import { ChangeEvent, useState } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
@@ -13,12 +13,11 @@ import {
 } from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
-import { getErrorMessage, ShowToast } from "@/lib"
+import { getErrorMessage, ShowToast, StatusApplicationFormEnum } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
-import { Label } from "@/components/ui/label"
 import { IRequestStatus } from "@/api/itFormApi"
 import { IRequestType } from "@/api/requestTypeApi"
 import overTimeApi from "@/api/overTimeApi"
@@ -40,18 +39,16 @@ export default function ListOverTimeRegister () {
     const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
-    const [status, setStatus] = useState('')
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
     
     const { data: overTimeRegisters = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-overtime-registered', { page, pageSize, status: status }],
+        queryKey: ['get-overtime-registered', { page, pageSize }],
         queryFn: async () => {
             const res = await overTimeApi.getOverTimeRegister({
                 UserCode: user?.userCode ?? "",
                 Page: page,
-                PageSize: pageSize,
-                Status: status == '' ? null : parseInt(status)
+                PageSize: pageSize
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -65,10 +62,6 @@ export default function ListOverTimeRegister () {
     function handlePageSizeChange(size: number): void {
         setPage(1)
         setPageSize(size)
-    }
-
-    const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
-        setStatus(e.target.value);
     }
 
     function handleSuccessDelete(shouldGoBack?: boolean) {
@@ -95,7 +88,6 @@ export default function ListOverTimeRegister () {
         const shouldGoBack = overTimeRegisters.length === 1;
         await mutation.mutateAsync(code);
         handleSuccessDelete(shouldGoBack);
-        window.location.reload()
     };
 
     return (
@@ -112,24 +104,13 @@ export default function ListOverTimeRegister () {
             </div>
 
             <div className="mb-5 pb-3">
-                <div className="mb-2">
-                    <Label className="mb-2">{t('overtime.list_register.status')}</Label>
-                    <select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
-                        <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
-                        <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
-                        <option value="2">{ lang == 'vi' ? 'Đang xử lý' : 'In Process' }</option>
-                        <option value="3">{ lang == 'vi' ? 'Hoàn thành' : 'Completed' }</option>
-                        <option value="5">{ lang == 'vi' ? 'Từ chối' : 'Rejected' }</option>
-                    </select>
-                </div>
-
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-[#f3f4f6] border">
                                     <TableHead className="w-[100px] text-center border">{t('overtime.list_register.code')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list_register.request_type')}</TableHead>
+                                    <TableHead className="w-[100px] text-center border">{t('overtime.list_register.RequestTypeEnum')}</TableHead>
                                     <TableHead className="w-[100px] text-center border">{t('overtime.list_register.created_by')}</TableHead>
                                     <TableHead className="w-[150px] text-center border">{t('overtime.list_register.created_at')}</TableHead>
                                     <TableHead className="w-[130px] text-center border">{t('overtime.list_register.status')}</TableHead>
@@ -160,19 +141,22 @@ export default function ListOverTimeRegister () {
                                         return (
                                             <TableRow key={item.id}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">{item?.code}</Link>
                                                 </TableCell>
                                                 <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
                                                 <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
                                                 <TableCell className="text-center border">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                                 <TableCell className="text-center border">
                                                     <StatusLeaveRequest 
-                                                        status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
+                                                        status={item.requestStatus?.id == StatusApplicationFormEnum.Pending 
+                                                            ? 'Pending' 
+                                                            : item?.requestStatus?.id == StatusApplicationFormEnum.Complete ? 'Completed' 
+                                                            : item?.requestStatus?.id == StatusApplicationFormEnum.Reject ? 'Reject' : 'In Process'}
                                                     />
                                                 </TableCell>
                                                 <TableCell className="text-center border">
                                                     {
-                                                        item?.requestStatus?.id == 1 ? (
+                                                        item?.requestStatus?.id == StatusApplicationFormEnum.Pending ? (
                                                             <>
                                                                 <Link to={`/overtime/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {lang == 'vi' ? 'Sửa' : 'Edit'}
@@ -210,7 +194,7 @@ export default function ListOverTimeRegister () {
                                         <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/view/overtime/${item.code}`} className="text-blue-600 underline">
+                                                <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">
                                                      {item?.code}
                                                 </Link>
                                             </div>
@@ -229,7 +213,7 @@ export default function ListOverTimeRegister () {
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Hành động' : 'Action'}: </strong> 
                                                 {
-                                                    item?.requestStatus?.id == 1 ? (
+                                                    item?.requestStatus?.id == StatusApplicationFormEnum.Pending ? (
                                                         <>
                                                             <Link to={`/overtime/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                                 {lang == 'vi' ? 'Sửa' : 'Edit'}

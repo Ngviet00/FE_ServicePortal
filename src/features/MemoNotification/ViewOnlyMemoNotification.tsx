@@ -5,9 +5,9 @@ import { formatDate } from '@/lib/time';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useParams } from 'react-router-dom';
 import React, { useState } from 'react';
-import HistoryApproval from '../Approval/Components/HistoryApproval';
 import memoNotificationApi from '@/api/memoNotificationApi';
 import { useTranslation } from 'react-i18next';
+import fileApi from '@/api/fileApi';
 
 const ViewOnlyMemoNotification: React.FC = () => {
     const { t } = useTranslation();
@@ -22,7 +22,7 @@ const ViewOnlyMemoNotification: React.FC = () => {
     const { data: memo } = useQuery({
         queryKey: ['get-detail-memo-notify'],
         queryFn: async () => {
-            const res = await memoNotificationApi.getById(id!);
+            const res = await memoNotificationApi.getById(Number(id));
             setUploadedFiles(res?.data?.data?.files || []);
             return res.data.data;
         },
@@ -31,7 +31,7 @@ const ViewOnlyMemoNotification: React.FC = () => {
 
     const handleDownloadFile = async (file: UploadedFileType) => {
         try {
-            const result = await memoNotificationApi.downloadFile(file.id)
+            const result = await fileApi.downloadFile(file.id)
             const url = window.URL.createObjectURL(result.data);
             const a = document.createElement("a");
             a.href = url;
@@ -57,7 +57,7 @@ const ViewOnlyMemoNotification: React.FC = () => {
                 <h2 className="text-[24px] sm:text-[30px] font-bold mb-1">{memo.title}</h2>
                 <div className="text-sm text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className='dark:text-white'>
-                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.applicationFormItem?.applicationForm?.userNameCreatedForm}</span>
+                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.userNameCreated}</span>
                     </span>
                     <span className='dark:text-white'>•</span>
                     <span className='dark:text-white'>
@@ -93,9 +93,6 @@ const ViewOnlyMemoNotification: React.FC = () => {
                     />
                 </div>
             </div>
-            {
-                !isDislayInHomePage && (<HistoryApproval historyApplicationForm={memo?.applicationFormItem?.applicationForm?.historyApplicationForms}/>)
-            }
         </div>
     )
 };

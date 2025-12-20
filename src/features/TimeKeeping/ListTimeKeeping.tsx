@@ -18,7 +18,7 @@ import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import { Button } from "@/components/ui/button"
-import timekeepingApi, { useDeleteTimeKeeping } from "@/api/timeKeepingApi"
+import timekeepingApi, { useDeleteTimeKeeping } from "@/api/HR/timeKeepingApi"
 
 export default function ListTimeKeeping () {
     const { t: tCommon } = useTranslation('common')
@@ -61,9 +61,9 @@ export default function ListTimeKeeping () {
         }
     }
 
-    const handleDelete = async (code: string) => {
+    const handleDelete = async (applicationFormId: number) => {
         const shouldGoBack = listTimeKeepings.length === 1;
-        await deleteTimeKeeping.mutateAsync(code);
+        await deleteTimeKeeping.mutateAsync(applicationFormId);
         handleSuccessDelete(shouldGoBack);
     };
 
@@ -88,7 +88,6 @@ export default function ListTimeKeeping () {
                             <TableHeader>
                                 <TableRow className="bg-[#f3f4f6] border">
                                     <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Loại đơn' : 'Request type' }</TableHead>
                                     <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã nhân viên' : 'Usercode' }</TableHead>
                                     <TableHead className="w-[150px] text-center border">{ lang == 'vi' ? 'Họ tên' : 'Username' }</TableHead>
                                     <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Tháng' : 'Month' }</TableHead>
@@ -102,7 +101,7 @@ export default function ListTimeKeeping () {
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <TableRow key={index}>
-                                        {Array.from({ length: 9 }).map((_, i) => (
+                                        {Array.from({ length: 8 }).map((_, i) => (
                                             <TableCell key={i} className="border">
                                                 <div className="flex justify-center">
                                                     <Skeleton className="h-4 w-[100px] bg-gray-300" />
@@ -113,7 +112,7 @@ export default function ListTimeKeeping () {
                                     ))
                                 ) : isError || listTimeKeepings.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={9} className="text-red-700 border text-center font-medium dark:text-white">
+                                        <TableCell colSpan={8} className="text-red-700 border text-center font-medium dark:text-white">
                                             { error?.message ?? tCommon('no_results') }
                                         </TableCell>
                                     </TableRow>
@@ -122,22 +121,21 @@ export default function ListTimeKeeping () {
                                         return (
                                             <TableRow key={item.id}>
                                                 <TableCell className="text-center border">
-                                                    <Link to={`/view/timekeeping/${item.code}?mode=view`} className="text-blue-600 underline">{item?.code}</Link>
+                                                    <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>
                                                 </TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.requestTypeName : item?.requestTypeNameE}</TableCell>
-                                                <TableCell className="text-center border">{item?.userCodeCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
+                                                <TableCell className="text-center border">{item?.applicationForm?.userCodeCreatedForm}</TableCell>
+                                                <TableCell className="text-center border">{item?.applicationForm?.userNameCreatedForm}</TableCell>
                                                 <TableCell className="text-center border">{item?.month}</TableCell>
                                                 <TableCell className="text-center border">{item?.year}</TableCell>
                                                 <TableCell className="text-center border">{formatDate(item?.createdAt ?? "", 'yyyy-MM-dd HH:mm:ss')}</TableCell>
                                                 <TableCell className="text-center border">
                                                     <StatusLeaveRequest 
-                                                        status={item?.requestStatusId == 1 ? 'Pending' : item?.requestStatusId == 3 ? 'Completed' : item?.requestStatusId == 5 ? 'Reject' : 'In Process'}
+                                                        status={item?.applicationForm?.requestStatusId == 1 ? 'Pending' : item?.applicationForm?.requestStatusId == 3 ? 'Completed' : item?.applicationForm?.requestStatusId == 5 ? 'Reject' : 'In Process'}
                                                     />
                                                 </TableCell>
                                                 <TableCell className="text-center border">
                                                     {
-                                                        item?.requestStatusId == 1 ? <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} /> :  <span>--</span> 
+                                                        item?.applicationForm?.requestStatusId == 1 ? <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId ?? "")} /> :  <span>--</span> 
                                                     }
                                                 </TableCell>
                                             </TableRow>
@@ -167,26 +165,21 @@ export default function ListTimeKeeping () {
                                     <div>
                                         <strong>{lang === 'vi' ? 'Mã đơn' : 'Code'}:</strong>{' '}
                                         <Link
-                                            to={`/view/timekeeping/${item.code}?mode=view`}
+                                            to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`}
                                             className="text-blue-600 underline"
                                         >
-                                            {item?.code}
+                                            {item?.applicationForm?.code}
                                         </Link>
                                     </div>
 
                                     <div>
-                                        <strong>{lang === 'vi' ? 'Loại đơn' : 'Request type'}:</strong>{' '}
-                                        {lang === 'vi' ? item?.requestTypeName : item?.requestTypeNameE}
-                                    </div>
-
-                                    <div>
                                         <strong>{lang === 'vi' ? 'Mã nhân viên' : 'Usercode'}:</strong>{' '}
-                                        {item?.userCodeCreatedForm}
+                                        {item?.applicationForm?.userCodeCreatedForm}
                                     </div>
 
                                     <div>
                                         <strong>{lang === 'vi' ? 'Họ tên' : 'Username'}:</strong>{' '}
-                                        {item?.userNameCreatedForm}
+                                        {item?.applicationForm?.userNameCreatedForm}
                                     </div>
 
                                     <div>
@@ -205,24 +198,23 @@ export default function ListTimeKeeping () {
                                         <strong className="mr-1">{lang === 'vi' ? 'Trạng thái' : 'Status'}:</strong>
                                         <StatusLeaveRequest
                                             status={
-                                                item?.requestStatusId == 1
+                                                item?.applicationForm?.requestStatusId == 1
                                                     ? 'Pending'
-                                                    : item?.requestStatusId == 3
+                                                    : item?.applicationForm?.requestStatusId == 3
                                                     ? 'Completed'
-                                                    : item?.requestStatusId == 5
+                                                    : item?.applicationForm?.requestStatusId == 5
                                                     ? 'Reject'
                                                     : 'In Process'
                                             }
                                         />
                                     </div>
-
                                     <div>
                                         <strong>{lang === 'vi' ? 'Hành động' : 'Action'}:</strong>{' '}
-                                        {item?.requestStatusId == 1 ? (
+                                        {item?.applicationForm?.requestStatusId == 1 ? (
                                             <div className="flex items-center gap-2 mt-1">
                                                 <ButtonDeleteComponent
-                                                    id={item?.code}
-                                                    onDelete={() => handleDelete(item?.code ?? '')}
+                                                    id={item?.applicationFormId}
+                                                    onDelete={() => handleDelete(item?.applicationFormId ?? '')}
                                                 />
                                             </div>
                                         ) : (

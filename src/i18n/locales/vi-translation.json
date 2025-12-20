@@ -50,36 +50,48 @@
 		"admin": {
 			"role": "Vai trò",
 			"permission": "Quyền",
-			"request_type": "Loại yêu cầu",
+			"RequestTypeEnum": "Loại yêu cầu",
 			"approval_flow": "Luồng phê duyệt",
 			"setting_org_unit": "Thêm vị trí",
+			"config_org_position_role": "Quản lý phân quyền vị trí",
 			"priority": "Ưu tiên",
 			"it_category": "Danh mục IT",
 			"admin_setting": "Cài đặt"
 		},
 		"hr": {
+			"title": "Nhân sự",
 			"type_leave": "Loại phép",
 			"list_user": "Danh sách người dùng",
 			"org": "Sơ đồ tổ chức",
 			"mng_time_keeping": "QL Chấm công",
 			"mng_leave_request": "QL Nghỉ phép",
-			"change_org_unit_id_user": "Thay đổi vị trí"
+			"change_org_unit_id_user": "Thay đổi vị trí",
+			"recruitment": {
+				"title": "Tuyển dụng",
+				"manpower": "Đơn xin bổ sung nhân lực"
+			},
+			"insurance": {
+				"title": "Bảo hiểm, nghỉ việc",
+				"resignation": "Đơn xin nghỉ việc",
+				"termination": "Đơn chấm dứt hợp đồng",
+				"warningletter": "Đơn kỷ luật",
+				"absentover5day": "Danh sách vắng mặt không xin phép (5 ngày)"
+			},
+			"leave_request": {
+				"title": "Nghỉ phép, chấm công",
+				"create_leave": "Nghỉ phép, đi trễ về sớm",
+				"create_leave_for_others" : "Tăng ca",
+				"over_time": "Tăng ca",
+				"missing_attendace_data": "Bù chấm công",
+				"internal_memo_hr": "Nội bộ HR",
+				"time_keeping": "Chấm công",
+				"mng_time_keeping": "Quản lý chấm công"
+			}
 		},
 		"notification": {
 			"title": "Thông báo",
 			"create": "Tạo mới thông báo",
 			"list": "Danh sách thông báo đã tạo"
-		},
-		"leave_request": {
-			"statistical": "Thống kê",
-			"title": "Nhân sự",
-			"create_leave": "Nghỉ phép, đi trễ về sớm",
-			"create_leave_for_others" : "Tăng ca",
-			"over_time": "Tăng ca",
-			"missing_attendace_data": "Bù chấm công",
-			"internal_memo_hr": "Nội bộ HR",
-			"time_keeping": "Chấm công",
-			"mng_time_keeping": "Quản lý chấm công"
 		},
 		"IT": {
 			"title": "IT",
@@ -96,7 +108,8 @@
 		"union": {
 			"title": "Công đoàn",
 			"create": "Tạo mới",
-			"list": "Danh sách bỏ phiếu"
+			"list": "Danh sách bỏ phiếu",
+			"member": "Danh sách thành viên"
 		},
 		"SAP": {
 			"title": "SAP",

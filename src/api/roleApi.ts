@@ -1,3 +1,5 @@
+import { ShowToast, getErrorMessage } from '@/lib';
+import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 
 interface GetAllParams {
@@ -11,6 +13,11 @@ export interface IRole {
     name: string;
     code: string;
 };
+
+interface SaveRoleWithOrgPositionId {
+    OrgPositionId: number,
+    RoleIds: number[]
+}
 
 const roleApi = {
     getAll(params: GetAllParams) {
@@ -27,6 +34,28 @@ const roleApi = {
     },
     delete(id: number) {
         return axiosClient.delete(`/role/${id}`)
+    },
+    saveRoleWithOrgPositionId(data: SaveRoleWithOrgPositionId) {
+        return axiosClient.post('/role/save-role-with-org-position-id', data)
+    },
+    getRoleByOrgPositionId(params: {orgPositionId: number}) {
+        return axiosClient.get(`/role/get-role-by-org-position-id`, {params})
     }
 }
+
+export function useSaveOrgPositionWithRole() {
+    return useMutation({
+        mutationFn: async (data: SaveRoleWithOrgPositionId) => {
+            await roleApi.saveRoleWithOrgPositionId(data)
+        },
+        onSuccess: () => {
+            ShowToast('success')
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+
 export default roleApi;

@@ -7,6 +7,7 @@ interface ModalConfirmProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (type: string) => void;
+    isPending?: boolean
 }
 
 const ModalConfirm: React.FC<ModalConfirmProps> = ({
@@ -14,6 +15,7 @@ const ModalConfirm: React.FC<ModalConfirmProps> = ({
     isOpen,
     onClose,
     onSave,
+    isPending
 }) => {
     const { t } = useTranslation()
     
@@ -28,10 +30,10 @@ const ModalConfirm: React.FC<ModalConfirmProps> = ({
             </h2>
             
             <div className="flex justify-end mt-5">
-                <Button className="mt-4 mr-2 px-4 py-2 bg-red-500 text-white rounded hover:cursor-pointer hover:bg-red-700" onClick={onClose}>
+                <Button disabled={isPending == true} className="mt-4 mr-2 px-4 py-2 bg-red-500 text-white rounded hover:cursor-pointer hover:bg-red-700" onClick={onClose}>
                     { t('cancel') }
                 </Button>
-                <Button className="mt-4 px-4 py-2 bg-blue-700 text-white rounded hover:cursor-pointer hover:bg-blue-900" onClick={handleSaveClick}>
+                <Button disabled={isPending == true} className="mt-4 px-4 py-2 bg-blue-700 text-white rounded hover:cursor-pointer hover:bg-blue-900" onClick={handleSaveClick}>
                     { t('save') }
                 </Button>
             </div>

@@ -79,7 +79,7 @@ export default function CreateMemoNotification () {
     const { data: dataMaxUploadFileMemo } = useQuery({
         queryKey: ['get-max-file-size-memo-upload'],
         queryFn: async () => {
-            const res = await systemConfigApi.GetByConfigKey('MaxUploadMemoNotifyFileSizeMB')
+            const res = await systemConfigApi.getByConfigKey('LIMIT_FILE_MEMO_NOTIFY')
             const result = res.data.data;
 
             return result?.configValue ? parseInt(result.configValue) : 5;
@@ -174,7 +174,7 @@ export default function CreateMemoNotification () {
             form.setValue("attachments", []);
             (async () => {
                 try {
-                    const data = await memoNotificationApi.getById(id!);
+                    const data = await memoNotificationApi.getById(Number(id));
                     const result = data.data.data;
 
                     const selectedDepartments = result.applyAllDepartment

@@ -24,7 +24,7 @@
             "title": "Danh sách tăng ca đã đăng ký",
             "status": "Trạng thái",
             "code": "Mã đơn",
-            "request_type": "Loại đơn",
+            "RequestTypeEnum": "Loại đơn",
             "created_by": "Người tạo",
             "created_at": "Thời gian tạo",
             "action": "Hành động"
@@ -84,7 +84,7 @@
         "change_shift": "Đổi ca",
         "change_sunday": "Đổi chủ nhật",
         "use_phone": "Sử dụng điện thoại",
-        "register_gate": "Đăng ký ra vào cổng",
+        "register_door": "Đăng ký ra vào cửa",
         "other": "Thông tin khác",
         "save": "Lưu",
         "note": "Ghi chú",
@@ -94,5 +94,179 @@
         "user_code": "Mã nhân viên",
         "action": "Hành động",
         "created_at": "Thời gian tạo"
+    },
+    "warning_letter": {
+        "create": {
+            "title": "Đơn kỷ luật",
+            "usercode": "Mã nhân viên",
+            "username": "Họ tên",
+            "department": "Bộ phận",
+            "position": "Chức vụ",
+            "unit": "Đơn vị",
+            "reason": "Lý do",
+            "handling_method": "Hình thức xử lý",
+            "verbal_reprimand": "Khiển trách bằng miệng",
+            "suspension_without_pay": "Đình chỉ công tác và không trả lương",
+            "written_disciplinary_notice": "Thông báo kỷ luật bằng văn bản",
+            "job_reassignment_with_salary_reduction": "Chuyển công tác khác và hạ mức lương",
+            "union_member_responsibility": "Thành viên công đoàn phụ trách",
+            "choose": "Chọn",
+            "note_approval_flow" : "Quy trình phê duyệt: (1) Đại diện công đoàn, (2) Giám đốc bộ phận, (3) Giám đốc hành chính nhân sự",
+            "confirm": "Xác nhận"
+        },
+        "list": {
+            "title": "Danh sách đơn kỷ luật đã đăng ký",
+            "my_warning_letter": "Đơn kỷ luật của tôi",
+            "code": "Mã đơn",
+            "status": "Trạng thái",
+            "action": "Hành động",
+            "created_at": "Thời gian tạo"
+        }
+    },
+    "resignation": {
+        "create": {
+            "title": "Đơn xin nghỉ việc",
+            "usercode": "Mã nhân viên",
+            "username": "Họ tên",
+            "department": "Bộ phận",
+            "position": "Chức vụ",
+            "date_join_company": "Ngày vào công ty",
+            "last_day_employment": "Ngày nghỉ việc",
+            "reason": "Lý do",
+            "unit": "Đơn vị",
+            "handover": "Bàn giao",
+            "contract_expire": "Hết hạn hợp đồng",
+            "non_renew_contract": "Không ký hợp đồng",
+
+            "personal_reason": "Lý do cá nhân",
+            "sick": "Ốm đau",
+            "further_studies": "Đi học",
+            "family_matter": "Việc gia đình",
+            "new_employment": "Có công việc mới",
+            "return_hometown": "Về quê",
+            "unsuitable_work": "Công việc không phù hợp",
+
+            "other_reason": "Lý do khác",
+            "poor_benifit": "Chế độ đãi ngộ không tốt",
+            "unfavorable_working_environment": "Môi trường làm việc không tốt",
+            "high_pressure": "Áp lực cao",
+            "low_salary": "Lương thấp",
+
+            "additional_remarks": "Lý do bổ sung",
+
+            "other": "Khác",
+            "uniform": "Đồng phục",
+            "ID_card": "ID Card",
+            "choose": "Chọn",
+
+            "note_approval_flow" : "Quy trình phê duyệt: (1) Tổ trưởng/Trưởng ca, (2) Chủ quản/Phó chủ quản, (3) Giám đốc bộ phận, (4) Giám đốc hành chính nhân sự.Từ phó chủ quản trở lên phải có phê duyệt của Tổng giám đốc",
+            "confirm": "Xác nhận"
+        },
+        "list": {
+            "title": "Danh sách đơn nghỉ việc",
+            "code": "Mã đơn",
+            "status": "Trạng thái",
+            "action": "Hành động",
+            "created_at": "Thời gian tạo"
+        }
+    },
+    "termination": {
+        "create": {
+            "title": "Đơn chấm dứt hợp đồng",
+            "usercode": "Mã nhân viên",
+            "username": "Họ tên",
+            "department": "Bộ phận",
+            "position": "Chức vụ",
+            "unit": "Đơn vị",
+            "reason": "Lý do",
+            "date_join_company": "Ngày vào công ty",
+            "last_working_date": "Ngày cuối cùng làm việc",
+            "contract_expire_date": "Chấm dứt HĐLĐ ngày",
+            "contract_expired": "Hết hạn hợp đồng",
+            "expulsion": "Sa thải",
+            "dismiss": "Cho nghỉ việc",
+            "absent": "Vắng mặt không xin phép từ ngày",
+            "failed_probation": "Thử việc không đạt",
+            "disciplinary": "Vi phạm kỷ luật",
+            "contract_expireNotRenew": "Hết hạn hợp đồng, không ký tiếp hợp đồng mới",
+            "other_reason": "Trường hợp khác",
+            "handover": "Bàn giao",
+            "other": "Khác",
+            "uniform": "Đồng phuc",
+            "ID_card": "ID Card",
+            "choose": "Choose",
+            "note_approval_flow": "Quy trình phê duyệt: (1) Chủ quản, (2) Giám đốc bộ phận, (3) Tổng giám đốc, (4) Giám đốc hành chính nhân sự",
+            "confirm": "Xác nhận"
+        },
+        "list": {
+            "title": "Danh sách đơn đã đăng ký",
+            "code": "Mã đơn",
+            "status": "Trạng thái",
+            "action": "Hành động",
+            "created_at": "Thời gian tạo"
+        }
+    },
+    "absent_overday": {
+        "title": "Danh sách vắng mặt không xin phép",
+        "user_code": "Mã nhân viên",
+        "username": "Họ tên",
+        "department": "Bộ phận",
+        "last_absent_date": "Ngày nghỉ gần nhất",
+        "list_absent_date": "Danh sách 5 ngày nghỉ gần nhất",
+        "action": "Hành động",
+        "working": "Đang làm việc",
+        "terminate": "Đã nghỉ việc"
+    },
+    "requisition": {
+        "create": {
+            "title": "Đơn đề xuất tuyển dụng",
+            "position_additional": "Chức vụ bổ sung",
+            "department": "Bộ phận",
+            "additional_people": "Số người bổ sung",
+            "date_required": "Ngày mong muốn",
+
+            "reason": "Lý do",
+            "expand": "Mở rộng",
+            "replace": "Thay thế",
+            "temporary": "Tạm thời",
+            "hr_reserve": "Dự trữ nhân sự",
+
+            "marriage": "Kết hôn",
+            "unmarried": "Chưa kết hôn",
+            "no_important_marriage": "Không quan trọng",
+
+            "education": "Học vấn",
+            "primary_school": "Tiểu học",
+            "middle_school": "Trung học cơ sở",
+            "high_school": "Trung học phổ thông",
+
+            "expertise": "Chuyên môn",
+
+            "language": "Ngoại ngữ",
+            "acceptable": "Ít",
+            "normal": "Bình thường",
+            "good": "Tốt",
+
+            "english": "Tiếng Anh",
+            "japanese": "Tiếng Nhật",
+            "chinese": "Tiếng Trung",
+
+            "experience": "Kinh nghiệm",
+            "personality": "Cá tính",
+            "skills": "Kỹ năng",
+            "description_job": "Mô tả công việc",
+
+            "choose": "Chọn",
+            "note_approval_flow": "Quy trình phê duyệt: (1) Chủ quản, (2) Giám đốc bộ phận, (3) Tổng giám đốc, (4) Giám đốc hành chính nhân sự",
+            "confirm": "Xác nhận"
+        },
+        "list": {
+            "title": "Danh sách đơn đề xuất tuyển dụng đã đăng ký",
+            "code": "Mã đơn",
+            "username": "Người yêu cầu",
+            "status": "Trạng thái",
+            "action": "Hành động",
+            "created_at": "Thời gian tạo"
+        }
     }
 }

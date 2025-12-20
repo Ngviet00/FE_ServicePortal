@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import timekeepingApi, { ListHistoryTimeAttendance, useDeleteHistoryEditTimeKeeping } from "@/api/timeKeepingApi";
+import timekeepingApi, { ListHistoryTimeAttendance, useDeleteHistoryEditTimeKeeping } from "@/api/HR/timeKeepingApi";
 import { useAuthStore } from "@/store/authStore";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { formatDate } from "@/lib/time";
@@ -110,7 +110,7 @@ const ModalListHistoryEditTimeKeeping: React.FC<ModalListHistoryEditTimeKeepingP
                                                 }
                                             </TableCell>
                                             <TableCell className="font-medium text-left">{item.userCode}</TableCell>
-                                            <TableCell className="font-medium text-left">{item.nvHoTen}</TableCell>
+                                            <TableCell className="font-medium text-left">{item.userName}</TableCell>
                                             <TableCell className="font-medium text-left">{item.oldValue}</TableCell>
                                             <TableCell className="font-medium text-left">{item.currentValue}</TableCell>
                                             <TableCell className="font-medium text-left">{item.updatedBy}</TableCell>

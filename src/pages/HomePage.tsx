@@ -6,11 +6,12 @@ import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import memoNotificationApi from '@/api/memoNotificationApi';
 import { formatDate } from '@/lib/time';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore, User } from '@/store/authStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import userApi from '@/api/userApi';
 import "./css/Homepage.css"
 import { getErrorMessage, ShowToast } from '@/lib';
+import systemConfigApi from '@/api/systemConfigApi';
 
 function formatData(data: string | null | undefined):string {
     if (data === "" || data === null || data === undefined) {
@@ -21,6 +22,7 @@ function formatData(data: string | null | undefined):string {
 
 export default function HomePage() {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0]
     const { updateUser } = useAuthStore();
     const { user } = useAuthStore();
 
@@ -35,7 +37,7 @@ export default function HomePage() {
         enabled: user?.departmentId != undefined
     });
 
-    const { data: UserData, isPending } = useQuery({
+    const { data: UserData, isPending } = useQuery<User>({
         queryKey: ['get-me'],
         queryFn: async () => {
             try {
@@ -43,16 +45,17 @@ export default function HomePage() {
                 const result = res.data.data
                 updateUser({
                     email: result?.email,
-                    userName: result?.nvHoTen,
+                    userName: result?.userName,
                     departmentId: result?.departmentId,
                     departmentName: result?.departmentName,
                     orgPositionId: result?.orgPositionId,
-                    nvGioiTinh: result?.nvGioiTinh,
+                    sex: result?.sex,
                     dateOfBirth: result?.dateOfBirth,
-                    IsActive: result?.isActive,
-                    roles: result?.roles,
-                    permissions: result?.permissions,
+                    isActive: result?.isActive,
                     unitId: result?.unitId,
+                    unitName: result?.unitName,
+                    unitNameV: result?.unitNameV,
+                    dateJoinCompany: result?.dateJoinCompany
                 })
 
                 return res.data.data;
@@ -60,6 +63,16 @@ export default function HomePage() {
                 ShowToast(getErrorMessage(error), "error")
                 return null;
             }
+        },
+    });
+
+    const { data: filePathCompanyRule } = useQuery({
+        queryKey: ['file-path-company-rule'],
+        queryFn: async () => {
+            const res = await systemConfigApi.getByConfigKey('LINK_RULE_COMPANY')
+            const result = res.data.data;
+
+            return result?.configValue
         },
     });
 
@@ -71,7 +84,7 @@ export default function HomePage() {
             <div className='mb-3'>
                 {
                     data && data.length > 0 && data.map((item: any, idx: number) => (
-                        <Link key={idx} to={`/view/memo-notify/${item.code}?locate=home`}>
+                        <Link key={idx} to={`/view/memo-notify/${item.id}?locate=home`}>
                             <div
                                 className="bg-[#eff6ff] py-4 px-5 mb-3 rounded-md font-inter shadow-sm hover:shadow-md transition dark:bg-[#1e1e1e69]"
                             >
@@ -107,7 +120,7 @@ export default function HomePage() {
                     <div className='bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                         <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                         <div>
-                            <Label className='text-base font-bold dark:text-white'>{user?.nvGioiTinh ? t('home_page.sex.female') : t('home_page.sex.male')}</Label>
+                            <Label className='text-base font-bold dark:text-white'>{user?.sex ? t('home_page.sex.female') : t('home_page.sex.male')}</Label>
                         </div>
                     </div>
                 </div>
@@ -157,17 +170,25 @@ export default function HomePage() {
                         </div>
                         <div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "superadmin" : formatData(UserData?.nvHoTen)}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "superadmin" : formatData(UserData?.userName)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[220px]'>
                                 <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : user?.userCode == "0" ? "SuperAdmin@vsvn.com.vn" : formatData(UserData?.email)}</label>
                             </div>
                             <div className='mb-5 truncate max-w-[200px]'>
-                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.nvNgayVao ? formatDate(formatData(UserData?.nvNgayVao), "dd/MM/yyyy") : "---"}</label>
+                                <label className='text-base font-bold'>{isPending ? <Skeleton className="h-[24px] w-[50px] bg-gray-400" /> : UserData?.dateJoinCompany ? formatDate(formatData(UserData?.dateJoinCompany), "dd/MM/yyyy") : "---"}</label>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className='mt-3'>
+                <a 
+                    className='btn bg-orange-500 p-2 inline-block mt text-gray rounded-sm font-semibold'
+                    target="blank"
+                    href={filePathCompanyRule ?? ''}>
+                    {lang == 'vi' ? 'Nội quy công ty' : 'company regulations'}
+                </a>
             </div>
         </div>
     );

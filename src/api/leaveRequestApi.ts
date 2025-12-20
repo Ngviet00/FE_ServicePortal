@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
 import { ApprovalRequest } from './approvalApi';
+import { IResolvedTask } from './itFormApi';
 
 export interface GetMyLeaveRequest {
     leaveRequestId?: string;
@@ -24,6 +25,7 @@ export interface GetMyLeaveRequest {
     requestStatusNameE?: string;
     userCodeCreatedBy?: string;
     code?: string;
+    requestTypeId?: number
 }
 
 export interface GetMyLeaveRequestRegistered {
@@ -139,12 +141,13 @@ interface GetLeaveRequest {
 // }
 
 export interface RejectSomeLeavesRequest {
-    leaveIds: number[], 
+    applicationFormItemIds: number[], 
     note?: string, 
     userCodeReject?: string, 
     userNameReject?: string,
     orgPositionId?: number
-    applicationFormCode?: string
+    applicationFormCode?: string,
+    applicationFormId?: number
 }
 
 interface HrNoteRequest {
@@ -174,9 +177,11 @@ const leaveRequestApi = {
     getLeaveByAppliationFormCode(applicationFormCode: string) {
         return axiosClient.get(`/leave-request/${applicationFormCode}`)
     },
-    update(id: string, data: any){
+    update(id: string, data: FormData){
         return axiosClient.put(`/leave-request/${id}`, data, {
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
         })
     },
     rejectSomeLeaves(data: RejectSomeLeavesRequest) {
@@ -224,6 +229,23 @@ const leaveRequestApi = {
     UpdateHrWithManagementLeavePermission(data: string[]) {
         return axiosClient.post(`/leave-request/update-user-have-permission-hr-mng-leave-request`, data)
     },
+    resolvedTask(data: IResolvedTask) {
+        return axiosClient.post(`/leave-request/resolved`, data)
+    },
+}
+
+export function useResolvedTaskLeaveRequest () {
+    return useMutation({
+        mutationFn: async (data: IResolvedTask) => {
+            await leaveRequestApi.resolvedTask(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useApprovalLeaveRq() {
@@ -345,7 +367,7 @@ export function useCreateLeaveRequest() {
 
 export function useUpdateLeaveRq() {
     return useMutation({
-        mutationFn: async ({id, data} : { id: string, data: any } ) => {
+        mutationFn: async ({id, data} : { id: string, data: FormData } ) => {
             await leaveRequestApi.update(id, data)
         },
         onSuccess: () => {

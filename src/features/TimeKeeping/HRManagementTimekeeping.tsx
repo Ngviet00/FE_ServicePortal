@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import orgUnitApi from "@/api/orgUnitApi";
-import timekeepingApi, { useAttachUserManageOrgUnit, useUpdateUserPermissionMngTimeKeeping } from "@/api/timeKeepingApi";
+import timekeepingApi, { useAttachUserManageOrgUnit, useUpdateUserPermissionMngTimeKeeping } from "@/api/HR/timeKeepingApi";
 import userApi from "@/api/userApi";
 import { GenericAsyncMultiSelect, OptionType } from "@/components/ComponentCustom/MultipleSelect";
 import TreeCheckbox, { TreeNode } from "@/components/JsTreeCheckbox/TreeCheckbox";

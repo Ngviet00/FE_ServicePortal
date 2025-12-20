@@ -8,7 +8,7 @@ import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveR
 import { useAuthStore } from "@/store/authStore"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
-import { STATUS_ENUM } from "@/lib"
+import { StatusApplicationFormEnum } from "@/lib"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import purchaseApi, { useDeletePurchase } from "@/api/purchaseApi"
@@ -116,7 +116,7 @@ export default function ListFormPurchase () {
                                                 </td>
                                                 <td className="text-center border font-bold text-red-700">
                                                     {
-                                                        item?.requestStatusId == STATUS_ENUM.PENDING ? (
+                                                        item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
                                                             <>
                                                                 <Link to={`/purchase/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {t('list.edit')}
@@ -157,7 +157,7 @@ export default function ListFormPurchase () {
                                     <div className="mb-1"><strong>{t('list.status')}:</strong> <StatusLeaveRequest status={item?.requestStatusId}/></div>
                                     <div className="mb-1">
                                         {
-                                            item?.requestStatusId == STATUS_ENUM.PENDING ? (
+                                            item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
                                                 <>
                                                     <Link to={`/purchase/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-sm">
                                                         {t('list.edit')}

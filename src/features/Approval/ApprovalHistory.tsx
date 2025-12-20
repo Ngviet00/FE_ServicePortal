@@ -5,7 +5,7 @@ import PaginationControl from '@/components/PaginationControl/PaginationControl'
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { REQUEST_TYPE, STATUS_ENUM } from '@/lib';
+import { RequestTypeEnum, StatusApplicationFormEnum } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate } from 'date-fns';
@@ -16,28 +16,28 @@ import { Link } from 'react-router-dom';
 function GetUrlDetailWaitApproval(item: any) {
 	let result = ''
 
-	if (item?.requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
+	if (item?.requestTypeId == RequestTypeEnum.LEAVE_REQUEST) {
 		result = `/view/leave-request/${item?.code ?? '-1'}`
 	}
-	else if (item?.requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
+	else if (item?.requestTypeId == RequestTypeEnum.MEMO_NOTIFICATION) {
 		result = `/view/memo-notify/${item?.code ?? '1'}`
 	}
-	else if (item?.requestTypeId == REQUEST_TYPE.FORM_IT) {
+	else if (item?.requestTypeId == RequestTypeEnum.FORM_IT) {
 		result = `/view/form-it/${item?.code ?? '1'}`
 	}
-	else if (item?.requestTypeId == REQUEST_TYPE.PURCHASE) {
+	else if (item?.requestTypeId == RequestTypeEnum.PURCHASE) {
 		result = `/view/purchase/${item?.code ?? '1'}`
 	}
-	else if (item?.requestTypeId == REQUEST_TYPE.OVERTIME) {
+	else if (item?.requestTypeId == RequestTypeEnum.OVERTIME) {
 		result = `/view/overtime/${item?.code ?? '1'}`
 	}
-	else if (item?.requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
+	else if (item?.requestTypeId == RequestTypeEnum.MISS_TIMEKEEPING) {
 		result = `/view/miss-timekeeping/${item?.code ?? '1'}`
 	}
-	else if (item?.requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
+	else if (item?.requestTypeId == RequestTypeEnum.INTERNAL_MEMO_HR) {
 		result = `/internal-memo-hr/${item?.code ?? '1'}?mode=view`
 	}
-	else if (item?.requestTypeId == REQUEST_TYPE.TIMEKEEPING) {
+	else if (item?.requestTypeId == RequestTypeEnum.TIMEKEEPING) {
 		result = `/view/timekeeping/${item?.code ?? '1'}?mode=view`
 	}
 
@@ -109,7 +109,7 @@ const ApprovalHistory: React.FC = () => {
 			<div className="flex flex-wrap gap-3 mt-3 mb-5">
 				<div className="flex flex-col w-full sm:w-[48%] md:w-[200px]">
 					<Label className="mb-1 text-sm font-medium text-gray-700">
-						{t('history_approval_processed.request_type')}
+						{t('history_approval_processed.RequestTypeEnum')}
 					</Label>
 					<select
 						className="border border-gray-300 rounded-md p-2 text-sm cursor-pointer focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
@@ -137,7 +137,7 @@ const ApprovalHistory: React.FC = () => {
 						className="border border-gray-300 rounded-md p-2 text-sm cursor-pointer focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
 					>
 						<option value="">{lang == 'vi' ? 'Tất cả' : 'All'}</option>
-						{Object.entries(STATUS_ENUM)
+						{Object.entries(StatusApplicationFormEnum)
 							.filter(
 							([, value]) =>
 								typeof value === 'number' && [1, 2, 3, 5].includes(value)
@@ -157,7 +157,7 @@ const ApprovalHistory: React.FC = () => {
 						<thead className="bg-gray-100">
 							<tr>
 								<th className="px-4 py-2 border text-center">{t('history_approval_processed.code')}</th>
-								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.request_type')}</th>
+								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.RequestTypeEnum')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.user_request')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.approval_at')}</th>
 								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.action')}</th>
@@ -190,7 +190,7 @@ const ApprovalHistory: React.FC = () => {
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
-													<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+													<Link to={`/view/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-700 underline">
 														{item?.code}
 													</Link>
 												</td>
@@ -202,8 +202,8 @@ const ApprovalHistory: React.FC = () => {
 												</td>
 												<td className="px-4 py-2 border whitespace-nowrap text-center">
 													<StatusLeaveRequest status={
-                                                        reqStatusId == STATUS_ENUM.ASSIGNED || reqStatusId == STATUS_ENUM.FINAL_APPROVAL 
-                                                            ? STATUS_ENUM.IN_PROCESS 
+                                                        reqStatusId == StatusApplicationFormEnum.ASSIGNED || reqStatusId == StatusApplicationFormEnum.FINAL_APPROVAL 
+                                                            ? StatusApplicationFormEnum.IN_PROCESS 
                                                         : reqStatusId
                                                     }/>
 												</td>
@@ -245,9 +245,9 @@ const ApprovalHistory: React.FC = () => {
 										</Link>
 										<StatusLeaveRequest
 										status={
-											reqStatusId == STATUS_ENUM.ASSIGNED ||
-											reqStatusId == STATUS_ENUM.FINAL_APPROVAL
-											? STATUS_ENUM.IN_PROCESS
+											reqStatusId == StatusApplicationFormEnum.ASSIGNED ||
+											reqStatusId == StatusApplicationFormEnum.FINAL_APPROVAL
+											? StatusApplicationFormEnum.IN_PROCESS
 											: reqStatusId
 										}
 										/>
@@ -256,7 +256,7 @@ const ApprovalHistory: React.FC = () => {
 									<div className="text-sm text-gray-700 mt-2 space-y-1">
 										<p>
 											<span className="font-medium">
-												{t('history_approval_processed.request_type')}:{' '}
+												{t('history_approval_processed.RequestTypeEnum')}:{' '}
 											</span>
 											{lang == 'vi'
 												? item?.requestTypeName

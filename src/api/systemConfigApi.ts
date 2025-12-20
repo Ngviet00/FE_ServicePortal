@@ -21,23 +21,23 @@ const systemConfigApi = {
         return axiosClient.get('/system-config')
     },
 
-    GetByConfigKey(configKey: string) {
+    getByConfigKey(configKey: string) {
         return axiosClient.get(`/system-config/${configKey}`)
     },
 
-    AddConfig(data: SystemConfig) {
+    createOrUpdateConfig(data: SystemConfig) {
         return axiosClient.post('/system-config', data)
     },
 
-    UpdateConfig(configKey: string, data: SystemConfig){
-        return axiosClient.put(`/system-config/${configKey}`, data)
+    delete(configKey: string){
+        return axiosClient.delete(`/system-config/${configKey}`)
     }
 }
 
-export function useAddConfig() {
+export function useCreateOrUpdateConfig() {
     return useMutation({
         mutationFn: async (data: SystemConfig) => {
-            await systemConfigApi.AddConfig(data)
+            await systemConfigApi.createOrUpdateConfig(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -48,10 +48,10 @@ export function useAddConfig() {
     })
 }
 
-export function useUpdateConfig() {
+export function useDeleteConfig() {
     return useMutation({
-        mutationFn: async ({ configKey, data }: { configKey: string; data: SystemConfig }) => {
-            await systemConfigApi.UpdateConfig(configKey, data)
+        mutationFn: async (configKey: string) => {
+            await systemConfigApi.delete(configKey)
         },
         onSuccess: () => {
             ShowToast("Success");

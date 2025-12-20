@@ -2,7 +2,7 @@ import { Download, X } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { UNIT_ENUM } from "@/lib";
+import { UnitEnum } from "@/lib";
 import { useAppStore } from "@/store/appStore";
 
 const getFileIcon = (file: { name?: string; type?: string }) => {
@@ -148,7 +148,7 @@ export function FileListPreviewDownload ({
                                 <input
                                     type="checkbox"
                                     checked={isSelected || file?.isSelectedQuote}
-                                    disabled={user?.unitId != UNIT_ENUM.GM || uploadedFiles.some(f => f.isSelectedQuote)}
+                                    disabled={user?.unitId != UnitEnum.GM || uploadedFiles.some(f => f.isSelectedQuote)}
                                     onChange={() => handleSelectQuote(file?.quoteId ?? '')}
                                     className="cursor-pointer accent-blue-500 w-4 h-4"
                                 />

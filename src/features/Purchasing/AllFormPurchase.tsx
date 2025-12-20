@@ -9,7 +9,7 @@ import { formatDate } from "@/lib/time"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import { Label } from "@/components/ui/label"
 import orgUnitApi from "@/api/orgUnitApi"
-import { STATUS_ENUM } from "@/lib"
+import { StatusApplicationFormEnum } from "@/lib"
 import { YearSelect } from "./StatisticalFormPurchase"
 import purchaseApi, { IPurchase } from "@/api/purchaseApi"
 
@@ -111,7 +111,7 @@ export default function AllFormPurchase () {
                     <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
                         <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         {
-                            Object.entries(STATUS_ENUM).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
+                            Object.entries(StatusApplicationFormEnum).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
                                 .map(([key, value]) => (
                                     <option key={value} value={value}>
                                     {key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}

@@ -1,7 +1,7 @@
 .sidebar {
-    width: 270px;
-    min-width: 270px;
-    max-width: 270px;
+    width: 285px;
+    min-width: 285px;
+    max-width: 285px;
     color: white;
     padding: 0px 5px 5px 10px;
     box-sizing: border-box;
@@ -10,6 +10,35 @@
     overflow-y: auto;
     height: 100vh;
     z-index: 50;
+    scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.sidebar:hover {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.3) transparent;
+}
+
+.sidebar:hover::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar:hover::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
+}
+
+.sidebar:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.45);
 }
 
 .sidebar.collapsed {
@@ -18,7 +47,7 @@
 
 .sidebar-link {
     text-decoration: none;
-    padding: 6px 4px 10px 4px;
+    padding: 6px 4px;
     border-radius: 3px;
 }
 
@@ -28,9 +57,8 @@
 }
 
 .menu-title {
-    padding: 6px 4px;
+    padding: 5px 4px;
     border-radius: 3px;
-    margin-bottom: 5px;
     cursor: pointer;
     display: flex;
     align-items: center;

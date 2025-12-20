@@ -1,80 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import approvalApi, { useApprovalAll } from "@/api/approvalApi";
-import { HistoryApplicationForm, IRequestStatus } from "@/api/itFormApi";
-import { OrgUnit } from "@/api/orgUnitApi";
 import requestTypeApi, { IRequestType } from "@/api/requestTypeApi";
-import PaginationControl from "@/components/PaginationControl/PaginationControl";
+import KeysetPagination from "@/components/PaginationControl/PaginationControlKeySet";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { REQUEST_TYPE, ShowToast } from "@/lib";
+import { ShowToast } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-
-export interface PendingApprovalResponse {
-	id?: string;
-	code?: string
-	createdAt?: string | Date
-	userCodeRequestor?: string,
-	userNameCreated?: string,
-	userNameRequestor?: string,
-	orgPositionId?: number
-	requestTypeId?: number,
-	requestTypeName?: string,
-	requestTypeNameE?: string,
-	requestStatus?: IRequestStatus
-	historyApplicationForm?: HistoryApplicationForm,
-	orgUnit?: OrgUnit
-}
-
-function GetUrlDetailWaitApproval(item: any) {
-	let result = ''
-	const requestTypeId = item?.requestTypeId
-
-	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/view-leave-request-approval/${item.code ?? '-1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/view-memo-notify-approval/${item.code ?? '1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/view-form-it-approval/${item.code ?? '1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/view-purchase-approval/${item.code ?? '1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
-		result = `/view-overtime-approval/${item?.code ?? '1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
-		result = `/view-miss-timekeeping-approval/${item?.code ?? '1'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
-		result = `/internal-memo-hr/${item?.code ?? '1'}?mode=approval`
-	}
-	else if (requestTypeId == REQUEST_TYPE.TIMEKEEPING) {
-		result = `/view/timekeeping/${item?.code ?? '1'}?mode=approval`
-	}
-	else if (requestTypeId == REQUEST_TYPE.SAP) {
-		result = `/view-sap-approval/${item?.code ?? '1'}`
-	}
-
-	return result
-}
+import { Link, useSearchParams } from "react-router-dom";
 
 export default function PendingApproval() {
 	const { t } = useTranslation('pendingApproval')
 	const { t: tCommon } = useTranslation('common')
 	const lang = useTranslation().i18n.language.split('-')[0]
     const [requestType, setRequestType] = useState('');
-	const [page, setPage] = useState(1)
-	const [pageSize, setPageSize] = useState(10)
-	const [totalPage, setTotalPage] = useState(0)
 	const { user } = useAuthStore()
 	const [isSelectAll, setIsSelectAll] = useState(false)
 	const [selectedCodes, setSelectedCodes] = useState<Set<string>>(new Set());
@@ -82,14 +26,13 @@ export default function PendingApproval() {
 	const queryClient = useQueryClient()
 	const [errorItems, setErrorItems] = useState<any[]>([]);
 
-	function setCurrentPage(page: number): void {
-        setPage(page)
-    }
+	const [searchParams, setSearchParams] = useSearchParams();
 
-    function handlePageSizeChange(size: number): void {
-        setPage(1)
-        setPageSize(size)
-    }
+	const [cursor, setCursor] = useState<number | null>(0);
+	const [cursorStack, setCursorStack] = useState<number[]>([]);
+	const [limit, setLimit] = useState(20);
+	const [hasNext, setHasNext] = useState(false);
+	const [nextCursor, setNextCursor] = useState<number | null>(null);
 
 	const { data: requestTypes = []} = useQuery({
         queryKey: ['get-all-request-type'],
@@ -103,25 +46,35 @@ export default function PendingApproval() {
     });
 	
 	const { data: ListWaitApprovals = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-list-wait-approval', page, pageSize, requestType],
+        queryKey: ['get-list-wait-approval', cursor, requestType, limit],
         queryFn: async () => {
             const res = await approvalApi.GetAllApproval({
-                Page: page,
-                PageSize: pageSize,
+				LastId: cursor ?? 0,
+				PageSize: limit,
 				OrgPositionId: user?.orgPositionId,
 				UserCode: user?.userCode,
-				RequestTypeId: requestType == '' ? null : Number(requestType)
-            });
-			setTotalPage(res.data.total_pages)
-            return res.data.data;
-        },
+				RequestTypeId: requestType === '' ? null : Number(requestType)
+			});
+			setHasNext(res.data.data.hasNext);
+			setNextCursor(res.data.data.nextCursor);
+
+			return res.data.data.pendingApprovalItems ?? [];
+        }
     });
 
 	const handleOnChangeRequestType = (e: ChangeEvent<HTMLSelectElement>) => {
 		setRequestType(e.target.value)
 		setSelectedCodes(new Set());
 		setIsSelectAll(false);
+
+		searchParams.set("requestType", e.target.value);
+    	setSearchParams(searchParams);
 	}
+
+	useEffect(() => {
+		const param = searchParams.get("requestType");
+		if (param) setRequestType(param);
+	}, [searchParams]);
 
 	useEffect(() => {
 		if (ListWaitApprovals.length === 0) {
@@ -165,7 +118,8 @@ export default function PendingApproval() {
 			.map((item: any) => ({
 				ApplicationFormId: item.id,
 				ApplicationFormCode: item.code,
-				RequestTypeId: item.requestTypeId
+				RequestTypeId: item.requestTypeId,
+				RequestStatusId: item.requestStatusId
 			}));
 
 		const results = await approvalAll.mutateAsync({
@@ -182,6 +136,38 @@ export default function PendingApproval() {
 		queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] })
 		setSelectedCodes(new Set());
 		setIsSelectAll(false);
+	};
+
+	useEffect(() => {
+        setCursorStack([]);
+    }, [limit]);
+
+	const handleNext = () => {
+		if (!hasNext || nextCursor == null) return;
+
+		setCursorStack(prev => [...prev, cursor ?? 0]);
+		setCursor(nextCursor);
+	};
+
+	const handlePrevious = () => {
+		setCursorStack(prev => {
+			if (prev.length === 0) return prev;
+
+			const newStack = [...prev];
+			const prevCursor = newStack.pop()!;
+			setCursor(prevCursor);
+			return newStack;
+		});
+	};
+
+	const handleLimitChange = (newLimit: number) => {
+		setLimit(newLimit);
+		setCursor(null); 
+		setCursorStack([]);
+		setNextCursor(null);
+		
+		searchParams.set("limit", newLimit.toString());
+		setSearchParams(searchParams);
 	};
 
     return (
@@ -213,8 +199,8 @@ export default function PendingApproval() {
 			)}
 
 			<div className="mt-2 flex mb-5">
-				<div className="w-[12%] min-w-[150px]">
-					<Label className="mb-2">{t("pending_approval.request_type")}</Label>
+				<div className="w-[12%] min-w-[250px]">
+					<Label className="mb-2">{t("pending_approval.RequestTypeEnum")}</Label>
 					<select
 						value={requestType}
 						onChange={(e) => handleOnChangeRequestType(e)}
@@ -245,7 +231,7 @@ export default function PendingApproval() {
 								/>
 							</th>
 							<th className="px-4 py-2 border">{t("pending_approval.code")}</th>
-							<th className="px-4 py-2 border">{t("pending_approval.request_type")}</th>
+							<th className="px-4 py-2 border">{t("pending_approval.RequestTypeEnum")}</th>
 							<th className="px-4 py-2 border w-[200px]">{lang == "vi" ? "Danh mục" : "Category"}</th>
 							<th className="px-4 py-2 border">{t("pending_approval.user_request")}</th>
 							<th className="px-4 py-2 border">{t("pending_approval.created_at")}</th>
@@ -284,7 +270,7 @@ export default function PendingApproval() {
 										/>
 									</td>
 									<td className="px-4 py-2 border text-center">
-										<Link to={GetUrlDetailWaitApproval(item)} className="text-blue-700 underline">
+										<Link to={`/view-approval/${item.code}?requestType=${item.requestTypeId}`} className="text-blue-700 underline">
 											{item?.code}
 										</Link>
 									</td>
@@ -303,7 +289,7 @@ export default function PendingApproval() {
 									</td>
 									<td className="px-4 py-2 border text-center space-x-1">
 										<Link
-											to={GetUrlDetailWaitApproval(item)}
+											to={`/view-approval/${item.code}?requestType=${item.requestTypeId}`}
 											className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
 										>
 											{t("pending_approval.detail")}
@@ -353,7 +339,7 @@ export default function PendingApproval() {
 											onChange={() => toggleSelect(item.code)}
 										/>
 										<Link
-											to={GetUrlDetailWaitApproval(item)}
+											to={`/view-approval/${item.code}?requestType=${item.requestTypeId}`}
 											className="font-semibold text-blue-700 underline"
 										>
 											{item.code}
@@ -363,7 +349,7 @@ export default function PendingApproval() {
 
 									<div className="text-sm text-gray-700 mt-1 space-y-1">
 										<p>
-											<span className="font-medium">{t("pending_approval.request_type")}: </span>
+											<span className="font-medium">{t("pending_approval.RequestTypeEnum")}: </span>
 											{lang == "vi" ? item?.requestTypeName : item?.requestTypeNameE}
 										</p>
 										{item?.noteCategories && (
@@ -390,7 +376,7 @@ export default function PendingApproval() {
 
 									<div className="mt-2 flex justify-end">
 										<Link
-											to={GetUrlDetailWaitApproval(item)}
+											to={`/view-approval/${item.code}?requestType=${item.requestTypeId}`}
 											className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
 										>
 											{t("pending_approval.detail")}
@@ -402,15 +388,14 @@ export default function PendingApproval() {
 					</div>
 				)}
 			</div>
-			{
-                ListWaitApprovals.length > 0 ? (<PaginationControl
-                    currentPage={page}
-                    totalPages={totalPage}
-                    pageSize={pageSize}
-                    onPageChange={setCurrentPage}
-                    onPageSizeChange={handlePageSizeChange}
-                />) : (null)
-            }
+			<KeysetPagination
+				hasNext={hasNext}
+				canPrevious={cursorStack.length > 0}
+				onNext={handleNext}
+				onPrevious={handlePrevious}
+				limit={limit}
+				onLimitChange={handleLimitChange}
+			/>
         </div>
     )
 }

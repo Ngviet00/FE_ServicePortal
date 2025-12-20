@@ -16,7 +16,7 @@ import ModalConfirm from '@/components/ModalConfirm';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
-import { getErrorMessage, ShowToast, STATUS_ENUM } from '@/lib';
+import { getErrorMessage, ShowToast, StatusApplicationFormEnum } from '@/lib';
 import FileListPreview, { FileListPreviewDownload, UploadedFileType } from '@/components/ComponentCustom/FileListPreviewMemoNotify';
 import memoNotificationApi from '@/api/memoNotificationApi';
 
@@ -362,7 +362,7 @@ const AssignedFormIT = () => {
 
                     <div className="flex flex-col sm:flex-row gap-3 justify-end mt-5">
                         {formData?.applicationFormItem?.applicationForm?.reference
-                            ?.requestStatusId != STATUS_ENUM.COMPLETED && (
+                            ?.requestStatusId != StatusApplicationFormEnum.COMPLETED && (
                             <Button
                                 onClick={() => setStatusModalConfirm("reference")}
                                 disabled={staffITReferenceToManagerIT.isPending}

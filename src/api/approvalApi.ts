@@ -14,7 +14,8 @@ export interface ListWaitApprovalRequest {
     OrgPositionId?: number,
     Page?: number,
     PageSize?: number,
-    DepartmentId?: number | null
+    DepartmentId?: number | null,
+    LastId?: number | null
 }
 
 export interface ApprovalRequest {
@@ -26,8 +27,10 @@ export interface ApprovalRequest {
     OrgPositionId?: number,
     Status?: boolean,
     Note?: string,
+    MetaData?: string,
     StatusRequest?: number,
     SelectedQuoteId?: number,
+
     SAPApprovalRequest?: {
         AssignedUsers?: {id: string, name: string}[],
         DisplayTitle?: string,
@@ -58,9 +61,8 @@ export interface HistoryApproval {
 
 export interface IListAssigned {
     UserCode?: string,
-    Page?: number,
+    LastId?: number,
     PageSize?: number,
-    DepartmentId?: number | null,
     RequestTypeId?: number | null
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import fileApi from "@/api/fileApi";
 import { ITCategoryInterface } from "@/api/itCategoryApi";
-import memoNotificationApi from "@/api/memoNotificationApi";
 import { IPriority } from "@/api/priorityApi";
 import userApi from "@/api/userApi";
 import FileListPreview, { FileListPreviewDownload, UploadedFileType } from "@/components/ComponentCustom/FileListPreviewMemoNotify";
@@ -216,16 +216,16 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
 
             if (result?.orgPositionId == null || result?.departmentId == null) {
                 ShowToast("Chưa được thiết lập vị trí phòng ban, liên hệ HR", "error")
-                setValue('requester.name', result?.nvHoTen, { shouldValidate: true })
+                setValue('requester.name', result?.userName, { shouldValidate: true })
                 setValue('requester.department', '', { shouldValidate: true })
                 return
             }
 
-            setValue('requester.name', result?.nvHoTen, { shouldValidate: true })
+            setValue('requester.name', result?.userName, { shouldValidate: true })
             setValue('requester.department', result?.departmentName, { shouldValidate: true })
             setValue('requester.departmentId', result?.departmentId, { shouldValidate: true })
             setValue('requester.email', result?.email ?? '', { shouldValidate: true })
-            setValue('requester.position', result?.position ?? '', { shouldValidate: true })
+            setValue('requester.position', result?.unitNameV ?? '', { shouldValidate: true })
         }
         catch (err) {
             ShowToast(getErrorMessage(err), "error");
@@ -275,7 +275,7 @@ const ITRequestForm: React.FC<ITRequestFormProps> = ({ mode, formData, onSubmit,
 
     const handleDownloadFile = async (file: UploadedFileType) => {
         try {
-            const result = await memoNotificationApi.downloadFile(file.id)
+            const result = await fileApi.downloadFile(file.id)
             const url = window.URL.createObjectURL(result.data);
             const a = document.createElement("a");
             a.href = url;

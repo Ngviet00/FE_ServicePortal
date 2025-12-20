@@ -50,20 +50,41 @@
 		"admin": {
 			"role": "Role",
 			"permission": "Permission",
-			"request_type": "Request type",
+			"RequestTypeEnum": "Request type",
 			"approval_flow": "Approval flow",
 			"setting_org_unit": "Add org unit",
+			"config_org_position_role": "Setting org position role",
 			"priority": "Priority",
 			"it_category": "IT Category",
 			"admin_setting": "Setting"
 		},
 		"hr": {
+			"title": "HR",
 			"type_leave": "Type leave",
 			"list_user": "List user",
 			"org": "Organizational chart",
 			"mng_time_keeping": "Mng Timekeeping",
 			"mng_leave_request": "Mng Leave Request",
-			"change_org_unit_id_user": "Change org unit"
+			"change_org_unit_id_user": "Change org unit",
+			"recruitment": {
+				"title": "Recruitment",
+				"add_manpower": "Add more manpower"
+			},
+			"insurance": {
+				"title": "Insurance, termination",
+				"resignation": "Resignation",
+				"termination": "Termination",
+				"warningletter": "Warning letter",
+				"absentover5day": "List absent without notice (5 days)"
+			},
+			"leave_request": {
+				"title": "Leave request, timekeeping",
+				"create_leave": "Leave request",
+				"over_time": "Overtime",
+				"internal_memo_hr": "Internal HR",
+				"time_keeping": "Timekeeping",
+				"mng_time_keeping": "Mng Timekeeping"
+			}
 		},
 		"notification": {
 			"title": "Notification",
@@ -96,7 +117,8 @@
 		"union": {
 			"title": "Union",
 			"create": "Create vote",
-			"list": "List vote"
+			"list": "List vote",
+			"member": "List member"
 		},
 		"SAP": {
 			"title": "SAP",

@@ -13,10 +13,28 @@ interface DateTimePickerProps {
     className?: string,
     initialDateTime?: string; // default ISO string
     onChange?: (selectedDates: Date[], dateStr: string, instance: flatpickr.Instance) => void;
-    placeHolder?: string
+    placeHolder?: string,
+    minDate?: string,
+    maxDate?: string,
+    enableDate?: string[],
+    disableDate?: string[]
 }
 
-const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enableTime = true, noCalendar = false, time_24hr = true, dateFormat = 'Y-m-d', className, initialDateTime, onChange, placeHolder }) => {
+const DateTimePicker: React.FC<DateTimePickerProps> = ({ 
+    disabled = false, 
+    enableTime = true, 
+    noCalendar = false, 
+    time_24hr = true, 
+    dateFormat = 'Y-m-d',
+    className, 
+    initialDateTime, 
+    onChange, 
+    placeHolder,
+    minDate,
+    maxDate,
+    enableDate,
+    disableDate
+}) => {
     const lang = useTranslation().i18n.language.split('-')[0]
     const inputRef = useRef<HTMLInputElement>(null);
     const fpInstance = useRef<flatpickr.Instance | null>(null);
@@ -33,6 +51,10 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enabl
                 time_24hr: time_24hr,
                 locale: lang == 'vi' ? Vietnamese : 'default',
                 defaultDate: initialDateTime,
+                ...(minDate && minDate != null && minDate != '' ? { minDate: minDate } : {}),
+                ...(maxDate && maxDate != null && maxDate != '' ? { maxDate: maxDate } : {}),
+                ...(enableDate && enableDate.length > 0 ? { enable: enableDate } : {}),
+                ...(disableDate && disableDate.length > 0 ? { disable: disableDate } : {}),
                 
                 onChange: (selectedDates, dateStr, instance) => {
                     setSelectedDateTime(dateStr);
@@ -69,6 +91,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ disabled = false, enabl
                 value={selectedDateTime || ''}
                 readOnly 
                 placeholder={placeHolder}
+                
             />
         </>
     );

@@ -1,8 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { getErrorMessage, ShowToast } from '@/lib';
-import axiosClient from './axiosClient';
-import { ApprovalRequest } from './approvalApi';
+import axiosClient from '../axiosClient';
+import { ApprovalRequest } from '../approvalApi';
 import { useTranslation } from 'react-i18next';
+import { IResolvedTask } from '../itFormApi';
 
 interface GetPersonalTimeKeepingRequest {
     UserCode: string,
@@ -31,6 +32,7 @@ export interface WorkingDay {
     BCNgay: string | null | undefined,
     BCNgay1: string | null | undefined,
     Thu: string | null | undefined,
+    ThuE: string | null | undefined,
     InDau: string | null | undefined,
     OutCuoi: string | null | undefined,
     CVietTat: string | null | undefined,
@@ -47,6 +49,7 @@ export interface WorkingDay {
 export interface EditTimeAttendanceHistory {
     Datetime?: Date | string,
     UserCode?: string,
+    UserName?: string,
     OldValue?: string,
     CurrentValue?: string,
     UserCodeUpdate?: string,
@@ -62,6 +65,7 @@ export interface ListHistoryTimeAttendance {
     id?: number
     datetime?: Date | string,
     userCode?: string,
+    userName?: string,
     oldValue?: string,
     currentValue?: string,
     userCodeUpdate?: string,
@@ -133,8 +137,8 @@ const timekeepingApi = {
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/time-keeping/approval`, data)
     },
-    deleteTimeKeeping(applicationFormCode: string) {
-        return axiosClient.delete(`/time-keeping/${applicationFormCode}`)
+    deleteTimeKeeping(applicationFormId: number) {
+        return axiosClient.delete(`/time-keeping/${applicationFormId}`)
     },
     getListTimeKeeping(params: { UserCode?: string, Status?: number | null, Page: number, PageSize: number}) {
         return axiosClient.get(`/time-keeping/get-list-timekeeping`, {params})
@@ -144,7 +148,24 @@ const timekeepingApi = {
     },
     exportExcelTimeKeeping(applicationFormCode: string) {
         return axiosClient.post(`/time-keeping/export-excel?applicationFormCode=${applicationFormCode}`)
-    }
+    },
+    resolvedTaskTimeKeeping(data: IResolvedTask) {
+        return axiosClient.post(`/time-keeping/resolved-task-timekeeping`, data)
+    },
+}
+
+export function useResolvedTaskTimeKeeping () {
+    return useMutation({
+        mutationFn: async (data: IResolvedTask) => {
+            await timekeepingApi.resolvedTaskTimeKeeping(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useExportExcelTimeKeeping() {
@@ -165,8 +186,8 @@ export function useExportExcelTimeKeeping() {
 
 export function useDeleteTimeKeeping() {
     return useMutation({
-        mutationFn: async (applicationFormCode: string) => {
-            await timekeepingApi.deleteTimeKeeping(applicationFormCode)
+        mutationFn: async (applicationFormId: number) => {
+            await timekeepingApi.deleteTimeKeeping(applicationFormId)
         },
         onSuccess: () => {
             ShowToast("Success");

@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
-import { ShowToast, UNIT_ENUM } from "@/lib";
+import { ShowToast, UnitEnum } from "@/lib";
 import { useTranslation } from "react-i18next";
 import { TreeCheckboxChooseUserChangeOrgUnit } from "@/components/JsTreeCheckbox/TreeCheckboxChooseUserChangeOrgUnit";
 import orgUnitApi from "@/api/orgUnitApi";
@@ -24,7 +24,7 @@ function ConfigUserAssignSAP() {
             if (user?.orgPositionId == 7) {
                 finalResult = results?.filter((e: {id: number}) => e.id == 7 || e.id == 10 || e.id == 39)
             }
-            else if (user?.unitId == UNIT_ENUM.GM) {
+            else if (user?.unitId == UnitEnum.GM) {
                 finalResult = results?.filter((e: {id: number}) => e.id == user?.departmentId || e.id == 38)
             }
             else {
@@ -37,7 +37,7 @@ function ConfigUserAssignSAP() {
                 type: 'department'
             }))
         },
-        enabled: user?.unitId == UNIT_ENUM.GM || user?.unitId == UNIT_ENUM.Manager
+        enabled: user?.unitId == UnitEnum.GM || user?.unitId == UnitEnum.Manager
     });
 
     const [selectedUser, setSelectedUser] = useState<string[]>([])

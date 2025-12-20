@@ -4,7 +4,7 @@
         "register_all": "Register",
         "department": "Department",
         "title": "List wait approvals",
-        "request_type": "Request type",
+        "RequestTypeEnum": "Request type",
         "code": "Code",
         "user_request": "Requester",
         "created_at": "Created at",
@@ -19,7 +19,7 @@
     },
     "history_approval_processed": {
         "title": "History approval/processed",
-        "request_type": "Request type",
+        "RequestTypeEnum": "Request type",
         "code": "Code",
         "user_request": "Requester",
         "approval_at": "Approved at",

@@ -72,6 +72,7 @@ export interface UpdateUserMngTimeKeeping {
 
 export interface ISelectedUserAssigned {
     userCode: string;
+    userName: string
     email: string;
 }
 

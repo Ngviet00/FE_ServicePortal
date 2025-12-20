@@ -24,7 +24,6 @@ export const ShowToast = (message: string, type: "success" | "error" | "info" | 
     });
 };
 
-
 export const ListPerPage = [
     5, 10, 20, 50
 ]
@@ -115,6 +114,12 @@ export function getErrorMessage(error: unknown): string {
         message?: string;
     };
 
+    const dataErr = err.response?.data;
+
+    if (typeof dataErr === "string") {
+        return dataErr;
+    }
+
     const detailedErrors = err.response?.data?.errors;
     if (Array.isArray(detailedErrors) && detailedErrors.length > 0) {
         const firstFieldError = detailedErrors[0];
@@ -132,13 +137,16 @@ export const handleInputClickShowPicker = (e: React.FocusEvent<HTMLInputElement>
 
 export enum RoleEnum {
     SUPERADMIN = "SUPERADMIN",
+    ADMINISTRATOR = "ADMINISTRATOR",
+    APPROVAL = "APPROVAL",
     HR = "HR",
-    IT = "IT",
+    IT_ADMIN = "IT_ADMIN",
+    IT_USER = "IT_USER",
+    PURCHASE_ADMIN = "PURCHASE_ADMIN",
+    PURCHASE_USER = "PURCHASE_USER",
+    SAP = "SAP",
     UNION = "UNION",
-    USER = "USER",
-    GM = "GM",
-    PURCHASING = "PURCHASING",
-    MANAGER = "MANAGER",
+    UNION_ADMIN = "UNION_ADMIN",
 }
 
 export const isValidEmail = (email: string): boolean => {
@@ -146,55 +154,100 @@ export const isValidEmail = (email: string): boolean => {
     return emailRegex.test(email);
 };
 
-export enum STATUS_ENUM {
-    PENDING = 1,
-    IN_PROCESS = 2,
-    COMPLETED = 3,
-    WAIT_HR = 4,
-    REJECT = 5,
-    FINAL_APPROVAL = 6,
-    ASSIGNED = 7,
-    WAIT_CONFIRM = 8,
-    WAIT_QUOTE = 9,
-    WAIT_PO = 10,
-    WAIT_DELIVERY = 11,
+export enum StatusApplicationFormEnum
+{
+    Pending = 1, // đang chờ
+
+    Inprocess = 2, //đang xử lý
+
+    Complete = 3, //hoàn thành
+
+    WaitHR = 4, //chờ hr
+
+    Reject = 5, //từ chối
+
+    FinalApproval = 6, //duyệt cuối cùng
+
+    Assigned = 7, //được giao
+
+    WaitConfirm= 8, //chờ xác nhận
+
+    WaitQuote = 9, //chờ báo giá
+
+    WaitPO = 10, //chờ PO
+
+    WaitDelivery = 11 // chờ giao hàng
 }
 
-export enum REQUEST_TYPE {
-    LEAVE_REQUEST = 1,
-    MEMO_NOTIFICATION = 2,
-    FORM_IT = 3,
-    PURCHASE = 4,
-    OVERTIME = 5,
-    MISS_TIMEKEEPING = 6,
-    INTERNAL_MEMO_HR = 7,
-    TIMEKEEPING = 8,
-    SAP = 9,
+export enum RequestTypeEnum
+{
+    LeaveRequest = 1, // Nghỉ phép
+
+    Overtime = 2, // Tăng ca
+
+    InternalMemoHR = 3, // Đơn nội bộ HR
+
+    Timekeeping = 4, // Chấm công
+
+    WarningLetter = 5, // Đơn cảnh cáo
+
+    ResignationLetter = 6, // Đơn xin nghỉ việc
+
+    TerminationLetter = 7, // Đơn thông báo sa thải
+
+    ManpowerRequisitionLetter = 8, // Đơn yêu cầu thêm người
+
+    FormIT = 9, // Đơn IT
+
+    Purchase = 10, // Đơn mua bán
+
+    Sap = 11 // Đơn SAP
 }
 
-export enum IT_CATEGORY {
-    SERVER = 1,
-    NETWORK = 2,
-    EMAIL = 3,
-    SOFTWARE = 4,
-    ERP = 5,
-    OTHER = 6
+export enum ITCategoryEnum
+{
+    Server = 1,
+    Network = 2,
+    Email = 3,
+    Software = 4,
+    Sap = 5,
+    Other = 6
 }
 
-export enum PRIORITY {
-    LOW = 1,
-    MEDIUM = 2,
-    HIGH = 3,
+export enum PriorityEnum
+{
+    Low = 1,
+    Medium = 2,
+    High = 3
 }
 
-export enum UNIT_ENUM {
-    COMPANY = 1,
-    MNG_DEPARTMENT = 2,
-    DEPARTMENT = 3,
-    TEAM = 4,
-    GM = 5,
-    Manager = 6,
-    AM = 7
+export enum UnitEnum
+{
+    Company = 1,
+
+    ManagerDepartment = 2,
+
+    Department = 3,
+
+    Team = 4,
+
+    //các đơn vị thuộc các vị trí
+
+    GM = 5, // Nhóm tổng giám đốc
+
+    Manager = 6, //Trưởng phòng
+
+    AM = 7, // Trợ lí giám đốc
+
+    Supervisor = 8, // chủ quản
+
+    Staff = 9, //Nhân viên
+
+    Leader = 10, // Tổ trưởng
+
+    Operator = 11, // Công nhân
+
+    Technician = 12 // Kỹ thuật
 }
 
 export interface IApplicationForm {
@@ -224,27 +277,24 @@ export interface IApplicationForm {
 export function GetUrlWaitApproval(requestTypeId: number, code: string) {
     let result = ''
 
-	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/view-leave-request-approval/${code}'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/view-memo-notify-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/view-form-it-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/view-purchase-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
-		result = `/view-overtime-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
-		result = `/view-miss-timekeeping-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
-		result = `/internal-memo-hr/${code}?mode=approval`
-	}
+	// if (requestTypeId == RequestTypeEnum.LEAVE_REQUEST) {
+	// 	result = `/view-leave-request-approval/${code}'}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.FORM_IT) {
+	// 	result = `/view-form-it-approval/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.PURCHASE) {
+	// 	result = `/view-purchase-approval/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.OVERTIME) {
+	// 	result = `/view-overtime-approval/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.MISS_TIMEKEEPING) {
+	// 	result = `/view-miss-timekeeping-approval/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.INTERNAL_MEMO_HR) {
+	// 	result = `/internal-memo-hr/${code}?mode=approval`
+	// }
 
 	return result
 }
@@ -252,27 +302,27 @@ export function GetUrlWaitApproval(requestTypeId: number, code: string) {
 export function GetUrlViewDetail(requestTypeId: number, code: string) {
     let result = ''
 
-	if (requestTypeId == REQUEST_TYPE.LEAVE_REQUEST) {
-		result = `/view-leave-request-approval/${code}'}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.MEMO_NOTIFICATION) {
-		result = `/view-memo-notify-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.FORM_IT) {
-		result = `/view/form-it/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.PURCHASE) {
-		result = `/view/purchase/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.OVERTIME) {
-		result = `/view-overtime-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.MISS_TIMEKEEPING) {
-		result = `/view-miss-timekeeping-approval/${code}`
-	}
-	else if (requestTypeId == REQUEST_TYPE.INTERNAL_MEMO_HR) {
-		result = `/internal-memo-hr/${code}?mode=approval`
-	}
+	// if (requestTypeId == RequestTypeEnum.LEAVE_REQUEST) {
+	// 	result = `/view-leave-request-approval/${code}'}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.MEMO_NOTIFICATION) {
+	// 	result = `/view-memo-notify-approval/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.FORM_IT) {
+	// 	result = `/view/form-it/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.PURCHASE) {
+	// 	result = `/view/purchase/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.OVERTIME) {
+	// 	result = `/view-overtime-approval/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.MISS_TIMEKEEPING) {
+	// 	result = `/view-miss-timekeeping-approval/${code}`
+	// }
+	// else if (requestTypeId == RequestTypeEnum.INTERNAL_MEMO_HR) {
+	// 	result = `/internal-memo-hr/${code}?mode=approval`
+	// }
 
 	return result
 }
@@ -286,4 +336,27 @@ export function parseJSON<T = Record<string, any>>(value: string | null | undefi
     } catch {
         return {} as T;
     }
+}
+
+
+export const handleDownloadTemplate = async (templateFileUrl: string ) => {
+    try {
+        const res = await fetch(templateFileUrl);
+    if (!res.ok) throw new Error("File not found");
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = templateFileUrl.split("/").pop() || "template.xlsx";
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        ShowToast("Download failed!", "error");
+        console.error(err);
+    }
+};
+
+export interface ViewApprovalProps {
+    id: string;
+    mode?: string
 }

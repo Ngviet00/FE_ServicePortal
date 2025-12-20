@@ -11,7 +11,7 @@ import "./css/Login.css"
 export default function LoginPage() {
     const { t } = useTranslation();
     const [userCode, setUserCode] = useState("")
-    const [password, setPassword] = useState("");
+    const [password, setPassword] = useState("Viet4321@");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 	const navigate = useNavigate()
@@ -117,7 +117,7 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={ loading }
-                            className="cursor-pointer flex w-full bg-black hover:bg-gray-800 justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
+                            className="cursor-pointer flex w-full bg-black hover:bg-gray-800 justify-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                             { loading ? <Spinner size='small' className="text-white"/> : t('login_page.title') }
                         </button>

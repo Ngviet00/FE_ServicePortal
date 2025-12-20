@@ -70,7 +70,7 @@ export default function ListItemWaitQuote() {
 					<thead className="bg-gray-100">
 						<tr>
 							<th className="px-4 py-2 border">{t("pending_approval.code")}</th>
-							<th className="px-4 py-2 border">{t("pending_approval.request_type")}</th>
+							<th className="px-4 py-2 border">{t("pending_approval.RequestTypeEnum")}</th>
 							<th className="px-4 py-2 border">{t("pending_approval.user_request")}</th>
 							<th className="px-4 py-2 border">{t("pending_approval.created_at")}</th>
 							<th className="px-4 py-2 border">{t("pending_approval.status")}</th>
@@ -159,7 +159,7 @@ export default function ListItemWaitQuote() {
 
 									<div className="text-sm text-gray-700 mt-1 space-y-1">
 										<p>
-											<span className="font-medium">{t("pending_approval.request_type")}: </span>
+											<span className="font-medium">{t("pending_approval.RequestTypeEnum")}: </span>
 											{lang == "vi" ? item?.requestTypeName : item?.requestTypeNameE}
 										</p>
 										{item?.noteCategories && (

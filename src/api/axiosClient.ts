@@ -56,7 +56,7 @@ axiosClient.interceptors.response.use(
 				isRefreshing = true;
 
 				try {
-					const { refreshToken, setAccessToken, logout } = useAuthStore.getState();
+					const { user, refreshToken, setAccessToken, logout } = useAuthStore.getState();
 
 					if (!refreshToken) {
 						logout();
@@ -65,6 +65,7 @@ axiosClient.interceptors.response.use(
 					}
 
 					const refreshRes = await axiosClient.post('/auth/refresh-token', {
+						orgPositionId: user?.orgPositionId,
 						refreshToken,
 					});
 

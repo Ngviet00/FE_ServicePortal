@@ -3,10 +3,19 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useTranslation } from "react-i18next"
-import timekeepingApi, { useCreateRequestTimeKeeping, useEditTimeAttendanceHistory } from "@/api/timeKeepingApi";
-import { calculateRoundedTime, getDaysInMonth, getDefaultMonth, getDefaultYear, getToday } from "./Components/functions";
+import { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import timekeepingApi, {
+    useCreateRequestTimeKeeping,
+    useEditTimeAttendanceHistory,
+} from "@/api/HR/timeKeepingApi";
+import {
+    calculateRoundedTime,
+    getDaysInMonth,
+    getDefaultMonth,
+    getDefaultYear,
+    getToday,
+} from "./Components/functions";
 import { AttendanceStatus, UpdateTimeKeeping } from "./Components/types";
 import { statusColors, statusDefine, statusLabels } from "./Components/constants";
 import { RoleEnum, useDebounce } from "@/lib";
@@ -17,243 +26,348 @@ import ModalHistoryEditTimeKeeping from "./Components/ModalListHistoryEditTimeKe
 import orgUnitApi from "@/api/orgUnitApi";
 import useHasPermission from "@/hooks/useHasPermission";
 import useHasRole from "@/hooks/useHasRole";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
+import ModalConfirm from "@/components/ModalConfirm";
 
-export default function MngTimekeeping () {
-    const { t } = useTranslation()
-    const lang = useTranslation().i18n.language.split('-')[0]
-    const {user} = useAuthStore()
-    const { t: tCommon } = useTranslation('common')
-    const today = getToday()
-    const defaultMonth = getDefaultMonth(today)
-    const defaultYear = getDefaultYear(today)
-    const [month, setMonth] = useState(defaultMonth)
-    const [year, setYear] = useState(defaultYear)
-    const [team] = useState<string>("")
-    const [deptId, setDeptId] = useState<string>("")
-    const [typePerson, setTypePerson] = useState<string>("")
-    // const confirmTimeKeeping = useConfirmTimeKeeping();
-    const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
-    const [dataAttendances, setDataAttendances] = useState<UpdateTimeKeeping[]>([])
-    const [totalPage, setTotalPage] = useState(0)
-    const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(50)
-    const [keySearch, setKeySearch] = useState("")
+export default function MngTimekeeping() {
+    const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split("-")[0];
+    const { user } = useAuthStore();
+    const { t: tCommon } = useTranslation("common");
+    const today = getToday();
+    const defaultMonth = getDefaultMonth(today);
+    const defaultYear = getDefaultYear(today);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const createRequestApprovalTimeKeeping = useCreateRequestTimeKeeping();
+    const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
+
+    const getParam = useCallback(
+        (key: string, defaultValue: string | number) => {
+            const value = searchParams.get(key);
+            return value !== null ? value : String(defaultValue);
+        },
+        [searchParams]
+    );
+    const month = Number(getParam("month", defaultMonth));
+    const year = Number(getParam("year", defaultYear));
+    const deptId = getParam("deptId", "");
+    const typePerson = getParam("typePerson", "");
+    const keySearch = getParam("keySearch", "");
+    const page = Number(getParam("page", 1));
+    const pageSize = Number(getParam("pageSize", 50));
     const debouncedKeySearch = useDebounce(keySearch, 300);
+    const [team] = useState<string>("");
+    const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
+    const [dataAttendances, setDataAttendances] = useState<UpdateTimeKeeping[]>([]);
+    const [totalPage, setTotalPage] = useState(0);
     const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
     const [isOpenModalListHistoryEditTimeKeeping, setOpenModalListHistoryEditTimeKeeping] = useState(false);
-    const queryClient = useQueryClient();
-    const [countHistoryEditTimeKeepingNotSendHR, setCountHistoryEditTimeKeepingNotSendHR] = useState(0)
-    const navigate = useNavigate()
-    const createRequestApprovalTimeKeeping = useCreateRequestTimeKeeping()
+    const [countHistoryEditTimeKeepingNotSendHR, setCountHistoryEditTimeKeepingNotSendHR] = useState(0);
+    const [statusModalConfirm, setStatusModalConfirm] = useState('')
+    
+    const updateSearchParams = (key: string, value: string | number) => {
+        const newSearchParams = new URLSearchParams(searchParams.toString());
+        if (key !== "page" && key !== "pageSize") {
+            newSearchParams.set("page", "1");
+        }
 
-    const daysInMonth = getDaysInMonth(year, month)
-    const daysHeader = Array.from({ length: daysInMonth }, (_, i) => {
-        const day = i + 1;
-        const dateObj = new Date(year, month - 1, day);
-        return {
+        if (value === "" || value === 0 || value === "0") {
+            newSearchParams.delete(key);
+        } else {
+            newSearchParams.set(key, String(value));
+        }
+        
+        if (key === "month" && Number(value) === defaultMonth) {
+            newSearchParams.delete("month");
+        }
+        if (key === "year" && Number(value) === defaultYear) {
+            newSearchParams.delete("year");
+        }
+        if (key === "page" && Number(value) === 1) {
+            newSearchParams.delete("page");
+        }
+        if (key === "pageSize" && Number(value) === 50) {
+            newSearchParams.delete("pageSize");
+        }
+
+        setSearchParams(newSearchParams, { replace: true });
+    };
+
+    const daysInMonth = useMemo(() => getDaysInMonth(year, month), [year, month]);
+    const daysHeader = useMemo(
+        () =>
+        Array.from({ length: daysInMonth }, (_, i) => {
+            const day = i + 1;
+            const dateObj = new Date(year, month - 1, day);
+            return {
             dayStr: day.toString().padStart(2, "0"),
             dateObj,
-        };
-    });
+            };
+        }),
+        [daysInMonth, year, month]
+    );
 
     const { data: departments = [] } = useQuery({
-        queryKey: ['get-all-departments'],
+        queryKey: ["get-all-departments"],
         queryFn: async () => {
-            const res = await orgUnitApi.GetAllDepartment()
-            return res.data.data
+        const res = await orgUnitApi.GetAllDepartment();
+        return res.data.data;
         },
     });
-    
+
     useQuery({
-        queryKey: ['count-history-edit-timekeeping-not-send-hr'],
+        queryKey: ["count-history-edit-timekeeping-not-send-hr"],
         queryFn: async () => {
-            const res = await timekeepingApi.CountHistoryEditTimeKeepingNotSendHR(user?.userCode ?? '')
-            setCountHistoryEditTimeKeepingNotSendHR(res.data.data)
-            return res.data.data
-        }
+        const res = await timekeepingApi.CountHistoryEditTimeKeepingNotSendHR(user?.userCode ?? "");
+        setCountHistoryEditTimeKeepingNotSendHR(res.data.data);
+        return res.data.data;
+        },
     });
 
-    const hasPermissionHRMngTimeKeeping = useHasPermission(['time_keeping.mng_time_keeping'])
-    const isHrAndHRPermissionMngTimeKeeping = useHasRole([RoleEnum.HR]) && hasPermissionHRMngTimeKeeping; 
+    const hasPermissionHRMngTimeKeeping = useHasPermission(["time_keeping.mng_time_keeping"]);
+    const isHrAndHRPermissionMngTimeKeeping = useHasRole([RoleEnum.HR]) && hasPermissionHRMngTimeKeeping;
 
     const { isLoading, isError, error } = useQuery({
-        queryKey: ['management-timekeeping', year, month, page, pageSize, debouncedKeySearch, deptId, typePerson],
+        queryKey: [
+            "management-timekeeping",
+            year,
+            month,
+            page,
+            pageSize,
+            debouncedKeySearch,
+            deptId,
+            typePerson,
+        ],
         queryFn: async () => {
-            const res = await timekeepingApi.getMngTimeKeeping({
-                UserCode: user?.userCode ?? "",
-                Year: year,
-                Month: month,
-                page: page,
-                pageSize: pageSize,
-                keySearch: debouncedKeySearch,
-                team: team ? Number(team) : null,
-                deptId: deptId ? Number(deptId) : null,
-                typePerson: typePerson ? Number(typePerson) : null,
-                isHrMngTimeKeeping: isHrAndHRPermissionMngTimeKeeping
-            })
-            setDataAttendances(res.data.data)
-            setTotalPage(res.data.total_pages)
-            return res.data.data
+        const res = await timekeepingApi.getMngTimeKeeping({
+            UserCode: user?.userCode ?? "",
+            Year: year,
+            Month: month,
+            page: page,
+            pageSize: pageSize,
+            keySearch: debouncedKeySearch,
+            team: team ? Number(team) : null,
+            deptId: deptId ? Number(deptId) : null,
+            typePerson: typePerson ? Number(typePerson) : null,
+            isHrMngTimeKeeping: isHrAndHRPermissionMngTimeKeeping,
+        });
+        setDataAttendances(res.data.data);
+        setTotalPage(res.data.total_pages);
+        return res.data.data;
         },
-        enabled: !!year && !!month && !!user?.userCode
+        enabled: !!year && !!month && !!user?.userCode,
     });
 
     const handleCreateRequestApprovalTimeKeeping = async () => {
         await createRequestApprovalTimeKeeping.mutateAsync({
             orgPositionId: user?.orgPositionId ?? -1,
-            userName: user?.userName ?? '',
+            userName: user?.userName ?? "",
             userCode: user?.userCode,
             month: month,
-            year: year
+            year: year,
         });
+        setCountHistoryEditTimeKeepingNotSendHR(0);
+        navigate("/list-time-keeping");
+    };
 
-        setCountHistoryEditTimeKeepingNotSendHR(0)
-
-        navigate('/list-time-keeping')
-    }
-
-    const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
-    const saveChangeUpdateTimeKeeping = async (finalResult: string, currentUserCode: string, currentDate: string) => {
+    const saveChangeUpdateTimeKeeping = async (
+        finalResult: string,
+        currentUserName: string,
+        currentUserCode: string,
+        currentDate: string
+    ) => {
         if (selectedData?.Result === finalResult) {
             setOpenModalUpdateTimeKeeping(false);
             return;
         }
+        setOpenModalUpdateTimeKeeping(false);
+
         await editTimeAttendanceHistory.mutateAsync({
             Datetime: currentDate,
             OldValue: selectedData?.Result,
-            CurrentValue: finalResult,
+            CurrentValue: finalResult == '' ? 'ABS' : finalResult,
             UserCode: currentUserCode,
+            UserName: currentUserName,
             UserCodeUpdate: user?.userCode,
-            UpdatedBy: user?.userName ?? ''
+            UpdatedBy: user?.userName ?? "",
         });
 
-        queryClient.invalidateQueries({ queryKey: ['management-timekeeping'] });
-        queryClient.invalidateQueries({ queryKey: ['count-history-edit-timekeeping-not-send-hr'] });
-        setOpenModalUpdateTimeKeeping(false);
+        queryClient.invalidateQueries({ queryKey: ["management-timekeeping"] });
+        queryClient.invalidateQueries({
+            queryKey: ["count-history-edit-timekeeping-not-send-hr"],
+        });
+    };
+
+    function setCurrentPage(newPage: number): void {
+        updateSearchParams("page", newPage);
     }
 
-    function setCurrentPage(page: number): void {
-        setPage(page)
-    }
-
-    function handlePageSizeChange(size: number): void {
-        setPage(1)
-        setPageSize(size)
+    function handlePageSizeChange(newSize: number): void {
+        updateSearchParams("pageSize", newSize);
     }
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
-                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">{t('mng_time_keeping.mng_time_keeping')}</h3>
+                <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">
+                    {t("mng_time_keeping.mng_time_keeping")}
+                </h3>
             </div>
+
+            <ModalConfirm
+                type={statusModalConfirm}
+                isOpen={statusModalConfirm != ''}
+                onClose={() => setStatusModalConfirm('')}
+                onSave={handleCreateRequestApprovalTimeKeeping}
+                isPending={createRequestApprovalTimeKeeping.isPending}
+            />
+
             <div className="flex flex-wrap gap-4 items-center mt-3 mb-3 lg:justify-between">
                 <div className="flex space-x-4">
                     <div>
-                        <Label className="mb-1">{t('mng_time_keeping.month')}</Label>
-                        <select className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+                        <Label className="mb-1">{t("mng_time_keeping.month")}</Label>
+                        <select
+                            className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer"
+                            value={month}
+                            onChange={(e) => updateSearchParams("month", Number(e.target.value))}
+                        >
                             {Array.from({ length: 12 }, (_, i) => (
-                                <option key={i+1} value={i+1}>{i+1}</option>
+                                <option key={i + 1} value={i + 1}>
+                                {i + 1}
+                                </option>
                             ))}
                         </select>
                     </div>
-                    <div>
-                        <Label className="mb-1">{t('mng_time_keeping.year')}</Label>
-                        <select className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer" value={year} onChange={(e) => setYear(Number(e.target.value))}>
-                            <option value={defaultYear - 1}>{defaultYear - 1}</option>
-                            <option value={defaultYear}>{defaultYear}</option>
-                            <option value={defaultYear + 1}>{defaultYear + 1}</option>
-                        </select>
-                    </div>
-                    <div>
-                        <Label className="mb-1">{t("mng_time_keeping.usercode")}</Label>
-                        <input
-                            value={keySearch}
-                            onChange={(e) => {
-                                setPage(1)
-                                setKeySearch(e.target.value)
-                            }}
-                            type="text" 
-                            className="border p-1 rounded-[5px] pl-1 text-sm border-gray-300" 
-                            placeholder="Mã nhân viên"
-                        />
-                    </div>
-                    <div>
-                        <Label className="mb-1">{t("mng_time_keeping.dept")}</Label>
-                        <select className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer" value={deptId} 
-                            onChange={(e) => {
-                                setPage(1)
-                                setDeptId(e.target.value)
-                            }}>
-                            <option value="" className="text-sm">--{lang == 'vi' ? 'Tất cả' : 'All'}--</option>
-                            {
-                                departments.map((item: {id: number, name: string}, idx: number) => (
-                                    <option key={idx} className="text-sm" value={item.id}>{item.name}</option>
-                                ))
-                            }
-                        </select>
-                    </div>
-                    <div>
-                        <Label className="mb-1">{lang == 'vi' ? 'Chính thức,thời vụ,..' : 'Type'}</Label>
-                        <select className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer" value={typePerson} 
-                            onChange={(e) => {
-                                setPage(1)
-                                setTypePerson(e.target.value)
-                            }}>
-                            <option value="" className="text-sm">--{lang == 'vi' ? 'Tất cả' : 'All'}--</option>
-                            <option key={1} className="text-sm" value={1}>{lang == 'vi' ? `Chính thức` : 'Fulltime'}</option>
-                            <option key={2} className="text-sm" value={2}>{lang == 'vi' ? `Thời vụ` : 'Temporary'}</option>
-                            <option key={3} className="text-sm" value={3}>{lang == 'vi' ? `Nước ngoài` : 'Foreigner'}</option>
-                        </select>
-                    </div>
+                <div>
+                    <Label className="mb-1">{t("mng_time_keeping.year")}</Label>
+                        <select
+                            className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer"
+                            value={year}
+                            onChange={(e) => updateSearchParams("year", Number(e.target.value))}
+                        >
+                        <option value={defaultYear - 1}>{defaultYear - 1}</option>
+                        <option value={defaultYear}>{defaultYear}</option>
+                        <option value={defaultYear + 1}>{defaultYear + 1}</option>
+                    </select>
+                </div>
+                <div>
+                    <Label className="mb-1">{t("mng_time_keeping.usercode")}</Label>
+                    <input
+                        value={keySearch}
+                        onChange={(e) => {
+                            updateSearchParams("keySearch", e.target.value);
+                        }}
+                        type="text"
+                        className="border p-1 rounded-[5px] pl-1 text-sm border-gray-300"
+                        placeholder="Mã nhân viên"
+                    />
+                </div>
+                <div>
+                    <Label className="mb-1">{t("mng_time_keeping.dept")}</Label>
+                    <select
+                        className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer"
+                        value={deptId}
+                        onChange={(e) => {
+                            updateSearchParams("deptId", e.target.value);
+                        }}
+                        >
+                        <option value="" className="text-sm">
+                            --{lang == "vi" ? "Tất cả" : "All"}--
+                        </option>
+                        {departments.map((item: { id: number; name: string }, idx: number) => (
+                            <option key={idx} className="text-sm" value={item.id}>
+                            {item.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <Label className="mb-1">
+                        {lang == "vi" ? "Chính thức,thời vụ,.." : "Type"}
+                    </Label>
+                    <select
+                        className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer"
+                        value={typePerson}
+                        onChange={(e) => {
+                            updateSearchParams("typePerson", e.target.value);
+                        }}
+                    >
+                    <option value="" className="text-sm">
+                        --{lang == "vi" ? "Tất cả" : "All"}--
+                    </option>
+                    <option key={1} className="text-sm" value={1}>
+                        {lang == "vi" ? `Chính thức` : "Fulltime"}
+                    </option>
+                    <option key={2} className="text-sm" value={2}>
+                        {lang == "vi" ? `Thời vụ` : "Temporary"}
+                    </option>
+                    <option key={3} className="text-sm" value={3}>
+                        {lang == "vi" ? `Nước ngoài` : "Foreigner"}
+                    </option>
+                    </select>
+                </div>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
                     {dataAttendances.length > 0 && (
                         <>
-                            <Button
-                                className="bg-black hover:bg-gray-900 text-white flex-1 sm:flex-none hover:cursor-pointer"
-                                onClick={() => navigate('/list-time-keeping')}
-                            >
-                                {lang === 'vi' ? 'Danh sách đã tạo' : 'List'}
-                            </Button>
+                        <Button
+                            className="bg-black hover:bg-gray-900 text-white flex-1 sm:flex-none hover:cursor-pointer"
+                            onClick={() => navigate("/list-time-keeping")}
+                        >
+                            {lang === "vi" ? "Danh sách đã tạo" : "List"}
+                        </Button>
 
-                            <Button
-                                className="bg-red-700 hover:bg-red-800 text-white flex-1 sm:flex-none hover:cursor-pointer"
-                                onClick={() => setOpenModalListHistoryEditTimeKeeping(true)}
-                            >
-                                {lang === 'vi' ? 'Lịch sử chỉnh sửa' : 'History edit'} ({countHistoryEditTimeKeepingNotSendHR ?? 0})
-                            </Button>
+                        <Button
+                            className="bg-red-700 hover:bg-red-800 text-white flex-1 sm:flex-none hover:cursor-pointer"
+                            onClick={() => setOpenModalListHistoryEditTimeKeeping(true)}
+                        >
+                            {lang === "vi" ? "Lịch sử chỉnh sửa" : "History edit"}{" "}
+                            ({countHistoryEditTimeKeepingNotSendHR ?? 0})
+                        </Button>
 
-                             <button
-                                onClick={handleCreateRequestApprovalTimeKeeping}
-                                disabled={createRequestApprovalTimeKeeping.isPending}
-                                className={`${
-                                    createRequestApprovalTimeKeeping.isPending ? 'opacity-70 cursor-not-allowed' : 'hover:cursor-pointer'
-                                } px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-green-500 hover:bg-green-600 w-full sm:w-auto`}
-                            >
-                                {createRequestApprovalTimeKeeping.isPending ? <Spinner/> : (lang == 'vi' ? 'Đăng ký' : 'Register')}
-                            </button>
+                        <button
+                            onClick={() => setStatusModalConfirm('confirm')}
+                            disabled={createRequestApprovalTimeKeeping.isPending}
+                            className={`${
+                            createRequestApprovalTimeKeeping.isPending
+                                ? "opacity-70 cursor-not-allowed"
+                                : "hover:cursor-pointer"
+                            } px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-green-500 hover:bg-green-600 w-full sm:w-auto`}
+                        >
+                            {createRequestApprovalTimeKeeping.isPending ? (
+                                <Spinner />
+                            ) : lang == "vi" ? (
+                                "Đăng ký"
+                            ) : (
+                                "Register"
+                            )}
+                        </button>
                         </>
-                        )
-                    }
+                    )}
                 </div>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-x-4 gap-y-2 items-start">
-                {
-                    Object.entries(statusLabels).map(([key]) => {
-                        return (
-                            <span className="p-1 flex items-center transition-colors duration-150 ease-in-out group" key={key}>
-                                <span className={`text-black font-bold bg-gray-200 w-[37px] h-[20px]dark:text-black text-xs text-center inline-flex items-center justify-center p-[2px] rounded-[3px] mr-1 flex-shrink-0`}>
-                                    {statusLabels[key as AttendanceStatus]}
-                                </span>
-                                <span className="text-xs sm:text-sm flex-grow">
-                                    {statusDefine[key as AttendanceStatus]}
-                                </span>
-                            </span>
-                        );
-                    })
-                }
+                {Object.entries(statusLabels).map(([key]) => {
+                    return (
+                        <span
+                        className="p-1 flex items-center transition-colors duration-150 ease-in-out group"
+                        key={key}
+                        >
+                        <span
+                            className={`text-black font-bold bg-gray-200 w-[37px] h-[20px]dark:text-black text-xs text-center inline-flex items-center justify-center p-[2px] rounded-[3px] mr-1 flex-shrink-0`}
+                        >
+                            {statusLabels[key as AttendanceStatus]}
+                        </span>
+                        <span className="text-xs sm:text-sm flex-grow">
+                            {statusDefine[key as AttendanceStatus]}
+                        </span>
+                        </span>
+                    );
+                })}
             </div>
 
             <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
@@ -261,13 +375,18 @@ export default function MngTimekeeping () {
                     <table className="min-w-[1200px] border-collapse">
                         <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-black">
                             <tr className="border-b bg-[#f3f4f6] dark:bg-black dark:text-white">
-                                <th className="w-[130px] text-center border-r p-2">{t("mng_time_keeping.usercode")}</th>
-                                <th className="w-[180px] text-center border-r">{t("mng_time_keeping.name")}</th>
-                                <th className="w-[130px] text-center border-r">{t("mng_time_keeping.dept")}</th>
+                                <th className="w-[130px] text-center border-r p-2">
+                                    {t("mng_time_keeping.usercode")}
+                                </th>
+                                <th className="w-[180px] text-center border-r">
+                                    {t("mng_time_keeping.name")}
+                                </th>
+                                <th className="w-[130px] text-center border-r">
+                                    {t("mng_time_keeping.dept")}
+                                </th>
                                 {daysHeader.map(({ dayStr }) => {
                                     const fullDayStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
-                                    const bgSunday =
-                                    new Date(fullDayStr).getDay() == 0 ? statusColors["CN" as AttendanceStatus] : "";
+                                    const bgSunday = new Date(fullDayStr).getDay() == 0 ? statusColors["CN" as AttendanceStatus] : "";
                                     const colorSunday = new Date(fullDayStr).getDay() == 0 ? "#FFFFFF" : "";
 
                                     return (
@@ -275,7 +394,7 @@ export default function MngTimekeeping () {
                                             key={dayStr}
                                             style={{ backgroundColor: bgSunday || "", color: colorSunday }}
                                             className="w-[36px] text-center border-r text-sm"
-                                        >
+                                            >
                                             {dayStr}
                                         </th>
                                     );
@@ -283,74 +402,77 @@ export default function MngTimekeeping () {
                             </tr>
                         </thead>
                         <tbody>
-                            {
-                                isLoading ? (
-                                    Array.from({ length: 5 }).map((_, index) => (
-                                        <tr key={index}>
-                                            <td className="w-[130px] text-center p-2">
-                                                <div className="flex justify-center">
-                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </td>
-                                            <td className="w-[180px] text-center">
-                                                <div className="flex justify-center">
-                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </td>
-                                            <td className="w-[130px] text-center">
-                                                <div className="flex justify-center">
-                                                <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </td>
-                                            {daysHeader.map(({ dayStr }) => (
-                                                <td key={dayStr} className="w-[36px] text-center">
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-3 w-[17px] bg-gray-300" />
-                                                </div>
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))
-                                ) : isError || dataAttendances.length == 0 ? (
-                                    <tr>
-                                        <td
-                                            colSpan={daysInMonth + 3}
-                                            className={`align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-center font-bold text-red-700`}
-                                            >
-                                            { error?.message ?? tCommon('no_results') } 
+                            {isLoading ? (
+                                Array.from({ length: 5 }).map((_, index) => (
+                                <tr key={index}>
+                                    <td className="w-[130px] text-center p-2">
+                                        <div className="flex justify-center">
+                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                        </div>
+                                    </td>
+                                    <td className="w-[180px] text-center">
+                                        <div className="flex justify-center">
+                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                        </div>
+                                    </td>
+                                    <td className="w-[130px] text-center">
+                                        <div className="flex justify-center">
+                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                        </div>
+                                    </td>
+                                    {daysHeader.map(({ dayStr }) => (
+                                        <td key={dayStr} className="w-[36px] text-center">
+                                            <div className="flex justify-center">
+                                            <Skeleton className="h-3 w-[17px] bg-gray-300" />
+                                            </div>
                                         </td>
-                                    </tr>
-                                ) : (
-                                        dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
-                                            <tr key={idx} className="border-b dark:border-[#9b9b9b]">
-                                            <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">{item.UserCode}</td>
-                                            <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
-                                            <td className="text-left border-r pl-2 text-sm w-[130px]">{item.Department}</td>
-                                            {daysHeader.map(({ dayStr }, colIdx: number) => {
-                                                let bgColor = "#FFFFFF";
-                                                let textColor = "#000000";
-                                                const dayNumber = parseInt(dayStr, 10);
+                                    ))}
+                                </tr>
+                                ))
+                            ) : isError || dataAttendances.length == 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={daysInMonth + 3}
+                                        className={`align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-center font-bold text-red-700`}
+                                    >
+                                        {error?.message ?? tCommon("no_results")}
+                                    </td>
+                                </tr>
+                            ) : (
+                                dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
+                                    <tr key={idx} className="border-b dark:border-[#9b9b9b]">
+                                        <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">
+                                            {item.UserCode}
+                                        </td>
+                                        <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
+                                        <td className="text-left border-r pl-2 text-sm w-[130px]">
+                                            {item.Department}
+                                        </td>
+                                        {daysHeader.map(({ dayStr }, colIdx: number) => {
+                                            let bgColor = "#FFFFFF";
+                                            let textColor = "#000000";
+                                            const dayNumber = parseInt(dayStr, 10);
 
-                                                let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
-                                                const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
-                                                const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
-                                                const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
-                                                const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
-                                                const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
-                                                const isSunday = new Date(fullDate).getDay() === 0;
+                                            let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
+                                            const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
+                                            const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
+                                            const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
+                                            const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
+                                            const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
+                                            const isSunday = new Date(fullDate).getDay() === 0;
 
-                                                if (result == "X") {
-                                                    if (isSunday) {
-                                                        result = "CN_X";
-                                                    } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
-                                                        result = "X";
-                                                    } else if (parseFloat(wh) < 8) {
-                                                        const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
-                                                        result = calculateTime == "1" ? "X" : calculateTime;
-                                                    }
-                                                } else if (result == "SH") {
-                                                    bgColor = "#3AFD13";
-                                                } else if (result == "CN") {
+                                            if (result == "X") {
+                                                if (isSunday) {
+                                                    result = "CN_X";
+                                                } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
+                                                    result = "X";
+                                                } else if (parseFloat(wh) < 8) {
+                                                    const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
+                                                    result = calculateTime == "1" ? "X" : calculateTime;
+                                                }
+                                            } else if (result == "SH") {
+                                                bgColor = "#3AFD13";
+                                            } else if (result == "CN") {
                                                 if (den != "" && ve != "" && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
                                                     result = "CN_X";
                                                     bgColor = "#FFFFFF";
@@ -358,18 +480,18 @@ export default function MngTimekeeping () {
                                                 } else {
                                                     bgColor = "#858585";
                                                 }
-                                                } else if (result == "ABS" || result == "MISS") {
-                                                    bgColor = "#FD5C5E";
-                                                } else if (result != "X") {
-                                                    bgColor = "#ffe378";
-                                                }
+                                            } else if (result == "ABS" || result == "MISS") {
+                                                bgColor = "#FD5C5E";
+                                            } else if (result != "X") {
+                                                bgColor = "#ffe378";
+                                            }
 
-                                                return (
-                                                    <td
-                                                        key={dayStr}
-                                                        style={{ backgroundColor: bgColor, color: textColor }}
-                                                        className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
-                                                        onClick={() => {
+                                            return (
+                                                <td
+                                                    key={dayStr}
+                                                    style={{ backgroundColor: bgColor, color: textColor }}
+                                                    className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
+                                                    onClick={() => {
                                                         const invalidResults = ["X", "CN_X", "NM"];
                                                         if (!invalidResults.includes(result)) {
                                                             setSelectedData({
@@ -384,16 +506,19 @@ export default function MngTimekeeping () {
                                                             });
                                                             setOpenModalUpdateTimeKeeping(true);
                                                         }
-                                                        }}
-                                                    >
-                                                        <div className="flex justify-center text-xs">{result}</div>
-                                                    </td>
-                                                );
-                                            })}
-                                        </tr>
-                                    ))
-                                )
-                            }
+                                                    }}
+                                                >
+                                                    <div className={`flex justify-center text-xs ${result.includes(',') ? 'flex-col text-[9px]' : ''}`}>
+                                                        {
+                                                            result.includes(',') ? result.split(",").map((x: string, i: number) => <span key={i}>{x}</span>) : result
+                                                        }
+                                                    </div>
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -410,16 +535,16 @@ export default function MngTimekeeping () {
                 selectedData={selectedData}
                 onSave={saveChangeUpdateTimeKeeping}
             />
-            {
-                dataAttendances.length > 0 ? (<PaginationControl
+
+            {dataAttendances.length > 0 ? (
+                <PaginationControl
                     currentPage={page}
                     totalPages={totalPage}
                     pageSize={pageSize}
                     onPageChange={setCurrentPage}
                     onPageSizeChange={handlePageSizeChange}
-                />) : (null)
-            }
+                />
+            ) : null}
         </div>
-    )
+    );
 }
-

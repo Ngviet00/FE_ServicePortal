@@ -5,14 +5,17 @@ import { useEffect, useState } from "react"
 import { useAppStore } from "@/store/appStore"
 import SelectedLanguage from "./components/SelectLanguage"
 import AvatarDropdown from "./components/AvatarDropdown"
-
 import "./style.css"
+import useHasRole from "@/hooks/useHasRole"
+import { RoleEnum } from "@/lib"
 
 export default function Header() {
     const { user } = useAuthStore();
     const [darkMode, setDarkMode] = useState(false);
     const numberWait = useAppStore((state) => state.numberLeaveWaitApproval);
     const handleToggleSidebar = useSidebarStore((s) => s.toggleSidebar);
+
+    const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN])
 
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
@@ -57,6 +60,7 @@ export default function Header() {
 
                 <div className='text-black mr-4 font-bold text-sm dark:text-white'>
                     {
+                        user?.userCode == '0' && isSuperAdmin ? '0 - Superadmin' :
                         user?.userName == null || user?.userName == '' ? '....' : user?.userCode == '0' ? '0 - superadmin' : `${user?.userCode} - ${user?.userName}`
                     }
                 </div>

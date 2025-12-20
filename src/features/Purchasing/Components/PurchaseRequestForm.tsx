@@ -13,7 +13,7 @@ import { Trash2 } from "lucide-react";
 import Select from 'react-select'
 import { NumericInput } from "@/components/NumericInput";
 import FileListPreview, { FileListPreviewDownload, UploadedFileType } from "@/components/ComponentCustom/FileListPreviewMemoNotify";
-import { getErrorMessage, ShowToast, STATUS_ENUM } from "@/lib";
+import { getErrorMessage, ShowToast, StatusApplicationFormEnum } from "@/lib";
 import memoNotificationApi from "@/api/memoNotificationApi";
 import { Label } from "@/components/ui/label";
 
@@ -321,7 +321,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
                         />
                     </div>
 
-                    {(formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED ||
+                    {(formData?.applicationFormItem?.applicationForm?.requestStatusId == StatusApplicationFormEnum.ASSIGNED ||
                         mode == 'view') && (
                         <>
                         <div className="form-group col-span-2">
@@ -361,7 +361,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({
                         </>
                     )}
 
-                    {formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.ASSIGNED &&
+                    {formData?.applicationFormItem?.applicationForm?.requestStatusId == StatusApplicationFormEnum.ASSIGNED &&
                         mode == 'assigned' && (
                         <div className="col-span-1">
                             <Button onClick={handleUpdateStatusAndPO} className="rounded-[4px] hover:cursor-pointer">

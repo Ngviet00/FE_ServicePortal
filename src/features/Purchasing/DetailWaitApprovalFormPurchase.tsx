@@ -8,7 +8,7 @@ import purchaseApi, { useApprovalPurchase, useAssignedTaskPurchaseForm } from '@
 import costCenterApi from '@/api/costCenterApi';
 import ModalConfirm from '@/components/ModalConfirm';
 import { useState } from 'react';
-import { ShowToast, STATUS_ENUM, UNIT_ENUM } from '@/lib';
+import { ShowToast, StatusApplicationFormEnum, UnitEnum } from '@/lib';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import HistoryApproval from '../Approval/Components/HistoryApproval';
@@ -79,8 +79,8 @@ const DetailWaitApprovalFormPurchase = () => {
         }
     });
 
-    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.WAIT_QUOTE 
-        || formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.FINAL_APPROVAL
+    const mode = isHasId && formData?.applicationFormItem?.applicationForm?.requestStatusId == StatusApplicationFormEnum.WAIT_QUOTE 
+        || formData?.applicationFormItem?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL
         ? 'manager_purchase_approval'
         : 'approval'
 
@@ -117,7 +117,7 @@ const DetailWaitApprovalFormPurchase = () => {
                 })
             }
             else {
-                if (type == 'approval' && user?.unitId == UNIT_ENUM.GM) {
+                if (type == 'approval' && user?.unitId == UnitEnum.GM) {
                     if (formData?.quotes?.length > 0 && (!selectedQuoteId || selectedQuoteId === 0)) {
                         ShowToast(lang == 'vi' ? 'Vui lòng chọn báo giá' : 'Please select a quote', 'error')
                         return
@@ -127,7 +127,7 @@ const DetailWaitApprovalFormPurchase = () => {
                     UserCodeApproval: user?.userCode,
                     UserNameApproval: user?.userName ?? "",
                     OrgPositionId: user?.orgPositionId,
-                    StatusRequest: type == 'approval' ? STATUS_ENUM.IN_PROCESS : type == 'reject' ? STATUS_ENUM.REJECT : STATUS_ENUM.WAIT_QUOTE,
+                    StatusRequest: type == 'approval' ? StatusApplicationFormEnum.IN_PROCESS : type == 'reject' ? StatusApplicationFormEnum.REJECT : StatusApplicationFormEnum.WAIT_QUOTE,
                     Note: note,
                     ApplicationFormId: formData?.applicationFormItem?.applicationForm?.id,
                     ApplicationFormCode: formData?.applicationFormItem?.applicationForm?.code,
@@ -244,7 +244,7 @@ const DetailWaitApprovalFormPurchase = () => {
                 
                 <div className='flex justify-end mt-3'>
                     {
-                        user?.unitId == UNIT_ENUM.GM && hasQuoteFiles == false && (
+                        user?.unitId == UnitEnum.GM && hasQuoteFiles == false && (
                             <Button
                                 disabled={approval.isPending || assignedTaskPurchase.isPending}
                                 onClick={() => setStatusModalConfirm('need_quote')}

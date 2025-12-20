@@ -9,7 +9,7 @@ import costCenterApi from '@/api/costCenterApi';
 import purchaseApi, { useAssignedTaskPurchaseForm } from '@/api/purchaseApi';
 import { Label } from '@/components/ui/label';
 import orgUnitApi from '@/api/orgUnitApi';
-import { STATUS_ENUM } from '@/lib';
+import { StatusApplicationFormEnum } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
 import requestStatusApi from '@/api/requestStatusApi';
 
@@ -36,8 +36,8 @@ const ViewOnlyFormPurchase = () => {
 		queryFn: async () => {
 			const res = await requestStatusApi.getAll()
             const results = res.data.data.filter((status: { id: number }) => 
-                status.id == STATUS_ENUM.WAIT_DELIVERY 
-                || status.id == STATUS_ENUM.WAIT_PO || status.id == STATUS_ENUM.WAIT_QUOTE || status.id == STATUS_ENUM.COMPLETED)
+                status.id == StatusApplicationFormEnum.WAIT_DELIVERY 
+                || status.id == StatusApplicationFormEnum.WAIT_PO || status.id == StatusApplicationFormEnum.WAIT_QUOTE || status.id == StatusApplicationFormEnum.COMPLETED)
 			return results
 		}
 	});
@@ -116,7 +116,7 @@ const ViewOnlyFormPurchase = () => {
             }
 
             {
-                formData?.applicationFormItem?.applicationForm?.requestStatusId == STATUS_ENUM.REJECT && formData?.applicationFormItem?.applicationForm?.reference?.code && formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm == user?.userCode && (<div>
+                formData?.applicationFormItem?.applicationForm?.requestStatusId == StatusApplicationFormEnum.REJECT && formData?.applicationFormItem?.applicationForm?.reference?.code && formData?.applicationFormItem?.applicationForm?.userCodeCreatedForm == user?.userCode && (<div>
                     <span className='text-sm text-red-700 underline'>{lang == 'vi' ? '(Đơn mua hàng liên kết với đơn IT)' : '(The purchase order will be linked to the IT order)'}</span>
                     <Link to={`/purchase/create?applicationFormCode=${formData?.applicationFormItem?.applicationForm?.reference?.code}`} 
                         className="px-4 py-2 ml-1 bg-orange-600 text-white rounded-[3px] shadow-lg hover:bg-orange-700 hover:shadow-xl transition-all duration-200 text-base hover:cursor-pointer">

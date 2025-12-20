@@ -24,7 +24,7 @@
             "title": "List overtime register",
             "status": "Status",
             "code": "Code",
-            "request_type": "Request type",
+            "RequestTypeEnum": "Request type",
             "created_by": "Created by",
             "created_at": "Created at",
             "action": "Action"
@@ -83,7 +83,7 @@
         "change_shift": "Change shift",
         "change_sunday": "Change sunday",
         "use_phone": "Use phone",
-        "register_gate": "Register gate",
+        "register_door": "Register door",
         "other": "Other information",
         "save": "Save",
         "note": "Note",
@@ -93,5 +93,178 @@
         "user_code": "UserCode",
         "action": "Action",
         "created_at": "Created at"
+    },
+    "warning_letter": {
+        "create": {
+            "title": "Create warning letter",
+            "usercode": "UserCode",
+            "username": "UserName",
+            "department": "Department",
+            "position": "Position",
+            "unit": "Unit",
+            "reason": "Reason",
+            "handling_method": "Handling method",
+            "verbal_reprimand": "Verbal Reprimand",
+            "suspension_without_pay": "Suspension Without Pay",
+            "written_disciplinary_notice": "Written Disciplinary Notice",
+            "job_reassignment_with_salary_reduction": "Job Reassignment With Salary Reduction",
+            "union_member_responsibility": "Union member responsibility",
+            "choose": "Choose",
+            "note_approval_flow": "Approval process: (1) Union representative, (2) Department Manager, (3) HR & Administration Director",
+            "confirm": "Confirm"
+        },
+        "list": {
+            "title": "List warning letter registered",
+            "my_warning_letter": "My warning letter",
+            "code": "Code",
+            "status": "Status",
+            "action": "Action",
+            "created_at": "Created at"
+        }
+    },
+    "resignation": {
+        "create": {
+            "title": "Resignation",
+            "usercode": "UserCode",
+            "username": "UserName",
+            "department": "Department",
+            "position": "Position",
+            "unit": "Unit",
+            "date_join_company": "Date join company",
+            "last_day_employment": "Last day employment",
+            "reason": "Reason",
+            "handover": "Handover",
+            "contract_expire": "Contract Expiration",
+            "non_renew_contract": "Non renew contract",
+            "personal_reason": "Personal reason",
+
+            "sick": "Sick",
+            "further_studies": "Further studies",
+            "family_matter": "Family Matters",
+            "new_employment": "New Employment",
+            "return_hometown": "Return to Hometown",
+            "unsuitable_work": "Unsuitable Work",
+
+            "other_reason": "Other Reasons",
+            "poor_benifit": "Poor Compensation",
+            "unfavorable_working_environment": "Unfavorable Working Environment",
+            "high_pressure": "High Pressure",
+            "low_salary": "Low Salary",
+
+            "additional_remarks": "Additional Remarks",
+
+            "other": "Other",
+            "uniform": "Uniform",
+            "ID_card": "ID Card",
+            "choose": "Choose",
+            "note_approval_flow": "Approval process: (1) Leader, (2) Supervisor, (3) Department Manager, (4) HR & Administration Director. From Assistant Supervisor upto, need to approval of General Manager",
+            "confirm": "Confirm"
+        },
+        "list": {
+            "title": "List resignation",
+            "code": "Code",
+            "status": "Status",
+            "action": "Action",
+            "created_at": "Created at"
+        }
+    },
+    "termination": {
+        "create": {
+            "title": "Termination",
+            "usercode": "UserCode",
+            "username": "UserName",
+            "department": "Department",
+            "position": "Position",
+            "unit": "Unit",
+            "reason": "Reason",
+            "date_join_company": "Date join company",
+            "last_working_date": "Last working date",
+            "contract_expire_date": "Contract expired date",
+            "contract_expired": "Contract expired",
+            "expulsion": "Expulsion",
+            "dismiss": "Dismiss",
+            "absent": "Absent without notice since",
+            "failed_probation": "Failed probation",
+            "disciplinary": "Disciplinary",
+            "contract_expireNotRenew": "Contract expireNotRenew",
+            "other_reason": "Other reason",
+            "handover": "Handover",
+            "other": "Other",
+            "uniform": "Uniform",
+            "ID_card": "ID Card",
+            "choose": "Choose",
+            "note_approval_flow": "Approval process: (1) Supervisor, (2) Department Manager, (3) General Manager (4) HR & Administration Director",
+            "confirm": "Confirm"
+        },
+        "list": {
+            "title": "List termination",
+            "code": "Code",
+            "status": "Status",
+            "action": "Action",
+            "created_at": "Created at"
+        }
+    },
+    "absent_overday": {
+        "title": "List absent without notice",
+        "user_code": "UserCode",
+        "username": "UserName",
+        "department": "Department",
+        "last_absent_date": "Last absent date",
+        "list_absent_date": "List absent date",
+        "action": "Action",
+        "working": "Working",
+        "terminate": "Terminate"
+    },
+    "requisition": {
+        "create": {
+            "title": "Application for recruitment",
+            "position_additional": "Position additional",
+            "department": "Department",
+            "additional_people": "Additional people",
+            "date_required": "Date required",
+
+            "reason": "Reason",
+            "expand": "Expaned",
+            "replace": "Replace",
+            "temporary": "Temporary",
+            "hr_reserve": "Hr reserve",
+
+            "marriage": "Marriage",
+            "unmarried": "Unmarried",
+            "no_important_marriage": "No important",
+
+            "education": "Education",
+            "primary_school": "Primary school",
+            "middle_school": "Middle school",
+            "high_school": "High school",
+
+            "expertise": "Expertise",
+
+            "language": "Language",
+            "acceptable": "Acceptable",
+            "normal": "Normal",
+            "good": "Good",
+
+            "english": "English",
+            "japanese": "Japanese",
+            "chinese": "Chinese",
+
+            "experience": "Experience",
+            "personality": "Personality",
+            "skills": "Skills",
+            "description_job": "Description job",
+
+            "choose": "Choose",
+            "note_approval_flow": "Approval flow: (1) Supervisor, (2) Deparmtent Manager, (3) General Manager, (4) HR & Administration Director",
+            "confirm": "Confirm"
+        },
+        "list": {
+            "title": "Application for recruitment",
+            "code": "Code",
+            "username": "Requester",
+            "status": "Status",
+            "action": "Action",
+            "created_at": "Created at"
+        }
     }
 }
