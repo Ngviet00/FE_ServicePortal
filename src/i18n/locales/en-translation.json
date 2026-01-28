@@ -47,6 +47,13 @@
 
 	"sidebar": {
 		"home": "Dashboard",
+		"feedback": {
+			"title": "Feedback",
+			"all_feedback": "All feedback",
+			"create": "Create new feedback",
+			"my_feedback": "My feedback",
+			"pending_response": "Pending response"
+		},
 		"admin": {
 			"role": "Role",
 			"permission": "Permission",
@@ -68,7 +75,7 @@
 			"change_org_unit_id_user": "Change org unit",
 			"recruitment": {
 				"title": "Recruitment",
-				"add_manpower": "Add more manpower"
+				"manpower": "Add more manpower"
 			},
 			"insurance": {
 				"title": "Insurance, termination",
@@ -81,7 +88,7 @@
 				"title": "Leave request, timekeeping",
 				"create_leave": "Leave request",
 				"over_time": "Overtime",
-				"internal_memo_hr": "Internal HR",
+				"internal_memo_hr": "Internal memo",
 				"time_keeping": "Timekeeping",
 				"mng_time_keeping": "Mng Timekeeping"
 			}
@@ -94,6 +101,7 @@
 		"leave_request": {
 			"statistical": "Statistical",
 			"title": "HR",
+			"leave_statistics": "Leave statistics",
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
 			"over_time": "Overtime",
@@ -372,5 +380,27 @@
 		"wait_quote": "Wait Quote",
 		"wait_po": "Wait PO",
 		"wait_delivery": "Wait Delivery"
+	},
+	"feedback": {
+		"create": {
+			"title": "Create feedback"
+		},
+		"list": {
+			"title": "List my feedback",
+			"code": "Code",
+			"content": "Content",
+			"status":"Status",
+			"created_at": "Created At",
+			"action":"Action",
+			"pending_response": "Pending response",
+			"has_response": "Responded"
+		},
+		"view": {
+			"btn_response": "Response",
+			"response_at": "Response at"
+		},
+		"pending_response": {
+			"title": "Chờ phản hồi"
+		}
 	}
 }

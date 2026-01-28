@@ -108,18 +108,19 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
         if (!countData) return null;
 
         switch (menu.key) {
-            case "approval":
-				return (countData?.countByUser?.pending ?? 0) + (countData?.countByUser?.assigned ?? 0)
+			case "leave_request": 
+				return (countData?.countEvent?.countVoteHR ?? 0)
+				break;
+			case "approval":
+				return (countData?.countByUser?.pending ?? 0) + (countData?.countByUser?.assigned ?? 0) + (countData?.countByUser?.waitConfirm ?? 0) + (countData?.countByUser?.waitQuote ?? 0)
             case "IT":
-				return null;
-                // Bỏ dấu ngoặc nhọn thừa
-                // const itTotal = countData.countFormITWaitFormPurchase || 0; 
-                // return itTotal > 0 ? itTotal : null;
+				return (countData?.countByUser?.itWaitConfirmPurchase ?? 0)
             case "Purchase":
-				return null
-                // Bỏ dấu ngoặc nhọn thừa
-                // const purchaseTotal = (countData.countWaitResponseQuote || 0);
-                // return purchaseTotal > 0 ? purchaseTotal : null;
+				return (countData?.countByUser?.purchaseResponseQuote ?? 0)
+			case "feedback": 
+				return (countData?.countEvent?.feedbackPendingResponse ?? 0)
+			case "Union": 
+				return (countData?.countEvent?.countVoteUnion ?? 0)
             default:
                 return null;
         }
@@ -158,6 +159,15 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 					//union
 					if (child.route === '/union/member' && !isUnion) return null;
 
+					//thống kê nghỉ phép chỉ có manager hoặc gm nhìn thấy
+					if (child.route == '/leave/statistics' && !isHR && user?.unitId != UnitEnum.GM && user?.unitId != UnitEnum.Manager) {
+						return null;
+					}
+
+					if (['/feedback', '/feedback/pending-response'].includes(child.route ?? '') && !isHR) {
+						return null;
+					}
+
 					let badge = null;
                     if (countData) {
                         switch (child.route) {
@@ -168,8 +178,28 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 								badge = countData?.countByUser?.assigned ?? 0
 								break;
                             case "/form-it/list-item-wait-form-purchase":
-                                if (countData.countFormITWaitFormPurchase > 0) badge = countData.countFormITWaitFormPurchase; break;
-                            default: break;
+                                badge = countData?.countByUser?.itWaitConfirmPurchase ?? 0
+								break;
+							case "/approval/wait-confirm":
+                                badge = countData?.countByUser?.waitConfirm ?? 0
+								break;
+							case "/approval/wait-quote":
+                                badge = countData?.countByUser?.waitQuote ?? 0
+								break;
+							case "/purchase/list-item-wait-quote":
+                                badge = countData?.countByUser?.purchaseResponseQuote ?? 0
+								break;
+							case "/feedback/pending-response":
+                                if (countData?.countEvent?.feedbackPendingResponse > 0) badge = countData?.countEvent?.feedbackPendingResponse;
+								break;
+							case `/vote?role=UNION`:
+                                if (countData?.countEvent?.countVoteUnion > 0) badge = countData?.countEvent?.countVoteUnion;
+								break;
+							case `/vote?role=HR`:
+                                if (countData?.countEvent?.countVoteHR > 0) badge = countData?.countEvent?.countVoteHR;
+								break;
+                            default:
+								break;
                         }
                     }
 

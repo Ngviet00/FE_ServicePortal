@@ -39,16 +39,10 @@ import SettingOrgUnit from '@/features/OrgUnit/SettingOrgUnit';
 import ViewOnlyMemoNotification from '@/features/MemoNotification/ViewOnlyMemoNotification';
 import ListPriority from '@/features/Priority/ListPriority';
 import ListITCategory from '@/features/ITCategory/ListITCategory';
-import DetailWaitApprovalFormIT from '@/features/FormIT/DetailWaitApprovalFormIT';
-import ViewOnlyFormIT from '@/features/FormIT/ViewOnlyFormIT';
-import AssignedFormIT from '@/features/FormIT/AssignedFormIT';
 import StatisticalFormPurchase from '@/features/Purchasing/StatisticalFormPurchase';
 import CreateFormPurchase from '@/features/Purchasing/CreateFormPurchase';
 import ListFormPurchase from '@/features/Purchasing/ListFormPurchase';
 import AllFormPurchase from '@/features/Purchasing/AllFormPurchase';
-import DetailWaitApprovalFormPurchase from '@/features/Purchasing/DetailWaitApprovalFormPurchase';
-import AssignedFormPurchase from '@/features/Purchasing/AssignedFormPurchase';
-import ViewOnlyFormPurchase from '@/features/Purchasing/ViewOnlyFormPurchase';
 import ListLeaveRequestRegistered from '@/features/Leave/ListLeaveRequestRegistered';
 import CreateOverTime from '@/features/Overtime/CreateOverTime';
 import ListMyOverTime from '@/features/Overtime/ListMyOverTime';
@@ -67,7 +61,6 @@ import { SAPComponent } from '@/features/Sap/SAPComponent';
 import ConfigUserAssignSAP from '@/features/Sap/ConfigUserAssignSAP';
 import ListSAPRegistered from '@/features/Sap/ListSAPRegistered';
 import CreateSAP from '@/features/Sap/CreateSAP';
-import DetailSAPApproval from '@/features/Sap/DetailSAPApproval';
 import ListFAQ from '@/features/FAQ/ListFAQ';
 import MngFAQ from '@/features/FAQ/MngFAQ';
 import { CreateFAQ } from '@/features/FAQ/CreateFAQ';
@@ -84,6 +77,13 @@ import CreateResignation from '@/features/HR/ResignationLetter/CreateResignation
 import ListAbsentOverDay from '@/features/HR/TerminationLetter/ListAbsentOverDay';
 import CreateRequisition from '@/features/HR/RequisitionLetter/CreateRequisition';
 import ListRequisition from '@/features/HR/RequisitionLetter/ListRequisition';
+import StatisticalLeaveRqForm from '@/features/Leave/StatisticalLeaveRqForm';
+import CreateFeedback from '@/features/Feedback/CreateFeedback';
+import ListMyFeedback from '@/features/Feedback/ListMyFeedback';
+import PendingResponse from '@/features/Feedback/PendingResponse';
+import ViewFeedback from '@/features/Feedback/ViewFeedback';
+import AllFeedback from '@/features/Feedback/GetAllFeedback';
+import CreateUser from '@/features/User/CreateUser';
 
 function App() {
 	const location = useLocation();
@@ -115,6 +115,7 @@ function App() {
 		//hr
 		{ path: "/type-leave", element: <ListTypeLeave />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/user", element: <ListUser />, allowedRoles: [RoleEnum.HR] },
+		{ path: "/user/create", element: <CreateUser />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/user/role-and-permission/:usercode", element: <RoleAndPermissionUser />, allowedRoles: [RoleEnum.SUPERADMIN] },
 		{ path: "/user/org-chart", element: <OrgChart />, allowedRoles: [RoleEnum.HR] },
 		{ path: "/hr-mng-timekeeping", element: <HRManagementTimekeeping />, allowedRoles: [RoleEnum.HR] },
@@ -128,6 +129,7 @@ function App() {
 		{ path: "/view/memo-notify/:id", element: <ViewOnlyMemoNotification />},
 		
 		//leave + timekeeping
+		{ path: "/leave/statistics", element: <StatisticalLeaveRqForm/> },
 		{ path: "/leave", element: <ListLeaveRequest/> },
 		{ path: "/leave/create", element: <LeaveRequestFormForOthers/> },
 		{ path: "/leave/edit/:id", element: <LeaveRequestFormForOthers/> },
@@ -154,9 +156,6 @@ function App() {
 		{ path: "/form-it/create", element: <CreateFormIT />, allowedRoles: [RoleEnum.IT_ADMIN, RoleEnum.IT_USER]},
 		{ path: "/form-it", element: <ListFormIT />, allowedRoles: [RoleEnum.IT_ADMIN, RoleEnum.IT_USER]},
 		{ path: "/form-it/edit/:id", element: <CreateFormIT />, allowedRoles: [RoleEnum.IT_ADMIN, RoleEnum.IT_USER]},
-		{ path: "/view-form-it-approval/:id", element: <DetailWaitApprovalFormIT />, allowedRoles: [RoleEnum.IT_ADMIN, RoleEnum.IT_USER]},
-		{ path: "/approval/assigned-form-it/:id", element: <AssignedFormIT />, allowedRoles: [RoleEnum.IT_ADMIN, RoleEnum.IT_USER]},
-		{ path: "/view/form-it/:id", element: <ViewOnlyFormIT />, allowedRoles: [RoleEnum.IT_ADMIN, RoleEnum.IT_USER]},
 		{ path: "/form-it/list-item-wait-form-purchase", element: <ListITFormWaitFormPurchase />, allowedRoles: [RoleEnum.IT_ADMIN]},
 
 		//purchasing
@@ -164,11 +163,7 @@ function App() {
 		{ path: "/purchase/create", element: <CreateFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN, RoleEnum.PURCHASE_USER]},
 		{ path: "/purchase", element: <ListFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN, RoleEnum.PURCHASE_USER]},
 		{ path: "/purchase/edit/:id", element: <CreateFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN, RoleEnum.PURCHASE_USER]},
-		{ path: "/view/purchase/:id", element: <ViewOnlyFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN, RoleEnum.PURCHASE_USER]},
-		{ path: "/view-purchase-approval/:id", element: <DetailWaitApprovalFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN, RoleEnum.PURCHASE_USER]},
 		{ path: "/purchase/all-form-purchase", element: <AllFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN]},
-		{ path: "/approval/assigned-purchase/:id", element: <AssignedFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN, RoleEnum.PURCHASE_USER]},
-		{ path: "/purchase/response-quote-purchase/:id", element: <AssignedFormPurchase />, allowedRoles: [RoleEnum.PURCHASE_ADMIN, RoleEnum.PURCHASE_USER]},
 		{ path: "/purchase/list-item-wait-quote", element: <ListItemWaitQuote />, allowedRoles: [RoleEnum.PURCHASE_ADMIN]},
 
 		//vote
@@ -184,7 +179,6 @@ function App() {
 		{path: '/sap/config', element: <ConfigUserAssignSAP/>, allowedRoles: [RoleEnum.SUPERADMIN]},
 		{path: '/sap/create', element: <CreateSAP/>, allowedRoles: [RoleEnum.SAP]},
 		{path: '/sap', element: <ListSAPRegistered/>, allowedRoles: [RoleEnum.SAP]},
-		{path: '/view-sap-approval/:id', element: <DetailSAPApproval/>, allowedRoles: [RoleEnum.SAP]},
 
 		//FAQ
 		{path: '/faq', element: <ListFAQ/>},
@@ -224,6 +218,13 @@ function App() {
 		{path: '/requisition/create', element: <CreateRequisition/>},
 		{path: '/requisition/edit/:id', element: <CreateRequisition/>},
 		{path: '/requisition', element: <ListRequisition/>},
+
+		{path: '/feedback/create', element: <CreateFeedback/>},
+		{path: '/feedback/edit/:id', element: <CreateFeedback/>},
+		{path: '/feedback/my-feedback', element: <ListMyFeedback/>},
+		{path: '/feedback/pending-response', element: <PendingResponse/>, allowedRoles: [RoleEnum.HR]},
+		{path: '/feedback', element: <AllFeedback/>, allowedRoles: [RoleEnum.HR]},
+		{path: '/feedback/view/:id', element: <ViewFeedback/>},
 	];
   
 	return (

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
 import { Link } from "react-router-dom"
@@ -16,19 +17,7 @@ import PaginationControl from "@/components/PaginationControl/PaginationControl"
 import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
-import { Button } from "@/components/ui/button"
 import sapApi, { useDeleteSAP } from "@/api/sapApi"
-
-interface ListSAPRegistered {
-    id?: string,
-    code?: string,
-    userNameCreatedForm?: string,
-    createdAt?: string,
-    requestStatusId?: number,
-    requestStatusName?: string,
-    requestStatusNameE?: string,
-    sapTypeName?: string
-}
 
 export default function ListSAPRegistered () {
     const { t: tCommon } = useTranslation('common')
@@ -70,9 +59,9 @@ export default function ListSAPRegistered () {
     }
 
     const deleteSAP = useDeleteSAP();
-    const handleDelete = async (code: string) => {
+    const handleDelete = async (applicationFormId: number) => {
         const shouldGoBack = listSAPRegistered.length === 1;
-        await deleteSAP.mutateAsync(code);
+        await deleteSAP.mutateAsync(applicationFormId);
         handleSuccessDelete(shouldGoBack);
     };
 
@@ -82,11 +71,6 @@ export default function ListSAPRegistered () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     { lang == 'vi' ? 'Danh sách đơn đã đăng ký' : 'Registered SAP'}
                 </h3>
-                <Button asChild className="w-full md:w-auto">
-                    <Link to="/sap/create">
-                        {lang == 'vi' ? 'Tạo yêu cầu SAP' : 'Create SAP request'}
-                    </Link>
-                </Button>
             </div>
 
             <div className="mb-5 pb-3">
@@ -124,35 +108,32 @@ export default function ListSAPRegistered () {
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        listSAPRegistered.map((item: ListSAPRegistered) => {
+                                        listSAPRegistered.map((item: any) => {
                                             return (
-                                                <TableRow key={item.id}>
+                                                <TableRow key={item?.id}>
                                                     <TableCell className="text-center border">
-                                                        <Link to={`/sap/view/${item.code}`} className="text-blue-600 underline">{item?.code}</Link>
+                                                        <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>
                                                     </TableCell>
-                                                    <TableCell className="text-center border">{item?.sapTypeName}</TableCell>
-                                                    <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
+                                                    <TableCell className="text-center border">{item?.sapType?.name}</TableCell>
+                                                    <TableCell className="text-center border">{item?.applicationForm?.userNameCreatedForm}</TableCell>
                                                     <TableCell className="text-center border">{formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
                                                     <TableCell className="text-center border">
-                                                        <StatusLeaveRequest 
-                                                            status={item?.requestStatusId == 1 ? 'Pending' : item?.requestStatusId == 3 ? 'Completed' : item?.requestStatusId == 5 ? 'Reject' : 'In Process'}
-                                                        />
+                                                        <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
                                                     </TableCell>
                                                     <TableCell className="text-center border">
                                                         {
-                                                            item?.requestStatusId == 1 ? (
+                                                            item?.applicationForm?.requestStatusId == 1 ? (
                                                                 <>
-                                                                    <Link to={`/sap/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                    <Link to={`/sap/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                         {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                                     </Link>
-                                                                    <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
+                                                                    <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId)} />
                                                                 </>
                                                             ) : (
                                                                 <span>--</span>
                                                             )
                                                         }
                                                     </TableCell>
-                                                    
                                                 </TableRow>
                                             )
                                         })
@@ -173,39 +154,35 @@ export default function ListSAPRegistered () {
                             ) : isError || listSAPRegistered.length === 0 ? (
                                 <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? tCommon('no_results')}</div>
                             ) : (
-                                listSAPRegistered.map((item: ListSAPRegistered) => {
+                                listSAPRegistered.map((item: any) => {
                                     return (
                                         <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
-                                                <Link to={`/sap/view/${item.code}`} className="text-blue-600 underline">
-                                                     {item?.code}
-                                                </Link>
+                                                <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>
                                             </div>
                                             <div className="mb-1">
-                                                <strong>{lang == 'vi' ? 'Loại đơn SAP' : 'SAP type'}: </strong> {item?.sapTypeName}
+                                                <strong>{lang == 'vi' ? 'Loại đơn SAP' : 'SAP type'}: </strong> {item?.sapType?.name}
                                             </div>
                                             <div className="mb-1">
-                                                <strong>{lang == 'vi' ? 'Người tạo' : 'Created By'}: </strong> { item?.userNameCreatedForm }
+                                                <strong>{lang == 'vi' ? 'Người tạo' : 'Created By'}: </strong> { item?.applicationForm?.userNameCreatedForm }
                                             </div>
                                             <div className="mb-1">
-                                                <strong>{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}: </strong> { formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                                <strong>{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}: </strong>{formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
                                             </div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Trạng thái' : 'Status'}: </strong> 
-                                                <StatusLeaveRequest 
-                                                    status={item?.requestStatusId == 1 ? 'Pending' : item?.requestStatusId == 3 ? 'Completed' : item?.requestStatusId == 5 ? 'Reject' : 'In Process'}
-                                                />
+                                                 <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
                                             </div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Hành động' : 'Action'}: </strong> 
                                                 {
-                                                    item?.requestStatusId == 1 ? (
+                                                    item?.applicationForm?.requestStatusId == 1 ? (
                                                         <>
-                                                            <Link to={`/sap/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
+                                                            <Link to={`/sap/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
                                                                 {lang == 'vi' ? 'Sửa' : 'Edit'}
                                                             </Link>
-                                                            <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
+                                                            <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId)} />
                                                         </>
                                                     ) : (
                                                         <span>--</span>

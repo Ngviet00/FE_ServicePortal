@@ -73,6 +73,23 @@ export interface ResponseForQuote {
     Note?: string
 }
 
+interface ConfirmQuote {
+    UserCode?: string,
+    UserName?: string,
+    OrgPositionId?: number,
+    Note?: string,
+    ApplicationFormId?: number,
+    SelectedQuoteId?: number
+}
+
+interface UpdatePOAndStatus {
+    ApplicationFormId: number,
+    UserCode: string,
+    UserName: string,
+    StatusId: number,
+    PurchaseOrder: string
+}
+
 const purchaseApi = {
     statistical(params: IStatisticalPurchase) {
         return axiosClient.get('/purchase/statistical-purchase', {params})
@@ -97,14 +114,11 @@ const purchaseApi = {
             }
         })
     },
-    delete(applicationFormCode: string) {
-        return axiosClient.delete(`/purchase/${applicationFormCode}`)
+    delete(applicationFormId: number) {
+        return axiosClient.delete(`/purchase/${applicationFormId}`)
     },
     assignedTask(data: IAssignedTask) {
         return axiosClient.post('/purchase/assigned-task', data)
-    },
-    resolvedTask(data: IResolvedTask) {
-        return axiosClient.post('/purchase/resolved-task', data)
     },
     getMemberPurchaseAssigned() {
         return axiosClient.get('/purchase/get-member-purchase-assigned')
@@ -122,9 +136,44 @@ const purchaseApi = {
     getListWaitResponseQuote(params: ListWaitApprovalRequest) {
         return axiosClient.get('/purchase/list-wait-response-quote', {params})
     },
-    updatePOAndStatus(applicationFormCode: string, data: { userName: string, userCode: string, purchaseOrder: string; statusId: number }) {
-        return axiosClient.put(`/purchase/update-po-and-status/${applicationFormCode}`, data)
-    }
+    confirmQuote(data: ConfirmQuote) {
+        return axiosClient.post(`/purchase/confirm-quote`, data)
+    },
+    updatePOAndStatus(data: UpdatePOAndStatus) {
+        return axiosClient.post(`/purchase/update-po-and-status`, data)
+    },
+    resolvedTask(data: IResolvedTask) {
+        return axiosClient.post('/purchase/resolved-task', data)
+    },
+
+}
+
+export function useUpdatePOAndStatus() {
+    return useMutation({
+        mutationFn: async (data: UpdatePOAndStatus) => {
+            await purchaseApi.updatePOAndStatus(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useConfirmQuote() {
+    return useMutation({
+        mutationFn: async (data: ConfirmQuote) => {
+            await purchaseApi.confirmQuote(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useResponseForQuote() {
@@ -185,7 +234,7 @@ export function useUpdatePurchase() {
 
 export function useDeletePurchase() {
     return useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async (id: number) => {
             await purchaseApi.delete(id)
         },
         onSuccess: () => {

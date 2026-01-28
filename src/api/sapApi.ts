@@ -4,12 +4,6 @@ import { getErrorMessage, ShowToast } from '@/lib';
 import { ApprovalRequest } from './approvalApi';
 
 const sapApi = {
-    getListStaffByDepartmentId: (departmentId: number) => {
-        return axiosClient.get(`/sap/get-list-staff-by-department-id?departmentId=${departmentId}`);
-    },
-    updateUserHaveRoleSAP (UserCodes: string[]) {
-        return axiosClient.post(`/sap/update-user-have-role-sap`, UserCodes);
-    },
     createSAP(formData: FormData) {
         return axiosClient.post('/sap', formData, {
             headers: {
@@ -17,17 +11,30 @@ const sapApi = {
             }
         })
     },
-    delete(applicationFormCode: string) {
-        return axiosClient.delete(`/sap/${applicationFormCode}`)
+    delete(applicationFormId: number) {
+        return axiosClient.delete(`/sap/${applicationFormId}`)
     },
     getListSAPRegistered(params: { Page: number; PageSize: number; UserCode?: string; }) {
         return axiosClient.get(`/sap`, {params});
     },
+    getDetailFormSAP(applicationFormCode: string) {
+        return axiosClient.get(`/sap/${applicationFormCode}`);
+    },
     getAllSAPType () {
         return axiosClient.get(`/sap/sap-type`);
     },
-    getDetailFormSAP(applicationFormCode: string) {
-        return axiosClient.get(`/sap/${applicationFormCode}`);
+    preparePreviewExcel(token: string) {
+        return axiosClient.get(`/sap/prepare-preview-excel/${token}`);
+    },
+    
+
+
+
+    getListStaffByDepartmentId: (departmentId: number) => {
+        return axiosClient.get(`/sap/get-list-staff-by-department-id?departmentId=${departmentId}`);
+    },
+    updateUserHaveRoleSAP (UserCodes: string[]) {
+        return axiosClient.post(`/sap/update-user-have-role-sap`, UserCodes);
     },
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/sap/approval`, data)
@@ -50,8 +57,8 @@ export function useApprovalSAP() {
 
 export function useDeleteSAP() {
     return useMutation({
-        mutationFn: async (applicationFormCode: string) => {
-            await sapApi.delete(applicationFormCode)
+        mutationFn: async (applicationFormId: number) => {
+            await sapApi.delete(applicationFormId)
         },
         onSuccess: () => {
             ShowToast('success')

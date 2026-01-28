@@ -1,17 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
-import { getErrorMessage, ShowToast } from '@/lib';
-
-interface SaveChangeOrgUnitUser {
-    UserCodes: string[],
-    OrgPositionId: number
-}
-
 export interface OrgUnit {
     id: number | null,
     name: string | null,
     parentOrgUnitId: number | null,
-    unitId: number,
+    unitId: number | null,
     parentOrgUnit?: OrgUnit,
     unit?: {
         id: number,
@@ -20,10 +12,21 @@ export interface OrgUnit {
 }
 
 export interface IGetAllTeam {
-    departmentId?: number | null
+    departmentId?: number | null,
+    page: number,
+    pageSize: number
+}
+
+interface getAllCompanyAndMngDeptAndDept {
+    unitId?: number | null,
+    page: number,
+    pageSize: number
 }
 
 const orgUnitApi = {
+    getAllUnit() {
+        return axiosClient.get('/org-unit/get-all-unit')
+    },
     getUnitCompany() {
         return axiosClient.get('/org-unit/get-unit-company')
     },
@@ -33,16 +36,15 @@ const orgUnitApi = {
     GetAllDepartment() {
         return axiosClient.get('/org-unit/get-all-departments')
     },
-    GetTeamByDeptIdAndUserNotSetOrgPositionId(departmentId: number) {
-        return axiosClient.get(`/org-unit/get-team-by-department-id-and-user-not-set-org-position-id-by-department-name?departmentId=${departmentId}`)
+    GetDepartmentsManagedByOrgPositionManager(orgPositionId: number) {
+        return axiosClient.get(`/org-unit/get-departments-managed-by-org-position-manager/${orgPositionId}`)
     },
+    // GetTeamByDeptIdAndUserNotSetOrgPositionId(departmentId: number) {
+    //     return axiosClient.get(`/org-unit/get-team-by-department-id-and-user-not-set-org-position-id-by-department-name?departmentId=${departmentId}`)
+    // },
 
     GetListUserByTeamId(teamId: number) {
         return axiosClient.get(`/org-unit/get-list-user-by-team-id?teamId=${teamId}`)
-    },
-
-    SaveChangeOrgUnitUser(data: SaveChangeOrgUnitUser) {
-        return axiosClient.post('/org-unit/save-change-org-unit-user', data)
     },
 
     SaveChangeOrgUnitManyUser(formData: FormData) {
@@ -53,38 +55,20 @@ const orgUnitApi = {
         })
     },
 
-    GetDepartmentAndChildrenTeam() {
-        return axiosClient.get(`/org-unit/get-department-and-children-team`)
-    },
-
-    GetAll() {
-        return axiosClient.get(`/org-unit/get-all`)
-    },
+    // GetDepartmentAndChildrenTeam() {
+    //     return axiosClient.get(`/org-unit/get-department-and-children-team`)
+    // },
 
     GetAllTeam(params: IGetAllTeam) {
         return axiosClient.get(`/org-unit/get-all-team?`, {params})
     },
 
-    GetAllWithOutTeam() {
-        return axiosClient.get(`/org-unit/get-all-without-team`)
+    GetAllCompanyAndMngDeptAndDept(params: getAllCompanyAndMngDeptAndDept) {
+        return axiosClient.get(`/org-unit/get-all-company-mng-department-department`, {params})
     },
     Delete(id: number | null | undefined) {
         return axiosClient.delete(`/org-unit/${id}`)
     }
-}
-
-export function useSaveChangeOrgUnitUser() {
-    return useMutation({
-        mutationFn: async (data: SaveChangeOrgUnitUser) => {
-            await orgUnitApi.SaveChangeOrgUnitUser(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
 }
 
 export default orgUnitApi;

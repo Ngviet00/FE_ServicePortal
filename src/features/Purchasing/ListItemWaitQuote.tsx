@@ -100,12 +100,12 @@ export default function ListItemWaitQuote() {
 							ListWaitResponseQuotes.map((item: any, idx: number) => (
 								<tr key={idx} className="hover:bg-gray-50">
 									<td className="px-4 py-2 border text-center">
-										<Link to={`/purchase/response-quote-purchase/${item?.code}`} className="text-blue-700 underline">
+										<Link to={`/view-approval/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-700 underline">
 											{item?.code}
 										</Link>
 									</td>
 									<td className="px-4 py-2 border text-center">
-										{lang == "vi" ? item?.requestTypeName : item?.requestTypeNameE}
+										{lang == "vi" ? item?.requestType?.name : item?.requestType?.nameE}
 									</td>
 									<td className="px-4 py-2 border text-center">{item?.userNameCreatedForm}</td>
 									<td className="px-4 py-2 border text-center">
@@ -116,7 +116,7 @@ export default function ListItemWaitQuote() {
 									</td>
 									<td className="px-4 py-2 border text-center space-x-1">
 										<Link
-											to={`/purchase/response-quote-purchase/${item?.code}`}
+											to={`/view-approval/${item?.code}?requestType=${item?.requestType?.id}`}
 											className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
 										>
 											{t("pending_approval.detail")}
@@ -149,10 +149,10 @@ export default function ListItemWaitQuote() {
 								<div key={idx} className="border rounded-lg p-3 shadow-sm bg-white mb-3">
 									<div className="flex justify-between items-center">
 										<Link
-											to={`/purchase/response-quote-purchase/${item?.code}`}
+											to={`/view-approval/${item?.code}?requestType=${item?.requestType?.id}`}
 											className="font-semibold text-blue-700 underline"
 										>
-											{item.code}
+											{item?.code}
 										</Link>
 										<StatusLeaveRequest status={item?.requestStatusId} />
 									</div>
@@ -160,7 +160,7 @@ export default function ListItemWaitQuote() {
 									<div className="text-sm text-gray-700 mt-1 space-y-1">
 										<p>
 											<span className="font-medium">{t("pending_approval.RequestTypeEnum")}: </span>
-											{lang == "vi" ? item?.requestTypeName : item?.requestTypeNameE}
+											{lang == "vi" ? item?.requestType?.name : item?.requestType?.nameE}
 										</p>
 										{item?.noteCategories && (
 											<p>
@@ -186,7 +186,7 @@ export default function ListItemWaitQuote() {
 
 									<div className="mt-2 flex justify-end">
 										<Link
-											to={`/purchase/response-quote-purchase/${item?.code}`}
+											to={`/view-approval/${item?.code}?requestType=${item?.requestType?.id}`}
 											className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
 										>
 											{t("pending_approval.detail")}

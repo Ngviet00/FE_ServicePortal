@@ -49,7 +49,7 @@ export default function ListFormPurchase () {
     }
 
     const delPurchaseForm = useDeletePurchase(); 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: number) => {
         const shouldGoBack = purchases.length === 1;
         await delPurchaseForm.mutateAsync(id);
         handleSuccessDelete(shouldGoBack);
@@ -96,32 +96,31 @@ export default function ListFormPurchase () {
                                     </tr>
                                 ) : (
                                     purchases.map((item: any) => {
-                                        let status = item.requestStatusId;
+                                        let status = item?.applicationForm?.requestStatusId;
                                         
-                                        if (item?.requestStatusIdPurchase > 0 ) {
-                                            status = item?.requestStatusIdPurchase
+                                        if (item?.requestStatusId > 0 ) {
+                                            status = item?.requestStatusId
                                         }
 
                                         return (
-                                            <tr key={item.id}>
+                                            <tr key={item?.id}>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <Link to={`/view/purchase/${item?.code ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                    <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{item?.userNameCreatedForm ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-center">{item?.departmentName ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameCreatedForm ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-center">{formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <StatusLeaveRequest status={status}
-                                                />
+                                                    <StatusLeaveRequest status={status}/>
                                                 </td>
                                                 <td className="text-center border font-bold text-red-700">
                                                     {
-                                                        item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
+                                                        status == StatusApplicationFormEnum.Pending ? (
                                                             <>
-                                                                <Link to={`/purchase/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                <Link to={`/purchase/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                                     {t('list.edit')}
                                                                 </Link>
-                                                                <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item.code ?? '')}/>
+                                                                <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId ?? '')}/>
                                                             </>
                                                         ) : (<>--</>)
                                                     }
@@ -146,29 +145,36 @@ export default function ListFormPurchase () {
                         ) : isError || purchases.length === 0 ? (
                             <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{tCommon('no_results')}</div>
                         ) : (
-                            purchases.map((item: any) => (
-                                <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
-                                    <div className="mb-1"><strong>{t('list.code')}: </strong> 
-                                        <Link to={`/view/purchase/${item?.code ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                            purchases.map((item: any) => {
+                                let status = item?.applicationForm?.requestStatusId;
+                                
+                                if (item?.requestStatusId > 0 ) {
+                                    status = item?.requestStatusId
+                                }
+                                return (
+                                    <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div className="mb-1"><strong>{t('list.code')}: </strong> 
+                                            <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
+                                        </div>
+                                        <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.applicationForm?.userNameCreatedForm ?? '--'}</div>
+                                        <div className="mb-1"><strong>{t('list.department')}:</strong> {item?.orgUnit?.name ?? '--'}</div>
+                                        <div className="mb-1"><strong>{t('list.created_at')}:</strong> {formatDate(item?.createdAt ?? "", "yyyy-MM-dd HH:mm:ss")}</div>
+                                        <div className="mb-1"><strong>{t('list.status')}:</strong> <StatusLeaveRequest status={status}/></div>
+                                        <div className="mb-1">
+                                            {
+                                                status == StatusApplicationFormEnum.Pending ? (
+                                                    <>
+                                                        <Link to={`/purchase/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-sm">
+                                                            {t('list.edit')}
+                                                        </Link>
+                                                        <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId ?? '')}/>
+                                                    </>
+                                                ) : (<>--</>)
+                                            }
+                                        </div>
                                     </div>
-                                    <div className="mb-1"><strong>{t('list.user_requestor')}:</strong> {item?.userNameCreatedForm ?? '--'}</div>
-                                    <div className="mb-1"><strong>{t('list.department')}:</strong> {item?.departmentName }</div>
-                                    <div className="mb-1"><strong>{t('list.created_at')}:</strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
-                                    <div className="mb-1"><strong>{t('list.status')}:</strong> <StatusLeaveRequest status={item?.requestStatusId}/></div>
-                                    <div className="mb-1">
-                                        {
-                                            item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
-                                                <>
-                                                    <Link to={`/purchase/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-sm">
-                                                        {t('list.edit')}
-                                                    </Link>
-                                                    <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? '')}/>
-                                                </>
-                                            ) : (<>--</>)
-                                        }
-                                    </div>
-                                </div>
-                            ))
+                                )
+                            })
                         )}
                     </div>
                 </div>

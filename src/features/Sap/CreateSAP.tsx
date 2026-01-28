@@ -12,6 +12,7 @@ import { ShowToast } from "@/lib";
 import FileListPreview from "@/components/ComponentCustom/FileListPreviewMemoNotify";
 import { Spinner } from "@/components/ui/spinner";
 import Select from 'react-select'
+import { Textarea } from "@/components/ui/textarea";
 
 export default function CreateSAP() {
     const lang = useTranslation().i18n.language.split('-')[0]
@@ -20,6 +21,7 @@ export default function CreateSAP() {
     const [sapTypeCode, setSapTypeCode] = useState<string | null>(null);
     const [fileSAP, setFileSAP] = useState<File | null>(null);
     const [otherFiles, setOtherFiles] = useState<File[]>([]);
+    const [note, setNote] = useState<string>('');
 
     const createSAP = useCreateSAP()
 
@@ -54,33 +56,38 @@ export default function CreateSAP() {
         formData.append("DepartmentName", user?.departmentName ?? "");
         formData.append("DepartmentId", String(user?.departmentId ?? ""));
         formData.append("OrgPositionId", String(user?.orgPositionId ?? ""));
+        formData.append("IsSingleInput", true.toString());    
         formData.append("SAPCode", sapTypeCode);
         formData.append("FileSAP", fileSAP);
+        formData.append("Note", note);
         otherFiles?.forEach((file: File) => {
             formData.append("OtherFiles", file);
         });
 
-        try {
-            if (isEdit) {   
-                //await updateOverTime.mutateAsync({applicationFormCode: id, data: formData})
-            } else {
-                await createSAP.mutateAsync(formData)
-            }
-            navigate("/sap");
+        if (isEdit) {   
+            //await updateOverTime.mutateAsync({applicationFormCode: id, data: formData})
+        } else {
+            await createSAP.mutateAsync(formData)
         }
-        catch (err) {
-            console.log(err);
-        }
+        navigate("/sap");
     }
 
     const handleAddFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files ? e.target.files[0] : null;
-        if (!file) return;
+        if (!file) {
+            return
+        }
 
-        const invalid = file.size > 4 * 1024 * 1024;
+        const allowedExtensions = /(\.xls|\.xlsx)$/i;
+        if (!allowedExtensions.exec(file.name)) {
+            ShowToast(`Chỉ được đính kèm những file có định dạng .xls, .xlsx`, 'error');
+            e.target.value = "";
+            return;
+        }
 
-        if (invalid) {
-            ShowToast(`File "${file.name}" vượt quá 4MB!`, 'error');
+        const isTooLarge = file.size > 5 * 1024 * 1024;
+        if (isTooLarge) {
+            ShowToast(`File "${file.name}" vượt quá 5MB!`, 'error');
             e.target.value = "";
             return;
         }
@@ -119,13 +126,8 @@ export default function CreateSAP() {
         setOtherFiles(prev => prev.filter((_, i) => i !== index));
     }
 
-    if (isEdit) { //isFormDataLoading
-        return <div>{lang == 'vi' ? 'Loading' : 'Đang tải'}...</div>;
-    }
-
     const filesToPreview = fileSAP ? [{ name: fileSAP.name, type: fileSAP.type }] : [];
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const sapTypeOptions = useMemo(() => {
         return sapTypes.map((item: any) => ({
             value: item?.code ?? '',
@@ -135,20 +137,19 @@ export default function CreateSAP() {
 
     const currentSapType = sapTypeOptions.find((o: any) => o.value === sapTypeCode) || null;
 
+    if (isEdit) { //isFormDataLoading
+        return <div>{lang == 'vi' ? 'Loading' : 'Đang tải'}...</div>;
+    }
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4 leave-request-form">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-2">
                 <div className="flex flex-col gap-2">
                     <div className="flex">
                         <h3 className="font-bold text-xl md:text-2xl">
-                            <span>{ mode == 'create' ? (lang == 'vi' ? 'Tạo yêu cầu SAP mới' : 'Create new SAP request') : (lang == 'vi' ? 'Sửa' : 'Edit') } </span>
+                            <span>{ mode == 'create' ? (lang == 'vi' ? 'Tạo mới yêu cầu SAP' : 'Create SAP request') : (lang == 'vi' ? 'Sửa' : 'Edit') } </span>
                         </h3>
                     </div>
-                </div>
-                <div>
-                    <Button onClick={() => navigate("/sap")} className="w-full md:w-auto hover:cursor-pointer">
-                        { lang == 'vi' ? 'Danh sách đơn SAP đã đăng ký' : 'Registered SAP Requests' }
-                    </Button>
                 </div>
             </div>
             <div className="mb-0">
@@ -179,7 +180,7 @@ export default function CreateSAP() {
 
                 <div className="flex flex-col">
                     <Label className="text-[16px] block mb-2 font-semibold text-gray-700 mt-2">
-                        {lang == 'vi' ? 'Đính kèm file SAP excel' : 'Attach file SAP excel '} <DotRequireComponent/>
+                        File SAP <span className="text-red-500">(.xls, .xlsx)</span><DotRequireComponent/>
                     </Label>
 
                     <div>
@@ -187,7 +188,7 @@ export default function CreateSAP() {
                             disabled={fileSAP != null}
                             id="file-excel-sap"
                             type="file"
-                            accept=".xls,.xlsx,.csv"
+                            accept=".xls,.xlsx"
                             onChange={handleAddFiles}
                             className="hidden"
                         />
@@ -210,10 +211,17 @@ export default function CreateSAP() {
                         />
                     )}
                 </div>
+                
+                <div className="">
+                    <Label className="text-[16px] block font-semibold text-gray-700 mt-2">
+                        {lang == 'vi' ? 'Ghi chú' : 'Note '}
+                    </Label>
+                    <Textarea className="w-[50%]" name="note" id="note" placeholder={lang == 'vi' ? 'Nhập ghi chú' : 'Enter note'} value={note} onChange={(e) => setNote(e.target.value)} rows={2}/>
+                </div>
 
                 <div className="flex flex-col">
                     <Label className="text-[16px] block mb-2 font-semibold text-gray-700 mt-2">
-                        {lang == 'vi' ? 'Đính kèm file khác' : 'Attach other excel '}
+                        {lang == 'vi' ? 'Đính kèm file khác' : 'Attach other file '} <span className="italic text-gray-500 text-[14px]">{lang == 'vi' ? '(Không bắt buộc)' : '(Optional)'}</span>
                     </Label>
 
                     <div>
@@ -222,7 +230,7 @@ export default function CreateSAP() {
                             multiple
                             disabled={otherFiles.length >= 3}
                             type="file"
-                            accept=".xls,.xlsx,.csv"
+                            accept=".xls,.xlsx"
                             onChange={handleAddOtherFiles}
                             className="hidden"
                         />

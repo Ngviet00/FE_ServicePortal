@@ -5,6 +5,9 @@ const fileApi = {
         return axiosClient.get(`/file/download-file/${id}`, {
             responseType: 'blob',
         })
+    },
+    generateTokenAccessFile(id: number) {
+        return axiosClient.post(`/file/generate-token-access-file/${id}`);
     }
 }
 

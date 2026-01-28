@@ -201,11 +201,9 @@ const leaveRequestApi = {
     SearchUserRegisterLeaveRequest(params: { userCodeRegister: string, usercode: string }) {
         return axiosClient.get('/leave-request/search-user-register-leave-request', {params})
     },
-
-
-    // statistical(params: { year?: number}) {
-    //     return axiosClient.get('/leave-request/statistical-leave-request', {params})
-    // },
+    Statistical(params: { departmentId: number, time: string, isCalReject: boolean}) {
+        return axiosClient.get('/leave-request/statistical-leave-request', {params})
+    },
 
     // registerAllLeaveRequest(data: HrRegisterAllLeave) {
     //     return axiosClient.post('/leave-request/hr-register-all-leave-rq', data)
@@ -232,6 +230,21 @@ const leaveRequestApi = {
     resolvedTask(data: IResolvedTask) {
         return axiosClient.post(`/leave-request/resolved`, data)
     },
+}
+
+export function useGetStatisticLeave () {
+    return useMutation({
+        mutationFn: async (params: { departmentId: number, time: string, isCalReject: boolean}) => {
+            const res = await leaveRequestApi.Statistical(params)
+            return res.data.data
+        },
+        onSuccess: () => {
+            
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useResolvedTaskLeaveRequest () {

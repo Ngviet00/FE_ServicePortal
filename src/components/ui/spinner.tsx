@@ -38,7 +38,7 @@ interface SpinnerContentProps
 export function Spinner({ size, show, children, className }: SpinnerContentProps) {
   return (
     <span className={spinnerVariants({ show })}>
-        <Loader2 className={`${cn(loaderVariants({ size }), className)} text-white`} />
+        <Loader2 className={`${cn(loaderVariants({ size }), "text-white", className)}`} />
       {children}
     </span>
   );

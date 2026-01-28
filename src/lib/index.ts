@@ -1,8 +1,10 @@
+import fileApi from "@/api/fileApi";
 import { HistoryApplicationForm, IAssignedTask, IRequestStatus } from "@/api/itFormApi";
 // import { IMemoNotify } from "@/api/memoNotificationApi";
 import { IOrgPosition } from "@/api/orgPositionApi";
 import { OrgUnit } from "@/api/orgUnitApi";
 import { IRequestType } from "@/api/requestTypeApi";
+import { UploadedFileType } from "@/components/ComponentCustom/FileListPreviewMemoNotify";
 import { useEffect, useState } from "react";
 import { toast, Zoom } from "react-toastify";
 
@@ -274,59 +276,6 @@ export interface IApplicationForm {
     historyApplicationForms: HistoryApplicationForm[];
 }
 
-export function GetUrlWaitApproval(requestTypeId: number, code: string) {
-    let result = ''
-
-	// if (requestTypeId == RequestTypeEnum.LEAVE_REQUEST) {
-	// 	result = `/view-leave-request-approval/${code}'}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.FORM_IT) {
-	// 	result = `/view-form-it-approval/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.PURCHASE) {
-	// 	result = `/view-purchase-approval/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.OVERTIME) {
-	// 	result = `/view-overtime-approval/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.MISS_TIMEKEEPING) {
-	// 	result = `/view-miss-timekeeping-approval/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.INTERNAL_MEMO_HR) {
-	// 	result = `/internal-memo-hr/${code}?mode=approval`
-	// }
-
-	return result
-}
-
-export function GetUrlViewDetail(requestTypeId: number, code: string) {
-    let result = ''
-
-	// if (requestTypeId == RequestTypeEnum.LEAVE_REQUEST) {
-	// 	result = `/view-leave-request-approval/${code}'}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.MEMO_NOTIFICATION) {
-	// 	result = `/view-memo-notify-approval/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.FORM_IT) {
-	// 	result = `/view/form-it/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.PURCHASE) {
-	// 	result = `/view/purchase/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.OVERTIME) {
-	// 	result = `/view-overtime-approval/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.MISS_TIMEKEEPING) {
-	// 	result = `/view-miss-timekeeping-approval/${code}`
-	// }
-	// else if (requestTypeId == RequestTypeEnum.INTERNAL_MEMO_HR) {
-	// 	result = `/internal-memo-hr/${code}?mode=approval`
-	// }
-
-	return result
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseJSON<T = Record<string, any>>(value: string | null | undefined): T {
     if (!value) return {} as T;
@@ -355,6 +304,20 @@ export const handleDownloadTemplate = async (templateFileUrl: string ) => {
         console.error(err);
     }
 };
+
+export const handleDownloadFile = async (file: UploadedFileType) => {
+    try {
+        const result = await fileApi.downloadFile(file.id)
+        const url = window.URL.createObjectURL(result.data);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.fileName ?? 'file_default';
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        ShowToast(`Download file failed,${getErrorMessage(err)}`, "error")
+    }
+}
 
 export interface ViewApprovalProps {
     id: string;

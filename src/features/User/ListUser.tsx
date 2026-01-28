@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Link } from "react-router-dom"
 import orgUnitApi from "@/api/orgUnitApi"
 import { useSearchParams } from "react-router-dom";
+import { formatDate } from "@/lib/time"
 
 export default function ListUser () {
     const { t } = useTranslation();
@@ -29,6 +30,7 @@ export default function ListUser () {
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const [selectedSex, setSelectedSex] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
+    const [setOrgPosition, setSetOrgPosition] = useState('');
 
     const debouncedName = useDebounce(name, 300);
     const resetPassword = useResetPassword();
@@ -36,7 +38,7 @@ export default function ListUser () {
     
     //get list users 
     const { data: users = [], isPending, isError, error } = useQuery({
-        queryKey: ['get-all-user', debouncedName, page, pageSize, selectedSex, selectedDepartment, selectedStatus],
+        queryKey: ['get-all-user', debouncedName, page, pageSize, selectedSex, selectedDepartment, selectedStatus, setOrgPosition],
         queryFn: async () => {
             const res = await userApi.getAll({
                 Page: page,
@@ -44,7 +46,8 @@ export default function ListUser () {
                 Name: debouncedName,
                 Sex: selectedSex == '' ? null : Number(selectedSex),
                 DepartmentId: selectedDepartment == '' ? null : Number(selectedDepartment),
-                Status: selectedStatus == '' ? null : Number(selectedStatus)
+                Status: selectedStatus == '' ? null : Number(selectedStatus),
+                SetOrgPosition: setOrgPosition == 'true' ? true : setOrgPosition == 'false' ? false : null
             });
             setTotalPage(res.data.total_pages)
             return res.data.data;
@@ -114,9 +117,9 @@ export default function ListUser () {
 
     const isSuperAdmin = useHasRole([RoleEnum.SUPERADMIN]);
 
-    const handleResetPassword = async (item: GetListUserData) => {
+    const handleResetPassword = async (item: any) => {
         try {
-            await resetPassword.mutateAsync({ userCode: item.nvMaNV, password: passwordReset });
+            await resetPassword.mutateAsync({ userCode: item.userCode, password: passwordReset });
             setSelectedItem(null)
         }
         catch (err) {
@@ -128,6 +131,7 @@ export default function ListUser () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex justify-between mb-1">
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('list_user_page.title')}</h3>
+                <Link className="bg-black text-white px-4 py-2 rounded-md" to={`/user/create`}>{lang == 'vi' ? 'Thêm người dùng' : 'Add user'}</Link>
             </div>
             <div className="flex flex-col md:flex-row items-start justify-start md:justify-start gap-4 p-4 pl-0 dark:bg-gray-800 rounded-lg">
                 <div className="w-full md:w-1/4">
@@ -197,6 +201,24 @@ export default function ListUser () {
                         <option value="2">{t('list_user_page.in_active')}</option>
                     </select>
                 </div>
+                <div className="w-full md:w-1/4">
+                    <Label htmlFor="sex" className="mb-1">{lang == 'vi'? 'Đã thiết lập vị trí' : 'Set org position'}</Label>
+                    <select
+                        value={setOrgPosition ?? ''}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            setPage(1);
+                            setSetOrgPosition(val);
+                            updateUrlParams({ setOrgPosition: val, page: 1 });
+                        }}
+                        id="sex"
+                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="">--{t('list_user_page.select')}--</option>
+                        <option value="true">{lang == 'vi' ? 'Đã thiết lập' : 'Has set'}</option>
+                        <option value="false">{lang == 'vi' ? 'Chưa thiết lập' : 'Not set'}</option>
+                    </select>
+                </div>
             </div>
             <div className="mt-5">
                 <div className="overflow-x-auto">
@@ -241,22 +263,22 @@ export default function ListUser () {
                                             </td>
                                         </tr>
                                 ) : (
-                                    users.map((item: GetListUserData, idx: number) => (
+                                    users.map((item: any, idx: number) => (
                                         <tr key={idx} className="hover:bg-gray-50">
-                                            <td className=" px-4 py-2 border whitespace-nowrap font-medium text-center">{item?.nvMaNV}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.nvHoTen}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap font-medium text-center">{item?.userCode}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.userName}</td>
                                             <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.departmentName}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.nvGioiTinh}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.nvDienThoai ? item.nvDienThoai : "--"}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.nvEmail ? item?.nvEmail : "--"}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.nvNgaySinh ?? "--"}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item.nvNgayVao ?? "--"}</td>
-                                            <td className={`${item.statusUser == true ? 'text-green-800' : 'text-red-500'} font-semibold px-4 py-2 border whitespace-nowrap text-center`}>{item.statusUser == true ? t('list_user_page.active') : t('list_user_page.in_active')}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item.statusUser == false ? item.nvNgayRa : "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.sex}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.phone ? item?.phone : "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.email ? item?.email : "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.dateOfBirth, 'yyyy-MM-dd') ?? "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.entryDate, 'yyyy-MM-dd') ?? "--"}</td>
+                                            <td className={`${item.status == 1 ? 'text-green-800' : 'text-red-500'} font-semibold px-4 py-2 border whitespace-nowrap text-center`}>{item.status == 1 ? t('list_user_page.active') : t('list_user_page.in_active')}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item.status == 2 ? item.exitDate : "--"}</td>
                                             <td className=" px-4 py-2 border whitespace-nowrap text-center">
                                                 {
                                                     isSuperAdmin ? (<>
-                                                        <Link to={`/user/role-and-permission/${item?.nvMaNV}`} className="bg-blue-900 px-2 py-1.5 rounded text-white text-xs font-bold">
+                                                        <Link to={`/user/role-and-permission/${item?.userCode}`} className="bg-blue-900 px-2 py-1.5 rounded text-white text-xs font-bold">
                                                             Role
                                                         </Link>
                                                         <Button

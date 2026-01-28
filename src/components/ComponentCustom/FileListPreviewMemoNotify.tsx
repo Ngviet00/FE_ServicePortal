@@ -1,9 +1,6 @@
 import { Download, X } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { useState } from "react";
-import { useAuthStore } from "@/store/authStore";
-import { UnitEnum } from "@/lib";
-import { useAppStore } from "@/store/appStore";
 
 const getFileIcon = (file: { name?: string; type?: string }) => {
     const name = file.name || "";
@@ -38,7 +35,8 @@ export type UploadedFileType = {
     fileName: string;
     contentType?: string;
     quoteId?: string,
-    isSelectedQuote?: boolean
+    isSelected?: boolean,
+    entityId?: number
 };
 
 export default function FileListPreview({ 
@@ -71,7 +69,7 @@ export default function FileListPreview({
             }
 
             {
-                files.map((file, index) => (
+                files?.map((file, index) => (
                     <li 
                         key={`new-${index}`} 
                         className="inline-flex items-center bg-gray-100 p-2 rounded-md mr-3" 
@@ -98,26 +96,23 @@ type FileListPreviewDownloadProps = {
     uploadedFiles?: UploadedFileType[];
     onDownload?: (file: UploadedFileType) => void;
     onRemoveUploaded?: (index: number) => void;
-    isShowCheckbox?: boolean
+    isShowCheckbox?: boolean,
+    quoteSelected?: number,
+    handleSetSelectedQuote?: (quoteSelected: number) => void,
+    isDisabled?: boolean
 };
 
 export function FileListPreviewDownload ({
         uploadedFiles = [],
         onDownload,
         onRemoveUploaded,
-        isShowCheckbox = false
+        isShowCheckbox = false,
+        quoteSelected,
+        handleSetSelectedQuote,
+        isDisabled = false
     }: FileListPreviewDownloadProps) {
 
     const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
-    const user = useAuthStore(u => u.user);
-
-    const selectedQuoteId = useAppStore(s => s.selectedQuoteId);
-    const setSelectedQuoteId = useAppStore(s => s.setSelectedQuoteId);
-
-    const handleSelectQuote = (id: string) => {
-        const newId = selectedQuoteId == +id ? 0 : +id;
-        setSelectedQuoteId(newId);
-    };
 
     const handleDownload = async (file: UploadedFileType) => {
         setLoadingMap(prev => ({ ...prev, [file.id]: true }));
@@ -129,28 +124,30 @@ export function FileListPreviewDownload ({
         }
     };
 
+    const hasSelectedFile = uploadedFiles.some(f => f.isSelected);
+
+    const displayFiles = hasSelectedFile
+        ? uploadedFiles.filter(f => f.isSelected)
+        : uploadedFiles;
+
     return (
         <ul className="flex flex-wrap gap-2">
-            {uploadedFiles.map((file, index) => {
-                const isSelected = selectedQuoteId == Number(file?.quoteId);
+            {displayFiles.map((file, index) => {
                 const loading = loadingMap[file.id];
                 
-
                 return (
                     <li
                         key={file.id}
-                        className={`flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-md cursor-pointer transition-colors ${
-                            isSelected ? "ring-2 ring-blue-500 bg-blue-50" : "hover:bg-gray-200"
-                        }`}
+                        className={`flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-md cursor-pointer transition-colors `}
                     >
                         {
-                            isShowCheckbox && (
+                            isShowCheckbox && handleSetSelectedQuote && (
                                 <input
                                     type="checkbox"
-                                    checked={isSelected || file?.isSelectedQuote}
-                                    disabled={user?.unitId != UnitEnum.GM || uploadedFiles.some(f => f.isSelectedQuote)}
-                                    onChange={() => handleSelectQuote(file?.quoteId ?? '')}
-                                    className="cursor-pointer accent-blue-500 w-4 h-4"
+                                    disabled={uploadedFiles?.some(e => e?.isSelected) || isDisabled}
+                                    checked={quoteSelected == file.entityId}
+                                    onChange={() => handleSetSelectedQuote(file?.entityId ?? 0)}
+                                    className="cursor-pointer accent-black w-5 h-5"
                                 />
                             )                            
                         }
@@ -178,50 +175,5 @@ export function FileListPreviewDownload ({
                 );
             })}
         </ul>
-        // <ul className="flex flex-wrap gap-2">
-        //     {uploadedFiles.map((file, index) => (
-        //         <li
-        //         key={`uploaded-${index}`}
-        //         className="flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors px-1 py-0.5 rounded-md max-w-full"
-        //         >
-        //         {/* Vùng click download */}
-        //         <button
-        //             type="button"
-        //             onClick={() => handleDownload(file)}
-        //             className="flex items-center gap-2 flex-1 text-left cursor-pointer"
-        //         >
-        //             {getFileIcon({ name: file.fileName, type: file.contentType })}
-        //             <span className="text-sm truncate max-w-[200px]">{file.fileName}</span>
-        //         </button>
-
-        //         {/* Hành động */}
-        //         <div className="flex items-center gap-2 ml-2">
-        //             {loadingMap[file.id] ? (
-        //             <Spinner className="size-4" />
-        //             ) : (
-        //             <button
-        //                 type="button"
-        //                 onClick={() => handleDownload(file)}
-        //                 className="text-gray-600 hover:text-blue-600 cursor-pointer"
-        //                 title="Download"
-        //             >
-        //                 <Download size={16} />
-        //             </button>
-        //             )}
-
-        //             {onRemoveUploaded && (
-        //             <button
-        //                 type="button"
-        //                 onClick={() => onRemoveUploaded(index)}
-        //                 className="text-red-500 hover:text-red-700 cursor-pointer"
-        //                 title="Remove"
-        //             >
-        //                 <X size={16} />
-        //             </button>
-        //             )}
-        //         </div>
-        //         </li>
-        //     ))}
-        // </ul>
     )
 }

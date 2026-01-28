@@ -1,10 +1,11 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { useSidebarStore } from "@/store/sidebarStore";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Header from "../components/Header/Header";
 import BreadCrumbComponent from "../components/BreadCrumbComponent/BreadCrumbComponent";
 
 import '../components/RootComponent/App.css'
+import { useLocation } from "react-router-dom";
 
 type Props = {
     children: ReactNode;
@@ -13,6 +14,12 @@ type Props = {
 export default function MainLayout({ children }: Props) {
     const isOpen = useSidebarStore((s) => s.isOpen);
     const closeSidebar = useSidebarStore((s) => s.closeSidebar)
+    const mainRef = useRef<HTMLDivElement>(null);
+    const { pathname } = useLocation();
+
+    useEffect(() => {
+        mainRef.current?.scrollTo({ top: 0 });
+    }, [pathname]);
 	
 	return (
 		<div className="app-container">
@@ -21,7 +28,7 @@ export default function MainLayout({ children }: Props) {
             <div className={`overlay fixed inset-0 bg-black z-40 transition-opacity duration-300 ease-in-out 
                 ${isOpen ? "opacity-50 visible" : "opacity-0 invisible"}`} onClick={closeSidebar}></div>
 
-			<div className="main dark:bg-[#1b1b1f]">
+			<div ref={mainRef} className="main dark:bg-[#1b1b1f]">
 				<Header/>
                 <div className="wrap-main-layout mt-2 mx-2 min-h-[95%]">
                     <BreadCrumbComponent/>

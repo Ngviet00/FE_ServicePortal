@@ -6,8 +6,8 @@ import userApi from '@/api/userApi';
 import orgUnitApi from '@/api/orgUnitApi';
 
 type Person = {
-	nvHoTen: string,
-	nvMaNV: string;
+	userName: string,
+	userCode: string;
 	orgPositionId: number
 	positionName: string
 	teamName: string | null | undefined
@@ -35,34 +35,35 @@ const nodeStyle: React.CSSProperties = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function groupUsersByOrgUnit(rawNodes: any[]): OrgChartNode[] {
-	const grouped: { [key: number]: OrgChartNode } = {};
+    const grouped: { [key: number]: OrgChartNode } = {};
 
-	rawNodes.forEach((raw) => {
-		const orgPositionId = raw.orgPositionId;
-		if (!grouped[orgPositionId]) {
-			grouped[orgPositionId] = {
-				orgPositionId: orgPositionId,
-				teamName: raw.teamName,
-				positionName: raw.positionName,
-				people: [],
-				children: [],
-			};
-		}
-		grouped[orgPositionId].people.push({
-			nvHoTen: `${raw.nvHoTen}`,
-			nvMaNV: `${raw.nvMaNV}`,
-			orgPositionId: orgPositionId,
-			teamName: `${raw.teamName}`,
-			parentOrgPositionId: raw.parentOrgPositionId,
-			positionName: raw.positionName,
-		});
+    rawNodes.forEach((raw) => {
+        const orgPositionId = raw.orgPositionId;
+        if (!grouped[orgPositionId]) {
+            grouped[orgPositionId] = {
+                orgPositionId: orgPositionId,
+                teamName: raw.teamName,
+                positionName: raw.positionName,
+                people: [],
+                children: [],
+            };
+        }
 
-		if (raw.children && raw.children.length > 0) {
-			grouped[orgPositionId].children.push(...groupUsersByOrgUnit(raw.children));
-		}
-	});
+        grouped[orgPositionId].people.push({
+            userName: raw.userName ?? "--",
+            userCode: raw.userCode ?? "--",
+            orgPositionId: orgPositionId,
+            teamName: raw.teamName,
+            parentOrgPositionId: raw.parentOrgPositionId,
+            positionName: raw.positionName,
+        });
 
-	return Object.values(grouped);
+        if (raw.children && raw.children.length > 0) {
+            grouped[orgPositionId].children.push(...groupUsersByOrgUnit(raw.children));
+        }
+    });
+
+    return Object.values(grouped);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,8 +72,8 @@ function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 		orgPositionId: rawRoot.orgPositionId,
 		teamName: rawRoot.teamName,
 		people: [{
-			nvHoTen: rawRoot.nvHoTen,
-			nvMaNV: rawRoot.nvMaNV,
+			userName: rawRoot.userName,
+			userCode: rawRoot.userCode,
 			orgPositionId: rawRoot.orgPositionId,
 			teamName: rawRoot.teamName,
 			parentOrgPositionId: rawRoot.parentOrgPositionId,
@@ -87,21 +88,47 @@ function convertToOrgChartNode(rawRoot: any): OrgChartNode {
 	return root;
 }
 
-const NodeContent: React.FC<{ people: Person[]; orgPositionId: number }> = ({ people }) => (
-	<div style={nodeStyle}>
-		{people.map((p, idx) => (
-			<div key={p.nvMaNV} className="dark:text-black">
-				{
-					idx == 0 ? (
-						<><strong className={`dark:text-red-700 ${p.nvMaNV == 'null' ? 'text-red-600' : 'text-blue-600'} font-bold`}>{p.positionName}</strong> <br /></>
-					) : (<></>)
-				}
-				<strong className="dark:text-black">{p.nvMaNV == 'null' ? 'Empty' : p.nvMaNV}</strong>
-				 	<br/> {p.nvHoTen == '' ? 'Empty' : p.nvHoTen}
-			</div>
-		))}
-	</div>
-);
+const NodeContent: React.FC<{ people: Person[]; orgPositionId: number }> = ({ people }) => {
+    if (!people || people.length === 0) return null;
+    const firstPerson = people[0];
+    const total = people.length;
+    const isVacant = !firstPerson.userCode || firstPerson.userCode === 'null';
+    
+    const isTooCrowded = total > 15;
+
+    return (
+        <div style={nodeStyle} className="min-w-[150px] shadow-sm border-t-2 border-blue-500 bg-white p-2">
+            <div className={`font-bold text-[13px] uppercase mb-1 ${isVacant ? 'text-red-600' : 'text-blue-700'}`}>
+                {firstPerson.positionName}
+            </div>
+
+            {isTooCrowded ? (
+                <div className="py-3 bg-gray-50 rounded-md border border-dashed border-gray-300">
+                    <div className="text-2xl font-black text-gray-700">{total}</div>
+                    <div className="text-[10px] text-gray-400 uppercase tracking-wider">Members</div>
+                </div>
+            ) : (
+                <div className="flex flex-col gap-1">
+                    {people.map((p) => (
+                        <div key={p.userCode} className="text-center">
+                            <div className="text-[13px] font-bold text-gray-800 leading-tight">
+                                {(!p.userCode || p.userCode === 'null') ? 'Empty' : p.userCode}
+                            </div>
+                            <div className="text-[13px] text-gray-500 truncate">
+                                {(!p.userName || p.userName === 'null') ? '' : p.userName}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+            {(total > 1 && !isTooCrowded) && (
+                <div className="mt-1 text-[9px] text-gray-400 border-t pt-1">
+                    Total: {total}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const RenderNode: React.FC<{ node: OrgChartNode }> = ({ node }) => (
 	<TreeNode label={<NodeContent people={node.people} orgPositionId={node.orgPositionId} />}>
@@ -118,16 +145,16 @@ const OrgChartTree: React.FC = () => {
 	const [isDragging, setIsDragging] = useState<boolean>(false);
 	const [isHoveringChart, setIsHoveringChart] = useState<boolean>(false);
 	const chartRef = useRef<HTMLDivElement | null>(null);
-	const [department, setDepartment] = useState<number | null>(null); // default = Production
+	const [department, setDepartment] = useState<number | null>(null); 
 
 	const { data: rawData, isLoading } = useQuery({
 		queryKey: ['org-chart', department],
 		queryFn: async () => {
-			if (!department) return null;
+			if (!department) return null; 
 			const res = await userApi.orgChart(department);
-			return res.data.data[0]; // first node is root
+			return res?.data?.data?.[0] ?? null; 
 		},
-		enabled: department !== null,
+		enabled: !!department, 
 	});
 
 	const { data: departments = [] } = useQuery({
@@ -154,7 +181,7 @@ const OrgChartTree: React.FC = () => {
 	};
 
 	return (
-		<div style={{ padding: '20px' }}>
+		<div>
 			<div className="flex items-center mb-3">
 				<label htmlFor="department_id" className="mb-1 mr-2 font-bold">{t('org_chart_page.select_department')}:</label>
 				<select

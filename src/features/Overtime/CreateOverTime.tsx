@@ -98,7 +98,7 @@ export default function CreateOverTime() {
                 id: null,
                 userCode: user?.userCode,
                 userName: user?.userName ?? '',
-                position: '',
+                position: user?.unitNameV,
                 fromHour: '',
                 toHour: '',
                 numberHour: '',
@@ -261,8 +261,8 @@ export default function CreateOverTime() {
             });
 
             const result = fetchData?.data?.data;
-            setValue(`userOverTime.${index}.userName`, result?.NVHoTen ?? "", {shouldValidate: true});
-            setValue(`userOverTime.${index}.position`, result?.Position ?? "", {shouldValidate: true});
+            setValue(`userOverTime.${index}.userName`, result?.nvHoTen ?? "", {shouldValidate: true});
+            setValue(`userOverTime.${index}.position`, result?.positionV ?? "", {shouldValidate: true});
 
         } catch (err) {
             ShowToast(getErrorMessage(err), "error");
@@ -371,11 +371,11 @@ export default function CreateOverTime() {
             <form onSubmit={handleSubmit(onSubmit, (errors) => {console.log("⛔ Submit bị chặn vì lỗi:", errors)})}>
                 {
                     !isEdit && 
-                    <div className="bg-red-400 p-1.5 text-sm text-white rounded-[3px] w-full md:w-auto mb-1">
+                    <div className="inline-block bg-red-400 p-1.5 text-sm text-white rounded-[3px] mb-1">
                         ** {
                             lang == 'vi'
-                                ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ'
-                                : 'Note, you should only enter registration data for yourself or member of your team, organization.'
+                                ? 'Lưu ý: Người đăng ký chỉ được nhập dữ liệu cho bản thân hoặc các thành viên thuộc cùng tổ. Thời hạn đăng ký là trước 14:00'
+                                : 'Note: Registrants are only allowed to enter data for themselves or for members of the same team. The registration deadline is before 14:00'
                         }
                     </div>
                 }

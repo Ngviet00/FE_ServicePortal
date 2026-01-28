@@ -4,7 +4,6 @@ import { OrgUnit } from "@/api/orgUnitApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GetUrlViewDetail } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
@@ -70,7 +69,6 @@ export default function ListITFormWaitFormPurchase() {
                     <thead className="bg-gray-100">
                         <tr>
                             <th className="px-4 py-2 border">{t("pending_approval.code")}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.RequestTypeEnum")}</th>
                             <th className="px-4 py-2 border">{t("pending_approval.user_request")}</th>
                             <th className="px-4 py-2 border">{t("pending_approval.created_at")}</th>
                             <th className="px-4 py-2 border">{t("pending_approval.status")}</th>
@@ -81,7 +79,7 @@ export default function ListITFormWaitFormPurchase() {
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
                                 <tr key={index}>
-                                    {Array.from({ length: 6 }).map((_, i) => (
+                                    {Array.from({ length: 5 }).map((_, i) => (
                                         <td key={i} className="px-4 py-2 border text-center">
                                             <div className="flex justify-center">
                                                 <Skeleton className="h-4 w-[70px] bg-gray-300" />
@@ -92,7 +90,7 @@ export default function ListITFormWaitFormPurchase() {
                             ))
                         ) : isError || ListWaitApprovals?.length == 0 ? (
                             <tr>
-                                <td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
+                                <td colSpan={5} className="px-4 py-2 text-center font-bold text-red-700">
                                     {error?.message ?? tCommon("no_results")}
                                 </td>
                             </tr>
@@ -100,12 +98,9 @@ export default function ListITFormWaitFormPurchase() {
                             ListWaitApprovals.map((item: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-gray-50">
                                     <td className="px-4 py-2 border text-center">
-                                        <Link to={GetUrlViewDetail(item?.requestTypeId, item?.code)} className="text-blue-700 underline">
+                                        <Link to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-700 underline">
                                             {item?.code}
                                         </Link>
-                                    </td>
-                                    <td className="px-4 py-2 border text-center">
-                                        {lang == "vi" ? item?.requestTypeName : item?.requestTypeNameE}
                                     </td>
                                     <td className="px-4 py-2 border text-center">{item?.userNameCreatedForm}</td>
                                     <td className="px-4 py-2 border text-center">
@@ -116,7 +111,7 @@ export default function ListITFormWaitFormPurchase() {
                                     </td>
                                     <td className="px-4 py-2 border text-center space-x-1">
                                         <Link
-                                            to={GetUrlViewDetail(item?.requestTypeId, item?.code)}
+                                            to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                                         >
                                             {t("pending_approval.detail")}
@@ -149,7 +144,7 @@ export default function ListITFormWaitFormPurchase() {
                                 <div key={idx} className="border rounded-lg p-3 shadow-sm bg-white mb-3">
                                     <div className="flex justify-between items-center">
                                         <Link
-                                            to={GetUrlViewDetail(item?.requestTypeId, item?.code)}
+                                            to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="font-semibold text-blue-700 underline"
                                         >
                                             {item.code}
@@ -158,10 +153,6 @@ export default function ListITFormWaitFormPurchase() {
                                     </div>
 
                                     <div className="text-sm text-gray-700 mt-1 space-y-1">
-                                        <p>
-                                            <span className="font-medium">{t("pending_approval.RequestTypeEnum")}: </span>
-                                            {lang == "vi" ? item?.requestTypeName : item?.requestTypeNameE}
-                                        </p>
                                         {item?.noteCategories && (
                                             <p>
                                                 <span className="font-medium">
@@ -186,7 +177,7 @@ export default function ListITFormWaitFormPurchase() {
 
                                     <div className="mt-2 flex justify-end">
                                         <Link
-                                            to={GetUrlViewDetail(item?.requestTypeId, item?.code)}
+                                            to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                                         >
                                             {t("pending_approval.detail")}

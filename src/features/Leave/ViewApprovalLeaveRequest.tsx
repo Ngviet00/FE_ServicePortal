@@ -156,7 +156,10 @@ const ViewApprovalLeaveRequest = ({id, mode}: ViewApprovalProps) => {
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0 pb-2">{lang == 'vi' ? 'Duyệt nghỉ phép' : 'Approval leave request'}</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0 pb-2">
+                    {lang == 'vi' ? `Duyệt nghỉ phép` : `Approval leave request`}
+                    <span className="text-red-500 pl-2">{formData?.leaveRequests?.some((e: any) => e.isUrgent == true) ? (lang == 'vi' ? '(Nghỉ phép đột xuất)' : '(Emergency)') : '' }</span>
+                </h3>
                 {
                     [StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete].includes(formData?.applicationForm?.requestStatusId) && (
                         <Button

@@ -221,7 +221,7 @@ const CreateWarningLetter: React.FC = () => {
         }
         try {
             setIsSearchingUser(true)
-            const fetchData = await userApi.SearchUserCombineViClockAndWebSystem(value)
+            const fetchData = await userApi.getByCode(value)
             const result = fetchData?.data?.data
             if (result?.userCode == null) {
                 ShowToast(lang == 'vi' ? 'Không tìm thấy người dùng' : 'User not found', 'error')

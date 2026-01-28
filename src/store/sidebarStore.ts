@@ -1,5 +1,5 @@
 import { RoleEnum } from "@/lib";
-import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, ShieldCheck, BookText } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, ShieldCheck, MessageCircleQuestion, BookText } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -52,7 +52,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ key: "sidebar.hr.list_user", label: "sidebar.hr.list_user", route: "/user" },
 			{ key: "sidebar.hr.org", label: "sidebar.hr.org", route: "/user/org-chart" },
 			{ key: "sidebar.hr.mng_time_keeping", label: "sidebar.hr.mng_time_keeping", route: "/hr-mng-timekeeping" },
-			{ key: "sidebar.hr.mng_leave_request", label: "sidebar.hr.mng_leave_request", route: "/hr-mng-leave-request" },
+			// { key: "sidebar.hr.mng_leave_request", label: "sidebar.hr.mng_leave_request", route: "/hr-mng-leave-request" },
 			{ key: "sidebar.hr.change_org_unit_id_user", label: "sidebar.hr.change_org_unit_id_user", route: "/change-org-unit" },
 		],
 	},
@@ -82,37 +82,38 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 				key: "hr_time",
 				label: "sidebar.hr.leave_request.title",
 				children: [
+					{ key: "sidebar.hr.leave_request.leave_statistics", label: "sidebar.hr.leave_request.leave_statistics", route: "/leave/statistics" },
 					{ key: "sidebar.hr.leave_request.create_leave", label: "sidebar.hr.leave_request.create_leave", route: "/leave/create" },
 					{ key: "sidebar.hr.leave_request.over_time", label: "sidebar.hr.leave_request.over_time", route: "/overtime/create" },
 					{ key: "sidebar.hr.leave_request.internal_memo_hr", label: "sidebar.hr.leave_request.internal_memo_hr", route: "/internal-memo-hr/create" },
-					{ key: "sidebar.union.list", label: "sidebar.union.list", route: `/vote?role=${RoleEnum.HR}` },
 					{ key: "sidebar.hr.leave_request.time_keeping", label: "sidebar.hr.leave_request.time_keeping", route: "/time-keeping" },
 					{ key: "sidebar.hr.leave_request.mng_time_keeping", label: "sidebar.hr.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 				]
 			},
-			// { key: 'FAQ', label: "FAQ", route: "/faq" },
+			{ key: "sidebar.union.list", label: "sidebar.union.list", route: `/vote?role=${RoleEnum.HR}` },
+			//{ key: 'feedback', label: "FAQ", route: "/feedback" },
 		],
 	},
-	// {
-	// 	key: "IT",
-	// 	label: "sidebar.IT.title",
-	// 	icon: Computer,
-	// 	children: [
-	// 		{ key: "sidebar.IT.statistical", label: "sidebar.IT.statistical", route: "/form-it/statistical" },
-	// 		{ key: "sidebar.IT.create", label: "sidebar.IT.create", route: "/form-it/create" },
-	// 		{ key: "sidebar.IT.it_form_wait_purchase", label: "sidebar.IT.it_form_wait_purchase", route: "/form-it/list-item-wait-form-purchase" },
-	// 	],
-	// },
-	// {
-	// 	key: "Purchase",
-	// 	label: "sidebar.purchase.title",
-	// 	icon: WalletCards,
-	// 	children: [
-	// 		{ key: "sidebar.purchase.statistical", label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
-	// 		{ key: "sidebar.purchase.create", label: "sidebar.purchase.create", route: "/purchase/create" },
-	// 		{ key: "sidebar.purchase.quote", label: "sidebar.purchase.quote", route: "/purchase/list-item-wait-quote" },
-	// 	],
-	// },
+	{
+		key: "IT",
+		label: "sidebar.IT.title",
+		icon: Computer,
+		children: [
+			{ key: "sidebar.IT.statistical", label: "sidebar.IT.statistical", route: "/form-it/statistical" },
+			{ key: "sidebar.IT.create", label: "sidebar.IT.create", route: "/form-it/create" },
+			{ key: "sidebar.IT.it_form_wait_purchase", label: "sidebar.IT.it_form_wait_purchase", route: "/form-it/list-item-wait-form-purchase" },
+		],
+	},
+	{
+		key: "Purchase",
+		label: "sidebar.purchase.title",
+		icon: WalletCards,
+		children: [
+			{ key: "sidebar.purchase.statistical", label: "sidebar.purchase.statistical", route: "/purchase/statistical" },
+			{ key: "sidebar.purchase.create", label: "sidebar.purchase.create", route: "/purchase/create" },
+			{ key: "sidebar.purchase.quote", label: "sidebar.purchase.quote", route: "/purchase/list-item-wait-quote" },
+		],
+	},
 	{
 		key: "Union",
 		label: "sidebar.union.title",
@@ -144,7 +145,19 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ key: "sidebar.approval.list_wait_quote", label: "sidebar.approval.list_wait_quote", route: "/approval/wait-quote" },
 			{ key: "sidebar.approval.history_approval", label: "sidebar.approval.history_approval", route: "/approval/approval-history" },
 		],
-	}
+	},
+	{
+		key: "feedback",
+		label: "sidebar.feedback.title",
+		icon: MessageCircleQuestion,
+		route: "/feedback",
+		children: [
+			{ key: "sidebar.feedback.all_feedback", label: "sidebar.feedback.all_feedback", route: "/feedback" },
+			{ key: "sidebar.feedback.create", label: "sidebar.feedback.create", route: "/feedback/create" },
+			{ key: "sidebar.feedback.my_feedback", label: "sidebar.feedback.my_feedback", route: "/feedback/my-feedback" },
+			{ key: "sidebar.feedback.pending_response", label: "sidebar.feedback.pending_response", route: "/feedback/pending-response" },
+		]
+	},
 ];
 
 type SidebarMenuKey = typeof SIDEBAR_MENUS[number]["key"];

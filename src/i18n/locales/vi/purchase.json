@@ -1,24 +1,25 @@
 {
     "statistical": {
-        "title": "Statistical",
-        "time": "Time",
-        "total": "Total",
-        "inprocess": "In Process",
-        "completed": "Completed",
-        "pending": "Pending",
-        "total_request": "Total request",
-        "total_by_type": "Total request by type",
-        "total_by_dept": "Total request by department",
-        "recent_request": "Recent request",
-        "content": "Title",
-        "user_sent": "User sent",
-        "dept": "Department",
-        "time_sent": "Time sent",
-        "status": "Status",
-        "priority": "Priority"
+        "title": "Thống kê",
+        "time": "Thời gian",
+        "total": "Tổng yêu cầu",
+        "completed": "Hoàn thành",
+        "reject": "Từ chối",
+        "input_quote": "Chờ nhập báo giá",
+        "approval_quote": "Chờ duyệt báo giá",
+        "wait_po": "Chờ PO",
+        "wait_delivery": "Chờ giao hàng",
+        "total_by_month": "Tổng số lượng yêu cầu theo tháng",
+        "total_by_dept": "Tổng số lượng theo phòng ban",
+        "recent_request": "Yêu cầu gần đây",
+        "code": "Mã đơn",
+        "requester": "Người yêu cầu",
+        "department": "Phòng ban yêu cầu",
+        "created_at": "Thời gian tạo",
+        "status": "Trạng thái"
     },
     "create": {
-        "title": "Đơn xin mua",
+        "title": "Tạo đơn mua hàng",
         "btn_list": "Danh sách đã tạo",
         "request_date": "Ngày yêu cầu",
         "text_title_category_buy": "Danh sách mục mua",
@@ -44,6 +45,12 @@
         "status": "Trạng thái",
         "action": "Hành động",
         "edit": "Sửa"
+    },
+    "detail": {
+        "title": "Chi tiết đơn mua hàng"
+    },
+    "update": {
+        "title": "Cập nhật đơn mua hàng"
     },
     "setting": {
 

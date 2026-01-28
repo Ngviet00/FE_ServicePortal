@@ -137,6 +137,10 @@ const itFormApi = {
         return axiosClient.get(`/it-form/${id}`)
     },
 
+    listFormITWaitConfirm(params: ListWaitApprovalRequest) {
+        return axiosClient.get('/it-form/list-form-it-wait-confirm', {params})
+    },
+
     create(data: FormData) {
         return axiosClient.post('/it-form', data, {
             headers: {
@@ -145,16 +149,16 @@ const itFormApi = {
         })
     },
 
-    update(id: string, data: FormData){
-        return axiosClient.put(`/it-form/${id}`, data, {
+    update(applicationFormId: number, data: FormData){
+        return axiosClient.put(`/it-form/${applicationFormId}`, data, {
              headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
     },
 
-    delete(applicationFormCode: string | undefined) {
-        return axiosClient.delete(`/it-form/${applicationFormCode}`)
+    delete(applicationFormId: number) {
+        return axiosClient.delete(`/it-form/${applicationFormId}`)
     },
     assignedTask(data: IAssignedTask) {
         return axiosClient.post('/it-form/assigned-task', data)
@@ -168,25 +172,22 @@ const itFormApi = {
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/it-form/approval`, data)
     },
-    staffITReferenceToManagerIT(data: FormData) {
-        return axiosClient.post(`/it-form/staff-it-reference-manager-it`, data, {
+    confirmITPurchaseRequirement(data: FormData) {
+        return axiosClient.post(`/it-form/confirm-it-purchase-requirement`, data, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
     },
-    listFormITWaitConfirm(params: ListWaitApprovalRequest) {
-        return axiosClient.get('/it-form/list-form-it-wait-confirm', {params})
-    },
-    confirmFormITNeedFormPurchase(data: ConfirmFormITNeedFormPurchase) {
-        return axiosClient.post('/it-form/confirm-form-it-need-form-purchase', data)            
+    approveITPurchaseRequestForm (data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string}) {
+        return axiosClient.post(`/it-form/approve-it-purchase-request-form`, data)
     }
 }
 
-export function useConfirmFormITNeedFormPurchase() {
+export function useConfirmITPurchaseRequirement() {
     return useMutation({
-        mutationFn: async (data: ConfirmFormITNeedFormPurchase) => {
-            await itFormApi.confirmFormITNeedFormPurchase(data)
+        mutationFn: async (data: FormData) => {
+            await itFormApi.confirmITPurchaseRequirement(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -197,10 +198,10 @@ export function useConfirmFormITNeedFormPurchase() {
     })
 }
 
-export function useStaffITReferenceToManagerIT() {
+export function useApproveITPurchaseRequestForm() {
     return useMutation({
-        mutationFn: async (data: FormData) => {
-            await itFormApi.staffITReferenceToManagerIT(data)
+        mutationFn: async (data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string}) => {
+            await itFormApi.approveITPurchaseRequestForm(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -241,7 +242,7 @@ export function useCreateITForm() {
 
 export function useUpdateITForm() {
     return useMutation({
-        mutationFn: async ({id, data} : {id: string, data: FormData}) => {
+        mutationFn: async ({id, data} : {id: number, data: FormData}) => {
             await itFormApi.update(id, data)
         },
         onSuccess: () => {
@@ -255,8 +256,8 @@ export function useUpdateITForm() {
 
 export function useDeleteITForm() {
     return useMutation({
-        mutationFn: async (code: string | undefined) => {
-            await itFormApi.delete(code)
+        mutationFn: async (applicationFormId: number) => {
+            await itFormApi.delete(applicationFormId)
         },
         onSuccess: () => {
             ShowToast("Success");

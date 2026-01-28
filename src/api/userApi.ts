@@ -19,7 +19,8 @@ interface GetUser {
     Name?: string;
     Sex?: number | null,
     DepartmentId?: number | null,
-    Status?: number | null
+    Status?: number | null,
+    SetOrgPosition?: boolean | null,
 }
 
 interface ResetPasswordRequest {
@@ -107,18 +108,34 @@ const userApi = {
     getMe() {
         return axiosClient.get(`/user/me`)
     },
-    getUserToSelectMngTKeeping(params: getUserToSelectMngTKeeping) {
-        return axiosClient.get('/user/search-all-user-from-viclock', {params})
-    },
     getRoleAndPermissionOfUser(userCode: string) {
         return axiosClient.get(`/user/get-role-permission-user?userCode=${userCode}`)
     },
-    SearchUserCombineViClockAndWebSystem(userCode: string) {
-        return axiosClient.get(`/user/search-user-combine-viclock-and-web-system?userCode=${userCode}`)
-    },
-    GetMultipleUserViclockByOrgPositionId(orgPositionId: number) {
+    GetMultipleUserByOrgPositionIdOrUserCodes(orgPositionId: number) {
         return axiosClient.get(`/user/get-multiple-user-by-org-position-id/${orgPositionId}`)
-    }
+    },
+
+    importUserExcel(data: FormData) {
+        return axiosClient.post('/user/import-user-by-excel', data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+    },
+}
+
+export function useImportUserExcel() {
+    return useMutation({
+        mutationFn: async (data: FormData) => {
+            await userApi.importUserExcel(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useUpdateUserRole () {

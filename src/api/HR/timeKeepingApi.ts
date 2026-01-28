@@ -92,32 +92,8 @@ const timekeepingApi = {
     getPersonalTimeKeeping(params: GetPersonalTimeKeepingRequest) {
         return axiosClient.get(`/time-keeping/get-personal-time-keeping`, {params})
     },
-
     getMngTimeKeeping(params: GetManagementTimeKeepingRequest) {
         return axiosClient.get(`/time-keeping/get-management-time-keeping`, {params})
-    },
-
-    UpdateUserHavePermissionMngTimeKeeping(data: string[]) {
-        return axiosClient.post(`/time-keeping/update-user-have-permission-mng-timekeeping`, data)
-    },
-    GetUserHavePermissionMngTimeKeeping() {
-        return axiosClient.get(`/time-keeping/get-user-have-permission-mng-timekeeping`)
-    },
-
-    ChangeUserMngTimeKeeping(data: { oldUserCode: string, newUserCode: string}) {
-        return axiosClient.post(`/time-keeping/change-user-mng-timekeeping`, data)
-    },
-    AttachUserManageOrgUnit(data: {userCode: string, orgUnitIds: number[]}) {
-        return axiosClient.post('/time-keeping/attach-user-manager-org-unit', data)
-    },
-    GetOrgUnitIdMngByUser(userCode: string) {
-        return axiosClient.get(`/time-keeping/get-org-unit-id-attach-by-usercode?userCode=${userCode}`)
-    },
-    GetIdOrgUnitByUserCodeAndUnitId(userCode: string) {
-        return axiosClient.get(`/time-keeping/get-id-org-unit-by-usercode-and-unit-id?userCode=${userCode}`)
-    },
-    getDeptUserMngTimeKeeping(userCode: string) {
-        return axiosClient.get(`/time-keeping/get-dept-user-mng-timekeeping?userCode=${userCode}`)
     },
     EditTimeAttendanceHistory(data: EditTimeAttendanceHistory) {
         return axiosClient.post(`/time-keeping/edit-time-keeping`, data)
@@ -152,6 +128,43 @@ const timekeepingApi = {
     resolvedTaskTimeKeeping(data: IResolvedTask) {
         return axiosClient.post(`/time-keeping/resolved-task-timekeeping`, data)
     },
+    hrMngTimeKeeping() {
+        return axiosClient.get(`/time-keeping/hr-mng-timekeeping`)
+    },
+    hrHandleUserOrgUnit(data: {userCode: string, orgUnitId: number, type: string}) {
+        return axiosClient.post(`/time-keeping/hr-handle-user-orgunit-id`, data)
+    },
+    hrHandleUserMngTimeKeeping(data: {userCode: string, type: string}) {
+        return axiosClient.post(`/time-keeping/hr-handle-user-mng-timeeking`, data)
+    }
+}
+
+export function useHRHandleUserOrgUnit () {
+    return useMutation({
+        mutationFn: async (data: {userCode: string, orgUnitId: number, type: string}) => {
+            await timekeepingApi.hrHandleUserOrgUnit(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useHRHandleUserMngTimeKeeping () {
+    return useMutation({
+        mutationFn: async (data: {userCode: string, type: string}) => {
+            await timekeepingApi.hrHandleUserMngTimeKeeping(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useResolvedTaskTimeKeeping () {
@@ -244,49 +257,6 @@ export function useEditTimeAttendanceHistory() {
     return useMutation({
         mutationFn: async (data: EditTimeAttendanceHistory) => {
             await timekeepingApi.EditTimeAttendanceHistory(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-
-export function useAttachUserManageOrgUnit() {
-    return useMutation({
-        mutationFn: async (data: {userCode: string, orgUnitIds: number[]}) => {
-            await timekeepingApi.AttachUserManageOrgUnit(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useUpdateUserPermissionMngTimeKeeping() {
-    return useMutation({
-        mutationFn: async (data: string[]) => {
-            await timekeepingApi.UpdateUserHavePermissionMngTimeKeeping(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useChangeUserMngTimekeeping() {
-    return useMutation({
-        mutationFn: async (data: { oldUserCode: string, newUserCode: string}) => {
-            await timekeepingApi.ChangeUserMngTimeKeeping(data)
         },
         onSuccess: () => {
             ShowToast("Success");

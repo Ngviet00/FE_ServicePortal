@@ -14,7 +14,6 @@ function HRManagementLeaveRequest() {
     // const updateUserHavePermissionMngLeaveRequest = useUpdateUserHavePermissionCreateMultipleLeaveRequest();
     // const queryClient = useQueryClient();
 
-
     // const { data: departments = [] } = useQuery({
     //     queryKey: ['get-all-departments'],
     //     queryFn: async () => {

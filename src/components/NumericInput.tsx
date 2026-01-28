@@ -6,9 +6,10 @@ interface NumericInputProps {
     control: any;
     placeholder?: string;
     className?: string;
+    disabled?: boolean
 }
 
-export const NumericInput = ({ name, control, placeholder, className }: NumericInputProps) => {
+export const NumericInput = ({ name, control, placeholder, className, disabled = false }: NumericInputProps) => {
     const {
         field: { value, onChange, onBlur, ref },
         fieldState: { error }
@@ -36,6 +37,7 @@ export const NumericInput = ({ name, control, placeholder, className }: NumericI
     return (
         <div>
             <input
+                disabled={disabled}
                 ref={ref}
                 value={value ?? ""}
                 onChange={handleChange}

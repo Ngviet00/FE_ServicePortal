@@ -80,6 +80,7 @@ export default function ListVote() {
 		const shouldGoBack = votes.length === 1;
 		await deleteVote.mutateAsync(id);
 		handleSuccessDelete(shouldGoBack);
+		queryClient.invalidateQueries({ queryKey: ["count-wait-approval-sidebar"] });
 	};
 
 	return (

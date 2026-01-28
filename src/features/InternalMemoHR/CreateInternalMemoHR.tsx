@@ -114,9 +114,21 @@ export const listDoors = [
     { code: 'CMPBU_OFF', name: 'CMPBU OFFICE (cạnh phòng IT)', isSpecial: true },
     { code: 'ASSEMBLY', name: 'Assembly In/Out', isSpecial: true },
     { code: '3F_CUSTOM_GLASS_DOOR', name: '3rd Floor Customer Glass Door', isSpecial: true },
-    { code: 'CT1', name: 'Cooling tower 1' },
     { code: 'CT2', name: 'Cooling tower 2' },
-    { code: 'CT3', name: 'Cooling tower 3' }
+    { code: 'CT3', name: 'Cooling tower 3' },
+    { code: 'COURTMD', name: 'Court main door' },
+    { code: 'PRODAC', name: 'Production Area C' },
+    { code: 'BRCSTORE', name: 'BRC Store' },
+    { code: 'MRBEHHOSTEL', name: 'Mr Beh Hostel' },
+    { code: 'MRDCMPBUM30', name: 'Machine room door CMPBU M30' },
+    { code: 'MATDOOR', name: 'Maternity door' },
+    
+    //gate
+    { code: 'SWG1', name: 'Swing gate 1 IN/OUT' },
+    { code: 'GGH1', name: 'Gate guard hourse 1' },
+    { code: 'GSA', name: 'Gate store A' },
+    { code: 'GSB', name: 'Gate store B' },
+    { code: 'G2PL', name: 'Gate 2 nhà xe' }
 ];
 
 export const listTypeInternalMemoHRs = [

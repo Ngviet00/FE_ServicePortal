@@ -13,7 +13,7 @@ export default function HistoryApproval({ historyApplicationForm }: { historyApp
     const { t } = useTranslation('pendingApproval')
 
     return (
-        <div className='history-approval mt-5' style={{ borderTop: '1px dashed #99a1af' }}>
+        <div className='history-approval mt-3' style={{ borderTop: '1px dashed #99a1af' }}>
             <h3 className='text-blue-600 text-xl font-semibold mb-2 pt-2'>{ t('history_component.title') }</h3>
             {
                 historyApplicationForm?.map((item: any, idx: number) => {

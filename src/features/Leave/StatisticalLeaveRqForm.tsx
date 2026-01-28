@@ -1,192 +1,150 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Line, Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    Title,
-    Tooltip,
-    Legend,
-    CategoryScale,
-    LinearScale,
-    LineElement,
-    BarElement,
-    ArcElement,
-    PointElement,
-    Filler,
-} from 'chart.js';
-import { CircleCheck, Info, Ticket, ClipboardCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { useState, useMemo, useEffect } from 'react';
+import { useState } from 'react';
+import MonthYearFlatPickr from '@/components/ComponentCustom/MonthYearFlatPickr';
+import { useAuthStore } from '@/store/authStore';
+import { RoleEnum, ShowToast, UnitEnum } from '@/lib';
+import useHasRole from '@/hooks/useHasRole';
+import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { formatDate } from '@/lib/time';
-import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
-import { StatusApplicationFormEnum } from '@/lib';
-import leaveRequestApi from '@/api/leaveRequestApi';
+import orgUnitApi, { OrgUnit } from '@/api/orgUnitApi';
+import { useGetStatisticLeave } from '@/api/leaveRequestApi';
 
-ChartJS.register(Title, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement, Filler);
+interface StatisticLeave {
+    total: number,
+    totalUrgent: number,
+    totalNormal: number
+}
 
 const StatisticalLeaveRqForm = () => {
-    const { t } = useTranslation('purchase')
+    const { user } = useAuthStore()
     const lang = useTranslation().i18n.language.split('-')[0]
-    const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString())
 
-    const { data: statisticalData, isLoading, isError } = useQuery({
-        queryKey: ['get-statistical-purchase', selectedYear],
-        queryFn: async () => {
-            const res = await leaveRequestApi.statistical({year: Number(selectedYear)});
+    const [month, setMonth] = useState(() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    });
+    const [department, setDepartment] = useState('');
+    const [isCalReject, setIsCalReject] = useState(false)
+    const [resultStatistic, setResultStatistic] = useState<StatisticLeave | null>(null);
+
+    const isManagerOrGM = user?.unitId == UnitEnum.Manager || user?.unitId == UnitEnum.GM 
+    const isHR = useHasRole([RoleEnum.HR])
+
+    const getStatisticLeave = useGetStatisticLeave()
+
+    const { data: departments = [] } = useQuery({ 
+        queryKey: ['get-department-view-statistical'], 
+        queryFn: async () => { 
+            let res;
+            if (isHR || user?.unitId == UnitEnum.GM ) {
+                res = await orgUnitApi.GetAllDepartment();
+            } else {
+                res = await orgUnitApi.GetDepartmentsManagedByOrgPositionManager(user?.orgPositionId ?? -1);
+            }
             return res.data.data;
         },
+        enabled: isManagerOrGM || isHR
     });
 
-    const handleYearChange = (year: string) => {
-        setSelectedYear(year);
-    };
-
-    const lineData = useMemo(() => {
-        const groupByMonth = statisticalData?.groupByMonth || [];
-        const labels = Array.from({ length: 12 }, (_, i) => `${i + 1}-${selectedYear}`);
-        const data = groupByMonth.map((item: {total: number}) => item.total)
-
-        return {
-            labels: labels,
-            datasets: [
-                {
-                    data: data,
-                    borderColor: 'blue',
-                    backgroundColor: 'rgba(0, 0, 255, 0.2)',
-                    fill: true,
-                    tension: 0.4,
-                },
-            ],
-        };
-    }, [statisticalData?.groupByMonth, selectedYear]);
-
-    const barData = useMemo(() => {
-        const groupByDepartment = statisticalData?.groupByDepartment || [];
-        return {
-            labels: groupByDepartment.map((item: { name: string }) => item.name),
-            datasets: [
-                {
-                    label: 'Loại yêu cầu',
-                    data: groupByDepartment.map((item: { total: number }) => item.total),
-                    backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#FF5722']
-                }
-            ],
-        };
-    }, [statisticalData]);
-    
-    if (isLoading) {
-        return <div>{lang == 'vi' ? 'Đang tải' : 'Loading'}...</div>;
+    const handleViewStatistic = async () => {
+        if (department == '') {
+            ShowToast(lang == 'vi' ? 'Chưa chọn bộ phận' : 'Please select department', 'error')
+            return
+        }
+        const res = await getStatisticLeave.mutateAsync({
+            departmentId: Number(department),
+            time: month,
+            isCalReject
+        })
+        setResultStatistic(res)
     }
 
-    if (isError) {
-        return <div className='text-red-500'>{lang == 'vi' ? 'Lỗi dữ liệu thống kê, thử lại sau' : 'Statistic data error, please try again.'}</div>;
+    const total = resultStatistic?.total ?? 0;
+    const urgent = resultStatistic?.totalUrgent ?? 0;
+    const normal = resultStatistic?.totalNormal ?? 0;
+
+    const urgentPercent =
+        total > 0 ? Math.round((urgent / total) * 1000) / 10 : 0;
+
+    const normalPercent =
+        total > 0 ? 100 - urgentPercent : 0;
+
+    if (!isManagerOrGM && !isHR) {
+        return <Navigate to="/forbidden" replace />;
     }
 
     return (
         <div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
-                <h3 className="font-bold text-xl md:text-2xl m-0">Leave request</h3>
+                <h3 className="font-bold text-xl md:text-2xl m-0">{lang == 'vi' ? 'Thống kê nghỉ phép' : 'Leave statistics'}</h3>
             </div>
 
-            <div className='mt-2'>
-                <label className="block mb-2 font-semibold text-sm text-gray-700">{t('statistical.time')}</label>
-                <YearSelect onChange={handleYearChange} defaultYear={selectedYear} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Link to={`/leave/all-form-leave-request?year=${selectedYear}`}>
-                    <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
-                        <Ticket className='text-[#1c398e]' size={35} />
-                        <h3 className="text-gray-600 mb-2">{t('statistical.total')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="totalRequests">{statisticalData?.groupByTotal?.total?.toLocaleString()}</div>
-                    </div>
-                </Link>
-                <Link to={`/leave/all-form-leave-request?statusId=2&year=${selectedYear}`}>
-                    <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
-                        <Info className='text-[#1c398e]' size={35}/>
-                        <h3 className="text-gray-600 mb-2">{t('statistical.inprocess')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="openRequests">{statisticalData?.groupByTotal?.inProcess?.toLocaleString()}</div>
-                    </div>
-                </Link>
-                <Link to={`/leave/all-form-leave-request?statusId=3&year=${selectedYear}`}>
-                    <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
-                        <CircleCheck className='text-[#1c398e]' size={35} />
-                        <h3 className="text-gray-600 mb-2">{t('statistical.completed')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.complete?.toLocaleString()}</div>
-                    </div>
-                </Link>
-                <Link to={`/leave/all-form-leave-request?statusId=1&year=${selectedYear}`}>
-                    <div className="bg-[#efefef] p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
-                        <ClipboardCheck className='text-[#1c398e]' size={35}/>
-                        <h3 className="text-gray-600 mb-2">{t('statistical.pending')}</h3>
-                        <div className="text-3xl font-bold text-blue-900" id="csatScore">{statisticalData?.groupByTotal?.pending?.toLocaleString()}</div>
-                    </div>
-                </Link>
-            </div>
-
-            <div className="flex w-full gap-x-10 mb-0">
-                <div className="flex-1 flex flex-col items-center bg-[#efefef] p-3 rounded-lg shadow-inner border">
-                    <div className='w-full flex justify-between'>
-                        <h2 className="mb-5 font-semibold text-lg">{t('statistical.total_request')}</h2>
-                    </div>
-                    <div className="h-72 w-full">
-                        <Line data={lineData} style={{ width: '100%', height: '100%' }}
-                            options={{ responsive: true, maintainAspectRatio: false, plugins:{ legend: {display: false}} }} />
-                    </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center bg-[#efefef] p-3 rounded-lg shadow-inner border">
-                    <div className='w-full flex justify-between'>
-                        <h2 className="mb-5 font-semibold text-lg">{t('statistical.total_by_type')}</h2>
-                    </div>
-                    <div className="h-72 w-full flex justify-center">
-                        <Bar
-                            data={barData}
-                            style={{ width: '100%', height: '100%' }}
-                            options={{ responsive: true, maintainAspectRatio: false, plugins:{ legend: {display: false}} }}
+            <div>
+                <div className="flex flex-wrap gap-3 items-end mb-3">
+                    <div>
+                        <label className="block text-sm font-medium mb-1">{lang == 'vi' ? 'Tháng' : 'Month'}</label>
+                        <MonthYearFlatPickr
+                            value={month}
+                            onChange={setMonth}
                         />
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">{lang == 'vi' ? 'Bộ phận' : 'Department'}</label>
+                        <select
+                            value={department}
+                            onChange={(e) => setDepartment(e.target.value)}
+                            className="border rounded px-3 py-1.5 text-sm cursor-pointer"
+                        >
+                            <option value="">--{lang == 'vi' ? 'Chọn bộ phận' : 'Choose department'}--</option>
+                            {
+                                departments?.map((item: OrgUnit, idx: number) => {
+                                    return (
+                                        <option key={idx} value={item?.id ?? -1}>{item?.name}</option>
+                                    )
+                                })
+                            }
+                        </select>
+                    </div>
+
+                    <button disabled={getStatisticLeave.isPending} onClick={handleViewStatistic} className="h-9 px-4 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 cursor-pointer disabled:bg-gray-400">
+                        {lang == 'vi' ? 'Xem' : 'View'}
+                    </button>
+
+                    <div className='flex items-center'>
+                        <input className='w-5 h-5 cursor-pointer accent-black mr-1' id='cb_cal_reject' type="checkbox" checked={isCalReject} onChange={() => setIsCalReject(prev => !prev)}/>
+                        <label className='select-none cursor-pointer' htmlFor="cb_cal_reject">{lang == 'vi' ? 'Tính cả những đơn bị từ chối' : 'Include rejected leave requests'} </label>
+                    </div>
                 </div>
-            </div>
 
-            <div className="bg-[#efefef] p-6 mb-8 pt-2 mt-8 rounded-lg shadow-inner border">
-                <h3 className="text-xl font-semibold mb-4 border-b pb-2 border-gray-600">{t('statistical.recent_request')}</h3>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-600">
-                        <thead>
-                            <tr>
-                                <th className="px-3 py-2">ID</th>
-                                <th className="px-3 py-2">{t('statistical.user_sent')}</th>
-                                <th className="px-3 py-2">{t('statistical.dept')}</th>
-                                <th className="px-3 py-2">{t('statistical.time_sent')}</th>
-                                <th className="px-3 py-2">{t('statistical.status')}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {statisticalData?.groupRecentList.map((item: any, index: any) => {
-                                const requestStatusId = item?.requestStatusId
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                        <div className="text-sm text-gray-500 mb-1">
+                            {lang == 'vi' ? 'Tổng số đơn nghỉ phép' : 'Total number of leave requests'}
+                        </div>
+                        <div className="text-2xl font-bold">{total}</div>
+                    </div>
 
-                                return (
-                                    <tr key={index} className="hover:bg-gray-100 cursor-pointer border-b border-[#d3d3d3d9]">
-                                        <td className="px-3 py-2">
-                                            <Link to={`/approval/view-purchase/${item.id ?? '1'}`} className='text-blue-600 underline'>
-                                                {item.code}
-                                            </Link>
-                                        </td>
-                                        <td className="px-3 py-2">{item.userNameRequestor}</td>
-                                        <td className="px-3 py-2">{item.departmentName}</td>
-                                        <td className="px-3 py-2">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                        <td className="px-3 py-2">
-                                            <StatusLeaveRequest status={
-                                                requestStatusId == StatusApplicationFormEnum.ASSIGNED ? StatusApplicationFormEnum.IN_PROCESS : requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL ? StatusApplicationFormEnum.PENDING : requestStatusId
-                                            }
-                                            />
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
+                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                        <div className="text-sm text-gray-500 mb-1">
+                            {lang == 'vi'
+                                ? 'Nghỉ phép thông thường'
+                                : 'Regular leave requests'}
+                        </div>
+                        <div className="text-2xl font-bold text-purple-600">
+                            {normal} ~ <span className="text-gray-500">({normalPercent}%)</span>
+                        </div>
+                    </div>
+
+                    <div className="bg-white border rounded-lg p-4 shadow-sm">
+                        <div className="text-sm text-gray-500 mb-1">
+                            {lang == 'vi'
+                                ? 'Nghỉ phép khẩn cấp'
+                                : 'Emergency leave requests'}
+                        </div>
+                        <div className="text-2xl font-bold text-green-600">
+                            {urgent} ~ <span className="text-gray-500">({urgentPercent}%)</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -194,40 +152,3 @@ const StatisticalLeaveRqForm = () => {
 };
 
 export default StatisticalLeaveRqForm;
-
-export interface YearSelectProps {
-    onChange?: (selectedYear: string) => void;
-    defaultYear?: string;
-    className?: string
-}
-
-export const YearSelect: React.FC<YearSelectProps> = ({ onChange, defaultYear, className }) => {
-    const startYear = 2025;
-    const currentYear = new Date().getFullYear();
-    const numberOfYears = currentYear - startYear + 1;
-    const years = Array.from({ length: numberOfYears }, (_, i) => startYear + i).reverse();
-
-    const [selectedYear, setSelectedYear] = useState<string>(defaultYear || currentYear.toString());
-
-    useEffect(() => {
-        if (defaultYear !== selectedYear) {
-            setSelectedYear(defaultYear || currentYear.toString());
-        }
-    }, [defaultYear, selectedYear, currentYear]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const year = e.target.value;
-        setSelectedYear(year);
-        if (onChange) {
-            onChange(year);
-        }
-    };
-
-    return (
-        <select value={selectedYear} className={`bg-white p-1 px-5 border rounded-[3px] hover:cursor-pointer ${className}`} onChange={handleChange}>
-            {years.map((year) => (
-                <option key={year} value={year}>{year}</option>
-            ))}
-        </select>
-    );
-};

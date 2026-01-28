@@ -15,7 +15,7 @@ import 'handsontable/styles/ht-theme-main.css'
 import { z } from 'zod';
 import { useForm } from "react-hook-form"
 import { zodResolver } from '@hookform/resolvers/zod';
-import { StatusApplicationFormEnum, ViewApprovalProps } from "@/lib"
+import { ShowToast, StatusApplicationFormEnum, ViewApprovalProps } from "@/lib"
 import { InternalMemoSchema, listDoors, listTypeInternalMemoHRs } from "./CreateInternalMemoHR"
 import HistoryApproval from "../Approval/Components/HistoryApproval"
 import { Label } from "@/components/ui/label"
@@ -169,6 +169,10 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                 queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
             }
             else if (type == 'assigned') {
+                if (selectedUserAssigned.length <= 0) {
+                    ShowToast('Please select at least one person to this task', 'error')
+                    return
+                }
                 await assignedInternalMemoHr.mutateAsync(payload)
                 navigate('/approval/pending-approval')
                 queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });

@@ -182,11 +182,11 @@ export default function LeaveRequestFormForOthers() {
                 usercode: userCode,
             });
             const result = fetchData?.data?.data;
-            setValue(`userLeaveRequest.${index}.userName`, result?.NVHoTen ?? "", {shouldValidate: true});
-            setValue(`userLeaveRequest.${index}.department`, result?.DepartmentName ?? "", {shouldValidate: true});
-            setValue(`userLeaveRequest.${index}.departmentId`, result?.DepartmentId ?? -1, {shouldValidate: true});
-            setValue(`userLeaveRequest.${index}.position`, result?.PositionV ?? "", {shouldValidate: true});
-            setValue(`userLeaveRequest.${index}.dateJoinCompany`, result?.NVNgayVao ?? '', {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.userName`, result?.nvHoTen ?? "", {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.department`, result?.departmentName ?? "", {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.departmentId`, result?.departmentId ?? -1, {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.position`, result?.positionV ?? "", {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.dateJoinCompany`, result?.nvNgayVao ?? '', {shouldValidate: true});
         } catch (err) {
             ShowToast(getErrorMessage(err), "error");
             setValue(`userLeaveRequest.${index}.userName`, '', {shouldValidate: true});
@@ -443,12 +443,12 @@ export default function LeaveRequestFormForOthers() {
                             <input id="cb_self_register" onChange={(e) => handleCheckSeftRegister(e.target.checked)} checked={selfRegister} type="checkbox"  className="h-5 w-5 accent-black cursor-pointer"/>
                             <label htmlFor="cb_self_register" className="select-none cursor-pointer ml-1">{lang == 'vi' ? 'Đăng ký nghỉ cho người khác' : 'Request leave for someone else'}</label>
                         </div>
-                        <div className="lg:mt-0"> 
+                        <div className="lg:mt-0">
                             <div className="bg-red-400 p-2 text-sm text-white rounded-[3px] w-full lg:w-auto">
                                 ** {
                                     lang == 'vi'
-                                        ? 'Lưu ý, chỉ nên nhập dữ liệu đăng ký cho chính mình hoặc thành viên cùng tổ'
-                                        : 'Note, you should only enter registration data for yourself or member of your team, organization.'
+                                        ? 'Lưu ý: Người đăng ký chỉ được nhập dữ liệu cho bản thân hoặc các thành viên thuộc cùng tổ'
+                                        : 'Note: Registrants are only allowed to enter data for themselves or for members of the same team'
                                 }
                             </div>
                         </div>

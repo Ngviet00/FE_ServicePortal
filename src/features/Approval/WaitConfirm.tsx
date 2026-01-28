@@ -5,7 +5,7 @@ import { OrgUnit } from "@/api/orgUnitApi";
 import PaginationControl from "@/components/PaginationControl/PaginationControl";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GetUrlWaitApproval } from "@/lib";
+import { StatusApplicationFormEnum } from "@/lib";
 import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
@@ -103,7 +103,7 @@ export default function WaitConfirm() {
                             ListWaitApprovals.map((item: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-gray-50">
                                     <td className="px-4 py-2 border text-center">
-                                        <Link to={GetUrlWaitApproval(item?.requestTypeId, item?.code)} className="text-blue-700 underline">
+                                        <Link to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-700 underline">
                                             {item?.code}
                                         </Link>
                                     </td>
@@ -118,11 +118,11 @@ export default function WaitConfirm() {
                                         {item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : "--"}
                                     </td>
                                     <td className="px-4 py-2 border text-center">
-                                        <StatusLeaveRequest status={item?.requestStatusId} />
+                                        <StatusLeaveRequest status={StatusApplicationFormEnum.WaitConfirm} />
                                     </td>
                                     <td className="px-4 py-2 border text-center space-x-1">
                                         <Link
-                                            to={GetUrlWaitApproval(item?.requestTypeId, item?.code)}
+                                            to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                                         >
                                             {t("pending_approval.detail")}
@@ -155,12 +155,12 @@ export default function WaitConfirm() {
                                 <div key={idx} className="border rounded-lg p-3 shadow-sm bg-white mb-3">
                                     <div className="flex justify-between items-center">
                                         <Link
-                                            to={GetUrlWaitApproval(item?.requestTypeId, item?.code)}
+                                            to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="font-semibold text-blue-700 underline"
                                         >
                                             {item.code}
                                         </Link>
-                                        <StatusLeaveRequest status={item?.requestStatusId} />
+                                        <StatusLeaveRequest status={StatusApplicationFormEnum.WaitConfirm} />
                                     </div>
 
                                     <div className="text-sm text-gray-700 mt-1 space-y-1">
@@ -192,7 +192,7 @@ export default function WaitConfirm() {
 
                                     <div className="mt-2 flex justify-end">
                                         <Link
-                                            to={GetUrlWaitApproval(item?.requestTypeId, item?.code)}
+                                            to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                                         >
                                             {t("pending_approval.detail")}

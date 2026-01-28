@@ -10,6 +10,9 @@ import ViewTimeKeeping from '../TimeKeeping/ViewTimeKeeping';
 import ViewApprovalOverTime from '../Overtime/ViewApprovalOverTime';
 import ViewApprovalLeaveRequest from '../Leave/ViewApprovalLeaveRequest';
 import ViewApprovalInternalMemoHR from '../InternalMemoHR/ViewApprovalInternalMemoHR';
+import ViewApprovalFormIT from '../FormIT/ViewApprovalFormIT';
+import ViewApprovalFormPurchase from '../Purchasing/ViewApprovalFormPurchase';
+import ViewApprovalSAPForm from '../Sap/ViewApprovalSAPForm';
 
 const DetailApproval: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -29,6 +32,9 @@ const DetailApproval: React.FC = () => {
                 requestType != null && requestType == RequestTypeEnum.Overtime.toString() ? <ViewApprovalOverTime id={id ?? ''}/> :
                 requestType != null && requestType == RequestTypeEnum.LeaveRequest.toString() ? <ViewApprovalLeaveRequest id={id ?? ''}/> :
                 requestType != null && requestType == RequestTypeEnum.InternalMemoHR.toString() ? <ViewApprovalInternalMemoHR id={id ?? ''}/> :
+                requestType != null && requestType == RequestTypeEnum.FormIT.toString() ? <ViewApprovalFormIT id={id ?? ''}/> :
+                requestType != null && requestType == RequestTypeEnum.Purchase.toString() ? <ViewApprovalFormPurchase id={id ?? ''}/> :
+                requestType != null && requestType == RequestTypeEnum.Sap.toString() ? <ViewApprovalSAPForm id={id ?? ''}/> :
                 (
                     <div className='text-red-500 font-bold'>
                         {lang == 'vi' ? 'Không tìm thấy dữ liệu' : 'Not found data'}

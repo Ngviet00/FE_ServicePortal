@@ -47,6 +47,13 @@
 
 	"sidebar": {
 		"home": "Trang chủ",
+		"feedback": {
+			"title": "Hòm thư góp ý",
+			"all_feedback": "Tất cả thư góp ý",
+			"create": "Tạo thư góp ý",
+			"my_feedback": "Danh sách thư góp ý của tôi",
+			"pending_response": "Chờ phản hồi"
+		},
 		"admin": {
 			"role": "Vai trò",
 			"permission": "Quyền",
@@ -79,11 +86,12 @@
 			},
 			"leave_request": {
 				"title": "Nghỉ phép, chấm công",
+				"leave_statistics": "Thống kê nghỉ phép",
 				"create_leave": "Nghỉ phép, đi trễ về sớm",
 				"create_leave_for_others" : "Tăng ca",
 				"over_time": "Tăng ca",
 				"missing_attendace_data": "Bù chấm công",
-				"internal_memo_hr": "Nội bộ HR",
+				"internal_memo_hr": "Đơn nội bộ",
 				"time_keeping": "Chấm công",
 				"mng_time_keeping": "Quản lý chấm công"
 			}
@@ -362,5 +370,28 @@
 		"wait_quote": "Chờ báo giá",
 		"wait_po": "Chờ PO",
 		"wait_delivery": "Chờ giao hàng"
+	},
+	"feedback": {
+
+		"create": {
+			"title": "Tạo thư góp ý"
+		},
+		"list": {
+			"title": "Danh sách góp ý đã tạo",
+			"code": "Mã",
+			"content": "Nội dung",
+			"status":"Trạng thái",
+			"created_at": "Thời gian tạo",
+			"action":"Hành động",
+			"pending_response": "Chờ phản hồi",
+			"has_response": "Đã phản hồi"
+		},
+		"view": {
+			"btn_response": "Phản hồi",
+			"response_at": "Thời gian phản hồi"
+		},
+		"pending_response": {
+			"title": "Chờ phản hồi"
+		}
 	}
 }

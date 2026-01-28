@@ -266,7 +266,7 @@ const CreateTermination: React.FC = () => {
         try {
             setIsSearchingUser(true);
 
-            const fetchData = await userApi.SearchUserCombineViClockAndWebSystem(userCode);
+            const fetchData = await userApi.getByCode(userCode);
             const result = fetchData?.data?.data;
 
             if (!result?.userCode) {
@@ -317,7 +317,6 @@ const CreateTermination: React.FC = () => {
     if (isEdit && isLoadingFormDataDetail) {
         return <div>{lang === 'vi' ? 'Đang tải dữ liệu...' : 'Loading data...'}</div>;
     }
-
   
     return (
         <div className="p-1 pl-1 pt-0 space-y-6">

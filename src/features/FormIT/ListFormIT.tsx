@@ -34,20 +34,13 @@ export default function ListFormIT () {
     const [selectedDepartment, setSelectedDepartment] = useState('')
     const [selectedStatus, setSelectedStatus] = useState('')
     const [selectedYear, setSelectedYear] = useState('')
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
-        const statusIdParam = searchParams.get('statusId');
-        const yearParam = searchParams.get('year');
-
-        if (statusIdParam !== null) {
-            setSelectedStatus(statusIdParam);
-        }
-
-        if (yearParam !== null) {
-            setSelectedYear(yearParam)
-        }
-
+        setSelectedStatus(searchParams.get('statusId') ?? '');
+        setSelectedYear(searchParams.get('year') ?? '');
+        setSelectedDepartment(searchParams.get('departmentId') ?? '');
+        setPage(Number(searchParams.get('page') ?? 1));
     }, [searchParams]);
     
     const { data: itForms = [], isPending, isError, error } = useQuery({
@@ -68,6 +61,9 @@ export default function ListFormIT () {
 
     function setCurrentPage(page: number): void {
         setPage(page)
+        const params = new URLSearchParams(searchParams);
+        params.set('page', page.toString());
+        setSearchParams(params);
     }
 
     function handlePageSizeChange(size: number): void {
@@ -78,15 +74,18 @@ export default function ListFormIT () {
     const handleOnChangeDepartment = (e: ChangeEvent<HTMLSelectElement>) => {
         setPage(1)
         setSelectedDepartment(e.target.value)
+        updateSearchParams('departmentId', e.target.value);
     }
 
     const handleOnChangeStatus = (e: ChangeEvent<HTMLSelectElement>) => {
         setPage(1)
         setSelectedStatus(e.target.value)
+        updateSearchParams('statusId', e.target.value);
     }
 
     const handleYearChange = (year: string) => {
         setSelectedYear(year);
+        updateSearchParams('year', year);
     };
 
     function handleSuccessDelete(shouldGoBack?: boolean) {
@@ -97,10 +96,23 @@ export default function ListFormIT () {
         }
     }
 
+    const updateSearchParams = (key: string, value?: string) => {
+        const params = new URLSearchParams(searchParams);
+
+        if (!value || value === '') {
+            params.delete(key);
+        } else {
+            params.set(key, value);
+        }
+
+        params.set('page', '1');
+        setSearchParams(params);
+    };
+
     const delITForm = useDeleteITForm(); 
-    const handleDelete = async (code: string) => {
+    const handleDelete = async (applicationFormId: number) => {
         const shouldGoBack = itForms.length === 1;
-        await delITForm.mutateAsync(code);
+        await delITForm.mutateAsync(applicationFormId);
         handleSuccessDelete(shouldGoBack);
     };
 
@@ -146,7 +158,7 @@ export default function ListFormIT () {
                             <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
                                 <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                                 {
-                                    Object.entries(StatusApplicationFormEnum).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5].includes(value))
+                                    Object.entries(StatusApplicationFormEnum).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5, 8].includes(value))
                                         .map(([key, value]) => (
                                             <option key={value} value={value}>
                                             {key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
@@ -171,26 +183,28 @@ export default function ListFormIT () {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="px-4 py-2 border w-[70px] text-center">{t('list.code')}</th>
-                                    <th className="px-4 py-2 border w-[370px] text-center">{t('list.reason')}</th>
                                     <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_requestor')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-center">{t('list.department')}</th>
+                                    <th className="px-4 py-2 border w-[370px] text-center">{t('list.reason')}</th>
                                     <th className="px-4 py-2 border w-[120px] text-center">{t('list.created_at')}</th>
                                     <th className="px-4 py-2 border w-[100px] text-center">{t('list.status')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.action')}</th>
+                                    {
+                                        !isAllForm && <th className="px-4 py-2 border w-[100px] text-center">{t('list.action')}</th>
+                                    }
                                 </tr>
                             </thead>
                         <tbody>
                             {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
                                     <tr key={index}>
-                                        {Array.from({ length: 7 }).map((_, i) => (
+                                        {Array.from({ length: isAllForm ? 6 : 7 }).map((_, i) => (
                                             <td key={i} className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                         ))}
                                     </tr>
                                     ))
                                 ) : isError || itForms.length == 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
+                                        <td colSpan={isAllForm ? 6 : 7} className="px-4 py-2 text-center font-bold text-red-700">
                                             {error?.message ?? tCommon('no_results')}
                                         </td>
                                     </tr>
@@ -199,33 +213,35 @@ export default function ListFormIT () {
                                         return (
                                             <tr key={idx}>
                                                 <td className="px-4 py-2 border text-center">
-                                                    <Link to={`/view/form-it/${item?.code ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
+                                                    <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
                                                 </td>
+                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameCreatedForm ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
                                                 <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
                                                     {item?.reason ?? '--'}
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{item?.createdBy ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-center">{item?.departmentName ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-center">{formatDate(item.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
+                                                <td className="px-4 py-2 border text-center">{formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
                                                 <td className="px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
-                                                        item?.requestStatusId == StatusApplicationFormEnum.ASSIGNED || item?.requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL 
-                                                            ? StatusApplicationFormEnum.IN_PROCESS 
-                                                        : item.requestStatusId
+                                                        [StatusApplicationFormEnum.Pending, StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(item?.applicationForm?.requestStatusId)
+                                                        ? item?.applicationForm?.requestStatusId : StatusApplicationFormEnum.Inprocess
                                                     }/>
                                                 </td>
-                                                <td className="text-center border font-bold text-red-700">
-                                                    {
-                                                        item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
-                                                            <>
-                                                                <Link to={`/form-it/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                    {t('list.edit')}
-                                                                </Link>
-                                                                <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code)}/>
-                                                            </>
-                                                        ) : (<>--</>)
-                                                    }
-                                                </td>
+                                                {
+                                                    !isAllForm && 
+                                                        <td className="text-center border font-bold text-red-700">
+                                                        {
+                                                            item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
+                                                                <>
+                                                                    <Link to={`/form-it/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
+                                                                        {t('list.edit')}
+                                                                    </Link>
+                                                                    <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId)}/>
+                                                                </>
+                                                            ) : (<>--</>)
+                                                        }
+                                                    </td>
+                                                }
                                             </tr>
                                         )
                                     })
@@ -238,7 +254,7 @@ export default function ListFormIT () {
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
                                 <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
-                                    {Array.from({ length: 7 }).map((_, i) => (
+                                    {Array.from({ length: isAllForm ? 6 : 7 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                 </div>
@@ -250,31 +266,33 @@ export default function ListFormIT () {
                                 <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
                                     <div className="mb-1">
                                         <strong>{t('list.code')}: </strong>
-                                        <Link to={`/view/form-it/${item?.code ?? '1'}`} className="text-blue-700 underline font-semibold">{item?.code ?? '--'}</Link>
+                                        <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline font-semibold">{item?.applicationForm?.code ?? '--'}</Link>
                                     </div>
+                                    <div className="mb-1"><strong>{t('list.user_requestor')}: </strong> {item?.applicationForm?.userNameCreatedForm ?? '--'}</div>
+                                    <div className="mb-1"><strong>{t('list.department')}: </strong> {item?.orgUnit?.name ?? '--'}</div>
                                     <div className="mb-1"><strong>{t('list.reason')}:</strong> {item?.reason}</div>
-                                    <div className="mb-1"><strong>{t('list.user_requestor')}: </strong> {item?.createdBy ?? '--'}</div>
-                                    <div className="mb-1"><strong>{t('list.department')}: </strong> {item?.departmentName ?? '--'}</div>
                                     <div className="mb-1"><strong>{t('list.created_at')}: </strong> {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</div>
                                     <div className="mb-1"><strong>{t('list.status')}: </strong>
                                         <StatusLeaveRequest status={
-                                            item?.requestStatusId == StatusApplicationFormEnum.ASSIGNED || item?.requestStatusId == StatusApplicationFormEnum.FINAL_APPROVAL 
-                                                ? StatusApplicationFormEnum.IN_PROCESS 
-                                            : item.requestStatusId
+                                            [StatusApplicationFormEnum.Pending, StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(item?.applicationForm?.requestStatusId)
+                                            ? item?.applicationForm?.requestStatusId : StatusApplicationFormEnum.Inprocess
                                         }/>
                                     </div>
-                                    <div className="mb-1">
-                                        {
-                                            item?.requestStatusId == StatusApplicationFormEnum.PENDING ? (
-                                                <>
-                                                    <Link to={`/form-it/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
-                                                        {t('list.edit')}
-                                                    </Link>
-                                                    <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code)}/>
-                                                </>
-                                            ) : (<>--</>)
-                                        }
-                                    </div>
+                                    {
+                                        !isAllForm && 
+                                            <div className="mb-1">
+                                            {
+                                                item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
+                                                    <>
+                                                        <Link to={`/form-it/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[5px] rounded-[3px] text-sm">
+                                                            {t('list.edit')}
+                                                        </Link>
+                                                        <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId)}/>
+                                                    </>
+                                                ) : (<>--</>)
+                                            }
+                                        </div>
+                                    }
                                 </div>
                             ))
                         )}

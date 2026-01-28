@@ -184,7 +184,7 @@ const CreateResignation: React.FC = () => {
     const { data: userDetail  } = useQuery({
         queryKey: ['get-user-info-resignation', user?.userCode],
         queryFn: async () => {
-            const fetchData = await userApi.SearchUserCombineViClockAndWebSystem(user?.userCode ?? '');
+            const fetchData = await userApi.getByCode(user?.userCode ?? '');
             return fetchData?.data?.data;
         },
         enabled: !!user?.userCode && !isEdit

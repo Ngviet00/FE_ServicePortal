@@ -30,7 +30,7 @@ const AddUserModal: React.FC<Props> = ({ onClose, onSubmit, editingMember }) => 
         if (!userCode.trim()) return;
             setIsFinding(true);
         try {
-            const res = await userApi.SearchUserCombineViClockAndWebSystem(userCode);
+            const res = await userApi.getByCode(userCode);
             const result = res?.data?.data;
             if (!result?.userCode) return ShowToast("Không tìm thấy nhân viên", "error");
             setUserCode(result?.userCode);
