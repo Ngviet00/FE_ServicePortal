@@ -11,7 +11,7 @@ import "./css/Login.css"
 export default function LoginPage() {
     const { t } = useTranslation();
     const [userCode, setUserCode] = useState("")
-    const [password, setPassword] = useState("Viet4321@");
+    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 	const navigate = useNavigate()
