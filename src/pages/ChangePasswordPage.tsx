@@ -104,6 +104,7 @@ export default function ChangePasswordPage() {
                                         name="email"
                                         type="text"
                                         value={email}
+                                        placeholder="Email"
                                         required
                                         onChange={handleChangeEmail}
                                         className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
@@ -125,6 +126,7 @@ export default function ChangePasswordPage() {
                                 type={showPassword ? "text" : "password"}
                                 value={newPassword}
                                 required
+                                placeholder={t('change_password_page.new_password')}
                                 onChange={handleChangeNewPassword}
                                 className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
                             />
@@ -151,6 +153,7 @@ export default function ChangePasswordPage() {
                                 type={showConfirmPw ? "text" : "password"}
                                 value={confirmPassword}
                                 required
+                                placeholder={t('change_password_page.confirm_password')}
                                 onChange={handleChangeConfirmNewPassword}
                                 autoComplete="current-password"
                                 className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
