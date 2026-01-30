@@ -59,13 +59,6 @@ export interface UpdatePersonalInfo {
     dateOfBirth?: string
 }
 
-interface getUserToSelectMngTKeeping {
-    keysearch?: string
-    DepartmentId?: number,
-    Page?: number,
-    PageSize?: number,
-}
-
 export interface UpdateUserMngTimeKeeping {
     userCode: string,
     orgUnitId: number[]
@@ -122,6 +115,28 @@ const userApi = {
             }
         })
     },
+
+    importUserLeavingExcel(data: FormData) {
+        return axiosClient.post('/user/import-user-leaving-by-excel', data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+    },
+}
+
+export function useImportUserLeavingExcel() {
+    return useMutation({
+        mutationFn: async (data: FormData) => {
+            await userApi.importUserLeavingExcel(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err) ?? 'Error', "error");
+        }
+    })
 }
 
 export function useImportUserExcel() {

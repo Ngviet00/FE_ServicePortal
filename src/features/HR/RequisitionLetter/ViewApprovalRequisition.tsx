@@ -228,12 +228,12 @@ const ViewApprovalRequisition: React.FC<ViewApprovalTerminationLetterProps> = ({
         }
     });
 
-    const handleCheckboxChangeUserAssigned = (event: React.ChangeEvent<HTMLInputElement>, item: {nvMaNV: string, nvHoTen: string, email: string}) => {
+    const handleCheckboxChangeUserAssigned = (event: React.ChangeEvent<HTMLInputElement>, item: {userCode: string, userName: string, email: string}) => {
         const isChecked = event.target.checked;
         if (isChecked) {
-            setSelectedUserAssigned(prevSelected => [...prevSelected, { userCode: item.nvMaNV, userName: item.nvHoTen, email: item.email }]);
+            setSelectedUserAssigned(prevSelected => [...prevSelected, { userCode: item.userCode, userName: item.userName, email: item.email }]);
         } else {
-            setSelectedUserAssigned(prevSelected => prevSelected.filter(u => u.userCode !== item.nvMaNV));
+            setSelectedUserAssigned(prevSelected => prevSelected.filter(u => u.userCode !== item.userCode));
         }
     };
 
@@ -526,7 +526,7 @@ const ViewApprovalRequisition: React.FC<ViewApprovalTerminationLetterProps> = ({
                                 ))
                             ) : formDataDetail?.requisitionLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FinalApproval ?
                             (
-                                hrMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => (
+                                hrMembers?.map((item: {userCode: string, userName: string, email: string}, idx: number) => (
                                     <label
                                         key={idx}
                                         className="flex items-center space-x-2 cursor-pointer w-full sm:w-[48%]"
@@ -534,16 +534,16 @@ const ViewApprovalRequisition: React.FC<ViewApprovalTerminationLetterProps> = ({
                                         <input
                                             type="checkbox"
                                             checked={selectedUserAssigned.some(
-                                                (e) => e.userCode == item.nvMaNV
+                                                (e) => e.userCode == item.userCode
                                             )}
-                                            value={item.nvMaNV}
+                                            value={item.userCode}
                                             className="border-gray-300 scale-[1.4] accent-black"
                                             onChange={(e) =>
                                                 handleCheckboxChangeUserAssigned(e, item)
                                             }
                                         />
                                         <span>
-                                            <strong>({item.nvMaNV})</strong> {item.nvHoTen}
+                                            <strong>({item.userCode})</strong> {item.userName}
                                         </span>
                                     </label>
                                 ))

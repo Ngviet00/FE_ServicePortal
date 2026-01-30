@@ -75,7 +75,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 					{ key: "sidebar.hr.insurance.resignation", label: "sidebar.hr.insurance.resignation", route: "/resignation/create" },
 					{ key: "sidebar.hr.insurance.termination", label: "sidebar.hr.insurance.termination", route: "/termination/create" },
 					{ key: "sidebar.hr.insurance.warningletter", label: "sidebar.hr.insurance.warningletter", route: "/warningletter/create" },
-					{ key: "sidebar.hr.insurance.absentover5day", label: "sidebar.hr.insurance.absentover5day", route: "/absent-over-day" },
+					// { key: "sidebar.hr.insurance.absentover5day", label: "sidebar.hr.insurance.absentover5day", route: "/absent-over-day" },
 				]
 			},
 			{
@@ -86,8 +86,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 					{ key: "sidebar.hr.leave_request.create_leave", label: "sidebar.hr.leave_request.create_leave", route: "/leave/create" },
 					{ key: "sidebar.hr.leave_request.over_time", label: "sidebar.hr.leave_request.over_time", route: "/overtime/create" },
 					{ key: "sidebar.hr.leave_request.internal_memo_hr", label: "sidebar.hr.leave_request.internal_memo_hr", route: "/internal-memo-hr/create" },
-					{ key: "sidebar.hr.leave_request.time_keeping", label: "sidebar.hr.leave_request.time_keeping", route: "/time-keeping" },
-					{ key: "sidebar.hr.leave_request.mng_time_keeping", label: "sidebar.hr.leave_request.mng_time_keeping", route: "/management-time-keeping" },
+					// { key: "sidebar.hr.leave_request.time_keeping", label: "sidebar.hr.leave_request.time_keeping", route: "/time-keeping" },
+					// { key: "sidebar.hr.leave_request.mng_time_keeping", label: "sidebar.hr.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 				]
 			},
 			{ key: "sidebar.union.list", label: "sidebar.union.list", route: `/vote?role=${RoleEnum.HR}` },

@@ -197,12 +197,12 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
         await hrExportExcelInternalMemo.mutateAsync(formDataDetail?.applicationForm?.id)
     };
     
-    const handleCheckboxChangeUserAssigned = (event: React.ChangeEvent<HTMLInputElement>, item: {nvMaNV: string, nvHoTen: string, email: string}) => {
+    const handleCheckboxChangeUserAssigned = (event: React.ChangeEvent<HTMLInputElement>, item: {userCode: string, userName: string, email: string}) => {
         const isChecked = event.target.checked;
         if (isChecked) {
-            setSelectedUserAssigned(prevSelected => [...prevSelected, { userCode: item.nvMaNV, userName: item.nvHoTen, email: item.email }]);
+            setSelectedUserAssigned(prevSelected => [...prevSelected, { userCode: item.userCode, userName: item.userName, email: item.email }]);
         } else {
-            setSelectedUserAssigned(prevSelected => prevSelected.filter(u => u.userCode !== item.nvMaNV));
+            setSelectedUserAssigned(prevSelected => prevSelected.filter(u => u.userCode !== item.userCode));
         }
     };
 
@@ -311,7 +311,7 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                                     className="flex items-start gap-2 cursor-pointer min-w-[180px] max-w-full"
                                 >
                                     <input
-                                        disabled={mode == 'view' || (formDataDetail?.defineInstance?.currentStep >= 5 && item?.isSpecial == true) || formDataDetail?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned}
+                                        disabled={mode == 'view' || formDataDetail?.defineInstance?.currentStep > 5 || (formDataDetail?.defineInstance?.currentStep >= 5 && item?.isSpecial == true) || formDataDetail?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned}
                                         checked={selectedDoors.some((d: any) => d.code == item.code)}
                                         onChange={(e) => {
                                             if (e.target.checked) {
@@ -412,7 +412,7 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                     ) :
                     formDataDetail?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FinalApproval 
                     ? (
-                        ItMembers?.map((item: {nvMaNV: string, nvHoTen: string, email: string}, idx: number) => (
+                        ItMembers?.map((item: {userCode: string, userName: string, email: string}, idx: number) => (
                             <label
                                 key={idx}
                                 className="flex items-center space-x-2 cursor-pointer w-full sm:w-[48%]"
@@ -420,16 +420,16 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                                 <input
                                     type="checkbox"
                                     checked={selectedUserAssigned.some(
-                                        (e) => e.userCode == item.nvMaNV
+                                        (e) => e.userCode == item.userCode
                                     )}
-                                    value={item.nvMaNV}
+                                    value={item.userCode}
                                     className="border-gray-300 scale-[1.4] accent-black"
                                     onChange={(e) =>
                                         handleCheckboxChangeUserAssigned(e, item)
                                     }
                                 />
                                 <span>
-                                    <strong>({item.nvMaNV})</strong> {item.nvHoTen}
+                                    <strong>({item.userCode})</strong> {item.userName}
                                 </span>
                             </label>
                         ))

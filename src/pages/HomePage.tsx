@@ -72,7 +72,7 @@ export default function HomePage() {
             const res = await systemConfigApi.getByConfigKey('LINK_RULE_COMPANY')
             const result = res.data.data;
 
-            return result?.configValue
+            return result?.configValue ?? ''
         },
     });
 
@@ -183,12 +183,15 @@ export default function HomePage() {
                 </div>
             </div>
             <div className='mt-3'>
-                <a 
-                    className='btn bg-orange-500 p-2 inline-block mt text-gray rounded-sm font-semibold'
-                    target="blank"
-                    href={filePathCompanyRule ?? ''}>
-                    {lang == 'vi' ? 'Nội quy công ty' : 'company regulations'}
-                </a>
+                {
+                    filePathCompanyRule != '' && 
+                    <a 
+                        className='btn bg-orange-500 p-2 inline-block mt text-gray rounded-sm font-semibold'
+                        target="blank"
+                        href={filePathCompanyRule ?? ''}>
+                        {lang == 'vi' ? 'Nội quy công ty' : 'company regulations'}
+                    </a>
+                }
             </div>
         </div>
     );

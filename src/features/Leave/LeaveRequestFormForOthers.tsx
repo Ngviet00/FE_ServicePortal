@@ -182,11 +182,11 @@ export default function LeaveRequestFormForOthers() {
                 usercode: userCode,
             });
             const result = fetchData?.data?.data;
-            setValue(`userLeaveRequest.${index}.userName`, result?.nvHoTen ?? "", {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.userName`, result?.userName ?? "", {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.department`, result?.departmentName ?? "", {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.departmentId`, result?.departmentId ?? -1, {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.position`, result?.positionV ?? "", {shouldValidate: true});
-            setValue(`userLeaveRequest.${index}.dateJoinCompany`, result?.nvNgayVao ?? '', {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.dateJoinCompany`, result?.entryDate ?? '', {shouldValidate: true});
         } catch (err) {
             ShowToast(getErrorMessage(err), "error");
             setValue(`userLeaveRequest.${index}.userName`, '', {shouldValidate: true});

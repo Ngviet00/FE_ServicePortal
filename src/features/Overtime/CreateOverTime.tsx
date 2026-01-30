@@ -261,7 +261,7 @@ export default function CreateOverTime() {
             });
 
             const result = fetchData?.data?.data;
-            setValue(`userOverTime.${index}.userName`, result?.nvHoTen ?? "", {shouldValidate: true});
+            setValue(`userOverTime.${index}.userName`, result?.userName ?? "", {shouldValidate: true});
             setValue(`userOverTime.${index}.position`, result?.positionV ?? "", {shouldValidate: true});
 
         } catch (err) {
