@@ -79,6 +79,13 @@ export default function LeaveRequestFormForOthers() {
     });
 
     const today = new Date();
+    const formatDate = (date: Date) => date.toISOString().split("T")[0];
+    const todayStr = formatDate(today);
+
+    // 3 ngày tiếp theo (cho phép AL)
+    const next3DaysDate = new Date(today);
+    next3DaysDate.setDate(today.getDate() + 3);
+    const next3DaysStr = formatDate(next3DaysDate);
 
     const normalMinDate = (() => {
         const d = new Date(today);
@@ -115,6 +122,8 @@ export default function LeaveRequestFormForOthers() {
         control,
         name: "userLeaveRequest",
     });
+
+    const watchedRequests = watch("userLeaveRequest");
 
     const handleAddRow = () => {
         append({
@@ -476,7 +485,7 @@ export default function LeaveRequestFormForOthers() {
                             )
                         }
                     </div>
-                    {
+                    {/* {
                         !isEdit && selfRegister && 
                         <div>
                             <span className="text-lg font-bold">{lang == 'vi' ? 'Nhập bằng excel' : 'Import excel'}: </span>
@@ -498,52 +507,75 @@ export default function LeaveRequestFormForOthers() {
                                 {lang == 'vi' ? 'Tải file mẫu' : 'Download template'} 
                             </button>
                         </div>
-                    }
+                    } */}
                 </div>
                 <div className="text-red-400 italic under">
                     {lang == 'vi' ? 'Nghỉ phép năm và nghỉ bù không cần đính kèm ảnh' : 'Annual leave and compensatory leave do not require attach image'}
                 </div>
                 <div className="space-y-3 border border-gray-200 rounded-lg p-3 bg-white">
                     {fields.map((_field, index) => {
-                        const isDisabledUserCode = (!isEdit && !selfRegister)
-                        const urgent = watch(`userLeaveRequest.${index}.isUrgent`);
-                        const from = getValues(`userLeaveRequest.${index}.fromDate`);
-                        let minDate = ''
-                        if (!isEdit) { //create
-                            minDate = urgent
-                            ? (() => {
-                                const d = new Date();
-                                d.setDate(d.getDate() - 7);
-                                return d.toLocaleDateString('sv-SE');
-                            })()
-                            : (() => {
-                                const d = new Date();
+                        // const isDisabledUserCode = (!isEdit && !selfRegister);
+
+                        // const currentTypeLeaveId = watch(`userLeaveRequest.${index}.typeLeave`);
+
+                        // const urgent = watch(`userLeaveRequest.${index}.isUrgent`);
+                        // const from = getValues(`userLeaveRequest.${index}.fromDate`);
+                        // let minDate = ''
+                        // if (!isEdit) { //create
+                        //     minDate = urgent
+                        //     ? (() => {
+                        //         const d = new Date();
+                        //         d.setDate(d.getDate() - 7);
+                        //         return d.toLocaleDateString('sv-SE');
+                        //     })()
+                        //     : (() => {
+                        //         const d = new Date();
+                        //         d.setDate(d.getDate() + 3);
+                        //         return d.toLocaleDateString('sv-SE');
+                        //     })();
+                        // } else { //edit
+                        //     minDate = urgent ? (() => {
+                        //         const d = new Date(from);
+                        //         d.setDate(d.getDate() - 7);
+                        //         return d.toLocaleDateString('sv-SE');
+                        //     })() : from
+                        // }
+                        const isDisabledUserCode = (!isEdit && !selfRegister);
+    
+                        // Theo dõi loại phép để ẩn/hiện và tính ngày
+                        const currentTypeLeaveId = watch(`userLeaveRequest.${index}.typeLeave`);
+                        const selectedType = typeLeaves?.find(t => t.id.toString() === currentTypeLeaveId);
+                        const isAL = selectedType?.code === 'AL' || selectedType?.code === 'W';
+
+                        // Tính minDate: AL thì +3, còn lại là hôm nay
+                        let minDate = '';
+                        if (!isEdit) {
+                            const d = new Date();
+                            if (isAL) {
                                 d.setDate(d.getDate() + 3);
-                                return d.toLocaleDateString('sv-SE');
-                            })();
-                        } else { //edit
-                            minDate = urgent ? (() => {
-                                const d = new Date(from);
-                                d.setDate(d.getDate() - 7);
-                                return d.toLocaleDateString('sv-SE');
-                            })() : from
+                            }
+                            minDate = d.toLocaleDateString('sv-SE');
+                        } else {
+                            // Chế độ Edit: giữ nguyên ngày cũ làm mốc min hoặc tùy logic dự án
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                            minDate = getValues(`userLeaveRequest.${index}.fromDate`)?.split(' ')[0];
                         }
 
                         const userCodeErr = errors?.userLeaveRequest?.[index]?.userCode;
                         const userNameErr = errors?.userLeaveRequest?.[index]?.userName;
                         const departmentErr = errors?.userLeaveRequest?.[index]?.department;
                         const positionErr = errors?.userLeaveRequest?.[index]?.position;
-                        const typeLeaveErr = errors?.userLeaveRequest?.[index]?.typeLeave;
+                        // const typeLeaveErr = errors?.userLeaveRequest?.[index]?.typeLeave;
                         const timeLeaveErr = errors?.userLeaveRequest?.[index]?.timeLeave;
                         const reasonErr = errors?.userLeaveRequest?.[index]?.reason;
 
                         return (
                             <div key={index} className="bg-white mb-3">
-                                <div className="mb-1 grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap gap-3 items-center">
+                                <div className="mb-1 grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap gap-1 items-center">
                                     <h2 className="font-bold text-xl text-red-600 dark:text-white mb-1 block">
                                         {`#` + (index + 1)}
                                     </h2>
-                                    <div className="flex flex-col w-full sm:w-full lg:max-w-[120px]">
+                                    <div className="flex flex-col w-full sm:w-full lg:max-w-[105px]">
                                         <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>{t("usercode")} <DotRequireComponent /></label>
                                         <Controller
                                             control={control}
@@ -552,7 +584,7 @@ export default function LeaveRequestFormForOthers() {
                                                 <input
                                                     type="text"
                                                     disabled={isDisabledUserCode}
-                                                    className={`border border-gray-300 rounded px-2 py-1 w-full h-[38px] ${isDisabledUserCode ? 'bg-gray-50' : ''} ${userCodeErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                    className={`border border-gray-300 rounded text-sm px-2 py-1 w-full h-[38px] ${isDisabledUserCode ? 'bg-gray-50' : ''} ${userCodeErr ? 'border border-red-300 bg-red-100' : ''}`}
                                                     placeholder={t("usercode")}
                                                     {...field}
                                                     {...control.register(`userLeaveRequest.${index}.userCode`, {
@@ -598,7 +630,36 @@ export default function LeaveRequestFormForOthers() {
                                         />
                                     </div>
 
-                                    <div className="flex flex-col w-full sm:w-full lg:max-w-[185px]">
+                                    {/* 1. Loại phép */}
+                                    <div className="flex flex-col w-full sm:w-full lg:max-w-[260px]">
+                                        <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                            {t("type_leave")} <DotRequireComponent />
+                                        </label>
+                                        <select
+                                            {...control.register(`userLeaveRequest.${index}.typeLeave`)}
+                                            onChange={(e) => {
+                                                const selectedId = e.target.value;
+                                                const selectedType = typeLeaves?.find(t => t.id.toString() === selectedId);
+                                                
+                                                // Logic: Nếu code là AL thì set +3 ngày, ngược lại set ngày hôm nay
+                                                const baseDate = (selectedType?.code === 'AL' || selectedType?.code === 'W') ? next3DaysStr : todayStr;
+                                                
+                                                setValue(`userLeaveRequest.${index}.typeLeave`, selectedId);
+                                                setValue(`userLeaveRequest.${index}.fromDate`, `${baseDate} 08:00`);
+                                                setValue(`userLeaveRequest.${index}.toDate`, `${baseDate} 17:00`);
+                                            }}
+                                            className={`p-2 text-sm border rounded hover:cursor-pointer w-full ${errors.userLeaveRequest?.[index]?.typeLeave ? 'border-red-300 bg-red-100' : ''}`}
+                                        >
+                                            <option value="">{t("choose")}</option>
+                                            {typeLeaves?.map((item) => (
+                                                <option key={item.id} value={item.id}>
+                                                    {lang == "vi" ? item.name : item.nameE}_{item.code}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* <div className="flex flex-col w-full sm:w-full lg:max-w-[260px]">
                                         <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
                                             {t("type_leave")} <DotRequireComponent />
                                         </label>
@@ -613,7 +674,7 @@ export default function LeaveRequestFormForOthers() {
                                                 </option>
                                             ))}
                                         </select>
-                                    </div>
+                                    </div> */}
 
                                     <div className="flex flex-col w-full sm:w-full lg:max-w-[110px]">
                                         <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
@@ -632,7 +693,7 @@ export default function LeaveRequestFormForOthers() {
                                         </select>
                                     </div>
 
-                                    <div className="flex flex-col w-full sm:w-full lg:max-w-[130px]">
+                                    {/* <div className="flex flex-col w-full sm:w-full lg:max-w-[130px]">
                                         <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
                                             {t("from_date")} <DotRequireComponent />
                                         </label>
@@ -662,7 +723,44 @@ export default function LeaveRequestFormForOthers() {
                                             }
                                             className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
                                         />
-                                    </div>
+                                    </div> */}
+
+                                    {/* 2. From Date & To Date: Chỉ hiển thị khi đã chọn typeLeave */}
+                                    {watchedRequests[index]?.typeLeave && (
+                                        <>
+                                            <div className="flex flex-col w-full sm:w-full lg:max-w-[135px]">
+                                                <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                                    {t("from_date")} <DotRequireComponent />
+                                                </label>
+                                                <DateTimePicker
+                                                    enableTime={true}
+                                                    minDate={watchedRequests[index]?.typeLeave === typeLeaves?.find(t => t.code === 'AL' || t.code == 'W')?.id?.toString() ? next3DaysStr : todayStr}
+                                                    dateFormat="Y-m-d H:i"
+                                                    initialDateTime={getValues(`userLeaveRequest.${index}.fromDate`)}
+                                                    onChange={(_selectedDates, dateStr) =>
+                                                        setValue(`userLeaveRequest.${index}.fromDate`, dateStr)
+                                                    }
+                                                    className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col w-full sm:w-full lg:max-w-[135px]">
+                                                <label className={`block mb-1 text-sm font-medium ${index !== 0 ? "xl:hidden" : ""} `}>
+                                                    {t("to_date")} <DotRequireComponent />
+                                                </label>
+                                                <DateTimePicker
+                                                    enableTime={true}
+                                                    minDate={getValues(`userLeaveRequest.${index}.fromDate`)}
+                                                    dateFormat="Y-m-d H:i"
+                                                    initialDateTime={getValues(`userLeaveRequest.${index}.toDate`)}
+                                                    onChange={(_selectedDates, dateStr) =>
+                                                        setValue(`userLeaveRequest.${index}.toDate`, dateStr)
+                                                    }
+                                                    className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
                                     
                                     <div className=" flex items-end gap-2 flex-1 sm:col-span-4 col-span-2 min-w-[200px]">
                                         <div className="flex-1">
@@ -689,11 +787,11 @@ export default function LeaveRequestFormForOthers() {
                                     </div>
                                 </div>
                                 <div className="pl-9 mt-2 flex">
-                                    <div className="flex items-start">
+                                    {/* <div className="flex items-start">
                                         <input {...control.register(`userLeaveRequest.${index}.isUrgent`)} id={`lbl_check_urgent_${index}`} className="w-5 h-5 mr-1 accent-black" type="checkbox" />
                                         <label htmlFor={`lbl_check_urgent_${index}`} className="select-none cursor-pointer">{lang == 'vi' ? 'Yêu cầu khẩn cấp' : 'Urgent request'}</label>
-                                    </div>
-                                    <div className="ml-3">
+                                    </div> */}
+                                    <div className="">
                                         <Controller
                                             name={`userLeaveRequest.${index}.images` as const}
                                             control={control}

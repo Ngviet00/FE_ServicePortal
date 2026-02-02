@@ -265,9 +265,9 @@ const ViewApprovalLeaveRequest = ({id, mode}: ViewApprovalProps) => {
                                             {formatDate(item?.dateJoinCompany, "yyyy-MM-dd") ?? "--" }
                                             </strong>
                                         </span>
-                                        <span className="text-gray-700 flex items-start">
+                                        {/* <span className="text-gray-700 flex items-start">
                                             {lang == 'vi' ? 'Yêu cầu khẩn cấp' : 'Urgent request'}: <input type="checkbox" className="w-5 h-5 ml-1 accent-black" checked={item?.isUrgent} disabled />
-                                        </span>
+                                        </span> */}
                                         <span className="text-gray-700 flex items-center">
                                             {lang == 'vi' ? 'Ảnh' : 'Image'}: 
                                             {
