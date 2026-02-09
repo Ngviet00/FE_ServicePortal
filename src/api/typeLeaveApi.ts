@@ -18,6 +18,7 @@ export interface ITypeLeave {
     code: string,
     modifiedBy: string,
     modifiedAt: string,
+    typeGroup?: string,
 };
 
 const typeLeaveApi = {

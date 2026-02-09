@@ -11,6 +11,7 @@ import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi"
 export default function ListTypeLeave () {
     const { t } = useTranslation();
     const { t: tCommon } = useTranslation('common')
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [page, setPage] = useState(1)
     const queryClient = useQueryClient();
     const debouncedName = useDebounce(name, 300);
@@ -73,6 +74,7 @@ export default function ListTypeLeave () {
 								<th className="px-4 py-2 border w-[400px]">{t('type_leave_page.name')}</th>
                                 <th className="px-4 py-2 border w-[400px]">{t('type_leave_page.nameE')}</th>
                                 <th className="px-4 py-2 border w-[400px]">{t('type_leave_page.code')}</th>
+                                <th className="px-4 py-2 border w-[400px]">{lang == 'vi' ? 'Loại' : 'Type'}</th>
 								<th className="px-4 py-2 border w-[300px]">{t('type_leave_page.action')}</th>
 							</tr>
 						</thead>
@@ -85,12 +87,13 @@ export default function ListTypeLeave () {
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
                                         </tr>  
                                     ))
                                 ) : isError || typeLeaves.length == 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-4 py-2 text-center font-bold text-red-700">
+                                        <td colSpan={6} className="px-4 py-2 text-center font-bold text-red-700">
                                             { error?.message ?? tCommon('no_results') } 
                                         </td>
                                     </tr>
@@ -103,6 +106,7 @@ export default function ListTypeLeave () {
                                             <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap">{item?.nameE}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap">{item.code}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap">{item.typeGroup}</td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center">
                                                 <CreateTypeLeaveForm typeLeave={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-type-leave'] })}/>
                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
