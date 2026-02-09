@@ -23,6 +23,13 @@ import { getErrorMessage, ShowToast } from "@/lib"
 import { useAuthStore } from "@/store/authStore"
 import { useTranslation } from "react-i18next"
 import typeLeaveApi from "@/api/typeLeaveApi"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 type Props = {
     typeLeave?: {
@@ -30,6 +37,7 @@ type Props = {
         name: string,
         nameE: string,
         code: string,
+        typeGroup?: string,
         modified_by?: string,
     },
     onAction?: () => void;
@@ -39,11 +47,13 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
     const [open, setOpen] = useState(false)
     const { user } = useAuthStore();
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0]
 
     const createUserSchema = z.object({
         name: z.string().min(1, { message: t('type_leave_page.required') }),
         nameE: z.string().min(1, { message: t('type_leave_page.required') }),
         code: z.string().min(1, { message: t('type_leave_page.required') }),
+        typeGroup: z.string().min(1, { message: t('type_leave_page.required') }),
         modified_by: z.string().nullable().optional()
     })
 
@@ -55,13 +65,14 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
             name: "",
             nameE: "",
             code: "",
+            typeGroup: "USER",
             modified_by: user?.userCode
         },
     })
 
     useEffect(() => {
         if (typeLeave && open) {
-            form.reset({ name: typeLeave.name, nameE: typeLeave.nameE, code: typeLeave.code });
+            form.reset({ name: typeLeave.name, nameE: typeLeave.nameE, code: typeLeave.code, typeGroup: typeLeave.typeGroup || "USER" });
         } else {
             form.reset({ name: "" });
         }
@@ -73,6 +84,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                 name: values.name,
                 nameE: values.nameE,
                 code: values.code,
+                typeGroup: values.typeGroup,
                 modified_by: user?.userCode
             }
             if (typeLeave?.id) {
@@ -153,6 +165,32 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                                     <FormMessage />
                                 </FormItem>
                             )}  
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="typeGroup"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label>{lang == 'vi' ? 'Loại' : 'Type Group'}</Label>
+                                    <Select 
+                                        onValueChange={field.onChange} 
+                                        value={field.value} 
+                                        defaultValue="USER"
+                                    >
+                                        <FormControl className="w-full">
+                                            <SelectTrigger className="hover:cursor-pointer">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="USER">USER</SelectItem>
+                                            <SelectItem value="SYS">SYS</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
                         
                         <div className="flex justify-end">

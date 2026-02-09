@@ -2,7 +2,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getErrorMessage, handleDownloadTemplate, ShowToast, TIME_LEAVE } from "@/lib";
+import { getErrorMessage, ShowToast, TIME_LEAVE } from "@/lib";
 import { useAuthStore } from "@/store/authStore";
 import leaveRequestApi, { useCreateLeaveRequest, useUpdateLeaveRq } from "@/api/leaveRequestApi";
 import { Button } from "@/components/ui/button";
@@ -214,6 +214,7 @@ export default function LeaveRequestFormForOthers() {
             const res = await typeLeaveApi.getAll({});
             return res.data.data;
         },
+        select: (data) => data.filter(item => item.typeGroup === 'USER')
     });
 
     const { data: receiveEmail } = useQuery({
