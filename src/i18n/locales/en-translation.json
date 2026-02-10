@@ -114,7 +114,12 @@
 			"title": "IT",
 			"statistical": "Statistical",
 			"create": "Create new request",
-			"it_form_wait_purchase": "Waiting"
+			"it_form_wait_purchase": "Waiting",
+			"door_gate": {
+				"title": "Management scanner machine",
+				"list": "List scanner machine",
+				"config_door_with_dept": "Config door with department"
+			}
 		},
 		"purchase": {
 			"title": "Purchasing",

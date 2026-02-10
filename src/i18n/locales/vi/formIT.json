@@ -59,5 +59,26 @@
     },
     "setting": {
         
+    },
+    "scanner_machine": {
+        "list": {
+            "title": "Danh sách máy",
+            "add": "Thêm thiết bị mới",
+            "update": "Cập nhật thiết bị",
+            "name_device": "Tên thiết bị",
+            "action": "Hành động",
+            "user": "Tên đăng nhập",
+            "password": "Mật khẩu",
+            "cancel": "Hủy",
+            "save": "Lưu",
+            "type": "Loại"
+        },
+        "config_door_dept": {
+            "title": "Cấu hình phòng với máy quét",
+            "select_device": "Chọn máy quét",
+            "select_dept": "Chọn phòng ban",
+            "save": "Lưu cấu hình",
+            "cancel": "Hủy"
+        }
     }
 }
