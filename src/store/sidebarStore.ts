@@ -1,5 +1,7 @@
 import { RoleEnum } from "@/lib";
-import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, ShieldCheck, MessageCircleQuestion, BookText } from "lucide-react";
+import { House, LockKeyhole, Ticket, Users, Bell, ClipboardCheck, Computer, WalletCards, ShieldCheck, MessageCircleQuestion, 
+	// BookText
+ } from "lucide-react";
 import { create } from "zustand";
 
 export interface SidebarMenuItem {
@@ -102,6 +104,14 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ key: "sidebar.IT.statistical", label: "sidebar.IT.statistical", route: "/form-it/statistical" },
 			{ key: "sidebar.IT.create", label: "sidebar.IT.create", route: "/form-it/create" },
 			{ key: "sidebar.IT.it_form_wait_purchase", label: "sidebar.IT.it_form_wait_purchase", route: "/form-it/list-item-wait-form-purchase" },
+			{
+				key: "IT.door_gate",
+				label: "sidebar.IT.door_gate.title",
+				children: [
+					{ key: "sidebar.IT.door_gate.list", label: "sidebar.IT.door_gate.list", route: "/it/list-scanner-machine" },
+					{ key: "sidebar.IT.door_gate.config_door_with_dept", label: "sidebar.IT.door_gate.config_door_with_dept", route: "/it/config-door-with-dept" }
+				]
+			},
 		],
 	},
 	{

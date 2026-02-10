@@ -84,6 +84,8 @@ import PendingResponse from '@/features/Feedback/PendingResponse';
 import ViewFeedback from '@/features/Feedback/ViewFeedback';
 import AllFeedback from '@/features/Feedback/GetAllFeedback';
 import CreateUser from '@/features/User/CreateUser';
+import ListScannerMachine from '@/features/ScannerMachine/ListScannerMachine';
+import ConfigDoorWithDept from '@/features/ScannerMachine/ConfigDoorWithDept';
 
 function App() {
 	const location = useLocation();
@@ -225,6 +227,9 @@ function App() {
 		{path: '/feedback/pending-response', element: <PendingResponse/>, allowedRoles: [RoleEnum.HR]},
 		{path: '/feedback', element: <AllFeedback/>, allowedRoles: [RoleEnum.HR]},
 		{path: '/feedback/view/:id', element: <ViewFeedback/>},
+
+		{path: '/it/list-scanner-machine', element: <ListScannerMachine/>},
+		{path: '/it/config-door-with-dept', element: <ConfigDoorWithDept/>},
 	];
   
 	return (

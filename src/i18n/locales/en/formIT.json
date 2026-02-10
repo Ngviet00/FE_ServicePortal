@@ -59,5 +59,26 @@
     },
     "setting": {
 
+    },
+    "scanner_machine": {
+        "list": {
+            "title": "List scanner machine",
+            "add": "Add machine",
+            "update": "Update device",
+            "name_device": "Name device",
+            "action": "Action",
+            "user": "User",
+            "password": "Password",
+            "cancel": "Cancel",
+            "save": "Save",
+            "type": "Type"
+        },
+        "config_door_dept": {
+            "title": "Config door with department",
+            "select_device": "Select scanner machine",
+            "select_dept": "Select department",
+            "save": "Save config",
+            "cancel": "Cancel"
+        }
     }
 }

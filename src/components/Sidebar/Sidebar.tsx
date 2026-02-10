@@ -134,6 +134,10 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 				{childrenMemo!.map((child) => {
 					const isActive = currentPath === child.route;
 
+					if (child.key === "IT.door_gate" && !isITAdmin) {
+						return null;
+					}
+
 					if (child.children && child.children.length > 0) {
 						return <SidebarItem key={child.key} menu={child} currentPath={currentPath} level={level + 1} countData={countData} />;
 					}
@@ -168,6 +172,7 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 						return null;
 					}
 
+					//count badge
 					let badge = null;
                     if (countData) {
                         switch (child.route) {

@@ -105,7 +105,12 @@
 			"title": "IT",
 			"statistical": "Thống kê",
 			"create": "Tạo yêu cầu mới",
-			"it_form_wait_purchase": "Đang chờ"
+			"it_form_wait_purchase": "Đang chờ",
+			"door_gate": {
+				"title": "Quản lý máy quẹt",
+				"list": "Danh sách máy",
+				"config_door_with_dept": "Cấu hình phòng với máy quét"
+			}
 		},
 		"purchase": {
 			"title": "Mua bán",

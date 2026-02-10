@@ -20,7 +20,7 @@ export default function CreateDepartmentComponent () {
     const [totalPage, setTotalPage] = useState(0);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [unitId, setUnitId] = useState('');
+    const [unitId, setUnitId] = useState('1');
     const queryClient = useQueryClient()
 
 	const { data: getAllCompanyAndMngDeptAndDepts, isPending, error } = useQuery({
@@ -195,7 +195,7 @@ export function ModalCreateDept({ department, onAction, listParentDepartments }:
             id: null,
             name: "",
             parentOrgUnitId: '',
-            unitId: '3'
+            unitId: '1'
         },
     })
 
@@ -209,7 +209,7 @@ export function ModalCreateDept({ department, onAction, listParentDepartments }:
             });
         } 
         else {
-            form.reset({ id: null, name: "", parentOrgUnitId: '' });
+            form.reset({ id: null, name: "", parentOrgUnitId: '', unitId: '1' });
         }
     }, [department, open, form]);
 

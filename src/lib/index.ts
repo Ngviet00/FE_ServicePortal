@@ -323,3 +323,43 @@ export interface ViewApprovalProps {
     id: string;
     mode?: string
 }
+
+export const TYPE_SCANNER_MACHINE = [
+    {
+        id: 1,
+        name: "Máy chấm công",
+        nameE: "Timekeeping"
+    },
+    {
+        id: 2,
+        name: "Cửa",
+        nameE: "Door"
+    },
+    {
+        id: 3,
+        name: "Cổng",
+        nameE: "Gate"
+    },
+    {
+        id: 4,
+        name: "Ăn trưa",
+        nameE: "Meal"
+    }
+]
+
+export const PROVIDER_SCAN_MACHINE = [
+    {
+        id: 1,
+        name: "Hikvision",
+        nameE: "Hikvision"
+    },
+    {
+        id: 2,
+        name: "Ronald jack",
+        nameE: "Ronald jack"
+    }
+]
+
+export function getProviderName(providerId: number) {
+    return PROVIDER_SCAN_MACHINE.find(p => p.id === providerId)?.name ?? 'Unknown';
+}
