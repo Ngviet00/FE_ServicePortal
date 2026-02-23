@@ -116,8 +116,8 @@ const userApi = {
         })
     },
 
-    importUserLeavingExcel(data: FormData) {
-        return axiosClient.post('/user/import-user-leaving-by-excel', data, {
+    importUserResignationExcel(data: FormData) {
+        return axiosClient.post('/user/import-user-resignation-by-excel', data, {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
@@ -125,10 +125,10 @@ const userApi = {
     },
 }
 
-export function useImportUserLeavingExcel() {
+export function useImportUserResignationExcel() {
     return useMutation({
         mutationFn: async (data: FormData) => {
-            await userApi.importUserLeavingExcel(data)
+            await userApi.importUserResignationExcel(data)
         },
         onSuccess: () => {
             ShowToast("Success");

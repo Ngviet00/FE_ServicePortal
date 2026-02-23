@@ -23,6 +23,7 @@ const deviceSchema = z.object({
     type: z.string().min(1, "Vui lòng chọn loại máy"),
 	providerId: z.string().min(1, "Vui lòng chọn hãng"),
     note: z.string().optional(),
+	isDisabled: z.string().nullable().optional()
 });
 
 type DeviceFormData = z.infer<typeof deviceSchema>;
@@ -72,7 +73,8 @@ const ListScannerMachine = () => {
 			pass: '',
 			type: '1',
 			providerId: '1',
-			note: ''
+			note: '',
+			isDisabled: 'false',
 		}
     });
 
@@ -102,6 +104,7 @@ const ListScannerMachine = () => {
 			type: device.typeMachine?.toString() ?? '1',
 			providerId: device.providerId?.toString() ?? '1',
 			note: device.note ?? '',
+			isDisabled: String(device?.isDisabled),
 		});
         setIsModalOpen(true);
     };
@@ -120,6 +123,8 @@ const ListScannerMachine = () => {
 			serial: data?.serial ?? '',
 			typeMachine: data?.type ? Number(data.type) : 1,
 			providerId: data?.providerId ? Number(data.providerId) : 1,
+			note: data?.note ?? '',
+			isDisabled: data?.isDisabled == "true"
 		};
 
 		await createOrUpdateScanMachine.mutateAsync(device)
@@ -214,6 +219,7 @@ const ListScannerMachine = () => {
 							<th className="p-2 text-sm">IP</th>
 							<th className="p-2 text-sm">Serial Number</th>
 							<th className="p-2 text-sm">{lang == 'vi' ? 'Hãng' : 'Provider'}</th>
+							<th className="p-2 text-sm text-center">{lang == 'vi' ? 'Đang hoạt động' : 'Disabled'}</th>
 							<th className="p-2 text-sm">{lang == 'vi' ? 'Ghi chú' : 'Note'}</th>
 							<th className="p-2 text-right text-sm">{t('scanner_machine.list.action')}</th>
                         </tr>
@@ -230,12 +236,13 @@ const ListScannerMachine = () => {
 										<td className="px-4 py-1 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
 										<td className="px-4 py-1 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></td>
 										<td className="px-4 py-1 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+										<td className="px-4 py-1 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
 										<td className="px-4 py-1 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300 text-center" /></div></td>
 									</tr>  
 								))
 							) : isError || scanMachines.length == 0 ? (
 									<tr>
-										<td colSpan={8} className="px-4 py-2 text-center font-bold text-red-700">
+										<td colSpan={9} className="px-4 py-2 text-center font-bold text-red-700">
 											{ error?.message ?? tCommon('no_results') } 
 										</td>
 									</tr>
@@ -252,6 +259,13 @@ const ListScannerMachine = () => {
 										<td className="px-3 py-0">{dev.ddip}</td>
 										<td className="px-3 py-0">{dev.ddSerial}</td>
 										<td className="px-3 py-0">{getProviderName(dev.providerId)}</td>
+										<td className="px-3 py-0 text-center">
+											{dev.isDisabled ? (
+												<span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">{lang == 'vi' ? 'Ngưng hoạt động' : 'Disabled'}</span>
+											) : (
+												<span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">{lang == 'vi' ? 'Hoạt động' : 'Active'}</span>
+											)}
+										</td>
 										<td className="px-3 py-0">{dev.note ?? '--'}</td>
 										<td className="px-3 py-0 text-right">
 											<div className="flex justify-end gap-2">
@@ -272,7 +286,7 @@ const ListScannerMachine = () => {
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-sm shadow-2xl w-full max-w-md overflow-hidden">
+                    <form onSubmit={handleSubmit(onSubmit, (errors) => console.log(errors))} className="bg-white rounded-sm shadow-2xl w-full max-w-md overflow-hidden">
                         <div className="p-4 border-b flex justify-between items-center">
                             <h2 className="text-xl font-black">{lang == 'vi' ? 'Máy quét' : 'Scan machine'}</h2>
                             <button type="button" onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X size={24}/></button>
@@ -337,6 +351,16 @@ const ListScannerMachine = () => {
 									</select>
 								</div>
                             </div>
+
+							<div className="grid grid-cols-1">
+								<div>
+									<label className="text-sm font-bold">{lang == 'vi' ? 'Hoạt động' : 'Enabled'}</label>
+									<select {...register('isDisabled')} className="w-full mt-1 p-2.5 border border-gray-300 rounded-xl outline-none">
+										<option value="false">{lang == 'vi' ? 'Có' : 'Yes'}</option> 
+										<option value="true">{lang == 'vi' ? 'Không' : 'No'}</option>
+									</select>
+								</div>
+							</div>
 
                             <div>
                                 <label className="text-sm font-bold">{lang == 'vi' ? 'Ghi chú' : 'Note'}</label>

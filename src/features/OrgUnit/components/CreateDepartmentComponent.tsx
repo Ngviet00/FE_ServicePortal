@@ -168,6 +168,7 @@ export default function CreateDepartmentComponent () {
 const createTeamSchema = z.object({
     id: z.number().optional().nullable(),
     name: z.string().min(1, { message: "Tên không được để trống" }),
+    shortName: z.string().optional().nullable(),
     parentOrgUnitId: z.string().optional().nullable(),
     unitId: z.string().optional().nullable(),
 })
@@ -178,6 +179,7 @@ interface PropsModalCreateTeam {
     department?: {
         id: number,
         name: string,
+        shortName: string,
         unitId: string,
         parentOrgUnitId?: string
     },
@@ -194,6 +196,7 @@ export function ModalCreateDept({ department, onAction, listParentDepartments }:
         defaultValues: {
             id: null,
             name: "",
+            shortName: "",
             parentOrgUnitId: '',
             unitId: '1'
         },
@@ -204,6 +207,7 @@ export function ModalCreateDept({ department, onAction, listParentDepartments }:
             form.reset({
                 id: department?.id,
                 name: department?.name,
+                shortName: department?.shortName ?? '',
                 parentOrgUnitId: department?.parentOrgUnitId?.toString() ?? null,
                 unitId: department?.unitId?.toString() ?? null,
             });
@@ -219,6 +223,7 @@ export function ModalCreateDept({ department, onAction, listParentDepartments }:
             await orgUnitApi.CreateOrUpdate({
                 id: values?.id ?? null,
                 name: values.name,
+                shortName: values.shortName ?? null,
                 parentOrgUnitId: values.parentOrgUnitId != '' ? Number(values.parentOrgUnitId) : null,
                 unitId: values.unitId != '' ? Number(values.unitId) : null
             })
@@ -263,6 +268,20 @@ export function ModalCreateDept({ department, onAction, listParentDepartments }:
                                 </FormItem>
                             )}  
                         />
+                        <FormField
+                            control={form.control}
+                            name="shortName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Label htmlFor="shortName">Tên viết tắt</Label>
+                                    <FormControl>
+                                        <Input id="shortName" placeholder="..." {...field} value={field.value ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}  
+                        />
+
                         <FormField
                             control={form.control}
                             name="parentOrgUnitId"

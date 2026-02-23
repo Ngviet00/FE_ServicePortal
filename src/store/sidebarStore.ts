@@ -56,6 +56,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ key: "sidebar.hr.mng_time_keeping", label: "sidebar.hr.mng_time_keeping", route: "/hr-mng-timekeeping" },
 			// { key: "sidebar.hr.mng_leave_request", label: "sidebar.hr.mng_leave_request", route: "/hr-mng-leave-request" },
 			{ key: "sidebar.hr.change_org_unit_id_user", label: "sidebar.hr.change_org_unit_id_user", route: "/change-org-unit" },
+			{ key: "sidebar.hr.mng_shift_schedule", label: "sidebar.hr.mng_shift_schedule", route: "/mng-shift-schedule" },
 		],
 	},
 	{
@@ -109,7 +110,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 				label: "sidebar.IT.door_gate.title",
 				children: [
 					{ key: "sidebar.IT.door_gate.list", label: "sidebar.IT.door_gate.list", route: "/it/list-scanner-machine" },
-					{ key: "sidebar.IT.door_gate.config_door_with_dept", label: "sidebar.IT.door_gate.config_door_with_dept", route: "/it/config-door-with-dept" }
+					{ key: "sidebar.IT.door_gate.config_door_with_dept", label: "sidebar.IT.door_gate.config_door_with_dept", route: "/it/config-door-with-dept" },
+					{ key: "sidebar.IT.door_gate.set_user_to_door", label: "sidebar.IT.door_gate.set_user_to_door", route: "/it/set-user-to-door" }
 				]
 			},
 		],

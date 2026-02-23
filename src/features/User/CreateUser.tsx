@@ -1,11 +1,11 @@
-import { useImportUserExcel, useImportUserLeavingExcel } from "@/api/userApi";
+import { useImportUserExcel, useImportUserResignationExcel } from "@/api/userApi";
 import { Spinner } from "@/components/ui/spinner";
 import { useState, ChangeEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 const IMPORT_TYPES = [
     { key: 'user', labelVi: 'Thêm mới nhân viên', labelEn: 'Upload new users', color: 'blue' },
-    { key: 'leaving', labelVi: 'Nghỉ việc', labelEn: 'Reason for Leaving', color: 'orange' },
+    { key: 'resignation', labelVi: 'Nghỉ việc', labelEn: 'Reason for Leaving', color: 'orange' },
     // { key: 'shift', labelVi: 'Lịch phân ca', labelEn: 'Upload Shift Schedule', color: 'green' },
 ];
 
@@ -15,9 +15,10 @@ export default function CreateUser() {
 
     const [files, setFiles] = useState<{ [key: string]: File | null }>({});
     const fileRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+    const [isPushToMachineImportUser, setIsPushToMachineImportUser] = useState<boolean>(false);
 
     const importNewUserExcel = useImportUserExcel();
-    const importUserLeaving = useImportUserLeavingExcel()
+    const importUserLeaving = useImportUserResignationExcel()
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: string) => {
         const selectedFile = e.target.files?.[0];
@@ -44,10 +45,17 @@ export default function CreateUser() {
         const formData = new FormData();
         formData.append("file", file);
 
-        if (type === 'user') await importNewUserExcel.mutateAsync(formData);
-        if (type === 'leaving') await importUserLeaving.mutateAsync(formData);
+        if (type === 'user') {
+            formData.append("pushToMachine", isPushToMachineImportUser.toString());
+            await importNewUserExcel.mutateAsync(formData);
+        } 
+        
+        if (type === 'resignation') {
+            await importUserLeaving.mutateAsync(formData);
+        }
         
         removeFile(type);
+        setIsPushToMachineImportUser(false)
     };
 
     return (
@@ -96,6 +104,7 @@ export default function CreateUser() {
                             >
                                 {isPending ? <Spinner /> : (lang === 'vi' ? 'Xác nhận' : 'Submit')}
                             </button>
+                            
                             {currentFile && (
                                 <button 
                                     onClick={() => removeFile(item.key)} 
@@ -105,6 +114,21 @@ export default function CreateUser() {
                                 </button>
                             )}
                         </div>
+                        {item.key === 'user' && (
+                            <div className="flex items-center gap-2 ml-2">
+                                <input
+                                    id="push-to-machine"
+                                    type="checkbox"
+                                    className="w-5 h-5 cursor-pointer accent-black"
+                                    checked={isPushToMachineImportUser}
+                                    onChange={(e) => setIsPushToMachineImportUser(e.target.checked)}
+                                />
+                                <label htmlFor="push-to-machine" className="text-sm cursor-pointer select-none">
+                                    {lang === 'vi' ? 'Đẩy dữ liệu lên máy' : 'Push to machine'}
+                                </label>
+                            </div>
+                        )}
+
                     </section>
                 );
             })}

@@ -2,6 +2,7 @@ import axiosClient from './axiosClient';
 export interface OrgUnit {
     id: number | null,
     name: string | null,
+    shortName?: string | null,
     parentOrgUnitId: number | null,
     unitId: number | null,
     parentOrgUnit?: OrgUnit,

@@ -28,6 +28,11 @@ interface SaveScanMachineWithDept {
     DepartmentIds: number[]
 }
 
+interface PushManualUserToMachine {
+    scannerMachineIds: number[];
+    userCodes: string[];
+}
+
 const scanMachineApi = {
     getAll(params: GetAll) {
         return axiosClient.get(`/scanner-machine`, {params})
@@ -57,7 +62,25 @@ const scanMachineApi = {
         return axiosClient.get(`/scanner-machine/get-department-config-by-scan-machine-id/${scanMachineId}`, {
             params: { nationality }
         });
+    },
+
+    pushManualUserToMachine(data: PushManualUserToMachine) {
+        return axiosClient.post(`/scanner-machine/push-manual-user-to-machine`, data)
     }
+}
+
+export function usePushManualUserToMachine() {
+    return useMutation({
+        mutationFn: async (data: PushManualUserToMachine) => {
+            await scanMachineApi.pushManualUserToMachine(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useSaveScanMachineWithDept() {

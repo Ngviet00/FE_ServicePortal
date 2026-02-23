@@ -86,6 +86,8 @@ import AllFeedback from '@/features/Feedback/GetAllFeedback';
 import CreateUser from '@/features/User/CreateUser';
 import ListScannerMachine from '@/features/ScannerMachine/ListScannerMachine';
 import ConfigDoorWithDept from '@/features/ScannerMachine/ConfigDoorWithDept';
+import SetUserToDoor from '@/features/ScannerMachine/SetUserToDoor';
+import MngShift from '@/features/HR/Shift/MngShift';
 
 function App() {
 	const location = useLocation();
@@ -230,6 +232,9 @@ function App() {
 
 		{path: '/it/list-scanner-machine', element: <ListScannerMachine/>},
 		{path: '/it/config-door-with-dept', element: <ConfigDoorWithDept/>},
+		{path: '/it/set-user-to-door', element: <SetUserToDoor/>},
+
+		{path: '/mng-shift-schedule', element: <MngShift/>},
 	];
   
 	return (
