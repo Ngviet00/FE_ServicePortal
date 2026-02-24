@@ -111,7 +111,8 @@
 				"title": "Quản lý máy quẹt",
 				"list": "Danh sách máy",
 				"config_door_with_dept": "CH phòng ban với máy quét",
-				"set_user_to_door": "CH người dùng với máy quét"
+				"set_user_to_door": "CH người dùng với máy quét",
+				"config_orgpos_with_scanner": "CH vị trí với máy quét"
 			}
 		},
 		"purchase": {

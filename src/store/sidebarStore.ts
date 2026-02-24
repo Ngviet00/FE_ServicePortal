@@ -111,7 +111,8 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 				children: [
 					{ key: "sidebar.IT.door_gate.list", label: "sidebar.IT.door_gate.list", route: "/it/list-scanner-machine" },
 					{ key: "sidebar.IT.door_gate.config_door_with_dept", label: "sidebar.IT.door_gate.config_door_with_dept", route: "/it/config-door-with-dept" },
-					{ key: "sidebar.IT.door_gate.set_user_to_door", label: "sidebar.IT.door_gate.set_user_to_door", route: "/it/set-user-to-door" }
+					{ key: "sidebar.IT.door_gate.set_user_to_door", label: "sidebar.IT.door_gate.set_user_to_door", route: "/it/set-user-to-door" },
+					{ key: "sidebar.IT.door_gate.config_orgpos_with_scanner", label: "sidebar.IT.door_gate.config_orgpos_with_scanner", route: "/it/config-orgpos-with-scanner" }
 				]
 			},
 		],

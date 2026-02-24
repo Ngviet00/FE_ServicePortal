@@ -657,15 +657,13 @@ const MngShift = () => {
 
     return (
         <div className="flex flex-col h-screen bg-slate-50 text-slate-900 overflow-hidden font-sans relative">
-            
-            {/* 1. HEADER */}
             <header className="bg-white border-b px-6 py-2 flex items-center justify-between z-40 shadow-sm shrink-0">
                 <div className="flex items-center gap-4">
-                    <h1 className="text-lg font-black text-slate-800 tracking-tighter italic mr-2 border-r pr-4 border-slate-200">MNG SHIFT</h1>
+                    <h2 className="text-xl font-black mr-2 pr-4">Quản lý ca</h2>
                     <input 
                         type="text" 
                         placeholder="Tìm nhân viên..."
-                        className="pl-3 py-1.5 bg-slate-100 border-none rounded text-xs w-64 focus:ring-1 focus:ring-slate-400 font-medium"
+                        className="pl-3 py-1.5 bg-slate-100 border-none rounded text-xs w-64 focus:ring-1 focus:ring-slate-400 font-medium border"
                         value={searchTerm}
                         onChange={(e) => {setSearchTerm(e.target.value); setCurrentPage(1);}}
                     />
@@ -685,11 +683,9 @@ const MngShift = () => {
                 <div className="flex gap-2">
                     <button className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded font-bold text-[10px] hover:bg-slate-100 uppercase transition">Upload File Ca</button>
                     <button className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded font-bold text-[10px] hover:bg-slate-100 uppercase transition">Upload File Nghỉ</button>
-                    <button className="px-5 py-1.5 bg-slate-800 text-white rounded font-bold text-[10px] hover:bg-black transition uppercase tracking-widest ml-2">Lưu Dữ Liệu</button>
                 </div>
             </header>
 
-            {/* 2. TABLE */}
             <main className="flex-1 overflow-auto p-4">
                 <div className="bg-white border border-slate-200 rounded shadow-sm h-full overflow-auto relative">
                     <table className={`w-full border-separate border-spacing-0 ${isLoading ? 'opacity-30' : 'opacity-100'}`}>
@@ -734,7 +730,6 @@ const MngShift = () => {
                 </div>
             </main>
 
-            {/* 3. FLOATING ACTION BAR */}
             {selectedIds.length > 0 && (
                 <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-6 animate-in slide-in-from-bottom-4">
                     <span className="text-[10px] font-black uppercase tracking-widest">Đã chọn {selectedIds.length} người</span>
@@ -743,7 +738,6 @@ const MngShift = () => {
                 </div>
             )}
 
-            {/* 4. MODAL THAY ĐỔI CA (Khoảng ngày + List ca cuộn) */}
             {isActionModalOpen && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
@@ -753,7 +747,6 @@ const MngShift = () => {
                         </div>
                         
                         <div className="p-6 space-y-5">
-                            {/* BƯỚC 1: CHỌN KHOẢNG NGÀY */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Từ ngày</label>
@@ -769,11 +762,9 @@ const MngShift = () => {
                                 </div>
                             </div>
 
-                            {/* BƯỚC 2: CHỌN CA TRONG DANH SÁCH DÀI */}
                             <div>
                                 <label className="text-[10px] font-black uppercase text-slate-400 block mb-1.5">Chọn mã ca ({filteredShiftCodes.length})</label>
                                 <div className="border border-slate-200 rounded-md overflow-hidden">
-                                    {/* Tìm mã ca */}
                                     <input 
                                         type="text" 
                                         placeholder="Tìm mã ca nhanh..."
@@ -781,7 +772,6 @@ const MngShift = () => {
                                         value={bulkData.shiftSearch}
                                         onChange={(e) => setBulkData({...bulkData, shiftSearch: e.target.value})}
                                     />
-                                    {/* List ca cuộn dọc */}
                                     <div className="h-40 overflow-y-auto bg-white divide-y divide-slate-50 custom-scrollbar">
                                         {filteredShiftCodes.map(code => (
                                             <button 

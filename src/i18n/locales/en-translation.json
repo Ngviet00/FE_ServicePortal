@@ -120,7 +120,8 @@
 				"title": "Management scanner machine",
 				"list": "List scanner machine",
 				"config_door_with_dept": "Config door with department",
-				"set_user_to_door": "Config user with door"
+				"set_user_to_door": "Config user with door",
+				"config_orgpos_with_scanner": "Config position with scanner"
 			}
 		},
 		"purchase": {

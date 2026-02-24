@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from 'react';
-import { Trash2, UserPlus, Search, Square, CheckSquare, Info, UserCheck, Users, Contact } from 'lucide-react';
+import { Trash2, UserPlus, Search, Square, CheckSquare, UserCheck, Users, Contact } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TYPE_SCANNER_MACHINE, ShowToast } from '@/lib';
 import { useQuery } from '@tanstack/react-query';
@@ -67,7 +67,7 @@ const SetUserToDoor: React.FC = () => {
     }, [scannerMachines, typeScannerMachine]);
 
     return (
-        <div className="flex h-screen p-4 bg-slate-50 font-sans text-slate-800 overflow-hidden">
+        <div className="flex h-screen p-2 bg-slate-50 font-sans text-slate-800 overflow-hidden">
             <aside className="w-80 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col mr-6">
                 <header className="p-4 border-b">
                     <h3 className="font-bold text-sm uppercase text-slate-500 mb-3">
@@ -168,7 +168,7 @@ const SetUserToDoor: React.FC = () => {
                                     >
                                         <div className="overflow-hidden">
                                             <p className="font-bold text-sm text-indigo-900 truncate">{user.userName}</p>
-                                            <p className="text-[11px] text-slate-400 font-mono mt-0.5">{user.userCode} • {user.companyName}</p>
+                                            <p className="text-[12px] mt-0.5">{user.userCode} • {user.departmentName}</p>
                                         </div>
                                         <button 
                                             onClick={() => removeUser(user.userCode)}
@@ -181,21 +181,6 @@ const SetUserToDoor: React.FC = () => {
                             </div>
                         )}
                     </div>
-
-                    {selectedDeviceIds.length > 0 && (
-                        <div className="mt-6 p-4 bg-white border-l-4 border-amber-400 rounded-r-xl shadow-sm flex items-center gap-4">
-                            <div className="bg-amber-100 p-2 rounded-full">
-                                <Info size={20} className="text-amber-600" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500 leading-relaxed">
-                                    {lang === 'vi' 
-                                        ? `Hệ thống sẽ gán ${selectedUsers.length} nhân viên vào ${selectedDeviceIds.length} máy đã chọn khi bạn nhấn Lưu.` 
-                                        : `System will assign ${selectedUsers.length} users to ${selectedDeviceIds.length} selected devices.`}
-                                </p>
-                            </div>
-                        </div>
-                    )}
                 </section>
             </main>
         </div>

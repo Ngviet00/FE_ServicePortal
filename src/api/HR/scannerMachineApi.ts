@@ -28,6 +28,11 @@ interface SaveScanMachineWithDept {
     DepartmentIds: number[]
 }
 
+interface SaveScanMachineWithOrgPosition {
+    ScanMachineIds: number[],
+    OrgPositionIds: number[]
+}
+
 interface PushManualUserToMachine {
     scannerMachineIds: number[];
     userCodes: string[];
@@ -66,7 +71,33 @@ const scanMachineApi = {
 
     pushManualUserToMachine(data: PushManualUserToMachine) {
         return axiosClient.post(`/scanner-machine/push-manual-user-to-machine`, data)
-    }
+    },
+
+    getDataPageConfigScanMachineWithOrgPosition() {
+        return axiosClient.get(`/scanner-machine/get-data-page-config-scan-machine-with-org-position`)
+    },
+
+    saveScanMachineWithOrgPosition(data: SaveScanMachineWithOrgPosition) {
+        return axiosClient.post(`/scanner-machine/save-scan-machine-with-org-position`, data)
+    },
+
+    getOrgPositionConfigByScanMachineId(scanMachineId: number) {
+        return axiosClient.get(`/scanner-machine/get-org-position-config-by-scan-machine-id/${scanMachineId}`);
+    },
+}
+
+export function useSaveScanMachineWithOrgPosition() {
+    return useMutation({
+        mutationFn: async (data: SaveScanMachineWithOrgPosition) => {
+            await scanMachineApi.saveScanMachineWithOrgPosition(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function usePushManualUserToMachine() {
