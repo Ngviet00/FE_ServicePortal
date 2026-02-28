@@ -4,7 +4,7 @@ import axiosClient from '../axiosClient';
 
 interface GetAll {
     providerId?: number | null,
-    typeMachine: number,
+    typeMachine?: number,
     keySearch?: string
 }
 
@@ -41,6 +41,10 @@ interface PushManualUserToMachine {
 const scanMachineApi = {
     getAll(params: GetAll) {
         return axiosClient.get(`/scanner-machine`, {params})
+    },
+
+    getMachineById(id: number) {
+        return axiosClient.get(`/scanner-machine/${id}`)
     },
 
     createOrUpdateScanMachine(data: Create) {

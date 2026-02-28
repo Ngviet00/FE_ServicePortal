@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
 import { HotTable, HotTableRef } from '@handsontable/react-wrapper'
 import { registerAllModules } from 'handsontable/registry'
-import internalMemoHrApi, { useApprovalInternalMemo, useAssignedTaskInternalMemo, useExportExcelInternalMemo, useResolvedTaskInternalMemo } from "@/api/internalMemoHrApi"
+import internalMemoHrApi, { useApprovalInternalMemo, useAssignedTaskInternalMemo, useExportExcelInternalMemo, usePushUserToMachineInternalHR, useResolvedTaskInternalMemo } from "@/api/internalMemoHrApi"
 import orgUnitApi from "@/api/orgUnitApi"
 import Handsontable from "handsontable"
 import DotRequireComponent from "@/components/DotRequireComponent"
@@ -15,8 +15,8 @@ import 'handsontable/styles/ht-theme-main.css'
 import { z } from 'zod';
 import { useForm } from "react-hook-form"
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ShowToast, StatusApplicationFormEnum, ViewApprovalProps } from "@/lib"
-import { InternalMemoSchema, listDoors, listTypeInternalMemoHRs } from "./CreateInternalMemoHR"
+import { RoleEnum, ShowToast, StatusApplicationFormEnum, ViewApprovalProps } from "@/lib"
+import { InternalMemoSchema, listTypeInternalMemoHRs } from "./CreateInternalMemoHR"
 import HistoryApproval from "../Approval/Components/HistoryApproval"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,6 +25,8 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { ISelectedUserAssigned } from "@/api/userApi"
 import itFormApi from "@/api/itFormApi"
+import useHasRole from "@/hooks/useHasRole"
+import scanMachineApi from "@/api/HR/scannerMachineApi"
 
 registerAllModules();
 
@@ -46,6 +48,18 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
         queryFn: async () => { 
             const res = await orgUnitApi.GetAllDepartment();
             return res.data.data;
+        }
+    });
+
+    const { data: listDoors = [] } = useQuery({
+        queryKey: ['get-list-scan-machines'],
+        queryFn: async () => {  
+            const res = await scanMachineApi.getAll({});
+            return res.data.data;
+        },
+        select: (data) => {
+            if (!Array.isArray(data)) return [];
+            return data.filter(item => item.typeMachine == 2 || item.typeMachine == 3);
         }
     });
 
@@ -77,6 +91,8 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
     const approvalInternalMemoHr = useApprovalInternalMemo();
     const assignedInternalMemoHr = useAssignedTaskInternalMemo();
     const resolvedInternalMemoHr = useResolvedTaskInternalMemo();
+
+    const isITAdmin = useHasRole([RoleEnum.IT_ADMIN])
     
     const { data: formDataDetail, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['internal-memo-hr', id],
@@ -206,6 +222,8 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
         }
     };
 
+    const pushUserToMachineInternalHR = usePushUserToMachineInternalHR();
+
     if (hasId && isFormDataLoading) {
         return <div>{lang == 'vi' ? 'Loading' : 'Đang tải'}...</div>;
     }
@@ -220,18 +238,30 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                 <h3 className="font-bold text-xl md:text-2xl">
                     <span>{lang == 'vi' ? 'Đơn nội bộ HR' : 'Internal memo HR'} </span>
                 </h3>
-                {
-                    [StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete].includes(formDataDetail?.applicationForm?.requestStatusId) && (
-                        <Button
-                            variant="outline"
-                            disabled={hrExportExcelInternalMemo.isPending}
-                            onClick={handleExport}
-                            className="text-base p-4 bg-blue-600 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
-                        >
-                            {hrExportExcelInternalMemo.isPending ? <Spinner className="text-white" size="small"/> : lang == 'vi' ? 'Xuất excel' : 'Export excel' }
-                        </Button>
-                    )
-                }
+                <div>
+                    {
+                        [StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete].includes(formDataDetail?.applicationForm?.requestStatusId) && 
+                         isITAdmin && 
+                         (formDataDetail?.internalMemoHr?.titleCode == 'register_restroom' || formDataDetail?.internalMemoHr?.titleCode == 'register_door') && (
+                            <Button className="cursor-pointer mr-2 bg-orange-500 text-white hover:bg-orange-600 hover:text-white" onClick={() => pushUserToMachineInternalHR.mutateAsync(formDataDetail?.internalMemoHr?.id ?? 0)} disabled={pushUserToMachineInternalHR.isPending}>
+                                { pushUserToMachineInternalHR.isPending ? <Spinner/> : lang == 'vi' ? 'Đẩy lên máy quẹt' : 'Push to scanner machine'}
+                            </Button>
+                        )
+                    }
+                    {
+                        [StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete].includes(formDataDetail?.applicationForm?.requestStatusId) && (
+                            <Button
+                                variant="outline"
+                                disabled={hrExportExcelInternalMemo.isPending}
+                                onClick={handleExport}
+                                className="text-base p-4 bg-blue-600 text-white hover:cursor-pointer hover:bg-dark hover:text-white w-full sm:w-auto"
+                            >
+                                {hrExportExcelInternalMemo.isPending ? <Spinner className="text-white" size="small"/> : lang == 'vi' ? 'Xuất excel' : 'Export excel' }
+                            </Button>
+                        )
+                    }
+                </div>
+                
             </div>
             <div className="flex items-center mb-0">
                 <div className="flex items-center">
@@ -304,7 +334,49 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                         </h3>
                         <span className="mb-2 inline-block italic text-yellow-600">({lang == 'vi' ? 'Những cửa có chữ màu vàng cần qua giám đốc điều hành phê duyệt' : 'Doors marked in yellow require Operations General Manager approval.'})</span>
                         <div className="flex flex-wrap gap-x-6 gap-y-3">
-                            {listDoors?.map((item: any, idx: number) => (
+                            {listDoors?.map((item: any, idx: number) => {
+                                const meta = item.metaData ? JSON.parse(item.metaData) : {};
+                                const isSpecial = meta.is_special ?? false;
+                                const doorId = item.ddMa; 
+
+                                return (
+                                    <label
+                                        key={doorId || idx}
+                                        htmlFor={`cb-door-${doorId}`}
+                                        className="flex items-start gap-2 cursor-pointer min-w-[180px] max-w-full"
+                                    >
+                                        <input
+                                            disabled={mode == 'view' || formDataDetail?.defineInstance?.currentStep >= 5 || (formDataDetail?.defineInstance?.currentStep >= 5 && item?.isSpecial == true) || formDataDetail?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned}
+                                            checked={selectedDoors.some((d: any) => d.id === doorId)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setValue('metaData.registerDoorOptions', [
+                                                        ...selectedDoors,
+                                                        {
+                                                            id: item.ddMa,
+                                                            name: item.ddTenV,
+                                                            ip: item.ddip,
+                                                            isSpecial: isSpecial
+                                                        }
+                                                    ]);
+                                                } else {
+                                                    setValue(
+                                                        'metaData.registerDoorOptions',
+                                                        selectedDoors.filter((d: any) => d.id !== doorId)
+                                                    );
+                                                }
+                                            }}
+                                            id={`cb-door-${doorId}`}
+                                            type="checkbox"
+                                            className="mt-1 w-5 h-5 accent-black cursor-pointer shrink-0"
+                                        />
+                                        <span className={`leading-snug break-words ${isSpecial ? 'text-yellow-600 font-medium' : ''}`}>
+                                            {item.ddTenV}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                            {/* {listDoors?.map((item: any, idx: number) => (
                                 <label
                                     key={idx}
                                     htmlFor={`cb-door-${item?.code}`}
@@ -338,7 +410,7 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                                         {item.name}
                                     </span>
                                 </label>
-                            ))}
+                            ))} */}
                         </div>
                     </div>
                 )}

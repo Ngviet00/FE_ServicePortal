@@ -18,6 +18,7 @@ import 'handsontable/styles/ht-theme-main.css'
 import { z } from 'zod';
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from '@hookform/resolvers/zod';
+import scanMachineApi from "@/api/HR/scannerMachineApi"
 
 registerAllModules();
 
@@ -95,41 +96,13 @@ export const InternalMemoSchema = z.object({
         headers: z.array(z.string()),
         rows: z.array(z.array(z.any())),
         registerDoorOptions: z.array(z.object({
-            code: z.string(),
+            id: z.number(),
             name: z.string().optional(),
+            ip: z.string().optional(),
             isSpecial: z.boolean().optional(),
         })).optional()
     })
 })
-
-export const listDoors = [
-    { code: 'BIG_OFF_DOOR', name: 'Big office Door' },
-    { code: 'OFF_TO_PROD', name: 'Office To Production (VP ra SX)' },
-    { code: 'LOCAL_CANTEEN', name: 'Local Canteen (Cửa nhà ăn tầng 2)' },
-    { code: '3F_FIN', name: '3rd Floor Kế toán' },
-    { code: 'IT', name: 'IT Door' },
-    { code: 'CMPBU_OPERATION', name: 'CMPBU Operation Room (cửa chính)' },
-    { code: 'QA_CMM', name: 'QA Door (CMM)' },
-    { code: 'MAN_CANTEEN_MALAY', name: 'Manager Canteen (Cửa nhà ăn Malaysia)' },
-    { code: 'CMPBU_OFF', name: 'CMPBU OFFICE (cạnh phòng IT)', isSpecial: true },
-    { code: 'ASSEMBLY', name: 'Assembly In/Out', isSpecial: true },
-    { code: '3F_CUSTOM_GLASS_DOOR', name: '3rd Floor Customer Glass Door', isSpecial: true },
-    { code: 'CT2', name: 'Cooling tower 2' },
-    { code: 'CT3', name: 'Cooling tower 3' },
-    { code: 'COURTMD', name: 'Court main door' },
-    { code: 'PRODAC', name: 'Production Area C' },
-    { code: 'BRCSTORE', name: 'BRC Store' },
-    { code: 'MRBEHHOSTEL', name: 'Mr Beh Hostel' },
-    { code: 'MRDCMPBUM30', name: 'Machine room door CMPBU M30' },
-    { code: 'MATDOOR', name: 'Maternity door' },
-    
-    //gate
-    { code: 'SWG1', name: 'Swing gate 1 IN/OUT' },
-    { code: 'GGH1', name: 'Gate guard hourse 1' },
-    { code: 'GSA', name: 'Gate store A' },
-    { code: 'GSB', name: 'Gate store B' },
-    { code: 'G2PL', name: 'Gate 2 nhà xe' }
-];
 
 export const listTypeInternalMemoHRs = [
     { code: 'change_shift', name: 'Đổi ca', nameE: 'Change shift' },
@@ -174,6 +147,18 @@ export default function CreateInternalMemoHR() {
                 registerDoorOptions: []
             }
         },
+    });
+
+    const { data: listDoors = [] } = useQuery({
+        queryKey: ['get-list-scan-machines'],
+        queryFn: async () => {  
+            const res = await scanMachineApi.getAll({});
+            return res.data.data;
+        },
+        select: (data) => {
+            if (!Array.isArray(data)) return [];
+            return data.filter(item => item.typeMachine == 2 || item.typeMachine == 3);
+        }
     });
 
     const { watch, setValue, getValues, register, handleSubmit, reset, formState: { errors }, } = form;
@@ -283,7 +268,7 @@ export default function CreateInternalMemoHR() {
         );
 
         if (isEdit && formDataDetail && detechFormType === formDataDetail.metaData?.Title) {
-            // Đã được khởi tạo ở useEffect 1, không làm gì ở đây
+            // không làm gì ở đây
         } else {
             setTableData([newHeaders, ...rowsToKeep, ...emptyRows]);
         }
@@ -434,40 +419,47 @@ export default function CreateInternalMemoHR() {
                         </h3>
                         <span className="mb-2 inline-block italic text-yellow-600">({lang == 'vi' ? 'Những cửa có chữ màu vàng cần qua giám đốc điều hành phê duyệt' : 'Doors marked in yellow require Operations General Manager approval.'})</span>
                         <div className="flex flex-wrap gap-x-6 gap-y-3">
-                            {listDoors?.map((item: any, idx: number) => (
-                                <label
-                                    key={idx}
-                                    htmlFor={`cb-door-${item?.code}`}
-                                    className="flex items-start gap-2 cursor-pointer min-w-[180px] max-w-full"
-                                >
-                                    <input
-                                        checked={selectedDoors.some((d: any) => d.code == item.code)}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
-                                            setValue('metaData.registerDoorOptions', [
-                                                ...selectedDoors,
-                                                {
-                                                    code: item.code,
-                                                    name: item.name,
-                                                    isSpecial: item.isSpecial ?? false
+                            {listDoors?.map((item: any, idx: number) => {
+                                const meta = item.metaData ? JSON.parse(item.metaData) : {};
+                                const isSpecial = meta.is_special ?? false;
+                                const doorId = item.ddMa; 
+
+                                return (
+                                    <label
+                                        key={doorId || idx}
+                                        htmlFor={`cb-door-${doorId}`}
+                                        className="flex items-start gap-2 cursor-pointer min-w-[180px] max-w-full"
+                                    >
+                                        <input
+                                            checked={selectedDoors.some((d: any) => d.id === doorId)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setValue('metaData.registerDoorOptions', [
+                                                        ...selectedDoors,
+                                                        {
+                                                            id: item.ddMa,
+                                                            name: item.ddTenV,
+                                                            ip: item.ddip,
+                                                            isSpecial: isSpecial
+                                                        }
+                                                    ]);
+                                                } else {
+                                                    setValue(
+                                                        'metaData.registerDoorOptions',
+                                                        selectedDoors.filter((d: any) => d.id !== doorId)
+                                                    );
                                                 }
-                                            ]);
-                                            } else {
-                                                setValue(
-                                                    'metaData.registerDoorOptions',
-                                                    selectedDoors.filter((d: any) => d.code !== item.code)
-                                                );
-                                            }
-                                        }}
-                                        id={`cb-door-${item?.code}`}
-                                        type="checkbox"
-                                        className="mt-1 w-5 h-5 accent-black cursor-pointer shrink-0"
-                                    />
-                                    <span className={`leading-snug break-words ${item.isSpecial ? 'text-yellow-600': ''}`}>
-                                        {item.name}
-                                    </span>
-                                </label>
-                            ))}
+                                            }}
+                                            id={`cb-door-${doorId}`}
+                                            type="checkbox"
+                                            className="mt-1 w-5 h-5 accent-black cursor-pointer shrink-0"
+                                        />
+                                        <span className={`leading-snug break-words ${isSpecial ? 'text-yellow-600 font-medium' : ''}`}>
+                                            {item.ddTenV}
+                                        </span>
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
                 )}

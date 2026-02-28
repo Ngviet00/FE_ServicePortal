@@ -55,6 +55,23 @@ const internalMemoHrApi = {
             responseType: 'blob'
         })
     },
+    pushUserToMachineInternalHR(internalMemoHrId: number) {
+        return axiosClient.post(`/internal-memo-hr/push-user-to-machine-internal-hr/${internalMemoHrId}`)
+    }
+}
+
+export function usePushUserToMachineInternalHR () {
+    return useMutation({
+        mutationFn: async (internalMemoHrId: number) => {
+            await internalMemoHrApi.pushUserToMachineInternalHR(internalMemoHrId)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useExportExcelInternalMemo() {

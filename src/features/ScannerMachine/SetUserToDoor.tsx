@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Trash2, UserPlus, Search, Square, CheckSquare, UserCheck, Users, Contact } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { TYPE_SCANNER_MACHINE, ShowToast } from '@/lib';
+import { TYPE_SCANNER_MACHINE, ShowToast, getProviderName } from '@/lib';
 import { useQuery } from '@tanstack/react-query';
 import scannerMachineApi, { usePushManualUserToMachine } from '@/api/HR/scannerMachineApi';
 import userApi from '@/api/userApi';
@@ -59,6 +59,9 @@ const SetUserToDoor: React.FC = () => {
         };
 
         await pushUserToMachine.mutateAsync(payload)
+
+        setSelectedDeviceIds([]);
+        setSelectedUsers([]);
     };
 
     const filteredDevices = useMemo(() => {
@@ -92,14 +95,14 @@ const SetUserToDoor: React.FC = () => {
                             <button 
                                 key={device.ddMa}
                                 onClick={() => setSelectedDeviceIds(prev => active ? prev.filter(id => id !== device.ddMa) : [...prev, device.ddMa])}
-                                className={`w-full text-left p-3 rounded-xl border-2 transition-all flex items-center gap-3 cursor-pointer ${
+                                className={`w-full text-left p-2 rounded-lg border-2 transition-all flex items-center gap-3 cursor-pointer ${
                                     active ? 'border-indigo-500 bg-indigo-50/50' : 'border-transparent bg-slate-50 hover:bg-slate-100'
                                 }`}
                             >
                                 {active ? <CheckSquare size={18} className="text-indigo-600" /> : <Square size={18} className="text-slate-300" />}
                                 <div className="overflow-hidden">
-                                    <p className={`font-bold text-xs truncate uppercase ${active ? 'text-indigo-700' : 'text-slate-700'}`}>{device?.ddTenV}</p>
-                                    <p className="text-[10px] text-slate-400 font-mono italic">{device?.ddip}</p>
+                                    <p className={`font-bold text-sm truncate uppercase ${active ? 'text-indigo-700' : 'text-slate-700'}`}>{device?.ddTenV}</p>
+                                    <p className="text-[12px] italic">{device?.ddip} - {getProviderName(device?.providerId)}</p>
                                 </div>
                             </button>
                         );

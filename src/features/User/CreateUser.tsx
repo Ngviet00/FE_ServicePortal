@@ -15,7 +15,6 @@ export default function CreateUser() {
 
     const [files, setFiles] = useState<{ [key: string]: File | null }>({});
     const fileRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-    const [isPushToMachineImportUser, setIsPushToMachineImportUser] = useState<boolean>(false);
 
     const importNewUserExcel = useImportUserExcel();
     const importUserLeaving = useImportUserResignationExcel()
@@ -46,7 +45,6 @@ export default function CreateUser() {
         formData.append("file", file);
 
         if (type === 'user') {
-            formData.append("pushToMachine", isPushToMachineImportUser.toString());
             await importNewUserExcel.mutateAsync(formData);
         } 
         
@@ -55,7 +53,6 @@ export default function CreateUser() {
         }
         
         removeFile(type);
-        setIsPushToMachineImportUser(false)
     };
 
     return (
@@ -114,21 +111,6 @@ export default function CreateUser() {
                                 </button>
                             )}
                         </div>
-                        {item.key === 'user' && (
-                            <div className="flex items-center gap-2 ml-2">
-                                <input
-                                    id="push-to-machine"
-                                    type="checkbox"
-                                    className="w-5 h-5 cursor-pointer accent-black"
-                                    checked={isPushToMachineImportUser}
-                                    onChange={(e) => setIsPushToMachineImportUser(e.target.checked)}
-                                />
-                                <label htmlFor="push-to-machine" className="text-sm cursor-pointer select-none">
-                                    {lang === 'vi' ? 'Đẩy dữ liệu lên máy' : 'Push to machine'}
-                                </label>
-                            </div>
-                        )}
-
                     </section>
                 );
             })}

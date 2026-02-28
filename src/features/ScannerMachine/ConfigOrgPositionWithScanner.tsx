@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { CheckCircle2, Circle, CheckSquare, Square, AlertCircle, Loader2, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { TYPE_SCANNER_MACHINE } from '@/lib';
+import { getProviderName, TYPE_SCANNER_MACHINE } from '@/lib';
 import { useQuery } from '@tanstack/react-query';
 import scannerMachineApi, { useSaveScanMachineWithOrgPosition } from '@/api/HR/scannerMachineApi';
 
@@ -124,7 +124,7 @@ const ConfigOrgPositionWithScanner: React.FC = () => {
                                 {active ? <CheckSquare size={18} className="text-indigo-600" /> : <Square size={18} className="text-slate-300" />}
                                 <div className="overflow-hidden">
                                     <p className={`font-bold text-sm truncate uppercase ${active ? 'text-indigo-700' : 'text-slate-700'}`}>{device?.ddTenV}</p>
-                                    <p className="text-[10px] text-slate-400 font-mono italic">{device?.ddip}</p>
+                                    <p className="text-[12px] italic">{device?.ddip} - {getProviderName(device?.providerId)}</p>
                                 </div>
                             </button>
                         );

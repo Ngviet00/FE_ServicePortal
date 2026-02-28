@@ -89,6 +89,7 @@ import ConfigDoorWithDept from '@/features/ScannerMachine/ConfigDoorWithDept';
 import SetUserToDoor from '@/features/ScannerMachine/SetUserToDoor';
 import MngShift from '@/features/HR/Shift/MngShift';
 import ConfigOrgPositionWithScanner from '@/features/ScannerMachine/ConfigOrgPositionWithScanner';
+import CreateScannerMachine from '@/features/ScannerMachine/CreateScannerMachine';
 
 function App() {
 	const location = useLocation();
@@ -231,6 +232,8 @@ function App() {
 		{path: '/feedback', element: <AllFeedback/>, allowedRoles: [RoleEnum.HR]},
 		{path: '/feedback/view/:id', element: <ViewFeedback/>},
 
+		{path: '/it/create-scanner-machine', element: <CreateScannerMachine/>},
+		{path: '/it/edit-scanner-machine/:id', element: <CreateScannerMachine/>},
 		{path: '/it/list-scanner-machine', element: <ListScannerMachine/>},
 		{path: '/it/config-door-with-dept', element: <ConfigDoorWithDept/>},
 		{path: '/it/set-user-to-door', element: <SetUserToDoor/>},
