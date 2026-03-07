@@ -6,9 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { IResolvedTask } from '../itFormApi';
 
 interface GetPersonalTimeKeepingRequest {
-    UserCode: string,
-    FromDate: string,
-    ToDate: string,
+    userCode: string,
+    yearMonth: string
 }
 
 interface GetManagementTimeKeepingRequest {

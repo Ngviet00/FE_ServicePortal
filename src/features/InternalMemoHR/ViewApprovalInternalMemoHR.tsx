@@ -376,41 +376,6 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                                     </label>
                                 );
                             })}
-                            {/* {listDoors?.map((item: any, idx: number) => (
-                                <label
-                                    key={idx}
-                                    htmlFor={`cb-door-${item?.code}`}
-                                    className="flex items-start gap-2 cursor-pointer min-w-[180px] max-w-full"
-                                >
-                                    <input
-                                        disabled={mode == 'view' || formDataDetail?.defineInstance?.currentStep > 5 || (formDataDetail?.defineInstance?.currentStep >= 5 && item?.isSpecial == true) || formDataDetail?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned}
-                                        checked={selectedDoors.some((d: any) => d.code == item.code)}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
-                                            setValue('metaData.registerDoorOptions', [
-                                                ...selectedDoors,
-                                                {
-                                                    code: item.code,
-                                                    name: item.name,
-                                                    isSpecial: item.isSpecial ?? false
-                                                }
-                                            ]);
-                                            } else {
-                                                setValue(
-                                                    'metaData.registerDoorOptions',
-                                                    selectedDoors.filter((d: any) => d.code !== item.code)
-                                                );
-                                            }
-                                        }}
-                                        id={`cb-door-${item?.code}`}
-                                        type="checkbox"
-                                        className="mt-1 w-5 h-5 accent-black cursor-pointer shrink-0"
-                                    />
-                                    <span className={`leading-snug break-words ${item.isSpecial ? 'text-yellow-600': ''}`}>
-                                        {item.name}
-                                    </span>
-                                </label>
-                            ))} */}
                         </div>
                     </div>
                 )}

@@ -38,6 +38,15 @@ interface PushManualUserToMachine {
     userCodes: string[];
 }
 
+interface GetDataUserScan {
+    type: number;
+    fromDate: string,
+    toDate: string,
+    departmentName?: string | null,
+    keySearch?: string | null,
+    page: number
+}
+
 const scanMachineApi = {
     getAll(params: GetAll) {
         return axiosClient.get(`/scanner-machine`, {params})
@@ -88,6 +97,50 @@ const scanMachineApi = {
     getOrgPositionConfigByScanMachineId(scanMachineId: number) {
         return axiosClient.get(`/scanner-machine/get-org-position-config-by-scan-machine-id/${scanMachineId}`);
     },
+
+    getDataUserScan(params: GetDataUserScan) {
+        return axiosClient.get(`/scanner-machine/get-data-user-scan`, { params })
+    },
+
+    exportDataUserScan(params: GetDataUserScan) {
+        return axiosClient.get(`/scanner-machine/export-data-user-scan`, {
+            params,
+            responseType: 'blob'
+        })
+    }
+}
+
+export function useExportDataUserScan() {
+    return useMutation({
+        mutationFn: async (params: GetDataUserScan) => {
+            const response = await scanMachineApi.exportDataUserScan(params)
+            const contentDisposition = response.headers['content-disposition'] || '';
+            let fileName = 'Report.xlsx';
+
+            const match = contentDisposition.match(/filename\*=(?:UTF-8'')?(.+)/i);
+            if (match?.[1]) {
+                fileName = match[1];
+                fileName = decodeURIComponent(fileName);
+                fileName = fileName.replace(/\s+/g, '_');
+            }
+
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        },
+        onSuccess: () => {
+            ShowToast("Export shift successfully");        
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useSaveScanMachineWithOrgPosition() {

@@ -12,6 +12,7 @@ import useIsReponsive from "@/hooks/IsResponsive";
 import useHasRole from "@/hooks/useHasRole";
 import "./style.css"
 import approvalApi from "@/api/approvalApi";
+import useHasPermission from "@/hooks/useHasPermission";
 
 export default function Sidebar() {
 	const location = useLocation();
@@ -95,6 +96,7 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 	const isPurchaseUser = useHasRole([RoleEnum.PURCHASE_USER])
 	const isSAP = useHasRole([RoleEnum.SAP])
 	const isApproval = useHasRole([RoleEnum.APPROVAL])
+	const viewCheckDataUserScan = useHasPermission(['hr.view_data_user_scan'])
 
 	const hasChildren = menu.children && menu.children.length > 0;
 	
@@ -169,6 +171,10 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 					}
 
 					if (['/feedback', '/feedback/pending-response'].includes(child.route ?? '') && !isHR) {
+						return null;
+					}
+
+					if (child.route == '/check-data-user-scan' && (!isHR && !isITAdmin && !viewCheckDataUserScan)) {
 						return null;
 					}
 

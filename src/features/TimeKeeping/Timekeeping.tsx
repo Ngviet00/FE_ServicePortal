@@ -1,15 +1,10 @@
-import timekeepingApi, { WorkingDay } from "@/api/HR/timeKeepingApi";
-import { Button } from "@/components/ui/button";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import timekeepingApi from "@/api/HR/timeKeepingApi";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
-import { ShowToast } from "@/lib";
-import { formatDate } from "@/lib/time";
 import { useAuthStore } from "@/store/authStore";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next"
-import DateTimePicker from "@/components/ComponentCustom/Flatpickr";
-import { formatDateToInputString } from "./Components/functions";
 import {
     Chart as ChartJS,
     Title,
@@ -25,6 +20,7 @@ import {
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import MonthYearFlatPickr from "@/components/ComponentCustom/MonthYearFlatPickr";
 
 ChartJS.register(Title, Tooltip, Legend, ChartDataLabels, CategoryScale, LinearScale, LineElement, PointElement, BarElement, ArcElement, Filler);
 
@@ -37,122 +33,62 @@ const formatHour = (minutes: number) => {
 const COLOR_MAP: Record<string, string> = {
     "Đi làm": "#ff8709",
     "Tăng ca": "#00cc34",
-    "Đi muộn": "#ff2010",
-    "Về sớm": "#1100ff",
+    "Đi trễ về sớm": "#ff2010",
     "Ra ngoài": "#7900ff",
 };
 
 export default function Timekeeping () {
-    const [fromDate, setFromDate] = useState("")
-    const [toDate, setToDate] = useState("")
-    const [btnLoading, setBtnLoading] = useState(false)
     const { t } = useTranslation()
     const { t: tCommon } = useTranslation('common')
     const {user} = useAuthStore()
     const lang = useTranslation().i18n.language.split('-')[0]
 
-    useEffect(() => {
-        const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        
-        setFromDate(formatDateToInputString(firstDay));
-        setToDate(formatDateToInputString(now));
-    }, []);
-
-    const handleSearch = async () => {
-        const from = new Date(fromDate);
-        const to = new Date(toDate);
-
-        const diffTime = to.getTime() - from.getTime();
-        const diffDays = diffTime / (1000 * 3600 * 24);
-
-        if (diffDays < 0) {
-            ShowToast(t('time_keeping.error_from_date_larger_than_to_date'), "error");
-            return;
-        }
-
-        if (diffDays > 32) {
-            ShowToast(t('time_keeping.more_than_30_day'), "error");
-            return;
-        }
-
-        setBtnLoading(true)
-        refetch()
-    }
-
-    const { data: personalTimekeepingData, isPending, isError, error, refetch } = useQuery({
-        queryKey: ['personal-timekeeping'],
-        queryFn: async () => {
-            const res = await timekeepingApi.getPersonalTimeKeeping({
-                UserCode: user?.userCode ?? "",
-                FromDate: fromDate,
-                ToDate: toDate
-            });
-            setBtnLoading(false)
-            return res.data.data;
-        },
-        enabled: !!fromDate && !!toDate && !!user?.userCode
+    const [month, setMonth] = useState(() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     });
 
-    const handleFromDateChange = (fromDate: string) => {
-        setFromDate(fromDate);
-        const newDate = new Date(fromDate);
-        const currentTo = new Date(toDate);
-
-        if (newDate.getFullYear() !== currentTo.getFullYear() || newDate.getMonth() !== currentTo.getMonth()) {
-            const lastDay = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
-            const lastDayStr = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
-            setToDate(lastDayStr);
+    const { data: personalTimekeepingData, isFetching } = useQuery({
+        queryKey: ['personal-timekeeping', month],
+        queryFn: async () => {
+            const res = await timekeepingApi.getPersonalTimeKeeping({
+                userCode: user?.userCode ?? "",
+                yearMonth: month
+            });
+            return res.data.data;
         }
-    };
-
-    const handleToDateChange = (toDate: string) => {
-        setToDate(toDate);
-        const newDate = new Date(toDate);
-        const currentFrom = new Date(fromDate);
-
-        if (newDate.getFullYear() !== currentFrom.getFullYear() || newDate.getMonth() !== currentFrom.getMonth()) {
-            const firstDay = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-            const firstDayStr = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
-            setFromDate(firstDayStr);
-        }
-    };
+    });
 
     const { doughnutData, filtered } = useMemo(() => {
         if (!personalTimekeepingData) return { doughnutData: null, filtered: [] };
 
         let totalWork = 0;
         let ot = 0;
-        let late = 0;
-        let early = 0;
+        let earlyLate = 0;
         let goOut = 0;
 
-        personalTimekeepingData.forEach((item: WorkingDay) => {
-            const lamThemNgay = Number(item.LamThemNgay || 0);
-            if (lamThemNgay >= 60) ot += lamThemNgay / 60;
+        personalTimekeepingData?.results?.forEach((item: any) => {
+            const otDay = Number(item?.LTNgay || 0);
+            if (otDay >= 60) ot += otDay / 60;
 
-            const lamThemToi = Number(item.LamThemToi || 0);
-            if (lamThemToi >= 60) ot += lamThemToi / 60;
+            const otNight = Number(item?.LTDem || 0);
+            if (otNight >= 60) ot += otNight / 60;
 
-            const diMuon = Number(item.DiMuon || 0);
-            if (diMuon > 0) late += diMuon;
+            const _earlyLate = Number(item?.VeSom || 0);
+            if (_earlyLate > 0) earlyLate += _earlyLate;
 
-            const veSom = Number(item.VeSom || 0);
-            if (veSom > 0) early += veSom;
+            const _goOut = Number(item?.RaNgoai || 0);
+            if (_goOut > 0) goOut += _goOut;
 
-            const raNgoai = Number(item.RaNgoai || 0);
-            if (raNgoai > 0) goOut += raNgoai;
-
-            if (item.InDau && item.OutCuoi && item.InDau !== "N/A" && item.OutCuoi !== "N/A") {
-                totalWork++;
+            if (item?.Den != null && item?.Ve != null) {
+                totalWork++; 
             }
         });
 
         const rawData = [
             { label: "Đi làm", value: totalWork },
             { label: "Tăng ca", value: ot },
-            { label: "Đi muộn", value: late },
-            { label: "Về sớm", value: early },
+            { label: "Đi trễ về sớm", value: earlyLate },
             { label: "Ra ngoài", value: goOut },
         ];
 
@@ -166,7 +102,7 @@ export default function Timekeeping () {
                     data: filtered.map(() => percent),
                     rawValues: filtered.map(x => x.value),
                     backgroundColor: filtered.map(x => COLOR_MAP[x.label]),
-                    hoverOffset: 4
+                    hoverOffset: 3
                 }
             ]
         };
@@ -181,44 +117,14 @@ export default function Timekeeping () {
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('time_keeping.time_keeping')}</h3>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <label className="text-sm font-medium whitespace-nowrap">
-                        {t('time_keeping.from')}
-                    </label>
-                    <DateTimePicker
-                        enableTime={false}
-                        dateFormat="Y-m-d"
-                        initialDateTime={fromDate}
-                        onChange={(_selectedDates, dateStr) => handleFromDateChange(dateStr)}
-                        className="dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
-                    />
-                </div>
-
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <label className="text-sm font-medium whitespace-nowrap">
-                        {t('time_keeping.to')}
-                    </label>
-                    <DateTimePicker
-                        enableTime={false}
-                        dateFormat="Y-m-d"
-                        initialDateTime={toDate}
-                        onChange={(_selectedDates, dateStr) => handleToDateChange(dateStr)}
-                        className="dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
-                    />
-                </div>
-
-                <div className="w-full sm:w-auto">
-                    <Button
-                        className="w-full sm:w-auto mt-1 sm:mt-0 hover:cursor-pointer"
-                        onClick={handleSearch}
-                        disabled={btnLoading}
-                    >
-                        {btnLoading ? <Spinner className="text-white" /> : t('time_keeping.btn_search')}
-                    </Button>
-                </div>
+                <label htmlFor="">{lang == 'vi' ? 'Chọn tháng' : 'Choose month'}</label>
+                <MonthYearFlatPickr
+                    value={month}
+                    onChange={setMonth}
+                />
             </div>
             {
-                personalTimekeepingData && personalTimekeepingData.length > 0 && doughnutData?.labels != undefined && doughnutData?.labels?.length > 0 && (
+                personalTimekeepingData && personalTimekeepingData?.results?.length > 0 && doughnutData?.labels != undefined && doughnutData?.labels?.length > 0 && (
                     <div className="w-full max-w-[600px] mx-auto">
                         <div className="relative h-[350px] sm:h-[400px]">
                             <Doughnut 
@@ -230,11 +136,11 @@ export default function Timekeeping () {
                                         tooltip: { enabled: false },
                                         legend: {
                                             position: "bottom",
-                                            labels: { font: { size: 12 } }
+                                            labels: { font: { size: 11 } }
                                         },
                                         datalabels: {
                                             color: "#fff",
-                                            font: { weight: "bold", size: 14 },
+                                            font: { weight: "bold", size: 13 },
                                             formatter: (_value, ctx) => {
                                                 const label = ctx.chart.data.labels?.[ctx.dataIndex] ?? "";
                                                 const raw = filtered[ctx.dataIndex]?.value ?? 0;
@@ -244,12 +150,9 @@ export default function Timekeeping () {
                                                         unit = "ngày";
                                                         break;
                                                     case "Tăng ca":
-                                                        unit = "giờ";
+                                                        unit = "tiếng";
                                                         break;
-                                                    case "Đi muộn":
-                                                        unit = "phút";
-                                                        break;
-                                                    case "Về sớm":
+                                                    case "Đi trễ về sớm":
                                                         unit = "phút";
                                                         break;
                                                     case "Ra ngoài":
@@ -259,12 +162,7 @@ export default function Timekeeping () {
                                                         unit = "";
                                                 }
 
-                                                let convertHour = null
-                                                if (label == 'Đi muộn' || label == 'Về sớm' || label == 'Ra ngoài') {
-                                                    convertHour = parseFloat(((raw ?? 0) / 60).toFixed(2)) + " giờ"
-                                                }
-
-                                                return `${label}\n(${raw} ${unit} ${convertHour != null ? '\n~' + convertHour : ''})`;
+                                                return `${label}\n(${raw} ${unit})`;
                                             }
                                         }
                                     }
@@ -291,15 +189,14 @@ export default function Timekeeping () {
                                 <th className="p-1 border-x w-[140px]">{t('time_keeping.night_time_work')}</th>
                                 <th className="p-1 border-x w-[150px]">{t('time_keeping.day_ot_work')}</th>
                                 <th className="p-1 border-x w-[160px]">{t('time_keeping.night_ot_work')}</th>
-                                <th className="p-1 border-x w-[100px]">{t('time_keeping.late')}</th>
-                                <th className="p-1 border-x w-[100px]">{t('time_keeping.early')}</th>
+                                <th className="p-1 border-x w-[100px]">{t('time_keeping.early_late')}</th>
                                 <th className="p-1 border-x w-[100px]">{t('time_keeping.go_out')}</th>
                                 <th className="p-1 border-x  w-[100px]">{t('time_keeping.note')}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                isPending ? (
+                                isFetching ? (
                                     Array.from({ length: 3 }).map((_, index) => (
                                         <tr key={index}>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
@@ -314,48 +211,50 @@ export default function Timekeeping () {
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
                                             <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
                                         </tr>  
                                     ))
-                                ) : isError || personalTimekeepingData?.length == 0 || personalTimekeepingData == null ? (
+                                ) : personalTimekeepingData?.results?.length == 0 && personalTimekeepingData?.success == false ? (
                                     <tr>
-                                        <td colSpan={16} className="px-4 py-2 text-center font-bold text-red-700">
-                                            { error?.message ?? tCommon('no_results') } 
+                                        <td colSpan={15} className="px-4 py-2 text-center font-bold text-red-700">
+                                            {personalTimekeepingData?.message } 
+                                        </td>
+                                    </tr>
+                                ) : personalTimekeepingData?.results?.length == 0 && personalTimekeepingData?.success == true ?
+                                 (
+                                    <tr>
+                                        <td colSpan={15} className="px-4 py-2 text-center font-bold text-red-700">
+                                            {tCommon('no_results') } 
                                         </td>
                                     </tr>
                                 ) : (
-                                    personalTimekeepingData?.map((item: WorkingDay, idx: number) => (
+                                    personalTimekeepingData?.results?.map((item: any, idx: number) => (
                                         <tr key={idx} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.NVMaNV}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.NVHoTen}</td>
-                                            <td className={`${item?.Thu == 'Chủ Nhật' || item?.Thu == 'Sun' ? 'font-bold text-red-600' : ''} px-4 py-2 border whitespace-nowrap`}>{item?.BCNgay ? formatDate(item?.BCNgay, "dd-MM-yyyy") : "--"}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.MaNV ?? user?.userCode}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.HoTen ?? user?.userName}</td>
+                                            <td className={`${item?.Thu == 'Chủ Nhật' || item?.Thu == 'Sun' ? 'font-bold text-red-600' : ''} px-4 py-2 border whitespace-nowrap`}>{item?.Ngay ?? "--"}</td>
                                             <td className={`${item?.Thu == 'Chủ Nhật' || item?.Thu == 'Sun' ? 'font-bold text-red-600' : ''} px-4 py-2 text-center border whitespace-nowrap`}>
-                                                {
-                                                    lang == 'vi' ? item?.Thu : item?.ThuE
-                                                }
+                                                {item?.Thu}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.CVietTat}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.InDau}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item.OutCuoi}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCTGLamNgay1}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCTGLamToi1}</td>
-                                            <td className={`${item?.LamThemNgay != 0 && (item?.LamThemNgay ?? 0) >= 60 
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.Ca ?? '--'}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.Den ?? '--'}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.Ve ?? '--'}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.TGLamNgay ?? '--'}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.TGLamDem ?? '--'}</td>
+                                            <td className={`${item?.LTNgay != 0 && (item?.LTNgay ?? 0) >= 60 
                                                 ? 'font-bold text-green-800 bg-green-300' 
                                                 : ''} px-4 py-2 border whitespace-nowrap text-center`}>
-                                                {formatHour(item?.LamThemNgay ?? 0)}
+                                                {formatHour(item?.LTNgay ?? 0)}
                                             </td>
-
-                                            <td className={`${item?.LamThemToi != 0 && (item?.LamThemToi ?? 0) >= 60 
+                                            <td className={`${item?.LTDem != 0 && (item?.LTDem ?? 0) >= 60 
                                                 ? 'font-bold text-green-800 bg-green-300' 
                                                 : ''} px-4 py-2 border whitespace-nowrap text-center`}>
-                                                {formatHour(item?.LamThemToi ?? 0)}
+                                                {formatHour(item?.LTDem ?? 0)}
                                             </td>
-                                            <td className={`${item?.DiMuon != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.DiMuon}</td>
                                             <td className={`${item?.VeSom != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.VeSom}</td>
                                             <td className={`${item?.RaNgoai != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.RaNgoai}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.BCGhiChu}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.GhiChu ?? '--'}</td>
                                         </tr>
                                     ))
                                 )

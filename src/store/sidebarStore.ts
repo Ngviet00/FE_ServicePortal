@@ -57,6 +57,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			// { key: "sidebar.hr.mng_leave_request", label: "sidebar.hr.mng_leave_request", route: "/hr-mng-leave-request" },
 			{ key: "sidebar.hr.change_org_unit_id_user", label: "sidebar.hr.change_org_unit_id_user", route: "/change-org-unit" },
 			{ key: "sidebar.hr.mng_shift_schedule", label: "sidebar.hr.mng_shift_schedule", route: "/mng-shift-schedule" },
+			{ key: "sidebar.hr.reissue_id_card", label: "sidebar.hr.reissue_id_card", route: "/reissue-id-card" },
 		],
 	},
 	{
@@ -89,11 +90,12 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 					{ key: "sidebar.hr.leave_request.create_leave", label: "sidebar.hr.leave_request.create_leave", route: "/leave/create" },
 					{ key: "sidebar.hr.leave_request.over_time", label: "sidebar.hr.leave_request.over_time", route: "/overtime/create" },
 					{ key: "sidebar.hr.leave_request.internal_memo_hr", label: "sidebar.hr.leave_request.internal_memo_hr", route: "/internal-memo-hr/create" },
-					// { key: "sidebar.hr.leave_request.time_keeping", label: "sidebar.hr.leave_request.time_keeping", route: "/time-keeping" },
+					{ key: "sidebar.hr.leave_request.time_keeping", label: "sidebar.hr.leave_request.time_keeping", route: "/time-keeping" },
 					// { key: "sidebar.hr.leave_request.mng_time_keeping", label: "sidebar.hr.leave_request.mng_time_keeping", route: "/management-time-keeping" },
 				]
 			},
 			{ key: "sidebar.union.list", label: "sidebar.union.list", route: `/vote?role=${RoleEnum.HR}` },
+			{ key: "sidebar.hr.check_data_user_scan", label: "sidebar.hr.check_data_user_scan", route: "/check-data-user-scan" }
 			//{ key: 'feedback', label: "FAQ", route: "/feedback" },
 		],
 	},

@@ -90,6 +90,8 @@ import SetUserToDoor from '@/features/ScannerMachine/SetUserToDoor';
 import MngShift from '@/features/HR/Shift/MngShift';
 import ConfigOrgPositionWithScanner from '@/features/ScannerMachine/ConfigOrgPositionWithScanner';
 import CreateScannerMachine from '@/features/ScannerMachine/CreateScannerMachine';
+import ReissueIdCard from '@/features/User/ReissusIdCard';
+import CheckDataUserScan from '@/features/ScannerMachine/CheckDataUserScan';
 
 function App() {
 	const location = useLocation();
@@ -241,6 +243,10 @@ function App() {
 		{path: '/mng-shift-schedule', element: <MngShift/>},
 		
 		{path: '/it/config-orgpos-with-scanner', element: <ConfigOrgPositionWithScanner/>},
+
+		{path: '/reissue-id-card', element: <ReissueIdCard/>, allowedRoles: [RoleEnum.HR]},
+
+		{path: '/check-data-user-scan', element: <CheckDataUserScan/>, allowedRoles: [RoleEnum.HR, RoleEnum.IT_ADMIN], allowedPermissions: ['hr.view_data_user_scan']},
 	];
   
 	return (

@@ -70,6 +70,14 @@ export interface ISelectedUserAssigned {
     email: string;
 }
 
+interface UpdateUserReissueIdCard {
+    privilege?: string,
+    timeKeepingId?: string,
+    cardNumber: string,
+    cardNumber2?: string | null,
+    userCode: string,
+}
+
 const userApi = {
     getAll(params: GetUser) {
         return axiosClient.get('/user', {params})
@@ -123,6 +131,28 @@ const userApi = {
             }
         })
     },
+
+    getDataUserReissueIdCard(userCode: string) {
+        return axiosClient.get(`/user/get-data-user-reissue-id-card/${userCode}`)
+    },
+
+    updateUserReissueIdCard(data: UpdateUserReissueIdCard) {
+        return axiosClient.post(`/user/update-user-reissue-id-card`, data)
+    }
+}
+
+export function useUpdateUserReissueIdCard() {
+    return useMutation({
+        mutationFn: async (data: UpdateUserReissueIdCard) => {
+            await userApi.updateUserReissueIdCard(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err) ?? 'Error', "error");
+        }
+    })
 }
 
 export function useImportUserResignationExcel() {
