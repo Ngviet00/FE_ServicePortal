@@ -1,11 +1,13 @@
 import { useImportUserExcel, useImportUserResignationExcel } from "@/api/userApi";
 import { Spinner } from "@/components/ui/spinner";
+import { handleDownloadTemplate } from "@/lib";
+import { Download } from "lucide-react";
 import { useState, ChangeEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 const IMPORT_TYPES = [
-    { key: 'user', labelVi: 'Thêm mới nhân viên', labelEn: 'Upload new users', color: 'blue' },
-    { key: 'resignation', labelVi: 'Nghỉ việc', labelEn: 'Reason for Leaving', color: 'orange' },
+    { key: 'user', labelVi: 'Thêm mới nhân viên', labelEn: 'Upload new users', color: 'blue', pathDownload: '/template_excel/import_user.xlsx' },
+    { key: 'resignation', labelVi: 'Nghỉ việc', labelEn: 'Reason for Leaving', color: 'orange', pathDownload: '/template_excel/nghi_viec.xlsx' },
     // { key: 'shift', labelVi: 'Lịch phân ca', labelEn: 'Upload Shift Schedule', color: 'green' },
 ];
 
@@ -110,6 +112,9 @@ export default function CreateUser() {
                                     ✕
                                 </button>
                             )}
+                            <button className="flex items-center gap-2 font-bold text-orange-700 cursor-pointer" onClick={() => handleDownloadTemplate(item.pathDownload)}>
+                                <Download />{lang == 'vi' ? 'File mẫu' : 'Sample File'}
+                            </button>
                         </div>
                     </section>
                 );
