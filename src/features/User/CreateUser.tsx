@@ -68,7 +68,7 @@ export default function CreateUser() {
             {IMPORT_TYPES.map((item, index) => {
                 const isPending = 
                 (item.key === 'user' && importNewUserExcel.isPending) ||
-                (item.key === 'leaving' && importUserLeaving.isPending);
+                (item.key === 'resignation' && importUserLeaving.isPending);
 
                 const currentFile = files[item.key];
                 const colorClass = {
