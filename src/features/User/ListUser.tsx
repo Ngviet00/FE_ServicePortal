@@ -274,7 +274,7 @@ export default function ListUser () {
                                             <td className=" px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.dateOfBirth, 'yyyy-MM-dd') ?? "--"}</td>
                                             <td className=" px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.entryDate, 'yyyy-MM-dd') ?? "--"}</td>
                                             <td className={`${item.status == 1 ? 'text-green-800' : 'text-red-500'} font-semibold px-4 py-2 border whitespace-nowrap text-center`}>{item.status == 1 ? t('list_user_page.active') : t('list_user_page.in_active')}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item.status == 2 ? item.exitDate : "--"}</td>
+                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item.status == 2 ? formatDate(item?.exitDate, 'yyyy-MM-dd') : "--"}</td>
                                             <td className=" px-4 py-2 border whitespace-nowrap text-center">
                                                 {
                                                     isSuperAdmin ? (<>

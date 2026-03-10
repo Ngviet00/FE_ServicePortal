@@ -45,6 +45,7 @@ export const useAuthStore = create<AuthState>()(
                     user,
                     accessToken,
                     refreshToken,
+                    isAuthenticated: true,
                 });
             },
 
@@ -65,8 +66,9 @@ export const useAuthStore = create<AuthState>()(
                     user: null,
                     accessToken: null,
                     refreshToken: null,
+                    isAuthenticated: false,
                 });
-                localStorage.removeItem('auth-storage');
+                // localStorage.removeItem('auth-storage');
             }
         }),
         {

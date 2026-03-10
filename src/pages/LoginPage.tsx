@@ -7,9 +7,11 @@ import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
 import authApi from "@/api/authApi";
 import "./css/Login.css"
+import SelectedLanguage from "@/components/Header/components/SelectLanguage";
 
 export default function LoginPage() {
     const { t } = useTranslation();
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [userCode, setUserCode] = useState("")
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -51,21 +53,18 @@ export default function LoginPage() {
     const displayValue = showPassword ? password : "•".repeat(password.length);
 
     return (
-        <div className="flex min-h-full flex-1 flex-col justify-start h-[100vh] py-12 lg:px-8 bg-white login-page">
-            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <img
-                    alt="VS Industry Viet Nam"
-                    src="/logo.png"
-                    className="mx-auto"
-                    style={{ width: '150px'}}
-                />
-                <h2 className="mt-2 text-left text-2xl/9 font-bold tracking-tight text-gray-900">
-                    {t('login_page.title')}
-                </h2>
-            </div>
-        
-            <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="flex h-[100vh] min-h-screen items-start justify-center py-12 lg:px-8 bg-white p-4">
+            <div className="w-full max-w-sm p-8 rounded-2xl border border-gray-100 relative">
+                <img src="/logo.png" className="mx-auto w-32 mb-8" alt="Logo" />
+
+                <div className="absolute top-3 right-0">
+                    <SelectedLanguage/>
+                </div>
+
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="text-center">
+                        <h2 className="text-xl font-bold">{lang == 'vi' ? 'Đăng nhập' : 'Login'}</h2>
+                    </div>
                     <div className="mb-5">
                         <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
                             {t('login_page.usercode')}
@@ -80,7 +79,7 @@ export default function LoginPage() {
                                 required
                                 value={userCode}
                                 onChange={(e) => setUserCode(e.target.value)}
-                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
+                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black"
                             />
                         </div>
                     </div>
@@ -101,7 +100,7 @@ export default function LoginPage() {
                                 onChange={handleChange}
                                 required
                                 autoComplete="off"
-                                className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6 password-fix"
+                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black"
                             />
                             <button
                                 type="button"
@@ -113,22 +112,16 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={ loading }
-                            className="cursor-pointer flex w-full bg-black hover:bg-gray-800 justify-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
-                        >
-                            { loading ? <Spinner size='small' className="text-white"/> : t('login_page.title') }
-                        </button>
+                    <button disabled={loading} className="w-full bg-black text-white p-3 rounded-xl font-bold hover:bg-gray-800 transition-all cursor-pointer">
+                        {loading ? <Spinner size="small" /> :  t('login_page.title')}
+                    </button>
+
+                    <div className="text-center">
+                        <Link to="/register" className="sidebar-link underline cursor-pointer inline-block hover:bg-gray-300">
+                            {t('register_page.title')}
+                        </Link>
                     </div>
                 </form>
-        
-                <p className="mt-3 text-center text-sm/6">
-                    <Link to="/register" className="sidebar-link font-semibol text-black">
-                        {t('register_page.title')}
-                    </Link>
-                </p>
             </div>
         </div>
     )

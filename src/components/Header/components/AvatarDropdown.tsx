@@ -4,25 +4,69 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import { ChevronDown, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getErrorMessage, ShowToast } from "@/lib";
 import authApi from "@/api/authApi";
+import { ShowToast } from "@/lib";
 
 export default function AvatarDropdown() {
 	const { t } = useTranslation();
-	const { logout, refreshToken } = useAuthStore();
 	const navigate = useNavigate();
 
-	const handleLogout = async () => {
+	const handleLogout = () => {
 		try {
-			await authApi.logout({
-				refreshToken: refreshToken
+			const { refreshToken, logout: clearStore } = useAuthStore.getState();
+
+			if (refreshToken) {
+				authApi.logout({ refreshToken }).catch(err => {
+					console.warn("API Logout background failed:", err);
+					ShowToast(err, 'error')
+				});
+			}
+
+			requestAnimationFrame(() => {
+				try {
+					clearStore();
+					navigate("/login");
+				} catch (uiError) {
+					console.error("UI Logout Error:", uiError);
+					window.location.href = "/login"; 
+				}
 			});
-			logout();
-			navigate("/login")
-		} catch (err) {
-			ShowToast(getErrorMessage(err), "error")
+		} catch (globalError) {
+			console.error("Critical Logout Error:", globalError);
+			localStorage.removeItem('auth-storage');
+			window.location.href = "/login";
 		}
-	}
+	};
+
+	// const handleLogout = async () => {
+	// 	const { refreshToken, logout: clearStore } = useAuthStore.getState();
+
+	// 	if (refreshToken) {
+	// 		authApi.logout({ refreshToken }).catch(err => {
+	// 			console.warn("Background logout sync failed:", err);
+	// 		});
+	// 	}
+
+	// 	requestAnimationFrame(() => {
+	// 		clearStore();
+	// 		navigate("/login");
+	// 	});
+
+	// 	// try {
+	// 	// 	// 2. Gọi API logout và ĐỢI nó thực hiện xong (hoặc thất bại)
+	// 	// 	// Khi này Interceptor vẫn lấy được accessToken từ config hoặc biến cục bộ
+	// 	// 	if (refreshToken && accessToken) {
+	// 	// 		await authApi.logout({ refreshToken });
+	// 	// 	}
+	// 	// } catch (err) {
+	// 	// 	// Nếu API lỗi (ví dụ token hết hạn đúng lúc đó) thì cũng kệ nó
+	// 	// 	console.warn("Server-side logout failed, proceeding with client logout", err);
+	// 	// } finally {
+	// 	// 	// 3. Cuối cùng mới xóa sạch dấu vết ở Client và đá ra Login
+	// 	// 	clearStore();
+	// 	// 	navigate("/login");
+	// 	// }
+	// };
 
 	const handleChangePage = (path: string) => {
 		navigate(path);

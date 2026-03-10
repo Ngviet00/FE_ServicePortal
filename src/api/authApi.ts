@@ -12,7 +12,10 @@ interface ChangePasswordRequest {
 }
 
 export interface RegisterRequest {
-    userCode: string
+    userCode: string,
+    password: string, 
+    confirmPassword: string,
+    email: string
 }
 
 interface RefreshTokenRequest {
@@ -38,6 +41,14 @@ const authApi = {
 
     changePassword(data: ChangePasswordRequest) {
         return axiosClient.post("/auth/change-password", data);
+    },
+
+    requestOtp: (userCode: string) => {
+        return axiosClient.post('/auth/request-otp', { userCode });
+    },
+
+    verifyOtp: (data: {UserCode: string, Code: string}) => {
+        return axiosClient.post('/auth/verify-otp', data);
     }
 }
 
