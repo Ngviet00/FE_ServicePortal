@@ -225,7 +225,7 @@ export default function MngTimekeeping() {
             </div>
 
             <button onClick={handleDownLoadTimeKeeping} className="btn bg-blue-700 p-2 text-white cursor-pointer">
-                {downLoadTimeKeeping.isPending ? <Spinner/> : 'Download excel'} 
+                {downLoadTimeKeeping.isPending ? <Spinner/> : 'Download bao cao so 5'} 
             </button>
 
             {/* <ModalConfirm
