@@ -135,7 +135,45 @@ const timekeepingApi = {
     },
     hrHandleUserMngTimeKeeping(data: {userCode: string, type: string}) {
         return axiosClient.post(`/time-keeping/hr-handle-user-mng-timeeking`, data)
+    },
+    downloadTimeKeeping() {
+        return axiosClient.post('/time-keeping/export-timekeeping-daily',{}, {
+            responseType: 'blob'
+        })
     }
+}
+
+export function useExportTimeKeeping() {
+    return useMutation({
+        mutationFn: async () => {
+            const response = await timekeepingApi.downloadTimeKeeping()
+            const contentDisposition = response.headers['content-disposition'] || '';
+            let fileName = 'Report.xlsx';
+
+            const match = contentDisposition.match(/filename\*=(?:UTF-8'')?(.+)/i);
+            if (match?.[1]) {
+                fileName = match[1];
+                fileName = decodeURIComponent(fileName);
+                fileName = fileName.replace(/\s+/g, '_');
+            }
+
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        },
+        onSuccess: () => {
+            ShowToast("Export shift successfully");        
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
 }
 
 export function useHRHandleUserOrgUnit () {

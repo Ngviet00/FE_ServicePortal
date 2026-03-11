@@ -73,7 +73,8 @@
 			"mng_time_keeping": "QL Chấm công",
 			"mng_leave_request": "QL Nghỉ phép",
 			"change_org_unit_id_user": "Thay đổi vị trí",
-			"mng_shift_schedule": "Quản lý ca, kíp",
+			"mng_shift_schedule": "Phân ca",
+			"add_attendance_data": "Bù dữ liệu chấm công",
 			"reissue_id_card": "Cấp lại thẻ ID",
 			"recruitment": {
 				"title": "Tuyển dụng",

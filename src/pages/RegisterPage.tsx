@@ -179,7 +179,7 @@ export default function RegisterPage() {
                             <p className="text-sm text-gray-500 mt-1">{lang == 'vi' ? 'Nhập mã nhân viên' : 'Input employee code'}</p>
                         </div>
                         <input 
-                            autoFocus type="text" placeholder="10xxx"
+                            autoFocus type="text" placeholder={lang == 'vi' ? 'Mã nhân viên' : 'Employee code'}
                             className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black"
                             value={formData.userCode}
                             onChange={(e) => setFormData({...formData, userCode: e.target.value.toUpperCase()})}

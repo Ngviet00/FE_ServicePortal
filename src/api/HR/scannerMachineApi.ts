@@ -107,7 +107,28 @@ const scanMachineApi = {
             params,
             responseType: 'blob'
         })
+    },
+    addAttendanceData(data: FormData) {
+        return axiosClient.post('/scanner-machine/add-attendance-data', data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     }
+}
+
+export function useImportAddAttendanceData() {
+    return useMutation({
+        mutationFn: async (data: FormData) => {
+            await scanMachineApi.addAttendanceData(data)
+        },
+        onSuccess: () => {
+            ShowToast("Success");
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err) ?? 'Error', "error");
+        }
+    })
 }
 
 export function useExportDataUserScan() {

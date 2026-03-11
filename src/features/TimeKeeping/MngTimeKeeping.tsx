@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import timekeepingApi, {
     useCreateRequestTimeKeeping,
     useEditTimeAttendanceHistory,
+    useExportTimeKeeping,
 } from "@/api/HR/timeKeepingApi";
 import {
     calculateRoundedTime,
@@ -210,6 +211,11 @@ export default function MngTimekeeping() {
         updateSearchParams("pageSize", newSize);
     }
 
+    const downLoadTimeKeeping = useExportTimeKeeping()
+    const handleDownLoadTimeKeeping = async () => {
+        await downLoadTimeKeeping.mutateAsync()
+    }
+
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
@@ -218,7 +224,11 @@ export default function MngTimekeeping() {
                 </h3>
             </div>
 
-            <ModalConfirm
+            <button onClick={handleDownLoadTimeKeeping} className="btn bg-blue-700 p-2 text-white cursor-pointer">
+                {downLoadTimeKeeping.isPending ? <Spinner/> : 'Download excel'} 
+            </button>
+
+            {/* <ModalConfirm
                 type={statusModalConfirm}
                 isOpen={statusModalConfirm != ''}
                 onClose={() => setStatusModalConfirm('')}
@@ -544,7 +554,7 @@ export default function MngTimekeeping() {
                     onPageChange={setCurrentPage}
                     onPageSizeChange={handlePageSizeChange}
                 />
-            ) : null}
+            ) : null} */}
         </div>
     );
 }
