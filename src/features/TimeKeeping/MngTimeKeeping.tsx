@@ -220,15 +220,13 @@ export default function MngTimekeeping() {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
                 <h3 className="font-bold text-xl sm:text-2xl mb-2 sm:mb-0">
-                    {/* {t("mng_time_keeping.mng_time_keeping")} */}
-                    Báo cáo số 5
+                    {t("mng_time_keeping.mng_time_keeping")}
                 </h3>
             </div>
 
-            <button onClick={handleDownLoadTimeKeeping} className="btn bg-blue-700 p-2 text-white cursor-pointer">
+            {/* <button onClick={handleDownLoadTimeKeeping} className="btn bg-blue-700 p-2 text-white cursor-pointer">
                 {downLoadTimeKeeping.isPending ? <Spinner/> : 'Download bao cao so 5'} 
-            </button>
-
+            </button> */}
             {/* <ModalConfirm
                 type={statusModalConfirm}
                 isOpen={statusModalConfirm != ''}

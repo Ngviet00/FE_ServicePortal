@@ -3,7 +3,6 @@ import { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { handleDownloadTemplate, ShowToast, useDebounce } from '@/lib';
 import { FileUp, Plus, Search, X } from 'lucide-react';
-import DateTimePicker from '@/components/ComponentCustom/Flatpickr';
 import scanMachineApi, { useImportAddAttendanceData } from '@/api/HR/scannerMachineApi';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from '@/components/ui/spinner';
@@ -151,14 +150,14 @@ const AddAttendanceData = () => {
                     </div>
                     <div className='flex items-center content-center'>
                         <div className="flex items-center gap-2 w-full sm:w-auto mr-3">
-                            <DateTimePicker
-                                enableTime={false}
-                                dateFormat="Y-m-d"
-                                initialDateTime={date}
-                                onChange={(_, dateStr) => {
-                                    setDate(dateStr)
+                            <input 
+                                type="date"
+                                value={date}
+                                onChange={(e) => {
+                                    const newDate = e.target.value;
+                                    setDate(newDate);
                                 }}
-                                className="dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
+                                className="dark:bg-[#454545] dark:text-white shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px] text-sm outline-none focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
                         <div className="relative w-full md:w-96">

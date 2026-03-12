@@ -87,6 +87,12 @@ interface CreateRequestApprovalTimeKeeping {
     year: number;
 }
 
+interface DownloadTimeKeepingReportNo5 {
+    fromDate: string,
+    toDate: string,
+    departmentName?: string
+}
+
 const timekeepingApi = {
     getPersonalTimeKeeping(params: GetPersonalTimeKeepingRequest) {
         return axiosClient.get(`/time-keeping/get-personal-time-keeping`, {params})
@@ -136,8 +142,8 @@ const timekeepingApi = {
     hrHandleUserMngTimeKeeping(data: {userCode: string, type: string}) {
         return axiosClient.post(`/time-keeping/hr-handle-user-mng-timeeking`, data)
     },
-    downloadTimeKeeping() {
-        return axiosClient.post('/time-keeping/export-timekeeping-daily',{}, {
+    downloadTimeKeeping(data: DownloadTimeKeepingReportNo5) {
+        return axiosClient.post('/time-keeping/export-timekeeping-daily',data, {
             responseType: 'blob'
         })
     }
@@ -145,8 +151,8 @@ const timekeepingApi = {
 
 export function useExportTimeKeeping() {
     return useMutation({
-        mutationFn: async () => {
-            const response = await timekeepingApi.downloadTimeKeeping()
+        mutationFn: async (data: DownloadTimeKeepingReportNo5) => {
+            const response = await timekeepingApi.downloadTimeKeeping(data)
             const contentDisposition = response.headers['content-disposition'] || '';
             let fileName = 'Report.xlsx';
 

@@ -60,6 +60,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ key: "sidebar.hr.add_attendance_data", label: "sidebar.hr.add_attendance_data", route: "/add-attendance-data" },
 			{ key: "sidebar.hr.reissue_id_card", label: "sidebar.hr.reissue_id_card", route: "/reissue-id-card" },
 			{ key: "sidebar.hr.create_manual_login_account", label: "sidebar.hr.create_manual_login_account", route: "/create-manual-login-account" },
+			{ key: "sidebar.hr.hr_report", label: "sidebar.hr.hr_report", route: "/hr-report" },
 		],
 	},
 	{

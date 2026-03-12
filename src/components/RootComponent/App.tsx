@@ -94,6 +94,7 @@ import ReissueIdCard from '@/features/User/ReissusIdCard';
 import CheckDataUserScan from '@/features/ScannerMachine/CheckDataUserScan';
 import AddAttendanceData from '@/features/ScannerMachine/AddAttendanceData';
 import CreateManualLoginAccount from '@/features/User/CreateManualLoginAccount';
+import HRReport from '@/features/HR/Report/HRReport';
 
 function App() {
 	const location = useLocation();
@@ -250,6 +251,7 @@ function App() {
 		{path: '/add-attendance-data', element: <AddAttendanceData/>, allowedRoles: [RoleEnum.HR]},
 		{path: '/check-data-user-scan', element: <CheckDataUserScan/>, allowedRoles: [RoleEnum.HR, RoleEnum.IT_ADMIN], allowedPermissions: ['hr.view_data_user_scan']},
 		{path: '/create-manual-login-account', element: <CreateManualLoginAccount/>, allowedRoles: [RoleEnum.HR]},
+		{path: '/hr-report', element: <HRReport/>, allowedRoles: [RoleEnum.HR]},
 	];
   
 	return (
