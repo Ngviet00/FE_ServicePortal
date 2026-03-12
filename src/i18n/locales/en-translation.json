@@ -76,6 +76,7 @@
 			"mng_shift_schedule": "Mng shift",
 			"add_attendance_data": "Add attendance data",
 			"reissue_id_card": "Reissue ID card",
+			"create_manual_login_account": "Create manual login account",
 			"recruitment": {
 				"title": "Recruitment",
 				"manpower": "Add more manpower"

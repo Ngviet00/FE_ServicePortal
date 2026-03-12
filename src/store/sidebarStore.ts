@@ -59,6 +59,7 @@ export const SIDEBAR_MENUS: SidebarMenuItem[] = [
 			{ key: "sidebar.hr.mng_shift_schedule", label: "sidebar.hr.mng_shift_schedule", route: "/mng-shift-schedule" },
 			{ key: "sidebar.hr.add_attendance_data", label: "sidebar.hr.add_attendance_data", route: "/add-attendance-data" },
 			{ key: "sidebar.hr.reissue_id_card", label: "sidebar.hr.reissue_id_card", route: "/reissue-id-card" },
+			{ key: "sidebar.hr.create_manual_login_account", label: "sidebar.hr.create_manual_login_account", route: "/create-manual-login-account" },
 		],
 	},
 	{

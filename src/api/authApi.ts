@@ -22,6 +22,12 @@ interface RefreshTokenRequest {
     refreshToken: string | null,
 }
 
+interface CreateManualLoginAcc {
+    userCode: string,
+    password: string,
+    confirmPassword: string
+}
+
 const authApi = {
     login: (data: LoginRequest) => {
         return axiosClient.post('/auth/login', data);
@@ -49,6 +55,10 @@ const authApi = {
 
     verifyOtp: (data: {UserCode: string, Code: string}) => {
         return axiosClient.post('/auth/verify-otp', data);
+    },
+    
+    createManualLoginAccount(data: CreateManualLoginAcc) {
+        return axiosClient.post('/auth/create-manual-login-account', data)
     }
 }
 
