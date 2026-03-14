@@ -18,7 +18,7 @@ import {
     PointElement,
     Filler,
 } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
+import { Pie } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import MonthYearFlatPickr from "@/components/ComponentCustom/MonthYearFlatPickr";
 
@@ -31,10 +31,10 @@ const formatHour = (minutes: number) => {
 };
 
 const COLOR_MAP: Record<string, string> = {
-    "Đi làm": "#ff8709",
-    "Tăng ca": "#00cc34",
-    "Đi trễ về sớm": "#ff2010",
-    "Ra ngoài": "#7900ff",
+    "work": "#ff8709",
+    "ot": "#00cc34",
+    "late": "#ff2010",
+    "out": "#7900ff",
 };
 
 export default function Timekeeping () {
@@ -59,7 +59,7 @@ export default function Timekeeping () {
         }
     });
 
-    const { doughnutData, filtered } = useMemo(() => {
+    const { doughnutData, chartOptions } = useMemo(() => {
         if (!personalTimekeepingData) return { doughnutData: null, filtered: [] };
 
         let totalWork = 0;
@@ -86,10 +86,10 @@ export default function Timekeeping () {
         });
 
         const rawData = [
-            { label: "Đi làm", value: totalWork },
-            { label: "Tăng ca", value: ot },
-            { label: "Đi trễ về sớm", value: earlyLate },
-            { label: "Ra ngoài", value: goOut },
+            { key: "work", label: lang == 'vi' ? 'Đi làm' : 'Work', value: totalWork },
+            { key: "ot", label:lang == 'vi' ? 'Tăng ca' : 'Overtime', value: ot },
+            { key: "late", label: lang == 'vi' ? 'Đi trễ về sớm' : 'Late and early', value: earlyLate },
+            { key: "out", label: lang == 'vi' ? 'Ra ngoài' : 'Go out', value: goOut },
         ];
 
         const filtered = rawData.filter(x => x.value > 0);
@@ -100,16 +100,47 @@ export default function Timekeeping () {
             datasets: [
                 {
                     data: filtered.map(() => percent),
-                    rawValues: filtered.map(x => x.value),
-                    backgroundColor: filtered.map(x => COLOR_MAP[x.label]),
+                    backgroundColor: filtered.map(x => COLOR_MAP[x.key]),
                     hoverOffset: 3
                 }
             ]
         };
 
-        return { doughnutData, filtered };
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: { enabled: true },
+                legend: {
+                    position: "right" as const,
+                    labels: { font: { size: 14 }, boxWidth: 12 }
+                },
+                datalabels: {
+                    color: "#fff",
+                    font: { weight: "bold" as const, size: 14 },
+                    formatter: (_value: any, ctx: any) => {
+                        const label = ctx.chart.data.labels?.[ctx.dataIndex] as string;
+                        const raw = filtered[ctx.dataIndex]?.value ?? 0;
+                        
+                        let unit = "";
+                        const l = label.toLowerCase();
+                        
+                        if (l.includes("làm") || l.includes("work")) {
+                            unit = lang == 'vi' ? 'ngày' : 'days'
+                        } else if (l.includes("ca") || l.includes("ot") || l.includes("overtime")) {
+                            unit = lang == 'vi' ? 'tiếng' : 'hours'
+                        } else {
+                            unit = lang == 'vi' ? 'phút' : 'minutes'
+                        }
 
-    }, [personalTimekeepingData]);
+                        return `${raw} (${unit})`;
+                    }
+                }
+            }
+        };
+        return { doughnutData, filtered, chartOptions };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [personalTimekeepingData, t, lang]);
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -125,48 +156,11 @@ export default function Timekeeping () {
             </div>
             {
                 personalTimekeepingData && personalTimekeepingData?.results?.length > 0 && doughnutData?.labels != undefined && doughnutData?.labels?.length > 0 && (
-                    <div className="w-full max-w-[600px] mx-auto">
-                        <div className="relative h-[350px] sm:h-[400px]">
-                            <Doughnut 
-                                data={doughnutData ?? { labels: [], datasets: [] }}
-                                options={{
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        tooltip: { enabled: false },
-                                        legend: {
-                                            position: "bottom",
-                                            labels: { font: { size: 11 } }
-                                        },
-                                        datalabels: {
-                                            color: "#fff",
-                                            font: { weight: "bold", size: 13 },
-                                            formatter: (_value, ctx) => {
-                                                const label = ctx.chart.data.labels?.[ctx.dataIndex] ?? "";
-                                                const raw = filtered[ctx.dataIndex]?.value ?? 0;
-                                                let unit = "";
-                                                switch (label) {
-                                                    case "Đi làm":
-                                                        unit = "ngày";
-                                                        break;
-                                                    case "Tăng ca":
-                                                        unit = "tiếng";
-                                                        break;
-                                                    case "Đi trễ về sớm":
-                                                        unit = "phút";
-                                                        break;
-                                                    case "Ra ngoài":
-                                                        unit = "phút";
-                                                        break;
-                                                    default:
-                                                        unit = "";
-                                                }
-
-                                                return `${label}\n(${raw} ${unit})`;
-                                            }
-                                        }
-                                    }
-                                }}
+                    <div className="w-full max-w-[350px] mx-auto">
+                        <div className="relative h-[250px]">
+                            <Pie 
+                                data={doughnutData}
+                                options={chartOptions}
                             />
                         </div>
                     </div>

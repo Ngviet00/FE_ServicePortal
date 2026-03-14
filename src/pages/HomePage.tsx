@@ -159,7 +159,7 @@ export default function HomePage() {
                     <div className='flex-1 flex justify-around wrap-info-2'>
                         <div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.name')}</label>
+                                <label className='text-base text-gray-500'>{t('home_page.name')}</label>
                             </div>
                             <div className='mb-5'>
                                 <label className='text-base text-gray-500 dark:text-white'>{t('home_page.email')}</label>

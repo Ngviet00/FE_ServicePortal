@@ -47,9 +47,9 @@ export default function Sidebar() {
 	const sidebarMenus = useMemo(() => SIDEBAR_MENUS, []);
 
 	return (
-		<div className={`sidebar ${isOpen ? "collapsed" : ""} bg-white dark:bg-[#1b1b1f] w-[300px]`}>
+		<div className={`sidebar ${isOpen ? "collapsed" : ""} bg-white  w-[300px]`}>
 			<div className="relative">
-				<a href="/" className="block text-black text-3xl py-4 font-bold h-[65px] line-h-[50px] dark:text-white">
+				<a href="/" className="block text-black text-3xl py-4 font-bold h-[65px] line-h-[50px] ">
 					Service Portal
 				</a>
 				<button className="toggle-btn-mobile absolute top-[45%] right-2 hover:cursor-pointer" onClick={closeSidebar}>
@@ -219,7 +219,7 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 							<Link
 								to={child.route ?? ""}
 								onClick={() => setVisibleSubmenuByPath(child.route ?? "", menu.key)}
-								className={`dark:hover:text-black sidebar-link hover:bg-[#e3e3e3] flex items-center ${isActive ? "dark:text-black" : "dark:text-white"}`}
+								className={` sidebar-link hover:bg-[#e3e3e3] flex items-center ${isActive ? "" : ""}`}
 							>
 								<Dot className={`${level != 0 ? `ml-${level * 8}` : `ml-[8px]`}`} />
 
@@ -245,8 +245,8 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 			<div className="my-2" key={menu.key}>
 				<a
 					href="/"
-					className={`sidebar-link flex items-center hover:bg-[#e3e3e3] text-blue-900 dark:hover:bg-[#e3e3e3] dark:hover:text-black ${
-						isActive ? "bg-[#e3e3e3] dark:text-black" : "dark:text-white"
+					className={`sidebar-link flex items-center hover:bg-[#e3e3e3] text-blue-900   ${
+						isActive ? "bg-[#e3e3e3] " : ""
 					}`}
 				>
 					{menu.icon && <menu.icon size={20} />}
@@ -268,7 +268,7 @@ export const SidebarItem = React.memo(function SidebarItem({ menu, currentPath, 
 		<div className={level == 0 ? 'my-2' : ''} key={menu.key}>
 			<div
 				onClick={handleToggle}
-				className={`menu-title hover:bg-[#e3e3e3] flex items-center cursor-pointer ${level != 0 ? 'text-sm mb-0': ''} text-blue-900 dark:text-white dark:hover:text-black`}
+				className={`menu-title hover:bg-[#e3e3e3] flex items-center cursor-pointer ${level != 0 ? 'text-sm mb-0': ''} text-blue-900`}
 			>
 				{menu.icon && <menu.icon size={20} />}
 				{

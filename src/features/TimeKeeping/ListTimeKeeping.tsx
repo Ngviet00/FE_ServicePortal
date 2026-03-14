@@ -71,17 +71,16 @@ export default function ListTimeKeeping () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-2">
                 <h3 className="font-bold text-xl md:text-2xl m-0">
-                    { lang == 'vi' ? 'Danh sách đơn chấm công đã đăng ký' : 'Registered TimeKeeping Requests'}
+                    { lang == 'vi' ? 'Danh sách BCC đã đăng ký' : 'List timesheet register'}
                 </h3>
                 <Button asChild className="w-full md:w-auto">
                     <Link to="/management-time-keeping">
-                        {lang == 'vi' ? 'Quản lý nghỉ phép' : 'Manage timekeeping'}
+                        {lang == 'vi' ? 'Bảng chấm công' : 'Timesheet'}
                     </Link>
                 </Button>
             </div>
 
             <div className="mb-5 pb-3">
-
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
                         <Table>
@@ -90,8 +89,8 @@ export default function ListTimeKeeping () {
                                     <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</TableHead>
                                     <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã nhân viên' : 'Usercode' }</TableHead>
                                     <TableHead className="w-[150px] text-center border">{ lang == 'vi' ? 'Họ tên' : 'Username' }</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Tháng' : 'Month' }</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Năm' : 'Year' }</TableHead>
+                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Năm tháng' : 'Year month' }</TableHead>
+                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Bộ phận' : 'Department' }</TableHead>
                                     <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Thời gian tạo' : 'Created at' }</TableHead>
                                     <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Trạng thái' : 'Status' }</TableHead>
                                     <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Hành động' : 'Action'} </TableHead>
@@ -125,8 +124,8 @@ export default function ListTimeKeeping () {
                                                 </TableCell>
                                                 <TableCell className="text-center border">{item?.applicationForm?.userCodeCreatedForm}</TableCell>
                                                 <TableCell className="text-center border">{item?.applicationForm?.userNameCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{item?.month}</TableCell>
-                                                <TableCell className="text-center border">{item?.year}</TableCell>
+                                                <TableCell className="text-center border">{item?.yearMonth}</TableCell>
+                                                <TableCell className="text-center border">{item?.departmentName}</TableCell>
                                                 <TableCell className="text-center border">{formatDate(item?.createdAt ?? "", 'yyyy-MM-dd HH:mm:ss')}</TableCell>
                                                 <TableCell className="text-center border">
                                                     <StatusLeaveRequest 
@@ -183,10 +182,10 @@ export default function ListTimeKeeping () {
                                     </div>
 
                                     <div>
-                                        <strong>{lang === 'vi' ? 'Tháng' : 'Month'}:</strong> {item?.month}
+                                        <strong>{lang === 'vi' ? 'Năm tháng' : 'Year month'}:</strong> {item?.yearMonth}
                                     </div>
                                     <div>
-                                        <strong>{lang === 'vi' ? 'Năm' : 'Year'}:</strong> {item?.year}
+                                        <strong>{lang === 'vi' ? 'Bộ phận' : 'Department'}:</strong> {item?.departmentName}
                                     </div>
 
                                     <div>

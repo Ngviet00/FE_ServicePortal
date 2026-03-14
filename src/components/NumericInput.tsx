@@ -43,7 +43,7 @@ export const NumericInput = ({ name, control, placeholder, className, disabled =
                 onChange={handleChange}
                 onBlur={handleBlur}
                 placeholder={placeholder}
-                className={`dark:bg-[#454545] w-full p-2 text-sm border rounded ${
+                className={` w-full p-2 text-sm border rounded ${
                 error ? "border-red-500 bg-red-50" : "border-gray-300"
                 } ${className}`}
             />

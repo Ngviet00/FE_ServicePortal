@@ -363,3 +363,21 @@ export const PROVIDER_SCAN_MACHINE = [
 export function getProviderName(providerId: number) {
     return PROVIDER_SCAN_MACHINE.find(p => p.id === providerId)?.name ?? 'Unknown';
 }
+
+export const getDaysInMonth = (yearMonth: string) => {
+    if (!yearMonth) return [];
+    const [year, month] = yearMonth.split('-').map(Number);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    return Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        const date = new Date(year, month - 1, day);
+        const dayOfWeek = date.getDay();
+        return {
+            day: day.toString().padStart(2, '0'),
+            dayDisplay: day,
+            isSun: dayOfWeek === 0,
+            dayName: date.toLocaleDateString('vi-VN', { weekday: 'short' })
+        };
+    });
+};

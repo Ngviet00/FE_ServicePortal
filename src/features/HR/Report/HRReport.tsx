@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useExportTimeKeeping } from "@/api/HR/timeKeepingApi";
+import { useExportTimeKeepingReportNo5 } from "@/api/HR/timeKeepingApi";
 import orgUnitApi from "@/api/orgUnitApi";
 import { Spinner } from "@/components/ui/spinner";
 import { useQuery } from "@tanstack/react-query";
@@ -63,10 +63,10 @@ export default function HRReport() {
         return departments.find((d: any) => d.id.toString() === department?.toString())?.name || "";
     }, [department, departments]);
 
-    const downLoadTimeKeeping = useExportTimeKeeping()
+    const downLoadTimeKeepingReportNo5 = useExportTimeKeepingReportNo5()
     const downloadExcel = async (type: string) => {
         if (type == 'report_t5') {
-            await downLoadTimeKeeping.mutateAsync({
+            await downLoadTimeKeepingReportNo5.mutateAsync({
                 fromDate: fromDate,
                 toDate: toDate,
                 departmentName: selectedDeptName
@@ -121,7 +121,7 @@ export default function HRReport() {
             </div>
 
             {IMPORT_TYPES.map((item, index) => {
-                const isPending = item.key == 'report_t5' && downLoadTimeKeeping.isPending
+                const isPending = item.key == 'report_t5' && downLoadTimeKeepingReportNo5.isPending
 
                 const btnColor = {
                     blue: 'bg-blue-600 hover:bg-blue-700',

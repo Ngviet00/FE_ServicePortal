@@ -3,30 +3,12 @@ import shiftApi, { useExportHoliday, useExportShift, useImportDayOff, useImportS
 import orgUnitApi from '@/api/orgUnitApi';
 import MonthYearFlatPickr from '@/components/ComponentCustom/MonthYearFlatPickr';
 import { Spinner } from '@/components/ui/spinner';
-import { useDebounce } from '@/lib';
+import { getDaysInMonth, useDebounce } from '@/lib';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ShiftRow from './components/ShiftRowComponent';
 import ActionModal from './components/ActionModal';
-
-const getDaysInMonth = (yearMonth: string) => {
-    if (!yearMonth) return [];
-    const [year, month] = yearMonth.split('-').map(Number);
-    const daysInMonth = new Date(year, month, 0).getDate();
-    
-    return Array.from({ length: daysInMonth }, (_, i) => {
-        const day = i + 1;
-        const date = new Date(year, month - 1, day);
-        const dayOfWeek = date.getDay();
-        return {
-            day: day.toString().padStart(2, '0'),
-            dayDisplay: day,
-            isSun: dayOfWeek === 0,
-            dayName: date.toLocaleDateString('vi-VN', { weekday: 'short' })
-        };
-    });
-};
 
 const MngShift = () => {
     const lang = useTranslation().i18n.language.split('-')[0]

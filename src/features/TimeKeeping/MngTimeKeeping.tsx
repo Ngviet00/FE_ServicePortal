@@ -1,220 +1,93 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthStore } from "@/store/authStore";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useMemo, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import timekeepingApi, {
-    useCreateRequestTimeKeeping,
-    useEditTimeAttendanceHistory,
-    useExportTimeKeeping,
-} from "@/api/HR/timeKeepingApi";
-import {
-    calculateRoundedTime,
-    getDaysInMonth,
-    getDefaultMonth,
-    getDefaultYear,
-    getToday,
-} from "./Components/functions";
-import { AttendanceStatus, UpdateTimeKeeping } from "./Components/types";
-import { statusColors, statusDefine, statusLabels } from "./Components/constants";
-import { RoleEnum, useDebounce } from "@/lib";
-import { Button } from "@/components/ui/button";
-import PaginationControl from "@/components/PaginationControl/PaginationControl";
-import ModalUpdateTimeKeeping from "./Components/ModalUpdateTimeKeeping";
-import ModalHistoryEditTimeKeeping from "./Components/ModalListHistoryEditTimeKeeping";
-import orgUnitApi from "@/api/orgUnitApi";
-import useHasPermission from "@/hooks/useHasPermission";
-import useHasRole from "@/hooks/useHasRole";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import timekeepingApi, { useCreateRequestApprovalTimeSheet, useExportTimesheet } from "@/api/HR/timeKeepingApi";
+import { getDaysInMonth, useDebounce } from "@/lib";
+import MonthYearFlatPickr from "@/components/ComponentCustom/MonthYearFlatPickr";
+import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
+import { useNavigate } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
-import ModalConfirm from "@/components/ModalConfirm";
+import { useAuthStore } from "@/store/authStore";
+import userApi from "@/api/userApi";
 
 export default function MngTimekeeping() {
     const { t } = useTranslation();
     const lang = useTranslation().i18n.language.split("-")[0];
-    const { user } = useAuthStore();
-    const { t: tCommon } = useTranslation("common");
-    const today = getToday();
-    const defaultMonth = getDefaultMonth(today);
-    const defaultYear = getDefaultYear(today);
+    const [deptId, setDept] = useState('')
+    const [keySearch, setKeySearch] = useState('')
+    const [currentPage, setCurrentPage] = useState(1);
+    const debouncedName = useDebounce(keySearch, 300);
+    const navigate = useNavigate()
+    const { user } = useAuthStore()
 
-    const [searchParams, setSearchParams] = useSearchParams();
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
-    const createRequestApprovalTimeKeeping = useCreateRequestTimeKeeping();
-    const editTimeAttendanceHistory = useEditTimeAttendanceHistory();
+    const [month, setMonth] = useState(() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    });
 
-    const getParam = useCallback(
-        (key: string, defaultValue: string | number) => {
-            const value = searchParams.get(key);
-            return value !== null ? value : String(defaultValue);
-        },
-        [searchParams]
-    );
-    const month = Number(getParam("month", defaultMonth));
-    const year = Number(getParam("year", defaultYear));
-    const deptId = getParam("deptId", "");
-    const typePerson = getParam("typePerson", "");
-    const keySearch = getParam("keySearch", "");
-    const page = Number(getParam("page", 1));
-    const pageSize = Number(getParam("pageSize", 50));
-    const debouncedKeySearch = useDebounce(keySearch, 300);
-    const [team] = useState<string>("");
-    const [selectedData, setSelectedData] = useState<UpdateTimeKeeping | null>(null);
-    const [dataAttendances, setDataAttendances] = useState<UpdateTimeKeeping[]>([]);
-    const [totalPage, setTotalPage] = useState(0);
-    const [isOpenModalUpdateTimeKeeping, setOpenModalUpdateTimeKeeping] = useState(false);
-    const [isOpenModalListHistoryEditTimeKeeping, setOpenModalListHistoryEditTimeKeeping] = useState(false);
-    const [countHistoryEditTimeKeepingNotSendHR, setCountHistoryEditTimeKeepingNotSendHR] = useState(0);
-    const [statusModalConfirm, setStatusModalConfirm] = useState('')
-    
-    const updateSearchParams = (key: string, value: string | number) => {
-        const newSearchParams = new URLSearchParams(searchParams.toString());
-        if (key !== "page" && key !== "pageSize") {
-            newSearchParams.set("page", "1");
-        }
-
-        if (value === "" || value === 0 || value === "0") {
-            newSearchParams.delete(key);
-        } else {
-            newSearchParams.set(key, String(value));
-        }
-        
-        if (key === "month" && Number(value) === defaultMonth) {
-            newSearchParams.delete("month");
-        }
-        if (key === "year" && Number(value) === defaultYear) {
-            newSearchParams.delete("year");
-        }
-        if (key === "page" && Number(value) === 1) {
-            newSearchParams.delete("page");
-        }
-        if (key === "pageSize" && Number(value) === 50) {
-            newSearchParams.delete("pageSize");
-        }
-
-        setSearchParams(newSearchParams, { replace: true });
-    };
-
-    const daysInMonth = useMemo(() => getDaysInMonth(year, month), [year, month]);
-    const daysHeader = useMemo(
-        () =>
-        Array.from({ length: daysInMonth }, (_, i) => {
-            const day = i + 1;
-            const dateObj = new Date(year, month - 1, day);
-            return {
-            dayStr: day.toString().padStart(2, "0"),
-            dateObj,
-            };
-        }),
-        [daysInMonth, year, month]
-    );
+    const daysInMonth = useMemo(() => getDaysInMonth(month), [month]);
+    const numberDayInMonth = daysInMonth.length;
 
     const { data: departments = [] } = useQuery({
-        queryKey: ["get-all-departments"],
+        queryKey: ["get-mng-orgunit-timekeeping"],
         queryFn: async () => {
-        const res = await orgUnitApi.GetAllDepartment();
-        return res.data.data;
+            const res = await userApi.getManagedOrgUnitTimeKeeping(user?.userCode ?? '');
+            return res.data.data;
         },
     });
 
-    useQuery({
-        queryKey: ["count-history-edit-timekeeping-not-send-hr"],
+    const selectedDeptName = useMemo(() => {
+        return departments.find((d: any) => d.id.toString() === deptId.toString())?.name || "";
+    }, [deptId, departments]);
+
+    const { data: mngTimeKeepings = [], isPending: isPendingMngTimeKeeping, isFetching: isFetchingMngTimeKeeping } = useQuery({
+        queryKey: ['get-mng-timekeeping', month, deptId, debouncedName, currentPage],
         queryFn: async () => {
-        const res = await timekeepingApi.CountHistoryEditTimeKeepingNotSendHR(user?.userCode ?? "");
-        setCountHistoryEditTimeKeepingNotSendHR(res.data.data);
-        return res.data.data;
-        },
+            if (deptId == '' && debouncedName == '') {
+                return []
+            }
+
+            const res = await timekeepingApi.getMngTimeKeeping({
+                UserCode: debouncedName || null,
+                YearMonth: month,
+                DepartmentName: selectedDeptName,
+                Page: currentPage,
+                PageSize: 50
+            })
+            return res.data.data
+        }
     });
 
-    const hasPermissionHRMngTimeKeeping = useHasPermission(["time_keeping.mng_time_keeping"]);
-    const isHrAndHRPermissionMngTimeKeeping = useHasRole([RoleEnum.HR]) && hasPermissionHRMngTimeKeeping;
-
-    const { isLoading, isError, error } = useQuery({
-        queryKey: [
-            "management-timekeeping",
-            year,
-            month,
-            page,
-            pageSize,
-            debouncedKeySearch,
-            deptId,
-            typePerson,
-        ],
-        queryFn: async () => {
-        const res = await timekeepingApi.getMngTimeKeeping({
-            UserCode: user?.userCode ?? "",
-            Year: year,
-            Month: month,
-            page: page,
-            pageSize: pageSize,
-            keySearch: debouncedKeySearch,
-            team: team ? Number(team) : null,
-            deptId: deptId ? Number(deptId) : null,
-            typePerson: typePerson ? Number(typePerson) : null,
-            isHrMngTimeKeeping: isHrAndHRPermissionMngTimeKeeping,
-        });
-        setDataAttendances(res.data.data);
-        setTotalPage(res.data.total_pages);
-        return res.data.data;
-        },
-        enabled: !!year && !!month && !!user?.userCode,
-    });
-
+    const createApprovalTimeSheet = useCreateRequestApprovalTimeSheet()
     const handleCreateRequestApprovalTimeKeeping = async () => {
-        await createRequestApprovalTimeKeeping.mutateAsync({
+        await createApprovalTimeSheet.mutateAsync({
             orgPositionId: user?.orgPositionId ?? -1,
             userName: user?.userName ?? "",
             userCode: user?.userCode,
-            month: month,
-            year: year,
+            yearMonth: month,
+            departmentId: deptId,
+            departmentName: selectedDeptName
         });
-        setCountHistoryEditTimeKeepingNotSendHR(0);
         navigate("/list-time-keeping");
     };
 
-    const saveChangeUpdateTimeKeeping = async (
-        finalResult: string,
-        currentUserName: string,
-        currentUserCode: string,
-        currentDate: string
-    ) => {
-        if (selectedData?.Result === finalResult) {
-            setOpenModalUpdateTimeKeeping(false);
-            return;
+    const exportTimesheet = useExportTimesheet()
+    const handleExportTimeSheet = async () => {
+        await exportTimesheet.mutateAsync({
+            yearMonth: month,
+            deptId: deptId,
+            departmentName: selectedDeptName
+        })
+    }
+
+    const { data: typeLeaves } = useQuery<ITypeLeave[], Error>({
+        queryKey: ['get-all-type-leave'],
+        queryFn: async () => {
+            const res = await typeLeaveApi.getAll({});
+            return res.data.data;
         }
-        setOpenModalUpdateTimeKeeping(false);
-
-        await editTimeAttendanceHistory.mutateAsync({
-            Datetime: currentDate,
-            OldValue: selectedData?.Result,
-            CurrentValue: finalResult == '' ? 'ABS' : finalResult,
-            UserCode: currentUserCode,
-            UserName: currentUserName,
-            UserCodeUpdate: user?.userCode,
-            UpdatedBy: user?.userName ?? "",
-        });
-
-        queryClient.invalidateQueries({ queryKey: ["management-timekeeping"] });
-        queryClient.invalidateQueries({
-            queryKey: ["count-history-edit-timekeeping-not-send-hr"],
-        });
-    };
-
-    function setCurrentPage(newPage: number): void {
-        updateSearchParams("page", newPage);
-    }
-
-    function handlePageSizeChange(newSize: number): void {
-        updateSearchParams("pageSize", newSize);
-    }
-
-    const downLoadTimeKeeping = useExportTimeKeeping()
-    const handleDownLoadTimeKeeping = async () => {
-        await downLoadTimeKeeping.mutateAsync()
-    }
+    });
 
     return (
         <div className="p-4 pl-1 pt-0 space-y-4">
@@ -224,336 +97,206 @@ export default function MngTimekeeping() {
                 </h3>
             </div>
 
-            {/* <button onClick={handleDownLoadTimeKeeping} className="btn bg-blue-700 p-2 text-white cursor-pointer">
-                {downLoadTimeKeeping.isPending ? <Spinner/> : 'Download bao cao so 5'} 
-            </button> */}
-            {/* <ModalConfirm
-                type={statusModalConfirm}
-                isOpen={statusModalConfirm != ''}
-                onClose={() => setStatusModalConfirm('')}
-                onSave={handleCreateRequestApprovalTimeKeeping}
-                isPending={createRequestApprovalTimeKeeping.isPending}
-            />
-
             <div className="flex flex-wrap gap-4 items-center mt-3 mb-3 lg:justify-between">
                 <div className="flex space-x-4">
-                    <div>
-                        <Label className="mb-1">{t("mng_time_keeping.month")}</Label>
-                        <select
-                            className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer"
+                    <div className="flex flex-wrap items-center gap-3">
+                        <MonthYearFlatPickr
                             value={month}
-                            onChange={(e) => updateSearchParams("month", Number(e.target.value))}
-                        >
-                            {Array.from({ length: 12 }, (_, i) => (
-                                <option key={i + 1} value={i + 1}>
-                                {i + 1}
+                            onChange={setMonth}
+                        />
+                    </div>
+                    <div>
+                        <input
+                            value={keySearch}
+                            onChange={(e) => {
+                                setKeySearch(e.target.value)
+                                setCurrentPage(1)
+                            }}
+                            type="text"
+                            className="border p-1.5 rounded-[5px] pl-1 text-sm border-gray-300"
+                            placeholder={lang == 'vi' ? 'Mã nhân viên' : 'Usercode'}
+                        />
+                    </div>
+                    <div>
+                        <select
+                            className="text-sm  border-gray-300 border w-50 h-[33px] rounded-[5px] hover:cursor-pointer"
+                            value={deptId}
+                            onChange={(e) => {
+                                const val = e.target.value 
+                                setDept(val)
+                                setCurrentPage(1)
+                            }}
+                            >
+                            <option value="" className="text-sm">
+                                --{lang == "vi" ? "Bộ phận" : "Department"}--
+                            </option>
+                            {departments.map((item: { id: number; name: string }, idx: number) => (
+                                <option key={idx} className="text-sm" value={item.id}>
+                                    {item.name}
                                 </option>
                             ))}
                         </select>
                     </div>
-                <div>
-                    <Label className="mb-1">{t("mng_time_keeping.year")}</Label>
-                        <select
-                            className="border border-gray-300 w-30 h-[30px] rounded-[5px] hover:cursor-pointer"
-                            value={year}
-                            onChange={(e) => updateSearchParams("year", Number(e.target.value))}
-                        >
-                        <option value={defaultYear - 1}>{defaultYear - 1}</option>
-                        <option value={defaultYear}>{defaultYear}</option>
-                        <option value={defaultYear + 1}>{defaultYear + 1}</option>
-                    </select>
-                </div>
-                <div>
-                    <Label className="mb-1">{t("mng_time_keeping.usercode")}</Label>
-                    <input
-                        value={keySearch}
-                        onChange={(e) => {
-                            updateSearchParams("keySearch", e.target.value);
-                        }}
-                        type="text"
-                        className="border p-1 rounded-[5px] pl-1 text-sm border-gray-300"
-                        placeholder="Mã nhân viên"
-                    />
-                </div>
-                <div>
-                    <Label className="mb-1">{t("mng_time_keeping.dept")}</Label>
-                    <select
-                        className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer"
-                        value={deptId}
-                        onChange={(e) => {
-                            updateSearchParams("deptId", e.target.value);
-                        }}
-                        >
-                        <option value="" className="text-sm">
-                            --{lang == "vi" ? "Tất cả" : "All"}--
-                        </option>
-                        {departments.map((item: { id: number; name: string }, idx: number) => (
-                            <option key={idx} className="text-sm" value={item.id}>
-                            {item.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <Label className="mb-1">
-                        {lang == "vi" ? "Chính thức,thời vụ,.." : "Type"}
-                    </Label>
-                    <select
-                        className="text-sm border-gray-300 border w-50 h-[30px] rounded-[5px] hover:cursor-pointer"
-                        value={typePerson}
-                        onChange={(e) => {
-                            updateSearchParams("typePerson", e.target.value);
-                        }}
-                    >
-                    <option value="" className="text-sm">
-                        --{lang == "vi" ? "Tất cả" : "All"}--
-                    </option>
-                    <option key={1} className="text-sm" value={1}>
-                        {lang == "vi" ? `Chính thức` : "Fulltime"}
-                    </option>
-                    <option key={2} className="text-sm" value={2}>
-                        {lang == "vi" ? `Thời vụ` : "Temporary"}
-                    </option>
-                    <option key={3} className="text-sm" value={3}>
-                        {lang == "vi" ? `Nước ngoài` : "Foreigner"}
-                    </option>
-                    </select>
-                </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-3">
-                    {dataAttendances.length > 0 && (
-                        <>
-                        <Button
-                            className="bg-black hover:bg-gray-900 text-white flex-1 sm:flex-none hover:cursor-pointer"
+                    <div className="flex items-center gap-2 shrink-0">
+                        <label className="whitespace-nowrap font-medium text-slate-500">
+                            {lang == 'vi' ? 'Trang:' : 'Page:'}
+                        </label>
+                        <div className="flex items-center gap-1 rounded border border-slate-200 bg-slate-50/50 p-1">
+                            <button 
+                                type="button"
+                                disabled={currentPage === 1 || isPendingMngTimeKeeping} 
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                                className="p-1 hover:bg-white hover:shadow-sm rounded disabled:opacity-20 transition-all hover:cursor-pointer text-slate-600"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            <span className="text-[13px] font-bold px-2 text-slate-700 min-w-[60px] text-center tracking-tight">
+                                {currentPage} / {isPendingMngTimeKeeping ? (mngTimeKeepings?.totalPages || '...') : (mngTimeKeepings?.totalPages || 1)}
+                            </span>
+
+                            <button 
+                                type="button"
+                                disabled={currentPage >= (mngTimeKeepings?.totalPages || 1) || mngTimeKeepings?.results?.length === 0 || isPendingMngTimeKeeping} 
+                                onClick={() => setCurrentPage(p => p + 1)} 
+                                className="p-1 hover:bg-white hover:shadow-sm rounded disabled:opacity-20 transition-all hover:cursor-pointer text-slate-600"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div className="flex items-center">
+                        <button
+                            className="cursor-pointer py-1 px-3 bg-black hover:bg-gray-800 text-white text-[15px] rounded-[3px]"
                             onClick={() => navigate("/list-time-keeping")}
                         >
-                            {lang === "vi" ? "Danh sách đã tạo" : "List"}
-                        </Button>
-
-                        <Button
-                            className="bg-red-700 hover:bg-red-800 text-white flex-1 sm:flex-none hover:cursor-pointer"
-                            onClick={() => setOpenModalListHistoryEditTimeKeeping(true)}
-                        >
-                            {lang === "vi" ? "Lịch sử chỉnh sửa" : "History edit"}{" "}
-                            ({countHistoryEditTimeKeepingNotSendHR ?? 0})
-                        </Button>
-
-                        <button
-                            onClick={() => setStatusModalConfirm('confirm')}
-                            disabled={createRequestApprovalTimeKeeping.isPending}
-                            className={`${
-                            createRequestApprovalTimeKeeping.isPending
-                                ? "opacity-70 cursor-not-allowed"
-                                : "hover:cursor-pointer"
-                            } px-3 py-2 text-white rounded-[7px] text-[14px] font-semibold bg-green-500 hover:bg-green-600 w-full sm:w-auto`}
-                        >
-                            {createRequestApprovalTimeKeeping.isPending ? (
-                                <Spinner />
-                            ) : lang == "vi" ? (
-                                "Đăng ký"
-                            ) : (
-                                "Register"
-                            )}
+                            {lang === "vi" ? "Danh sách xác nhận BCC" : "List timesheet"}
                         </button>
-                        </>
-                    )}
+                        {
+                            mngTimeKeepings.results?.length > 0 && (
+                                <>
+                                    <button
+                                        disabled={createApprovalTimeSheet.isPending}
+                                        className="cursor-pointer py-1 px-3 bg-green-500 hover:bg-green-700 text-white text-[15px] rounded-[3px] mx-4"
+                                        onClick={handleCreateRequestApprovalTimeKeeping}
+                                    >
+                                        {createApprovalTimeSheet.isPending ? <Spinner /> : lang === "vi" ? "Đăng ký" : "Register"}
+                                    </button>
+                                    <button
+                                        disabled={exportTimesheet.isPending}
+                                        className="cursor-pointer py-1 px-3 bg-blue-500 hover:bg-blue-700 text-white text-[15px] rounded-[3px]"
+                                        onClick={handleExportTimeSheet}
+                                    >
+                                        {exportTimesheet.isPending ? <Spinner/> : lang === "vi" ? "Xuất excel" : "Export excel"}
+                                    </button>
+                                </>
+                            )
+                        }
+                    </div>
                 </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-x-4 gap-y-2 items-start">
-                {Object.entries(statusLabels).map(([key]) => {
+            <div className="flex flex-wrap gap-x-6 gap-y-4 items-center">
+                {typeLeaves?.map((item: any, idx: number) => {
                     return (
-                        <span
-                        className="p-1 flex items-center transition-colors duration-150 ease-in-out group"
-                        key={key}
+                        <div
+                            className="flex items-center flex-shrink-0 transition-colors duration-150 ease-in-out group"
+                            key={idx}
                         >
-                        <span
-                            className={`text-black font-bold bg-gray-200 w-[37px] h-[20px]dark:text-black text-xs text-center inline-flex items-center justify-center p-[2px] rounded-[3px] mr-1 flex-shrink-0`}
-                        >
-                            {statusLabels[key as AttendanceStatus]}
-                        </span>
-                        <span className="text-xs sm:text-sm flex-grow">
-                            {statusDefine[key as AttendanceStatus]}
-                        </span>
-                        </span>
+                            <span
+                                className="text-black font-bold bg-gray-200 w-[50px] h-[22px] text-[13px] text-center inline-flex items-center justify-center rounded-[3px] mr-2 flex-shrink-0 shadow-sm"
+                            >
+                                {item?.code}
+                            </span>
+                            <span className="text-xs sm:text-sm font-medium text-slate-600 whitespace-nowrap">
+                                {lang === 'vi' ? item?.name : item?.nameE}
+                            </span>
+                        </div>
                     );
                 })}
             </div>
 
-            <div className="mb-5 relative shadow-md sm:rounded-lg pb-3">
-                <div className="max-h-[600px] overflow-y-auto overflow-x-auto">
-                    <table className="min-w-[1200px] border-collapse">
-                        <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-black">
-                            <tr className="border-b bg-[#f3f4f6] dark:bg-black dark:text-white">
-                                <th className="w-[130px] text-center border-r p-2">
-                                    {t("mng_time_keeping.usercode")}
+            <main className="flex-1 overflow-auto mt-5">
+                <div className="bg-white border border-slate-200 rounded shadow-sm h-full overflow-auto relative">
+                    <table className={`w-full ${isPendingMngTimeKeeping || isFetchingMngTimeKeeping ? 'opacity-30' : 'opacity-100'}`}>
+                        <thead>
+                            <tr className="bg-slate-50 font-bold text-slate-500">
+                                <th className="sticky text-[14px] top-0 z-40 w-50 bg-slate-50 border-b border-r border-slate-200 px-4 py-3 text-center shadow-[1px_0_0_rgba(0,0,0,0.05)]">
+                                    {lang == 'vi' ? 'Họ tên': 'Employee'}
                                 </th>
-                                <th className="w-[180px] text-center border-r">
-                                    {t("mng_time_keeping.name")}
-                                </th>
-                                <th className="w-[130px] text-center border-r">
-                                    {t("mng_time_keeping.dept")}
-                                </th>
-                                {daysHeader.map(({ dayStr }) => {
-                                    const fullDayStr = `${year}-${String(month).padStart(2, "0")}-${dayStr}`;
-                                    const bgSunday = new Date(fullDayStr).getDay() == 0 ? statusColors["CN" as AttendanceStatus] : "";
-                                    const colorSunday = new Date(fullDayStr).getDay() == 0 ? "#FFFFFF" : "";
-
-                                    return (
-                                        <th
-                                            key={dayStr}
-                                            style={{ backgroundColor: bgSunday || "", color: colorSunday }}
-                                            className="w-[36px] text-center border-r text-sm"
-                                            >
-                                            {dayStr}
-                                        </th>
-                                    );
-                                })}
+                                <th className="sticky top-0 z-20  text-[14px] w-50 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Bộ phận' : 'Department'}</th>
+                                {daysInMonth.map((item) => (
+                                    <th 
+                                        key={item.day} 
+                                        className={`sticky top-0 z-20 min-w-[38px] border-b border-r border-slate-200 py-1.5 text-center 
+                                        ${item.isSun ? 'bg-pink-100 text-red-600' : 'bg-slate-50 text-slate-400'}`}
+                                    >
+                                        <div className="text-[13px] font-bold">{item.dayDisplay}</div>
+                                        <div className="text-[9px] uppercase font-medium">{item.dayName}</div>
+                                    </th>
+                                ))}
                             </tr>
                         </thead>
-                        <tbody>
-                            {isLoading ? (
-                                Array.from({ length: 5 }).map((_, index) => (
-                                <tr key={index}>
-                                    <td className="w-[130px] text-center p-2">
-                                        <div className="flex justify-center">
-                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                        </div>
-                                    </td>
-                                    <td className="w-[180px] text-center">
-                                        <div className="flex justify-center">
-                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                        </div>
-                                    </td>
-                                    <td className="w-[130px] text-center">
-                                        <div className="flex justify-center">
-                                            <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                        </div>
-                                    </td>
-                                    {daysHeader.map(({ dayStr }) => (
-                                        <td key={dayStr} className="w-[36px] text-center">
-                                            <div className="flex justify-center">
-                                            <Skeleton className="h-3 w-[17px] bg-gray-300" />
-                                            </div>
-                                        </td>
-                                    ))}
-                                </tr>
-                                ))
-                            ) : isError || dataAttendances.length == 0 ? (
-                                <tr>
-                                    <td
-                                        colSpan={daysInMonth + 3}
-                                        className={`align-middle p-2 bg-gray-50 dark:bg-[#1a1a1a] px-4 py-2 text-center font-bold text-red-700`}
-                                    >
-                                        {error?.message ?? tCommon("no_results")}
-                                    </td>
-                                </tr>
+                        <tbody className="divide-y divide-slate-100">
+                            {mngTimeKeepings?.results?.length > 0 ? (
+                                mngTimeKeepings.results.map((emp: any, idx: number) => {
+                                    const arr = [];
+
+                                    for (let i = 1; i <= numberDayInMonth; i++) {
+                                        const dayKey = String(i).padStart(2, '0');
+                                        const cellValue = emp[dayKey];
+                                        const isABS = cellValue === 'ABS';
+
+                                        arr.push(
+                                            <td
+                                                key={`${emp.UserCode}-${dayKey}`}
+                                                className={`shift-cell border-r border-slate-100 text-center text-[13px] font-bold py-2.5 border-b
+                                                    ${isABS ? 'text-red-600 bg-red-100' : ''}
+                                                `}
+                                            >
+                                                {cellValue || '-'}
+                                            </td>
+                                        );
+                                    }
+                                    return (
+                                        <tr key={idx} className={`hover:bg-slate-50/50 transition-colors`}>
+                                            <td className="sticky z-10 bg-white border-r border-slate-200 px-4 py-2 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] border-b">
+                                                <div className="flex flex-col">
+                                                <span className="text-[11px] font-bold text-slate-400 leading-none">{emp?.UserCode ?? ''}</span>
+                                                <span className="text-[13px] font-bold text-slate-700">{emp?.UserName ?? 'System'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b">{selectedDeptName}</td>
+                                            {arr}
+                                        </tr>
+                                    );
+                                })
                             ) : (
-                                dataAttendances?.map((item: UpdateTimeKeeping, idx: number) => (
-                                    <tr key={idx} className="border-b dark:border-[#9b9b9b]">
-                                        <td className="text-left border-r p-2 pl-3 text-sm w-[130px]">
-                                            {item.UserCode}
-                                        </td>
-                                        <td className="text-left border-r pl-2 text-sm w-[180px]">{item.Name}</td>
-                                        <td className="text-left border-r pl-2 text-sm w-[130px]">
-                                            {item.Department}
-                                        </td>
-                                        {daysHeader.map(({ dayStr }, colIdx: number) => {
-                                            let bgColor = "#FFFFFF";
-                                            let textColor = "#000000";
-                                            const dayNumber = parseInt(dayStr, 10);
-
-                                            let result = (item as any)[`ATT${dayNumber}`]?.toString() || "";
-                                            const den = (item as any)[`Den${dayNumber}`]?.toString() || "";
-                                            const ve = (item as any)[`Ve${dayNumber}`]?.toString() || "";
-                                            const wh = (item as any)[`WH${dayNumber}`]?.toString() || "";
-                                            const ot = (item as any)[`OT${dayNumber}`]?.toString() || "";
-                                            const fullDate = `${year}-${month.toString().padStart(2, "0")}-${dayStr}`;
-                                            const isSunday = new Date(fullDate).getDay() === 0;
-
-                                            if (result == "X") {
-                                                if (isSunday) {
-                                                    result = "CN_X";
-                                                } else if (parseFloat(wh) == 7 || parseFloat(wh) == 8) {
-                                                    result = "X";
-                                                } else if (parseFloat(wh) < 8) {
-                                                    const calculateTime = calculateRoundedTime(8 - parseFloat(wh));
-                                                    result = calculateTime == "1" ? "X" : calculateTime;
-                                                }
-                                            } else if (result == "SH") {
-                                                bgColor = "#3AFD13";
-                                            } else if (result == "CN") {
-                                                if (den != "" && ve != "" && (parseFloat(wh) != 0 || parseFloat(ot) != 0)) {
-                                                    result = "CN_X";
-                                                    bgColor = "#FFFFFF";
-                                                    textColor = "#000000";
-                                                } else {
-                                                    bgColor = "#858585";
-                                                }
-                                            } else if (result == "ABS" || result == "MISS") {
-                                                bgColor = "#FD5C5E";
-                                            } else if (result != "X") {
-                                                bgColor = "#ffe378";
-                                            }
-
-                                            return (
-                                                <td
-                                                    key={dayStr}
-                                                    style={{ backgroundColor: bgColor, color: textColor }}
-                                                    className="p-0 min-w-[36px] max-w-[36px] text-center border-r hover:cursor-pointer"
-                                                    onClick={() => {
-                                                        const invalidResults = ["X", "CN_X", "NM"];
-                                                        if (!invalidResults.includes(result)) {
-                                                            setSelectedData({
-                                                                Name: item.Name,
-                                                                UserCode: item.UserCode,
-                                                                CurrentDate: fullDate,
-                                                                Result: result,
-                                                                Den: den,
-                                                                Ve: ve,
-                                                                RowIndex: idx,
-                                                                ColIndex: colIdx,
-                                                            });
-                                                            setOpenModalUpdateTimeKeeping(true);
-                                                        }
-                                                    }}
-                                                >
-                                                    <div className={`flex justify-center text-xs ${result.includes(',') ? 'flex-col text-[9px]' : ''}`}>
-                                                        {
-                                                            result.includes(',') ? result.split(",").map((x: string, i: number) => <span key={i}>{x}</span>) : result
-                                                        }
-                                                    </div>
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                ))
+                                <tr>
+                                    <td colSpan={34} className="py-20 text-center bg-white">
+                                        <div className="flex flex-col items-center justify-center">
+                                            <svg className="w-12 h-12 text-slate-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path 
+                                                    strokeLinecap="round" 
+                                                    strokeLinejoin="round" 
+                                                    strokeWidth="2" 
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+                                                />
+                                            </svg>
+                                            <p className="text-slate-500 font-medium">
+                                                {lang === 'vi' ? 'Không tìm thấy dữ liệu' : 'No found data'}
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <ModalHistoryEditTimeKeeping
-                isOpen={isOpenModalListHistoryEditTimeKeeping}
-                onClose={() => setOpenModalListHistoryEditTimeKeeping(false)}
-            />
-
-            <ModalUpdateTimeKeeping
-                isOpen={isOpenModalUpdateTimeKeeping}
-                onClose={() => setOpenModalUpdateTimeKeeping(false)}
-                selectedData={selectedData}
-                onSave={saveChangeUpdateTimeKeeping}
-            />
-
-            {dataAttendances.length > 0 ? (
-                <PaginationControl
-                    currentPage={page}
-                    totalPages={totalPage}
-                    pageSize={pageSize}
-                    onPageChange={setCurrentPage}
-                    onPageSizeChange={handlePageSizeChange}
-                />
-            ) : null} */}
+            </main>
         </div>
     );
 }

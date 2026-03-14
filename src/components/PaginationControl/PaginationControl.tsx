@@ -107,7 +107,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 									) : (
 										<button
 											onClick={() => setEditingDotIndex(idx)}
-											className="hover:cursor-pointer px-2 hover:bg-gray-300 rounded text-gray-500 select-none dark:hover:text-white dark:hover:bg-black"
+											className="hover:cursor-pointer px-2 hover:bg-gray-300 rounded text-gray-500 select-none  "
 										>
 											...
 										</button>
@@ -116,7 +116,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 									<button
 										onClick={() => onPageChange(Number(page))}
 										className={`px-3 py-1 rounded-md select-none hover:cursor-pointer ${
-											currentPage === page ? "bg-black text-white" : "hover:bg-gray-200 dark:hover:text-white dark:hover:bg-black"
+											currentPage === page ? "bg-black text-white" : "hover:bg-gray-200  "
 										}`}
 									>
 										{page}

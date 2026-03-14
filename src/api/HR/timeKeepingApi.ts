@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import { getErrorMessage, ShowToast } from '@/lib';
 import axiosClient from '../axiosClient';
 import { ApprovalRequest } from '../approvalApi';
-import { useTranslation } from 'react-i18next';
 import { IResolvedTask } from '../itFormApi';
 
 interface GetPersonalTimeKeepingRequest {
@@ -11,17 +10,11 @@ interface GetPersonalTimeKeepingRequest {
 }
 
 interface GetManagementTimeKeepingRequest {
-    UserCode: string,
-    UserName?: string,
-    Year: number,
-    Month: number,
-    page?: number,
-    pageSize?: number,
-    keySearch?: string,
-    team?: number | null,
-    deptId?: number | null,
-    typePerson?: number | null,
-    isHrMngTimeKeeping?: boolean
+    UserCode?: string | null,
+    YearMonth: string,
+    DepartmentName?: string | null,
+    Page: number,
+    PageSize?: number | null
 }
 
 export interface WorkingDay {
@@ -54,11 +47,6 @@ export interface EditTimeAttendanceHistory {
     UserCodeUpdate?: string,
     UpdatedBy?: string,
 }
-interface GetListHistoryTimeAttendanceRequest {
-    UserCodeUpdated?: string,
-    page?: number,
-    PageSize?: number
-}
 
 export interface ListHistoryTimeAttendance {
     id?: number
@@ -79,18 +67,25 @@ export interface UpdateUserMngTimeKeeping {
     orgUnitId: number[]
 }
 
-interface CreateRequestApprovalTimeKeeping {
+interface CreateRequestApprovalTimeSheet {
     orgPositionId: number;
     userName?: string;
     userCode?: string;
-    month: number;
-    year: number;
+    yearMonth: string,
+    departmentId?: string,
+    departmentName?: string
 }
 
 interface DownloadTimeKeepingReportNo5 {
     fromDate: string,
     toDate: string,
     departmentName?: string
+}
+
+interface timeSheet {
+    departmentName?: string,
+    deptId?: string,
+    yearMonth: string,
 }
 
 const timekeepingApi = {
@@ -100,20 +95,8 @@ const timekeepingApi = {
     getMngTimeKeeping(params: GetManagementTimeKeepingRequest) {
         return axiosClient.get(`/time-keeping/get-management-time-keeping`, {params})
     },
-    EditTimeAttendanceHistory(data: EditTimeAttendanceHistory) {
-        return axiosClient.post(`/time-keeping/edit-time-keeping`, data)
-    },
-    CountHistoryEditTimeKeepingNotSendHR(userCode: string) {
-        return axiosClient.get(`/time-keeping/count-history-edit-timekeeping-not-send-hr?userCode=${userCode}`)
-    },
-    GetListHistoryEditTimeKeeping(params: GetListHistoryTimeAttendanceRequest) {
-        return axiosClient.get(`/time-keeping/get-list-history-edit-timekeeping`, {params})
-    },
-    DeleteHistoryEditTimeKeeping(id: number) {
-        return axiosClient.delete(`/time-keeping/delete-history-edit-timekeeping/${id}`)
-    },
-    createRequestApprovalTimeKeeping(data: CreateRequestApprovalTimeKeeping) {
-        return axiosClient.post(`/time-keeping/create-request-approval-timekeeping`, data)
+    createRequestApprovalTimeSheet(data: CreateRequestApprovalTimeSheet) {
+        return axiosClient.post(`/time-keeping/create-request-approval-timesheet`, data)
     },
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/time-keeping/approval`, data)
@@ -124,17 +107,14 @@ const timekeepingApi = {
     getListTimeKeeping(params: { UserCode?: string, Status?: number | null, Page: number, PageSize: number}) {
         return axiosClient.get(`/time-keeping/get-list-timekeeping`, {params})
     },
-    getDetailTimeKeeping(applicationFormCode: string, params: { TypePerson?: string, KeySearch?: string, Page: number, PageSize: number }) {
+    getDetailTimeKeeping(applicationFormCode: string, params: { keySearch?: string, page: number, pageSize: number }) {
         return axiosClient.get(`/time-keeping/${applicationFormCode}`, {params})
-    },
-    exportExcelTimeKeeping(applicationFormCode: string) {
-        return axiosClient.post(`/time-keeping/export-excel?applicationFormCode=${applicationFormCode}`)
     },
     resolvedTaskTimeKeeping(data: IResolvedTask) {
         return axiosClient.post(`/time-keeping/resolved-task-timekeeping`, data)
     },
-    hrMngTimeKeeping() {
-        return axiosClient.get(`/time-keeping/hr-mng-timekeeping`)
+    hrChooseUserMngTimeKeeping() {
+        return axiosClient.get(`/time-keeping/hr-choose-user-mng-timekeeping`)
     },
     hrHandleUserOrgUnit(data: {userCode: string, orgUnitId: number, type: string}) {
         return axiosClient.post(`/time-keeping/hr-handle-user-orgunit-id`, data)
@@ -142,17 +122,55 @@ const timekeepingApi = {
     hrHandleUserMngTimeKeeping(data: {userCode: string, type: string}) {
         return axiosClient.post(`/time-keeping/hr-handle-user-mng-timeeking`, data)
     },
-    downloadTimeKeeping(data: DownloadTimeKeepingReportNo5) {
-        return axiosClient.post('/time-keeping/export-timekeeping-daily',data, {
+    downloadTimesheetReportNo5(data: DownloadTimeKeepingReportNo5) {
+        return axiosClient.post('/time-keeping/export-timesheet-daily-report-no5',data, {
+            responseType: 'blob'
+        })
+    },
+    exportTimeSheet(data: timeSheet) {
+        return axiosClient.post('/time-keeping/export-excel-timesheet',data, {
             responseType: 'blob'
         })
     }
 }
 
-export function useExportTimeKeeping() {
+export function useExportTimesheet() {
+    return useMutation({
+        mutationFn: async (data: timeSheet) => {
+            const response = await timekeepingApi.exportTimeSheet(data)
+            const contentDisposition = response.headers['content-disposition'] || '';
+            let fileName = 'Report.xlsx';
+
+            const match = contentDisposition.match(/filename\*=(?:UTF-8'')?(.+)/i);
+            if (match?.[1]) {
+                fileName = match[1];
+                fileName = decodeURIComponent(fileName);
+                fileName = fileName.replace(/\s+/g, '_');
+            }
+
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        },
+        onSuccess: () => {
+            ShowToast("Export shift successfully");        
+        },
+        onError: (err) => {
+            ShowToast(getErrorMessage(err), "error");
+        }
+    })
+}
+
+export function useExportTimeKeepingReportNo5() {
     return useMutation({
         mutationFn: async (data: DownloadTimeKeepingReportNo5) => {
-            const response = await timekeepingApi.downloadTimeKeeping(data)
+            const response = await timekeepingApi.downloadTimesheetReportNo5(data)
             const contentDisposition = response.headers['content-disposition'] || '';
             let fileName = 'Report.xlsx';
 
@@ -224,22 +242,6 @@ export function useResolvedTaskTimeKeeping () {
     })
 }
 
-export function useExportExcelTimeKeeping() {
-    const lang = useTranslation().i18n.language.split('-')[0]
-    
-    return useMutation({
-        mutationFn: async (applicationFormCode: string) => {
-            await timekeepingApi.exportExcelTimeKeeping(applicationFormCode)
-        },
-        onSuccess: () => {
-            ShowToast(lang == 'vi' ? 'Sau khi xuất excel thành công thì sẽ gửi qua email' : 'After successfully exporting Excel, it will be sent via email')
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
 export function useDeleteTimeKeeping() {
     return useMutation({
         mutationFn: async (applicationFormId: number) => {
@@ -254,10 +256,10 @@ export function useDeleteTimeKeeping() {
     })
 }
 
-export function useCreateRequestTimeKeeping() {
+export function useCreateRequestApprovalTimeSheet() {
     return useMutation({
-        mutationFn: async (data: CreateRequestApprovalTimeKeeping) => {
-            await timekeepingApi.createRequestApprovalTimeKeeping(data)
+        mutationFn: async (data: CreateRequestApprovalTimeSheet) => {
+            await timekeepingApi.createRequestApprovalTimeSheet(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -272,34 +274,6 @@ export function useApprovalTimeKeeping() {
     return useMutation({
         mutationFn: async (data: ApprovalRequest) => {
             await timekeepingApi.approval(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useDeleteHistoryEditTimeKeeping() {
-    return useMutation({
-        mutationFn: async (id: number) => {
-            await timekeepingApi.DeleteHistoryEditTimeKeeping(id)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useEditTimeAttendanceHistory() {
-    return useMutation({
-        mutationFn: async (data: EditTimeAttendanceHistory) => {
-            await timekeepingApi.EditTimeAttendanceHistory(data)
         },
         onSuccess: () => {
             ShowToast("Success");

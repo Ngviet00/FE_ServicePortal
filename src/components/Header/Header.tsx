@@ -41,9 +41,9 @@ export default function Header() {
     // }
 
     return (
-        <header className="header bg-white dark:bg-[#1b1b1f]">
+        <header className="header bg-white ">
             <button className="toggle-btn relative" onClick={handleToggleSidebar}>
-                <Menu className="dark:text-white"/>
+                <Menu className=""/>
                 {
                     numberWait > 0 ? <span className="absolute w-[15px] h-[15px] bg-red-500 rounded-[50%] text-[11px] text-white top-[0px] left-[15px]"></span> : ""
                 }
@@ -52,13 +52,13 @@ export default function Header() {
 
                 {/* <div className="mr-3 display-none">
                     { darkMode ? 
-                        <Moon className="dark:text-white hover:cursor-pointer" onClick={handDarkMode}/>
-                         : <Sun className="dark:text-white hover:cursor-pointer" onClick={handDarkMode}/>}
+                        <Moon className=" hover:cursor-pointer" onClick={handDarkMode}/>
+                         : <Sun className=" hover:cursor-pointer" onClick={handDarkMode}/>}
                 </div> */}
 
                 <SelectedLanguage/>
 
-                <div className='text-black mr-4 font-bold text-sm dark:text-white'>
+                <div className='text-black mr-4 font-bold text-sm '>
                     {
                         user?.userCode == '0' && isSuperAdmin ? '0 - Superadmin' :
                         user?.userName == null || user?.userName == '' ? '....' : user?.userCode == '0' ? '0 - superadmin' : `${user?.userCode} - ${user?.userName}`

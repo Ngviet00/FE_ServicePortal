@@ -63,7 +63,7 @@ export default function LoginPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="text-center">
-                        <h2 className="text-xl font-bold">{lang == 'vi' ? 'Đăng nhập' : 'Login'}</h2>
+                        <h2 className="text-xl font-bold text-black">{lang == 'vi' ? 'Đăng nhập' : 'Login'}</h2>
                     </div>
                     <div className="mb-5">
                         <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
@@ -79,7 +79,7 @@ export default function LoginPage() {
                                 required
                                 value={userCode}
                                 onChange={(e) => setUserCode(e.target.value)}
-                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black"
+                                className="w-full text-black p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black"
                             />
                         </div>
                     </div>
@@ -100,11 +100,11 @@ export default function LoginPage() {
                                 onChange={handleChange}
                                 required
                                 autoComplete="off"
-                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black"
+                                className="w-full p-3 text-black border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black"
                             />
                             <button
                                 type="button"
-                                className="hover:cursor-pointer absolute right-2 inset-y-0 flex items-center text-gray-500 hover:text-gray-700"
+                                className="hover:cursor-pointer absolute text-black right-2 inset-y-0 flex items-center hover:text-gray-700"
                                 onClick={() => setShowPassword((v) => !v)}
                                 >
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}

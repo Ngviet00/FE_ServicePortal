@@ -92,10 +92,11 @@
 			"leave_request": {
 				"title": "Leave request, timekeeping",
 				"create_leave": "Leave request",
+				"leave_statistics": "Leave statistics",
 				"over_time": "Overtime",
 				"internal_memo_hr": "Internal memo",
 				"time_keeping": "Timekeeping",
-				"mng_time_keeping": "Mng Timekeeping"
+				"mng_time_keeping": "Timesheet"
 			},
 			"check_data_user_scan": "Search scanned data"
 		},
@@ -107,7 +108,6 @@
 		"leave_request": {
 			"statistical": "Statistical",
 			"title": "HR",
-			"leave_statistics": "Leave statistics",
 			"create_leave": "Create leave request",
 			"create_leave_for_others" : "Create leave for others",
 			"over_time": "Overtime",

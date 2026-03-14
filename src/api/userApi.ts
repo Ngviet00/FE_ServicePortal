@@ -138,6 +138,10 @@ const userApi = {
 
     updateUserReissueIdCard(data: UpdateUserReissueIdCard) {
         return axiosClient.post(`/user/update-user-reissue-id-card`, data)
+    },
+
+    getManagedOrgUnitTimeKeeping(userCode: string) {
+        return axiosClient.get(`/user/get-managed-org-unit-timekeeping/${userCode}`)
     }
 }
 

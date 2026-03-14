@@ -45,6 +45,35 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+:root {
+  /* Ép trình duyệt hiểu đây là trang Light */
+  color-scheme: light !important;
+  --background: 255, 255, 255;
+  --foreground: 0, 0, 0;
+}
+
+/* Chặn đứng mọi nỗ lực ép Dark Mode từ hệ thống */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+  }
+}
+
+/* Đảm bảo Background luôn trắng và Text luôn đen */
+body {
+  background-color: white !important;
+  color: black !important;
+}
+
+:root {
+  color-scheme: light !important;
+}
+
+/* Tắt mọi hiệu ứng dark mode nếu lỡ có class dark */
+.dark {
+  color-scheme: light !important;
+}
+
 html {
   /* overflow: hidden; */
 }

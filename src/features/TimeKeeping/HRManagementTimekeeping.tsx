@@ -5,14 +5,16 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import timekeepingApi, { useHRHandleUserMngTimeKeeping, useHRHandleUserOrgUnit } from '@/api/HR/timeKeepingApi';
 import { ShowToast, useDebounce } from '@/lib';
 import userApi from '@/api/userApi';
+import { useTranslation } from 'react-i18next';
 
 const HRManagementTimekeeping = () => {
     const queryClient = useQueryClient();
-
+    const lang = useTranslation().i18n.language.split("-")[0];
+    
     const { data } = useQuery({
         queryKey: ['hr-mng-timekeeping'],
         queryFn: async () => {
-            const res = await timekeepingApi.hrMngTimeKeeping();
+            const res = await timekeepingApi.hrChooseUserMngTimeKeeping();
             return res.data.data; 
         }
     });
@@ -34,7 +36,6 @@ const HRManagementTimekeeping = () => {
     const orgData = useMemo(() => data?.deptResults || [], [data]);
     const availableManagers = useMemo(() => data?.userMngTimeKeepings || [], [data]);
 
-    // CHỖ NÀY: Đưa logic check ra ngoài bằng useMemo và Set
     const assignedCodes = useMemo(() => {
         if (!selectedEntity) return new Set();
         const direct = selectedEntity.directManagers?.map((e: any) => e.userCode || e.UserCode) || [];
@@ -76,8 +77,8 @@ const HRManagementTimekeeping = () => {
         <div className="flex h-screen bg-[#f8fafc] font-sans text-slate-900 overflow-hidden">
             <div className="w-[350px] bg-white border-r flex flex-col shadow-sm z-20">
                 <div className="border-b">
-                    <div className="flex items-center justify-between gap-2 mb-4 p-4">
-                        <h2 className="text-lg font-black">Quản lý chấm công</h2>
+                    <div className="flex items-center justify-between gap-2 py-2 pl-2">
+                        <h2 className="text-lg font-black">{lang == 'vi' ? 'Quản lý người chấm công' : 'Mng user timekeeping'} </h2>
                         {
                             selectedEntity && <span onClick={() => setSelectedEntity(null)} className='cursor-pointer pr-2 text-sm italic text-red-500 underline underline-offset-1'>Bỏ chọn</span>
                         }
@@ -126,7 +127,7 @@ const HRManagementTimekeeping = () => {
             </div>
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <div className="flex-1 flex overflow-hidden p-6 gap-6">
+                <div className="flex-1 flex overflow-hidden p-6 gap-6 bg-white">
                     <div className="w-1/2 bg-white rounded-[2rem] border border-slate-200 shadow-sm flex flex-col overflow-hidden">
                         <div className="p-6 border-b bg-slate-50/50">
                             <h3 className="text-sm text-slate-600 flex items-center gap-2"><Users size={16}/>Danh sách quản lý chấm công</h3>

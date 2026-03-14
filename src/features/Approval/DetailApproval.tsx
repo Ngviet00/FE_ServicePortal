@@ -6,13 +6,13 @@ import { useTranslation } from 'react-i18next';
 import ViewApprovalTermination from '../HR/TerminationLetter/ViewApprovalTermination';
 import ViewApprovalRegisnation from '../HR/ResignationLetter/ViewApprovalRegisnation';
 import ViewApprovalRequisition from '../HR/RequisitionLetter/ViewApprovalRequisition';
-import ViewTimeKeeping from '../TimeKeeping/ViewTimeKeeping';
 import ViewApprovalOverTime from '../Overtime/ViewApprovalOverTime';
 import ViewApprovalLeaveRequest from '../Leave/ViewApprovalLeaveRequest';
 import ViewApprovalInternalMemoHR from '../InternalMemoHR/ViewApprovalInternalMemoHR';
 import ViewApprovalFormIT from '../FormIT/ViewApprovalFormIT';
 import ViewApprovalFormPurchase from '../Purchasing/ViewApprovalFormPurchase';
 import ViewApprovalSAPForm from '../Sap/ViewApprovalSAPForm';
+import ViewApprovalTimeKeeping from '../TimeKeeping/ViewApprovalTimeKeeping';
 
 const DetailApproval: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -25,15 +25,25 @@ const DetailApproval: React.FC = () => {
         <div className="p-1 pl-1 pt-0 space-y-4">
             {
                 requestType != null && requestType == RequestTypeEnum.WarningLetter.toString() ? <ViewApprovalWarningLetter id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.TerminationLetter.toString() ? <ViewApprovalTermination id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.ResignationLetter.toString() ? <ViewApprovalRegisnation id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.ManpowerRequisitionLetter.toString() ? <ViewApprovalRequisition id={id ?? ''}/> :
-                requestType != null && requestType == RequestTypeEnum.Timekeeping.toString() ? <ViewTimeKeeping id={id ?? ''} mode='approval'/> :
+
+                requestType != null && requestType == RequestTypeEnum.Timekeeping.toString() ? <ViewApprovalTimeKeeping id={id ?? ''} mode='approval'/> :
+
                 requestType != null && requestType == RequestTypeEnum.Overtime.toString() ? <ViewApprovalOverTime id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.LeaveRequest.toString() ? <ViewApprovalLeaveRequest id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.InternalMemoHR.toString() ? <ViewApprovalInternalMemoHR id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.FormIT.toString() ? <ViewApprovalFormIT id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.Purchase.toString() ? <ViewApprovalFormPurchase id={id ?? ''}/> :
+
                 requestType != null && requestType == RequestTypeEnum.Sap.toString() ? <ViewApprovalSAPForm id={id ?? ''}/> :
                 (
                     <div className='text-red-500 font-bold'>
