@@ -188,7 +188,7 @@ const OrgChartTree: React.FC = () => {
 					value={department ?? ''}
 					onChange={(e) => setDepartment(Number(e.target.value))}
 					id="department_id"
-					className="dark:bg-[#454545] border border-gray-300 px-[20px] py-[5px]"
+					className="border border-gray-300 px-[20px] py-[5px]"
 				>
 					<option value="">--{t('org_chart_page.select')}--</option>
 					{

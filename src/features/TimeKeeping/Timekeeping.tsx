@@ -151,6 +151,7 @@ export default function Timekeeping () {
                 <label htmlFor="">{lang == 'vi' ? 'Chọn tháng' : 'Choose month'}</label>
                 <MonthYearFlatPickr
                     value={month}
+                    className="border-gray-300"
                     onChange={setMonth}
                 />
             </div>
@@ -172,20 +173,20 @@ export default function Timekeeping () {
                     <table className="min-w-full text-sm border-collapse">
                         <thead className="bg-gray-100 sticky top-0 z-20">
                             <tr>
-                                <th className="sticky top-0 z-20 border-x p-1 w-[115px]">{t('time_keeping.usercode')}</th>
-                                <th className="sticky top-0 border-x z-20 p-1 w-[170px]">{t('time_keeping.username')}</th>
-                                <th className="p-1 border-x w-[100px]">{t('time_keeping.date')}</th>
-                                <th className="p-1 border-x w-[50px]">{t('time_keeping.day')}</th>
-                                <th className="p-1 border-x w-[60px]">{t('time_keeping.shift')}</th>
-                                <th className="p-1 border-x w-[80px]">{t('time_keeping.from')}</th>
-                                <th className="p-1 border-x w-[80px]">{t('time_keeping.to')}</th>
-                                <th className="p-1 border-x w-[130px]">{t('time_keeping.day_time_work')}</th>
-                                <th className="p-1 border-x w-[140px]">{t('time_keeping.night_time_work')}</th>
-                                <th className="p-1 border-x w-[150px]">{t('time_keeping.day_ot_work')}</th>
-                                <th className="p-1 border-x w-[160px]">{t('time_keeping.night_ot_work')}</th>
-                                <th className="p-1 border-x w-[100px]">{t('time_keeping.early_late')}</th>
-                                <th className="p-1 border-x w-[100px]">{t('time_keeping.go_out')}</th>
-                                <th className="p-1 border-x  w-[100px]">{t('time_keeping.note')}</th>
+                                <th className="border-gray-300 sticky top-0 border z-20 p-1 w-[170px]">{t('time_keeping.username')}</th>
+                                <th className="border-gray-300 sticky top-0 z-20 border p-1 w-[115px]">{t('time_keeping.usercode')}</th>
+                                <th className="border-gray-300 p-1 border w-[100px]">{t('time_keeping.date')}</th>
+                                <th className="border-gray-300 p-1 border w-[50px]">{t('time_keeping.day')}</th>
+                                <th className="border-gray-300 p-1 border w-[60px]">{t('time_keeping.shift')}</th>
+                                <th className="border-gray-300 p-1 border w-[80px]">{t('time_keeping.from')}</th>
+                                <th className="border-gray-300 p-1 border w-[80px]">{t('time_keeping.to')}</th>
+                                <th className="border-gray-300 p-1 border w-[130px]">{t('time_keeping.day_time_work')}</th>
+                                <th className="border-gray-300 p-1 border w-[140px]">{t('time_keeping.night_time_work')}</th>
+                                <th className="border-gray-300 p-1 border w-[150px]">{t('time_keeping.day_ot_work')}</th>
+                                <th className="border-gray-300 p-1 border w-[160px]">{t('time_keeping.night_ot_work')}</th>
+                                <th className="border-gray-300 p-1 border w-[100px]">{t('time_keeping.early_late')}</th>
+                                <th className="border-gray-300 p-1 border w-[100px]">{t('time_keeping.go_out')}</th>
+                                <th className="border-gray-300 p-1 border  w-[100px]">{t('time_keeping.note')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -225,30 +226,30 @@ export default function Timekeeping () {
                                 ) : (
                                     personalTimekeepingData?.results?.map((item: any, idx: number) => (
                                         <tr key={idx} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.MaNV ?? user?.userCode}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.HoTen ?? user?.userName}</td>
-                                            <td className={`${item?.Thu == 'Chủ Nhật' || item?.Thu == 'Sun' ? 'font-bold text-red-600' : ''} px-4 py-2 border whitespace-nowrap`}>{item?.Ngay ?? "--"}</td>
-                                            <td className={`${item?.Thu == 'Chủ Nhật' || item?.Thu == 'Sun' ? 'font-bold text-red-600' : ''} px-4 py-2 text-center border whitespace-nowrap`}>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.MaNV ?? user?.userCode}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.HoTen ?? user?.userName}</td>
+                                            <td className={`border-gray-300 px-4 py-2 border whitespace-nowrap`}>{item?.Ngay ?? "--"}</td>
+                                            <td className={`border-gray-300 px-4 py-2 text-center border whitespace-nowrap`}>
                                                 {item?.Thu}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.Ca ?? '--'}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.Den ?? '--'}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.Ve ?? '--'}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.TGLamNgay ?? '--'}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.TGLamDem ?? '--'}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.Ca ?? '--'}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.Den ?? '--'}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.Ve ?? '--'}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.TGLamNgay ?? '--'}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.TGLamDem ?? '--'}</td>
                                             <td className={`${item?.LTNgay != 0 && (item?.LTNgay ?? 0) >= 60 
                                                 ? 'font-bold text-green-800 bg-green-300' 
-                                                : ''} px-4 py-2 border whitespace-nowrap text-center`}>
+                                                : ''} px-4 py-2 border whitespace-nowrap text-center border-gray-300`}>
                                                 {formatHour(item?.LTNgay ?? 0)}
                                             </td>
                                             <td className={`${item?.LTDem != 0 && (item?.LTDem ?? 0) >= 60 
                                                 ? 'font-bold text-green-800 bg-green-300' 
-                                                : ''} px-4 py-2 border whitespace-nowrap text-center`}>
+                                                : ''} px-4 py-2 border whitespace-nowrap text-center border-gray-300`}>
                                                 {formatHour(item?.LTDem ?? 0)}
                                             </td>
-                                            <td className={`${item?.VeSom != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.VeSom}</td>
-                                            <td className={`${item?.RaNgoai != '0' ? 'font-bold bg-red-600 text-white' : ''} px-4 py-2 border whitespace-nowrap text-center`}>{item?.RaNgoai}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">{item?.GhiChu ?? '--'}</td>
+                                            <td className={`${item?.VeSom != '0' ? 'font-bold bg-red-600 text-white' : ''} border-gray-300 px-4 py-2 border whitespace-nowrap text-center`}>{item?.VeSom}</td>
+                                            <td className={`${item?.RaNgoai != '0' ? 'font-bold bg-red-600 text-white' : ''} border-gray-300 px-4 py-2 border whitespace-nowrap text-center`}>{item?.RaNgoai}</td>
+                                            <td className="px-4 border-gray-300 py-2 border whitespace-nowrap text-center">{item?.GhiChu ?? '--'}</td>
                                         </tr>
                                     ))
                                 )

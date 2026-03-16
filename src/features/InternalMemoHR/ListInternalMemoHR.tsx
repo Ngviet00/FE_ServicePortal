@@ -4,14 +4,6 @@ import { ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
@@ -92,7 +84,7 @@ export default function ListInternalMemoHR () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {t('internal_memo_hr.title_list')}
                 </h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                     <Link to="/internal-memo-hr/create">
                         {t('internal_memo_hr.title_create')}
                     </Link>
@@ -102,7 +94,7 @@ export default function ListInternalMemoHR () {
             <div className="mb-5 pb-3">
                 <div className="mb-2">
                     <Label className="mb-2">{t('internal_memo_hr.status')}</Label>
-					<select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
+					<select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer border-gray-300">
 						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
                         <option value="2">{ lang == 'vi' ? 'Đang xử lý' : 'In Process' }</option>
@@ -113,80 +105,85 @@ export default function ListInternalMemoHR () {
 
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="text-center border">{t('internal_memo_hr.code')}</TableHead>
-                                    <TableHead className="text-center border">{t('internal_memo_hr.user_code')}</TableHead>
-                                    <TableHead className="text-center border">{t('internal_memo_hr.created_by')}</TableHead>
-                                    <TableHead className="text-center border">{t('internal_memo_hr.department')}</TableHead>
-                                    <TableHead className="text-center border">{t('internal_memo_hr.title')}</TableHead>
-                                    <TableHead className="text-center border">{t('internal_memo_hr.created_at')}</TableHead>
-                                    <TableHead className="text-center border">{t('internal_memo_hr.status')}</TableHead>
-                                    <TableHead className="text-center border">{t('internal_memo_hr.action')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 1 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: 8 }).map((_, i) => (
-                                            <TableCell key={i}>
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
+
+                        <table className="min-w-full text-sm border border-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.code')}</th>
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.user_code')}</th>
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.created_by')}</th>
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.department')}</th>
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.title')}</th>
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.created_at')}</th>
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.status')}</th>
+                                    <th className="border-gray-300 px-3 py-2 border text-center font-semibold">{t('internal_memo_hr.action')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            {Array.from({ length: 8 }).map((_, i) => (
+                                                <td key={i} className="border-gray-300 px-3 py-2 border text-center">
+                                                    <div className="flex justify-center">
+                                                        <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                    </div>
+                                                </td>
+                                            ))}
+                                        </tr>
                                     ))
                                 ) : isError || internalMemoHrs.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={8} className="text-red-700 border text-center font-medium dark:text-white">
-                                            { error?.message ?? tCommon('no_results') } 
-                                        </TableCell>
-                                    </TableRow>
+                                    <tr>
+                                        <td colSpan={8} className="px-4 py-4 text-center font-bold text-red-700 border border-gray-300">
+                                            {error?.message ?? tCommon('no_results')}
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    internalMemoHrs.map((item: any, idx: number) => {
-                                        return (
-                                            <TableRow key={idx}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>
-                                                </TableCell>
-                                                <TableCell className="text-center border">{item?.applicationForm?.userCodeCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{item?.applicationForm?.userNameCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{item?.orgUnit?.name}</TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.title : item?.titleE}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(item?.createdAt ?? "", 'yyyy-MM-dd HH:mm:ss') }</TableCell>
-                                                <TableCell className="text-center border">
-                                                    <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
-                                                </TableCell>
-                                                <TableCell className="text-center border">
-                                                    {
-                                                            item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
-                                                                <>
-                                                                    <Link to={`/internal-memo-hr/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[2.5px] rounded-[3px] text-sm">
-                                                                        {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                                                    </Link>
-                                                                    <ButtonDeleteComponent id={item?.applicationForm?.id} onDelete={() => handleDelete(item?.applicationForm?.id)} />
-                                                                </>
-                                                            ) : (
-                                                                <span>--</span>
-                                                            )
-                                                        }
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    })
+                                    internalMemoHrs.map((item: any, idx: number) => (
+                                        <tr key={idx} className="hover:bg-gray-50 text-black">
+                                            <td className="border-gray-300 px-3 py-2 border text-center">
+                                                <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline font-medium">
+                                                    {item?.applicationForm?.code}
+                                                </Link>
+                                            </td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">{item?.applicationForm?.userCodeCreatedForm}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">{item?.applicationForm?.userNameCreatedForm}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">{item?.orgUnit?.name}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center truncate max-w-[200px]" title={lang == 'vi' ? item?.title : item?.titleE}>
+                                                {lang == 'vi' ? item?.title : item?.titleE}
+                                            </td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center whitespace-nowrap">
+                                                {formatDate(item?.createdAt ?? "", 'yyyy-MM-dd HH:mm:ss')}
+                                            </td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">
+                                                <StatusLeaveRequest status={item?.applicationForm?.requestStatusId}/>
+                                            </td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">
+                                                <div className="flex justify-center gap-2">
+                                                    {item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
+                                                        <>
+                                                            <Link to={`/internal-memo-hr/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-3 py-1 rounded-sm text-xs hover:bg-gray-800 transition-colors">
+                                                                {lang == 'vi' ? 'Sửa' : 'Edit'}
+                                                            </Link>
+                                                            <ButtonDeleteComponent id={item?.applicationForm?.id} onDelete={() => handleDelete(item?.applicationForm?.id)} />
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-gray-400">--</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
                                 <div
                                     key={index}
-                                    className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800"
+                                    className="border rounded p-4 space-y-2 shadow bg-white "
                                 >
                                     {Array.from({ length: 6 }).map((_, i) => (
                                     <div
@@ -197,7 +194,7 @@ export default function ListInternalMemoHR () {
                                 </div>
                             ))
                         ) : isError || internalMemoHrs.length === 0 ? (
-                            <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">
+                            <div className="p-2 text-red-700 border text-center font-medium  mt-5">
                                 {error?.message ?? tCommon("no_results")}
                             </div>
                         ) : (
@@ -205,7 +202,7 @@ export default function ListInternalMemoHR () {
                                 return (
                                     <div
                                         key={idx}
-                                        className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5"
+                                        className="border rounded p-4 shadow bg-white  mt-5"
                                         >
                                         <div className="mb-1">
                                             <strong>{t("internal_memo_hr.code")}: </strong>

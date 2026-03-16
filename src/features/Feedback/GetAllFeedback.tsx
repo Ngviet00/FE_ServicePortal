@@ -50,7 +50,7 @@ export default function AllFeedback () {
 					<select
 						value={status}
 					    onChange={(e) => setStatus(e.target.value != '' ? Number(e.target.value) : 0)}
-						className="border p-1 rounded w-full cursor-pointer"
+						className="border p-1 rounded w-full cursor-pointer border-gray-300"
 					>
 						<option value="0">{lang == "vi" ? "Tất cả" : "All"}</option>
                         <option value="1">{lang == "vi" ? "Chưa phản hồi" : "Pending response"}</option>
@@ -66,11 +66,11 @@ export default function AllFeedback () {
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.code')}</th>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.content')}</th>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.status')}</th>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.action')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.code')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.content')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.status')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.created_at')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.action')}</th>
                                 </tr>
                             </thead>
                         <tbody>
@@ -92,17 +92,17 @@ export default function AllFeedback () {
                                     allFeedbacks.map((item: any, idx: number) => {
                                         return (
                                             <tr key={idx}>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border text-center border-gray-300">
                                                     <Link to={`/feedback/view/${item?.code ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center whitespace-normal break-words w-[230px]">{item?.content ?? '--'}</td>
-                                                <td className={`font-bold px-4 py-2 border text-center ${item?.status == 1 ? 'text-gray-600' : 'text-green-600'}`}>
+                                                <td className="px-4 py-2 border text-center whitespace-normal break-words w-[230px] border-gray-300">{item?.content ?? '--'}</td>
+                                                <td className={`font-bold px-4 py-2 border text-center ${item?.status == 1 ? 'text-gray-600' : 'text-green-600'} border-gray-300`}>
                                                     {item?.status == 1 ? t('feedback.list.pending_response') : t('feedback.list.has_response')}
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border text-center border-gray-300">
                                                     {formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border text-center border-gray-300">
                                                     {
                                                         item?.status == 1 && 
                                                         <Link to={`/feedback/view/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
@@ -121,17 +121,17 @@ export default function AllFeedback () {
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
-                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 5 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                 </div>
                             ))
                         ) : isError || allFeedbacks.length === 0 ? (
-                            <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? tCommon('no_results')}</div>
+                            <div className="pt-2 pl-4 text-red-700 font-medium ">{error?.message ?? tCommon('no_results')}</div>
                         ) : (
                             allFeedbacks.map((item: any) => (
-                                <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                <div key={item.id} className="border rounded p-4 shadow bg-white  mt-5">
                                     <div className="mb-1">
                                         <strong>{t('feedback.list.code')}: </strong>
                                         <Link to={`/feedback/view/${item?.code ?? '1'}`} className="text-blue-700 underline font-semibold">{item?.code ?? '--'}</Link>

@@ -99,26 +99,26 @@ const StatisticalFormPurchase = () => {
 
             <div className='mt-2'>
                 <label className="block mb-2 font-semibold text-sm text-gray-700">{t('statistical.time')}</label>
-                <YearSelect onChange={handleYearChange} defaultYear={selectedYear} />
+                <YearSelect onChange={handleYearChange} defaultYear={selectedYear} className='border-gray-300 border' />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link to={`/purchase/all-form-purchase?year=${selectedYear}`}>
-                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border border-gray-300">
                         <Ticket className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.total')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="totalRequests">{statisticalData?.groupByTotal?.total}</div>
                     </div>
                 </Link>
                 <Link to={`/purchase/all-form-purchase?statusId=3&year=${selectedYear}`}>
-                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border border-gray-300">
                         <CircleCheck className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.completed')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.complete}</div>
                     </div>
                 </Link>
                 <Link to={`/purchase/all-form-purchase?statusId=5&year=${selectedYear}`}>
-                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border border-gray-300">
                         <CircleX className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.reject')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.reject}</div>
@@ -128,28 +128,28 @@ const StatisticalFormPurchase = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <Link to={`/purchase/all-form-purchase?statusId=100&year=${selectedYear}`}>
-                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border border-gray-300">
                         <CloudUpload className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.input_quote')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.waitingQuotationInput}</div>
                     </div>
                 </Link>
                 <Link to={`/purchase/all-form-purchase?statusId=101&year=${selectedYear}`}>
-                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border border-gray-300">
                         <EqualApproximately className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.approval_quote')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.waitingQuotationApproval}</div>
                     </div>
                 </Link>
                 <Link to={`/purchase/all-form-purchase?statusId=10&year=${selectedYear}`}>
-                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border border-gray-300">
                         <TicketPlus className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.wait_po')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.waitingPO}</div>
                     </div>
                 </Link>
                 <Link to={`/purchase/all-form-purchase?statusId=11&year=${selectedYear}`}>
-                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border">
+                    <div className="p-6 rounded-lg shadow-inner flex flex-col items-center text-center border border-gray-300">
                         <PackageCheck className='text-[#1c398e]' size={35} />
                         <h3 className="text-gray-600 mb-2">{t('statistical.wait_delivery')}</h3>
                         <div className="text-3xl font-bold text-blue-900" id="slaCompliance">{statisticalData?.groupByTotal?.waitingDelivery}</div>
@@ -158,7 +158,7 @@ const StatisticalFormPurchase = () => {
             </div>
 
             <div className="flex w-full gap-x-10 mb-0">
-                <div className="flex-1 flex flex-col items-center p-3 rounded-lg shadow-inner border">
+                <div className="flex-1 flex flex-col items-center p-3 rounded-lg shadow-inner border border-gray-300">
                     <div className='w-full flex justify-between'>
                         <h2 className="mb-5 font-semibold text-lg">{t('statistical.total_by_month')}</h2>
                     </div>
@@ -167,7 +167,7 @@ const StatisticalFormPurchase = () => {
                             options={{ responsive: true, maintainAspectRatio: false, plugins:{ legend: {display: false}} }} />
                     </div>
                 </div>
-                <div className="flex-1 flex flex-col items-center p-3 rounded-lg shadow-inner border">
+                <div className="flex-1 flex flex-col items-center p-3 rounded-lg shadow-inner border border-gray-300">
                     <div className='w-full flex justify-between'>
                         <h2 className="mb-5 font-semibold text-lg">{t('statistical.total_by_dept')}</h2>
                     </div>
@@ -194,7 +194,7 @@ const StatisticalFormPurchase = () => {
                 </div>
             </div>
 
-            <div className="p-6 mb-8 pt-2 mt-8 rounded-lg shadow-inner border">
+            <div className="p-6 mb-8 pt-2 mt-8 rounded-lg shadow-inner border border-gray-300">
                 <h3 className="text-xl font-semibold mb-4 border-b pb-2 border-gray-600">{t('statistical.recent_request')}</h3>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left text-gray-600">

@@ -92,7 +92,7 @@ export default function CreateRequestTypeForm({ requestType, onAction }: Props) 
                 }
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
+            <DialogContent className="sm:max-w-[425px] bg-white" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle>{requestType?.id ? t('edit') : t('add')}</DialogTitle>
                 </DialogHeader>
@@ -106,7 +106,7 @@ export default function CreateRequestTypeForm({ requestType, onAction }: Props) 
                                 <FormItem>
                                     <Label htmlFor="name">{t('name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder={t('name')} {...field} />
+                                        <Input id="name" placeholder={t('name')} {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -120,7 +120,7 @@ export default function CreateRequestTypeForm({ requestType, onAction }: Props) 
                                 <FormItem>
                                     <Label htmlFor="name">{t('nameE')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder={t('nameE')} {...field} />
+                                        <Input id="code" placeholder={t('nameE')} {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -128,7 +128,7 @@ export default function CreateRequestTypeForm({ requestType, onAction }: Props) 
                         />
                         
                         <div className="flex justify-end">
-                            <Button type="submit" className="hover:cursor-pointer">
+                            <Button type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white">
                                 {t('submit')}
                             </Button>
                         </div>

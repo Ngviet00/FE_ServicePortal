@@ -90,7 +90,7 @@ export default function HRReport() {
                         value={fromDate}
                         onChange={(e) => handleFromDateChange(e.target.value)}
                         max={toDate}
-                        className="dark:bg-[#454545] dark:text-white shadow-xs border border-gray-300 p-1 rounded-[5px] w-full sm:w-[160px] text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                        className="shadow-xs border border-gray-300 p-1 rounded-[5px] w-full sm:w-[160px] text-sm outline-none focus:ring-1 focus:ring-blue-500"
                     />
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto mr-5">
@@ -101,7 +101,7 @@ export default function HRReport() {
                         min={fromDate}
                         max={lastDayOfSelectedMonth}
                         onChange={(e) => handleToDateChange(e.target.value)}
-                        className="dark:bg-[#454545] dark:text-white shadow-xs border border-gray-300 p-1 rounded-[5px] w-full sm:w-[160px] text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                        className="shadow-xs border border-gray-300 p-1 rounded-[5px] w-full sm:w-[160px] text-sm outline-none focus:ring-1 focus:ring-blue-500"
                     />
                 </div>
                 <div className="flex items-center gap-2">
@@ -110,7 +110,7 @@ export default function HRReport() {
                         value={department ?? ''}
                         onChange={(e) => setDepartment(Number(e.target.value))}
                         id="department_id"
-                        className="dark:bg-[#454545] dark:text-white border border-gray-300 p-1 rounded-sm hover:cursor-pointer text-sm"
+                        className="border border-gray-300 p-1 rounded-sm hover:cursor-pointer text-sm"
                     >
                         <option value="">--{lang == 'vi' ? 'Tất cả' : 'All'}--</option>
                         {departments.map((item: {id: number, name: string}) => (

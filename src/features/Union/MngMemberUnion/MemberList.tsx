@@ -3,6 +3,7 @@ import { Loader2, Pencil, Trash2, UserPlus } from 'lucide-react';
 import { UnionMember } from './MngMemberUnion';
 
 interface Props {
+    lang: string;
     members: UnionMember[];
     isLoading: boolean;
     selectedMember: UnionMember | null;
@@ -14,21 +15,21 @@ interface Props {
 }
 
 const MemberList: React.FC<Props> = ({
-    members, isLoading, selectedMember, onSelectMember, onOpenAddModal,
+    members, lang, isLoading, selectedMember, onSelectMember, onOpenAddModal,
     onEditMember, onDeleteMember, isUnionAdmin
 }) => (
     <div className="bg-white rounded-2xl shadow-xl h-full overflow-hidden flex flex-col">
         <h2 className="py-2 px-5 text-xl font-extrabold text-indigo-700 border-b sticky top-0 bg-white">
-            Danh sách thành viên ({members.length})
+            {lang === 'vi' ? `Danh sách thành viên (${members.length})` : `Member List (${members.length})`}
         </h2>
 
         {isLoading && <div className="p-4 flex justify-center items-center text-indigo-600">
-            <Loader2 className="w-5 h-5 animate-spin mr-2" /> Đang tải dữ liệu...
+            <Loader2 className="w-5 h-5 animate-spin mr-2" /> {lang === 'vi' ? 'Đang tải' : 'Loading'}
         </div>}
 
         <div className="flex-grow overflow-y-auto">
             {!isLoading && members.length === 0 && (
-                <div className="p-4 text-center text-gray-500">Chưa có Quản lý nào. Vui lòng thêm thành viên mới.</div>
+                <div className="p-4 text-center text-gray-500">{lang === 'vi' ? 'Chưa có Quản lý nào.' : 'No managers found.'}</div>
             )}
 
             {!isLoading && members.map(member => (
@@ -58,7 +59,7 @@ const MemberList: React.FC<Props> = ({
             isUnionAdmin && 
             <div className="p-4 border-t bg-gray-50">
                 <button onClick={onOpenAddModal} className="w-full flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-lg cursor-pointer">
-                    <UserPlus size={18} className="mr-2" /> Thêm Thành Viên Công Đoàn
+                    <UserPlus size={18} className="mr-2" /> {lang === 'vi' ? 'Thêm thành viên' : 'Add member'}
                 </button>
             </div>
         }

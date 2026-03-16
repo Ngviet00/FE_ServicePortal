@@ -115,19 +115,19 @@ const ListScannerMachine = () => {
 				</select>
 			</div>
 			
-            <div className="rounded-sm shadow-sm border border-slate-200 overflow-hidden text-sm">
+            <div className="overflow-hidden text-sm">
                 <table className="w-full text-left">
-                    <thead className="border-b">
+                    <thead className="">
                         <tr>
-							<th className="p-2 text-sm">STT</th>
-							<th className="p-2 text-sm">{t('scanner_machine.list.name_device')}</th>
-							<th className="p-2 text-sm">{lang == 'vi' ? 'Tên thiết bị (Tiếng anh)' : 'Name device (English)'}</th>
-							<th className="p-2 text-sm">IP</th>
-							<th className="p-2 text-sm">Serial Number</th>
-							<th className="p-2 text-sm">{lang == 'vi' ? 'Hãng' : 'Provider'}</th>
-							<th className="p-2 text-sm text-center">{lang == 'vi' ? 'Đang hoạt động' : 'Disabled'}</th>
-							<th className="p-2 text-sm">{lang == 'vi' ? 'Ghi chú' : 'Note'}</th>
-							<th className="p-2 text-right text-sm">{t('scanner_machine.list.action')}</th>
+							<th className="p-2 border border-gray-300 text-sm">STT</th>
+							<th className="p-2 border border-gray-300 text-sm">{t('scanner_machine.list.name_device')}</th>
+							<th className="p-2 border border-gray-300 text-sm">{lang == 'vi' ? 'Tên thiết bị (Tiếng anh)' : 'Name device (English)'}</th>
+							<th className="p-2 border border-gray-300 text-sm">IP</th>
+							<th className="p-2 border border-gray-300 text-sm">Serial Number</th>
+							<th className="p-2 border border-gray-300 text-sm">{lang == 'vi' ? 'Hãng' : 'Provider'}</th>
+							<th className="p-2 border border-gray-300 text-sm text-center">{lang == 'vi' ? 'Đang hoạt động' : 'Disabled'}</th>
+							<th className="p-2 border border-gray-300 text-sm">{lang == 'vi' ? 'Ghi chú' : 'Note'}</th>
+							<th className="p-2 border border-gray-300 text-right text-sm">{t('scanner_machine.list.action')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -158,25 +158,25 @@ const ListScannerMachine = () => {
 
 									return (
 										<tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-											<td className="px-3 py-0">{idx+1}</td>
-											<td className="px-3 py-0">
+											<td className="border-gray-300 border px-3 py-0">{idx+1}</td>
+											<td className="border-gray-300 border px-3 py-0">
 												<div className="font-bold">{dev.ddTenV}</div>
 											</td>
-											<td className="px-3 py-0">
+											<td className="px-3 py-0 border-gray-300 border">
 												<div className="font-bold">{dev.ddTenE}</div>
 											</td>
-											<td className="px-3 py-0">{dev.ddip}</td>
-											<td className="px-3 py-0">{dev.ddSerial}</td>
-											<td className="px-3 py-0">{getProviderName(dev.providerId)}</td>
-											<td className="px-3 py-0 text-center">
+											<td className="px-3 py-0 border-gray-300 border">{dev.ddip}</td>
+											<td className="px-3 py-0 border-gray-300 border">{dev.ddSerial}</td>
+											<td className="px-3 py-0 border-gray-300 border">{getProviderName(dev.providerId)}</td>
+											<td className="px-3 py-0 text-center border-gray-300 border">
 												{dev.isDisabled ? (
 													<span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">{lang == 'vi' ? 'Ngưng hoạt động' : 'Disabled'}</span>
 												) : (
 													<span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">{lang == 'vi' ? 'Hoạt động' : 'Active'}</span>
 												)}
 											</td>
-											<td className="px-3 py-0">{dev.note ?? '--'}</td>
-											<td className="px-3 py-0 text-right">
+											<td className="px-3 py-0 border-gray-300 border">{dev.note ?? '--'}</td>
+											<td className="px-3 py-0 text-right border-gray-300 border">
 												<div className="flex justify-end gap-2">
 													<button disabled={isRowConnecting} onClick={() => handleCheckConnect(dev.ddMa)} className="p-2 hover:bg-indigo-50 text-indigo-600 rounded-lg cursor-pointer">
 														{isRowConnecting ? (

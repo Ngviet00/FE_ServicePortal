@@ -325,7 +325,7 @@ const CreateTermination: React.FC = () => {
                 <div>
                     <Button 
                         onClick={() => navigate("/termination")} 
-                        className="w-full md:w-auto hover:cursor-pointer"
+                        className="w-full md:w-auto hover:cursor-pointer bg-black text-white hover:bg-black"
                     >
                         {t('termination.list.title')}
                     </Button>
@@ -396,7 +396,7 @@ const CreateTermination: React.FC = () => {
                                 dateFormat="Y-m-d"
                                 initialDateTime={getValues(`dateJoinCompany`)}
                                 onChange={(_selectedDates, dateStr) => setValue("dateJoinCompany", dateStr)}
-                                className={`dark:bg-[#454545] bg-gray-50 text-sm border rounded-md border-gray-300 p-2 w-full`}
+                                className={`bg-gray-50 text-sm border rounded-md border-gray-300 p-2 w-full`}
                             />
                         </div>
                         <div className="relative">
@@ -407,7 +407,7 @@ const CreateTermination: React.FC = () => {
                                 dateFormat="Y-m-d"
                                 initialDateTime={getValues(`lastWorkingDate`)}
                                 onChange={(_selectedDates, dateStr) => setValue("lastWorkingDate", dateStr)}
-                                className={`dark:bg-[#454545] text-sm border rounded-md border-gray-300 p-2 w-full`}
+                                className={`text-sm border rounded-md border-gray-300 p-2 w-full`}
                             />
                         </div>
                         <div className="relative">
@@ -418,7 +418,7 @@ const CreateTermination: React.FC = () => {
                                 dateFormat="Y-m-d"
                                 initialDateTime={getValues(`contractTerminationDate`)}
                                 onChange={(_selectedDates, dateStr) => setValue("contractTerminationDate", dateStr)}
-                                className={`dark:bg-[#454545] text-sm border rounded-md border-gray-300 p-2 w-full`}
+                                className={`text-sm border rounded-md border-gray-300 p-2 w-full`}
                             />
                         </div>
                     </div>
@@ -462,7 +462,7 @@ const CreateTermination: React.FC = () => {
                                             dateFormat="Y-m-d"
                                             initialDateTime={getValues(`reasons.reason_absent_text`)}
                                             onChange={(_selectedDates, dateStr) => setValue("reasons.reason_absent_text", dateStr)}
-                                            className={`dark:bg-[#454545] text-sm border rounded-md border-gray-300 p-2 w-full`}
+                                            className={`text-sm border rounded-md border-gray-300 p-2 w-full`}
                                         />
                                     </div>
                                 }

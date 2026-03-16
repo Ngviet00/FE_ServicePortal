@@ -4,14 +4,6 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
@@ -56,7 +48,7 @@ export default function ListMyOverTime () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {t('overtime.list.title')}
                 </h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                     <Link to="/overtime/create">
                         {t('overtime.create.title_create')}
                     </Link>
@@ -65,101 +57,100 @@ export default function ListMyOverTime () {
 
             <div className="mb-5 pb-3">
                 <div className="mt-2">
-                    <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list.code')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list.usercode')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list.username')}</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{t('overtime.list.position')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list.date_register')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list.type_overtime')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list.from_hour')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.to_hour')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.number_hour')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.note')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('overtime.list.created_at')}</TableHead>
-                                    <TableHead className="w-[200px] text-center border">{t('overtime.list.status')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 1 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: 12 }).map((_, i) => (
-                                            <TableCell key={i}>
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
+                    <div className="w-full overflow-x-auto border border-gray-200 rounded-sm hidden md:block">
+                        <table className="min-w-full text-sm border border-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
+                                    <th className="border-gray-300 w-[100px] px-3 py-2 border text-center font-semibold">{t('overtime.list.code')}</th>
+                                    <th className="border-gray-300 w-[100px] px-3 py-2 border text-center font-semibold">{t('overtime.list.usercode')}</th>
+                                    <th className="border-gray-300 w-[150px] px-3 py-2 border text-center font-semibold">{t('overtime.list.username')}</th>
+                                    <th className="border-gray-300 w-[130px] px-3 py-2 border text-center font-semibold">{t('overtime.list.position')}</th>
+                                    <th className="border-gray-300 w-[100px] px-3 py-2 border text-center font-semibold">{t('overtime.list.date_register')}</th>
+                                    <th className="border-gray-300 w-[150px] px-3 py-2 border text-center font-semibold">{t('overtime.list.type_overtime')}</th>
+                                    <th className="border-gray-300 w-[80px] px-3 py-2 border text-center font-semibold">{t('overtime.list.from_hour')}</th>
+                                    <th className="border-gray-300 w-[80px] px-3 py-2 border text-center font-semibold">{t('overtime.list.to_hour')}</th>
+                                    <th className="border-gray-300 w-[80px] px-3 py-2 border text-center font-semibold">{t('overtime.list.number_hour')}</th>
+                                    <th className="border-gray-300 w-[150px] px-3 py-2 border text-center font-semibold">{t('overtime.list.note')}</th>
+                                    <th className="border-gray-300 w-[150px] px-3 py-2 border text-center font-semibold">{t('overtime.list.created_at')}</th>
+                                    <th className="border-gray-300 w-[130px] px-3 py-2 border text-center font-semibold">{t('overtime.list.status')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            {Array.from({ length: 12 }).map((_, i) => (
+                                                <td key={i} className="border-gray-300 px-3 py-2 border text-center">
+                                                    <div className="flex justify-center">
+                                                        <Skeleton className="h-4 w-[80px] bg-gray-300" />
+                                                    </div>
+                                                </td>
+                                            ))}
+                                        </tr>
                                     ))
                                 ) : isError || myOverTimes.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={12} className="text-red-700 border text-center font-medium dark:text-white">
-                                            { error?.message ?? tCommon('no_results') } 
-                                        </TableCell>
-                                    </TableRow>
+                                    <tr>
+                                        <td colSpan={12} className="px-4 py-4 text-center font-bold text-red-700 border border-gray-300">
+                                            {error?.message ?? tCommon('no_results')}
+                                        </td>
+                                    </tr>
                                 ) : (
                                     myOverTimes.map((item: any, idx: number) => {
                                         const infoOverTime = JSON.parse(item?.metaData ?? '{}');
-                                        let status = null
+                                        let status = null;
 
                                         if (item?.applicationFormItemStatus == false) {
-                                            status = StatusApplicationFormEnum.Reject
+                                            status = StatusApplicationFormEnum.Reject;
                                         } else {
                                             status = item.requestStatusId == StatusApplicationFormEnum.Pending ? 'Pending' 
-                                                    : item.requestStatusId == StatusApplicationFormEnum.Complete ? 'Completed' 
-                                                    : item.requestStatusId == StatusApplicationFormEnum.Reject ? 'Reject' : 'In Process'
+                                                : item.requestStatusId == StatusApplicationFormEnum.Complete ? 'Completed' 
+                                                : item.requestStatusId == StatusApplicationFormEnum.Reject ? 'Reject' : 'In Process';
                                         }
 
                                         return (
-                                            <TableRow key={idx}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/view/${item?.applicationFormCode}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationFormCode}</Link>
-                                                </TableCell>
-                                                <TableCell className="text-center border">{item?.userCode}</TableCell>
-                                                <TableCell className="text-center border">{item?.userName}</TableCell>
-                                                <TableCell className="text-center border">{item?.position}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(infoOverTime?.date_register ?? "", "yyyy-MM-dd") }</TableCell>
-                                                <TableCell className="text-center border">{infoOverTime?.type_overtime?.name}</TableCell>
-                                                <TableCell className="text-center border">{item?.fromHour}</TableCell>
-                                                <TableCell className="text-center border">{item?.toHour}</TableCell>
-                                                <TableCell className="text-center border">{item?.numberHour}</TableCell>
-                                                <TableCell className="text-center border">{item?.note}</TableCell>
-                                                <TableCell className="text-center border">{ formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-center border">
-                                                    <StatusLeaveRequest 
-                                                        status={status}
-                                                    />
-                                                    </TableCell>
-                                            </TableRow>
-                                        )
+                                            <tr key={idx} className="hover:bg-gray-50 text-black">
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center font-medium">
+                                                    <Link to={`/view/${item?.applicationFormCode}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">
+                                                        {item?.applicationFormCode}
+                                                    </Link>
+                                                </td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{item?.userCode}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{item?.userName}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{item?.position}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{formatDate(infoOverTime?.date_register ?? "", "yyyy-MM-dd")}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{infoOverTime?.type_overtime?.name}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{item?.fromHour}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{item?.toHour}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center font-semibold">{item?.numberHour}</td>
+                                                <td className="border-gray-300 px-3 py-2 border text-center truncate max-w-[150px]" title={item?.note}>{item?.note || "--"}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">{formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</td>
+                                                <td className="border-gray-300 px-3 py-2 border whitespace-nowrap text-center">
+                                                    <StatusLeaveRequest status={status} />
+                                                </td>
+                                            </tr>
+                                        );
                                     })
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
-
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 12 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                     </div>
                                 ))
                             ) : isError || myOverTimes.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') }</div>
+                                <div className="p-2 text-red-700 border text-center font-medium  mt-5">{ error?.message ?? tCommon('no_results') }</div>
                             ) : (
                                 myOverTimes.map((item: any, idx: number) => {
                                     const infoOverTime = JSON.parse(item?.metaData ?? '{}');
 
                                     return (
-                                        <div key={idx} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={idx} className="border rounded p-4 shadow bg-white  mt-5">
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{t('overtime.list.code')}: </strong>

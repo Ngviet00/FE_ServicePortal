@@ -84,7 +84,7 @@ const CheckDataUserScan = () => {
                                     setType(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="border py-1.5 px-2 rounded text-sm focus:outline-none min-w-[160px] hover:cursor-pointer"
+                                className="border py-1.5 px-2 rounded text-sm focus:outline-none min-w-[160px] hover:cursor-pointer border-gray-300"
                             >
                                 <option value="">-- {lang == 'vi' ? 'Chọn loại' : 'Select Type'} --</option>
                                 {TYPE_SCANNER_MACHINE.map((item: any) => (
@@ -107,7 +107,7 @@ const CheckDataUserScan = () => {
                                         setFromDate(dateStr)
                                         setCurrentPage(1)
                                     }}
-                                    className="dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
+                                    className=" shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
                                 />
                             </div>
 
@@ -123,7 +123,7 @@ const CheckDataUserScan = () => {
                                         setToDate(dateStr)
                                         setCurrentPage(1)
                                     }}
-                                    className="dark:bg-[#454545] shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
+                                    className=" shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px]"
                                 />
                             </div>
                         </div>
@@ -138,7 +138,7 @@ const CheckDataUserScan = () => {
                                     setSelectedDepartment(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="border py-1.5 px-2 rounded text-sm focus:outline-none min-w-[160px] hover:cursor-pointer"
+                                className="border py-1.5 px-2 rounded text-sm focus:outline-none min-w-[160px] hover:cursor-pointer border-gray-300"
                             >
                                 <option value="">-- {lang == 'vi' ? 'Tất cả' : 'All'} --</option>
                                 {departments.map((item: {id: number, name: string}) => (
@@ -154,7 +154,7 @@ const CheckDataUserScan = () => {
                             <input 
                                 type="text" 
                                 placeholder={lang == 'vi' ? 'Tìm kiếm theo mã, tên,...' : 'Search by usercode, username...'}
-                                className="pl-3 py-1.5 border rounded text-[14px] w-60 focus:outline-none"
+                                className="pl-3 py-1.5 border rounded text-[14px] w-60 focus:outline-none border-gray-300"
                                 value={searchTerm}
                                 onChange={(e) => {setSearchTerm(e.target.value); setCurrentPage(1);}}
                             />
@@ -210,30 +210,30 @@ const CheckDataUserScan = () => {
                         <table className={`w-full ${isPending || isFetching ? 'opacity-30' : 'opacity-100'}`}> 
                             <thead>
                                 <tr className="bg-slate-50 font-bold text-slate-500">
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-200 px-3 py-3 text-center">
                                         {lang == 'vi' ? 'Mã nhân viên': 'Usercode'}
                                     </th>
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Họ tên' : 'Username'}</th>
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Bộ phận' : 'Department'}</th>
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Mã thẻ' : 'TimekeepingId'}</th>
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Ngày' : 'Date'}</th>
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Thời gian' : 'Time'}</th>
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Vào/Ra' : 'In/Out'}</th>
-                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Máy' : 'Machine'}</th>
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Họ tên' : 'Username'}</th>
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Bộ phận' : 'Department'}</th>
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Mã thẻ' : 'TimekeepingId'}</th>
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Ngày' : 'Date'}</th>
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Thời gian' : 'Time'}</th>
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Vào/Ra' : 'In/Out'}</th>
+                                    <th className="sticky top-0 z-20 text-[14px] w-28 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Máy' : 'Machine'}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {dataUserScans?.results?.length > 0 ? (
                                     dataUserScans?.results?.map((emp: any, idx: number) => (
                                         <tr key={idx} className={`hover:bg-slate-50/50 transition-colors`}>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.UserCode ?? '-'}</td>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.UserName ?? '-'}</td>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.DeptName ?? '-'}</td>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.EmployeeNo ?? '-'}</td>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.EventTime ? emp?.EventTime?.split('T')[0] : '-'}</td>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.EventTime ? emp?.EventTime?.split('T')[1] : '-'}</td>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.In_Out ?? '-'}</td>
-                                            <td className='px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b'>{emp?.NameMCC ?? '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.UserCode ?? '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.UserName ?? '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.DeptName ?? '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.EmployeeNo ?? '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.EventTime ? emp?.EventTime?.split('T')[0] : '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.EventTime ? emp?.EventTime?.split('T')[1] : '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.In_Out ?? '-'}</td>
+                                            <td className='px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b'>{emp?.NameMCC ?? '-'}</td>
                                         </tr>
                                     ))
                                 ) : (

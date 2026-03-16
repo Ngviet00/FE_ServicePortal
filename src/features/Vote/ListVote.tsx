@@ -130,22 +130,22 @@ export default function ListVote() {
 			</div>
 
 			<div className="hidden md:block overflow-x-auto border border-gray-200 rounded-lg">
-				<table className="w-full text-sm text-left border-collapse">
-					<thead className="bg-gray-100 text-black">
+				<table className="w-full text-sm text-center border-collapse">
+					<thead className="bg-gray-100 text-black border-none">
 						<tr>
-							<th className="p-3 font-semibold border-b text-left w-[35%] border-r">
+							<th className="p-3 font-semibold border border-gray-300 text-center w-[35%]">
 								{t("create.title")}
 							</th>
-							<th className="p-3 font-semibold border-b text-center w-[20%] border-r">
+							<th className="p-3 font-semibold border border-gray-300 text-center w-[20%]">
 								{t("list.start_date")}
 							</th>
-							<th className="p-3 font-semibold border-b text-center w-[20%] border-r">
+							<th className="p-3 font-semibold border border-gray-300 text-center w-[20%]">
 								{t("list.end_date")}
 							</th>
-							<th className="p-3 font-semibold border-b text-center w-[15%] border-r">
+							<th className="p-3 font-semibold border border-gray-300 text-center w-[15%]">
 								{t("list.status")}
 							</th>
-							<th className="p-3 font-semibold border-b text-right w-[15%]">
+							<th className="p-3 font-semibold border border-gray-300 text-center w-[15%]">
 								{t("list.action")}
 							</th>
 						</tr>
@@ -176,14 +176,14 @@ export default function ListVote() {
 							votes.map((vote: any, idx: number) => (
 								<tr
 									key={idx}
-									className="hover:bg-gray-50 transition border-b last:border-b-0"
+									className="hover:bg-gray-50 transition"
 								>
-									<td className="p-3 font-medium text-blue-600 truncate text-[15px] border-r">
+									<td className="p-3 font-medium text-blue-600 truncate text-[15px] border border-gray-300">
                                         <Link className="underline" to={`/vote/${vote?.Id}`}>{vote?.Title}</Link>
 									</td>
-									<td className="p-3 text-black text-center border-r">{formatDate(vote?.StartDate, 'yyyy-MM-dd')}</td>
-									<td className="p-3 text-black text-center border-r">{formatDate(vote?.EndDate, 'yyyy-MM-dd')}</td>
-									<td className="p-3 text-center border-r">
+									<td className="p-3 text-black text-center border border-gray-300">{formatDate(vote?.StartDate, 'yyyy-MM-dd')}</td>
+									<td className="p-3 text-black text-center border border-gray-300">{formatDate(vote?.EndDate, 'yyyy-MM-dd')}</td>
+									<td className="p-3 text-center border border-gray-300">
 										<span
 											className={`px-2 py-1 text-xs font-semibold rounded ${
 												vote.Status == 3
@@ -200,7 +200,7 @@ export default function ListVote() {
 												: (lang == 'vi' ? 'Sắp diễn ra' : 'Upcoming')}
 										</span>
 									</td>
-                                    <td className="p-3 text-right">
+                                    <td className="p-3 text-right border-gray-300 border">
                                         <div className="flex items-center justify-end gap-2"> 
                                             <Link 
                                                 to={`/vote/${vote?.Id}`} 

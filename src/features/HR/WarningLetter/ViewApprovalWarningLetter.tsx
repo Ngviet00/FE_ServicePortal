@@ -223,7 +223,7 @@ const ViewApprovalWarningLetter: React.FC<ViewApprovalWarningLetterProps> = ({id
                                 {...register("userCode")}
                                 type='text'
                                 placeholder={t('warning_letter.create.usercode')}
-                                className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userCode ? 'border-red-500 bg-red-50' : ''}`}
+                                className={`w-full p-2 border rounded-sm border-gray-300 transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userCode ? 'border-red-500 bg-red-50' : ''}`}
                             />
                         </div>
                     </div>
@@ -236,7 +236,7 @@ const ViewApprovalWarningLetter: React.FC<ViewApprovalWarningLetterProps> = ({id
                                 disabled
                                 type='text'
                                 placeholder={t('warning_letter.create.username')}
-                                className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userName ? 'border-red-500 bg-red-50' : ''}`}
+                                className={`w-full p-2 border rounded-sm border-gray-300 transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userName ? 'border-red-500 bg-red-50' : ''}`}
                             />
                         </div>
                     </div>
@@ -248,7 +248,7 @@ const ViewApprovalWarningLetter: React.FC<ViewApprovalWarningLetterProps> = ({id
                                 disabled
                                 type='text'
                                 placeholder={t('warning_letter.create.department')}
-                                className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.department ? 'border-red-500 bg-red-50' : ''}`}
+                                className={`w-full p-2 border rounded-sm border-gray-300 transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.department ? 'border-red-500 bg-red-50' : ''}`}
                             />
                         </div>
                     </div>
@@ -260,7 +260,7 @@ const ViewApprovalWarningLetter: React.FC<ViewApprovalWarningLetterProps> = ({id
                                 {...register("position")}
                                 type='text'
                                 placeholder={t('warning_letter.create.position')}
-                                className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.position ? 'border-red-500 bg-red-50' : ''}`}
+                                className={`w-full p-2 border rounded-sm border-gray-300 transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.position ? 'border-red-500 bg-red-50' : ''}`}
                             />
                         </div>
                     </div>
@@ -272,7 +272,7 @@ const ViewApprovalWarningLetter: React.FC<ViewApprovalWarningLetterProps> = ({id
                                 disabled
                                 type='text'
                                 placeholder={t('warning_letter.create.unit')}
-                                className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.unit ? 'border-red-500 bg-red-50' : ''}`}
+                                className={`w-full p-2 border rounded-sm border-gray-300 transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.unit ? 'border-red-500 bg-red-50' : ''}`}
                             />
                         </div>
                     </div>
@@ -288,7 +288,7 @@ const ViewApprovalWarningLetter: React.FC<ViewApprovalWarningLetterProps> = ({id
                                 onChange={(_selectedDates, dateStr) =>
                                     setValue("dateWarningLetter", dateStr, { shouldValidate: true })
                                 }
-                                className={`dark:bg-[#454545] text-sm border rounded border-gray-300 bg-gray-50 p-2 w-full`}
+                                className={`text-sm border rounded border-gray-300 bg-gray-50 p-2 w-full`}
                             />
                         </div>
                     </div>
@@ -302,7 +302,7 @@ const ViewApprovalWarningLetter: React.FC<ViewApprovalWarningLetterProps> = ({id
                         rows={3} 
                         disabled
                         placeholder={t('warning_letter.create.reason')}
-                        className={`w-full p-2 border rounded-sm transition bg-gray-50 duration-150 ease-in-out text-sm ${errors.reason ? 'border-red-500 bg-red-50' : ''}`}
+                        className={`w-full p-2 border rounded-sm border-gray-300 transition bg-gray-50 duration-150 ease-in-out text-sm ${errors.reason ? 'border-red-500 bg-red-50' : ''}`}
                     ></textarea>
                 </div>
 

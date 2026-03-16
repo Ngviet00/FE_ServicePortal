@@ -2,14 +2,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ChangeEvent, useState } from "react"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import leaveRequestApi from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
@@ -101,7 +93,7 @@ export default function ListLeaveRequestRegistered () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     { lang == 'vi' ? 'Danh sách đơn đã đăng ký' : 'Registered Leave Requests'}
                 </h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                     <Link to="/leave/create">
                         {lang == 'vi' ? 'Tạo đơn nghỉ phép' : 'Create leave request'}
                     </Link>
@@ -111,7 +103,7 @@ export default function ListLeaveRequestRegistered () {
             <div className="mb-5 pb-3">
                 <div className="mb-2">
                     <Label className="mb-2">{t('list_leave_request.status')}</Label>
-                    <select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
+                    <select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer border-gray-300">
                         <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
                         <option value="2">{ lang == 'vi' ? 'Đang xử lý' : 'In Process' }</option>
@@ -122,90 +114,92 @@ export default function ListLeaveRequestRegistered () {
 
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{lang == 'vi' ? 'Mã đơn' : 'Code'}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{lang == 'vi' ? 'Loại đơn' : 'Request Type'}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{lang == 'vi' ? 'Người tạo' : 'Created By'}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{lang == 'vi' ? 'Trạng thái đơn' : 'Status'}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Hành động' : 'Action'}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-
-                            <TableBody>
+                        <table className="min-w-full text-sm border border-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
+                                    <th className="border-gray-300 w-[100px] px-4 py-2 border text-center">{lang == 'vi' ? 'Mã đơn' : 'Code'}</th>
+                                    <th className="border-gray-300 w-[120px] px-4 py-2 border text-center">{lang == 'vi' ? 'Loại đơn' : 'Request Type'}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{lang == 'vi' ? 'Người tạo' : 'Created By'}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{lang == 'vi' ? 'Thời gian tạo' : 'Created At'}</th>
+                                    <th className="border-gray-300 w-[130px] px-4 py-2 border text-center">{lang == 'vi' ? 'Trạng thái đơn' : 'Status'}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{lang == 'vi' ? 'Hành động' : 'Action'}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 {isPending ? (
                                     Array.from({ length: 3 }).map((_, index) => (
-                                        <TableRow key={index}>
+                                        <tr key={index}>
                                             {Array.from({ length: 6 }).map((_, i) => (
-                                                <TableCell key={i} className="border">
+                                                <td key={i} className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                     <div className="flex justify-center">
-                                                        <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                        <Skeleton className="h-4 w-[80px] bg-gray-300" />
                                                     </div>
-                                                </TableCell>
+                                                </td>
                                             ))}
-                                            </TableRow>
-                                        ))
-                                    ) : isError || leaveRequestRegistered.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
-                                                {error?.message ?? t('list_leave_request.no_result')}
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        leaveRequestRegistered.map((item: GetMyLeaveRequestRegistered) => {
-                                            return (
-                                                <TableRow key={item.id}>
-                                                    <TableCell className="text-center border">
-                                                        <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">{item?.code}</Link>
-                                                    </TableCell>
-                                                    <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
-                                                    <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
-                                                    <TableCell className="text-center border">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                                    <TableCell className="text-center border">
-                                                        <StatusLeaveRequest 
-                                                            status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell className="text-center border">
-                                                        {
-                                                            item?.requestStatus?.id == 1 ? (
-                                                                <>
-                                                                    <Link to={`/leave/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                        {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                                                    </Link>
-                                                                    <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
-                                                                </>
-                                                            ) : (
-                                                                <span>--</span>
-                                                            )
-                                                        }
-                                                    </TableCell>
-                                                    
-                                                </TableRow>
-                                            )
-                                        })
-                                    )}
-                            </TableBody>
-                        </Table>
+                                        </tr>
+                                    ))
+                                ) : isError || leaveRequestRegistered.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="px-4 py-4 text-center font-bold text-red-700 border border-gray-300">
+                                            {error?.message ?? t('list_leave_request.no_result')}
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    leaveRequestRegistered.map((item: GetMyLeaveRequestRegistered) => (
+                                        <tr key={item.id} className="hover:bg-gray-50 text-black">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center font-medium">
+                                                <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">
+                                                    {item?.code}
+                                                </Link>
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {item?.userNameCreatedForm}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                <StatusLeaveRequest 
+                                                    status={item.requestStatus?.id == 1 ? 'Pending' : item?.requestStatus?.id == 3 ? 'Completed' : item?.requestStatus?.id == 5 ? 'Reject' : 'In Process'}
+                                                />
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {item?.requestStatus?.id == 1 ? (
+                                                    <div className="flex justify-center space-x-2">
+                                                        <Link to={`/leave/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-xs">
+                                                            {lang == 'vi' ? 'Sửa' : 'Edit'}
+                                                        </Link>
+                                                        <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
+                                                    </div>
+                                                ) : (
+                                                    <span>--</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
                     </div>
 
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 6 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                     </div>
                                 ))
                             ) : isError || leaveRequestRegistered.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
+                                <div className="p-2 text-red-700 border text-center font-medium  mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
                                 leaveRequestRegistered.map((item: GetMyLeaveRequestRegistered) => {
                                     return (
-                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={item.id} className="border rounded p-4 shadow bg-white  mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
                                                 <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">

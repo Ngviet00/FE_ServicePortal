@@ -360,10 +360,10 @@ export default function CreateOverTime() {
                     </div>
                 </div>
                 <div>
-                    <Button onClick={() => navigate("/overtime")} className="w-full md:w-auto hover:cursor-pointer mr-1 mb-1">
+                    <Button onClick={() => navigate("/overtime")} className="w-full md:w-auto hover:cursor-pointer mr-1 mb-1 bg-black text-white hover:bg-black">
                         { lang == 'vi' ? 'Đơn tăng ca của tôi' : 'My Overtime Requests' }
                     </Button>
-                    <Button onClick={() => navigate("/overtime/overtime-registered")} className="w-full md:w-auto hover:cursor-pointer">
+                    <Button onClick={() => navigate("/overtime/overtime-registered")} className="w-full md:w-auto hover:cursor-pointer bg-black text-white hover:bg-black">
                         { lang == 'vi' ? 'Danh sách đơn tăng ca đã đăng ký' : 'Registered Overtime Requests' }
                     </Button>
                 </div>
@@ -444,7 +444,7 @@ export default function CreateOverTime() {
                                 onChange={(_selectedDates, dateStr) => {
                                     form.setValue('infoOverTime.date_register', dateStr)
                                 }}
-                                className={`dark:bg-[#454545] text-sm border border-gray-300 p-1.5 rounded-[3px]`}
+                                className={` text-sm border border-gray-300 p-1.5 rounded-[3px]`}
                                 enableDate={[
                                     dateRegister ? dateRegister : new Date().toISOString().split("T")[0],
                                     new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split("T")[0], // hôm qua
@@ -523,13 +523,13 @@ export default function CreateOverTime() {
                                 <table className="w-full text-sm border border-gray-200 rounded-lg">
                                     <thead className="bg-gray-100">
                                         <tr>
-                                            <th className="px-4 py-2 border min-w-[120px]">{t('overtime.list.usercode')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border min-w-[200px]">{t('overtime.list.username')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border min-w-[180px]">{t('overtime.list.position')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-[130px]">{t('overtime.list.from_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-[130px]">{t('overtime.list.to_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border w-[150px] text-center">{t('overtime.list.number_hour')} <DotRequireComponent/></th>
-                                            <th className="px-4 py-2 border min-w-[200px]">{t('overtime.list.note')}</th>
+                                            <th className="px-4 py-2 border-gray-300 border min-w-[120px]">{t('overtime.list.usercode')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border-gray-300 border min-w-[200px]">{t('overtime.list.username')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border-gray-300 border min-w-[180px]">{t('overtime.list.position')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border-gray-300 border w-[130px]">{t('overtime.list.from_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border-gray-300 border w-[130px]">{t('overtime.list.to_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border-gray-300 border w-[150px] text-center">{t('overtime.list.number_hour')} <DotRequireComponent/></th>
+                                            <th className="px-4 py-2 border-gray-300 border min-w-[200px]">{t('overtime.list.note')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -544,14 +544,14 @@ export default function CreateOverTime() {
 
                                                 return (
                                                     <tr key={index}>
-                                                        <td className="border px-2 py-2">
+                                                        <td className="border px-2 py-2 border-gray-300">
                                                             <Controller
                                                                 control={control}
                                                                 name={`userOverTime.${index}.userCode`}
                                                                 render={({ field }) => (
                                                                     <input
                                                                         type="text"
-                                                                        className={`border rounded px-2 py-1 w-full ${userCodeErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                                        className={`border rounded px-2 py-1 w-full ${userCodeErr ? 'border border-red-300 bg-red-100' : 'border-gray-300'}`}
                                                                         placeholder={t('overtime.list.usercode')}
                                                                         {...field}
                                                                         {...control.register(`userOverTime.${index}.userCode`, {
@@ -561,31 +561,31 @@ export default function CreateOverTime() {
                                                                 )}
                                                             />
                                                         </td>
-                                                        <td className="border px-2 py-2 text-center">
+                                                        <td className="border px-2 py-2 text-center border-gray-300">
                                                             <input
                                                                 type="text"
                                                                 disabled
                                                                 {...control.register(`userOverTime.${index}.userName`)}
-                                                                className={`rounded px-2 py-1 w-full text-center ${userNameErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                                className={`rounded px-2 py-1 w-full text-center ${userNameErr ? 'border border-red-300 bg-red-100' : 'border-gray-300'}`}
                                                                 placeholder={`--`}
                                                             />
                                                         </td>
-                                                        <td className="border px-2 py-2">
+                                                        <td className="border px-2 py-2 border-gray-300">
                                                             <input
                                                                 type="text"
                                                                 {...control.register(`userOverTime.${index}.position`)}
-                                                                className={`border rounded px-2 py-1 w-full ${positionErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                                className={`border rounded px-2 py-1 w-full ${positionErr ? 'border border-red-300 bg-red-100' : 'border-gray-300'}`}
                                                                 placeholder={t('overtime.list.position')}
                                                             />
                                                         </td>
-                                                        <td className="border px-2 py-2">
+                                                        <td className="border px-2 py-2 border-gray-300">
                                                             <Controller
                                                                 control={control}
                                                                 name={`userOverTime.${index}.fromHour`}
                                                                 render={({field}) => (
                                                                     <input
                                                                         type="text"
-                                                                        className={`border rounded px-2 py-1 w-full ${fromHourErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                                        className={`border rounded px-2 py-1 w-full ${fromHourErr ? 'border border-red-300 bg-red-100' : 'border-gray-300'}`}
                                                                         {...field}
                                                                         placeholder={t('overtime.list.from_hour')}
                                                                         inputMode="numeric"
@@ -603,14 +603,14 @@ export default function CreateOverTime() {
                                                                 )}
                                                             />
                                                         </td>
-                                                        <td className="border px-2 py-2">
+                                                        <td className="border px-2 py-2 border-gray-300">
                                                             <Controller
                                                                 control={control}
                                                                 name={`userOverTime.${index}.toHour`}
                                                                 render={({field}) => (
                                                                     <input
                                                                         type="text"
-                                                                        className={`border rounded px-2 py-1 w-full ${toHourErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                                        className={`border rounded px-2 py-1 w-full ${toHourErr ? 'border border-red-300 bg-red-100' : 'border-gray-300'}`}
                                                                         {...field}
                                                                         placeholder={t('overtime.list.to_hour')}
                                                                         inputMode="numeric"
@@ -628,20 +628,20 @@ export default function CreateOverTime() {
                                                                 )}
                                                             />
                                                         </td>
-                                                        <td className="border px-2 py-2 text-center">
+                                                        <td className="border px-2 py-2 text-center border-gray-300">
                                                             <input
                                                                 {...control.register(`userOverTime.${index}.numberHour`)}
                                                                 disabled
                                                                 type="text"
-                                                                className={`border bg-gray-100 rounded px-2 py-1 w-full ${numberHourErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                                className={`border bg-gray-100 rounded px-2 py-1 w-full ${numberHourErr ? 'border border-red-300 bg-red-100' : 'border-gray-300'}`}
                                                                 placeholder={t('overtime.list.number_hour')}
                                                             />
                                                         </td>
-                                                        <td className="px-2 py-2 flex">
+                                                        <td className="px-2 py-2 flex border-gray-300">
                                                             <input
                                                                 type="text"
                                                                 {...control.register(`userOverTime.${index}.note`)}
-                                                                className="border rounded px-2 py-1 w-full"
+                                                                className="border rounded px-2 py-1 w-full border-gray-300"
                                                                 placeholder={t('overtime.list.note')}
                                                             />
                                                             {

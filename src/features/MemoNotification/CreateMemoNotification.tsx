@@ -218,7 +218,7 @@ export default function CreateMemoNotification () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('memo_notification.list.btn_create_memo_notify')}</h3>
-                <Button asChild className="w-full sm:w-auto">
+                <Button asChild className="w-full sm:w-auto bg-black text-white hover:bg-black">
                     <Link to="/memo-notify">{t('memo_notification.list.title_page')}</Link>
                 </Button>
             </div>
@@ -236,7 +236,7 @@ export default function CreateMemoNotification () {
                                         <DotRequireComponent />
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder={t('memo_notification.list.title')} {...field} />
+                                        <Input placeholder={t('memo_notification.list.title')} {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -254,7 +254,6 @@ export default function CreateMemoNotification () {
                                         <FormControl>
                                             <div className={fieldState.invalid ? "border border-red-500 rounded-[5px]" : ""}>
                                                 <MultiSelect
-                                                    className="dark:text-black"
                                                     options={options}
                                                     value={selectedOptions}
                                                     onChange={(selected: Option[]) => {
@@ -337,7 +336,7 @@ export default function CreateMemoNotification () {
                                     <FormLabel className="mb-2">
                                         {t('memo_notification.list.content')} <DotRequireComponent />
                                     </FormLabel>
-                                    <FormControl className="dark:bg-[#9f9f9f]">
+                                    <FormControl>
                                         <div className={fieldState.invalid ? "border border-red-500" : ""}>
                                             <QuillEditorCDN initialContent={field.value} onChange={field.onChange} />
                                         </div>
@@ -352,12 +351,12 @@ export default function CreateMemoNotification () {
                             name="status"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 mt-4">
-                                    <FormLabel htmlFor="status" className="font-bold">
+                                    <FormLabel htmlFor="status" className="font-bold hover:cursor-pointer">
                                         {t('memo_notification.list.status')}
                                     </FormLabel>
                                     <FormControl>
                                         <Switch
-                                            className="hover:cursor-pointer"
+                                            className="border border-gray-300 data-[state=checked]:bg-gray-400 data-[state=unchecked]:bg-gray-200 hover:cursor-pointer"
                                             id="status"
                                             checked={field.value}
                                             onCheckedChange={field.onChange}
@@ -369,32 +368,34 @@ export default function CreateMemoNotification () {
 
                         <FormItem className="w-[18%] mt-4">
                             <FormLabel>{t('memo_notification.list.display')}</FormLabel>
-                            <FormControl>
-                                <Controller
-                                    control={form.control}
-                                    name="dateRange"
-                                    render={({ field }) => {
-                                        const from = field.value?.from;
-                                        const to = field.value?.to;
-                                        const key = from?.toISOString() + to?.toISOString();
-                                        return  (
-                                            <DateRangePicker
-                                                key={key}
-                                                onUpdate={({ range }) => field.onChange(range)}
-                                                initialDateFrom={from}
-                                                initialDateTo={to}
-                                                align="start"
-                                                locale="vi-VN"
-                                                showCompare={false}
-                                            />
-                                        )
-                                    }}
-                                />
-                            </FormControl>
+                            <div className="border border-gray-300">
+                                <FormControl>
+                                    <Controller
+                                        control={form.control}
+                                        name="dateRange"
+                                        render={({ field }) => {
+                                            const from = field.value?.from;
+                                            const to = field.value?.to;
+                                            const key = from?.toISOString() + to?.toISOString();
+                                            return  (
+                                                <DateRangePicker
+                                                    key={key}
+                                                    onUpdate={({ range }) => field.onChange(range)}
+                                                    initialDateFrom={from}
+                                                    initialDateTo={to}
+                                                    align="start"
+                                                    locale="vi-VN"
+                                                    showCompare={false}
+                                                />
+                                            )
+                                        }}
+                                    />
+                                </FormControl>
+                            </div>
                             <FormMessage />
                         </FormItem>
 
-                        <Button disabled={createMemoNotify.isPending || updateMemoNotify.isPending} type="submit" className="hover:cursor-pointer w-[30%]">
+                        <Button disabled={createMemoNotify.isPending || updateMemoNotify.isPending} type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white w-[30%]">
                             {createMemoNotify.isPending || updateMemoNotify.isPending ? <Spinner className="text-white" /> : t('memo_notification.list.btn_save')}
                         </Button>
                     </form>

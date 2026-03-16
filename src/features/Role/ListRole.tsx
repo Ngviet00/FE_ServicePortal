@@ -92,7 +92,7 @@ export default function ListRole () {
                     placeholder={t('list_role_page.search')}
                     value={name}
                     onChange={handleSearchByName}
-                    className="max-w-sm"
+                    className="max-w-sm border border-gray-300"
                 />
             </div>
 
@@ -101,10 +101,10 @@ export default function ListRole () {
                     <table className="min-w-full text-sm border border-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-4 py-2 border w-[70px]">STT</th>
-                                <th className="px-4 py-2 border w-[400px]">{t('list_role_page.name')}</th>
-                                <th className="px-4 py-2 border w-[300px]">{t('list_role_page.code')}</th>
-                                <th className="px-4 py-2 border">{t('list_role_page.action')}</th>
+                                <th className="px-4 py-2 border-gray-300 border w-[70px]">STT</th>
+                                <th className="px-4 py-2 border-gray-300 border w-[400px]">{t('list_role_page.name')}</th>
+                                <th className="px-4 py-2 border-gray-300 border w-[300px]">{t('list_role_page.code')}</th>
+                                <th className="px-4 py-2 border-gray-300 border">{t('list_role_page.action')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,13 +126,13 @@ export default function ListRole () {
                                     </tr>
                                 ) : (
                                     roles?.map((item: IRole, idx: number) => (
-                                        <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                        <tr key={item.id} className="hover:bg-gray-50 border border-gray-300">
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
                                                 {(page - 1) * pageSize + idx + 1}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.code}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="px-4 py-2 border border-gray-300 whitespace-nowrap">{item?.name}</td>
+                                            <td className="px-4 py-2 border border-gray-300 whitespace-nowrap">{item?.code}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300 text-center">
                                                 <CreateRoleComponent role={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-role'] })}/>
                                                 <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
                                             </td>

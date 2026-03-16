@@ -60,20 +60,20 @@ const AddUserModal: React.FC<Props> = ({ onClose, onSubmit, editingMember }) => 
                             value={userCode}
                             onBlur={handleFindUser}
                             onChange={e => setUserCode(e.target.value)}
-                            className="mt-1 w-full border px-3 py-2 rounded-lg"
+                            className="mt-1 w-full border px-3 py-2 rounded-lg border-gray-300"
                             placeholder='...'
                         />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium">Họ và Tên (*)</label>
-                        <input type="text" value={userName} disabled className="mt-1 w-full border px-3 py-2 rounded-lg bg-gray-100" placeholder='...' />
+                        <input type="text" value={userName} disabled className="mt-1 w-full border border-gray-300 px-3 py-2 rounded-lg bg-gray-100" placeholder='...' />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium">Chức vụ (*)</label>
                         <input type="text" value={title} onChange={e => setTitle(e.target.value)}
-                        className="mt-1 w-full border px-3 py-2 rounded-lg" placeholder='Phó công đoàn, thành viên,..' />
+                        className="mt-1 w-full border border-gray-300 px-3 py-2 rounded-lg" placeholder='Phó công đoàn, thành viên,..' />
                     </div>
                 </div>
 

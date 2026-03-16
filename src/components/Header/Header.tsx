@@ -36,10 +36,6 @@ export default function Header() {
         }
     }, [darkMode]);
 
-    // const handDarkMode = () => {
-    //     setDarkMode(!darkMode)
-    // }
-
     return (
         <header className="header bg-white ">
             <button className="toggle-btn relative" onClick={handleToggleSidebar}>
@@ -49,15 +45,7 @@ export default function Header() {
                 }
             </button>
             <div style={{ height: "40px"}} className='flex items-center'>
-
-                {/* <div className="mr-3 display-none">
-                    { darkMode ? 
-                        <Moon className=" hover:cursor-pointer" onClick={handDarkMode}/>
-                         : <Sun className=" hover:cursor-pointer" onClick={handDarkMode}/>}
-                </div> */}
-
                 <SelectedLanguage/>
-
                 <div className='text-black mr-4 font-bold text-sm '>
                     {
                         user?.userCode == '0' && isSuperAdmin ? '0 - Superadmin' :

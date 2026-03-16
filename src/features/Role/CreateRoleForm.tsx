@@ -92,7 +92,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                 }
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
+            <DialogContent className="sm:max-w-[425px] bg-white" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle>{role?.id ? t('list_role_page.btn_update_role') : t('list_role_page.btn_create_role')}</DialogTitle>
                 </DialogHeader>
@@ -106,7 +106,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="name">{t('list_role_page.name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="..." {...field} />
+                                        <Input id="name" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -120,7 +120,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="name">{t('list_role_page.code')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder="..." {...field} />
+                                        <Input id="code" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -128,7 +128,7 @@ export default function CreateRoleComponent({ role, onAction }: Props) {
                         />
                         
                         <div className="flex justify-end">
-                            <Button type="submit" className="hover:cursor-pointer">
+                            <Button type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white">
                                 {t('list_role_page.submit')}
                             </Button>
                         </div>

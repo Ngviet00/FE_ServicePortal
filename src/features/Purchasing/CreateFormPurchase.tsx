@@ -244,7 +244,7 @@ const CreateFormPurchase = () => {
         <div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0"> {hasId ? t('update.title') : t('create.title')}</h3>
-                <Button onClick={() => navigate("/purchase")} className="w-full md:w-auto hover:cursor-pointer">
+                <Button onClick={() => navigate("/purchase")} className="w-full md:w-auto hover:cursor-pointer bg-black hover:bg-black text-white">
                     {t('create.btn_list')}
                 </Button>
             </div>
@@ -304,7 +304,7 @@ const CreateFormPurchase = () => {
                                     <label className="mb-1 block text-sm font-medium text-gray-700">
                                         {lang == 'vi' ? 'Phòng ban yêu cầu' : 'Department request'}<DotRequireComponent />
                                     </label>
-                                    <select disabled={hasId} {...register('departmentId')} className={`border w-full cursor-pointer rounded-[5px] p-1.5 ${form?.formState?.errors?.departmentId ? 'border-red-500 bg-red-50': ''} ${hasId ? 'bg-gray-100' : ''}`}>
+                                    <select disabled={hasId} {...register('departmentId')} className={`border border-gray-300 w-full cursor-pointer rounded-[5px] p-1.5 ${form?.formState?.errors?.departmentId ? 'border-red-500 bg-red-50': ''} ${hasId ? 'bg-gray-100' : ''}`}>
                                         <option value="">{lang == 'vi' ? '--Chọn--' : '--Select--'}</option>
                                         {departments?.map((item: {id: string, name: string}, idx: number) => (
                                             <option key={idx} value={item.id}>{item.name}</option>
@@ -325,7 +325,7 @@ const CreateFormPurchase = () => {
                                                 dateFormat="Y-m-d"
                                                 initialDateTime={field.value}
                                                 onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                                className={` w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                                             />
                                         )}
                                     />
@@ -363,7 +363,7 @@ const CreateFormPurchase = () => {
 
                                     return (
                                         <div key={item.id} className="bg-white mb-1">
-                                            <h2 className="font-bold text-xl text-red-600 dark:text-white mb-1 block xl:hidden">
+                                            <h2 className="font-bold text-xl text-red-600  mb-1 block xl:hidden">
                                                 {`#` + (index + 1)}
                                             </h2>
                                             <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap gap-3 items-end">
@@ -372,7 +372,7 @@ const CreateFormPurchase = () => {
                                                     <input
                                                         {...control.register(`purchaseDetails.${index}.nameCategory`)}
                                                         placeholder={t("create.name_category")}
-                                                        className={`p-2 text-sm border rounded w-full ${errors?.nameCategory ? 'border-red-500 bg-red-50' : ''}`}
+                                                        className={`p-2 text-sm border border-gray-300 rounded w-full ${errors?.nameCategory ? 'border-red-500 bg-red-50' : ''}`}
                                                     />
                                                 </div>
 
@@ -383,7 +383,7 @@ const CreateFormPurchase = () => {
                                                     <input
                                                         {...control.register(`purchaseDetails.${index}.description`)}
                                                         placeholder={t("create.description")}
-                                                        className={`p-2 text-sm border rounded w-full`}
+                                                        className={`p-2 text-sm border border-gray-300 rounded w-full`}
                                                     />
                                                 </div>
 
@@ -405,7 +405,7 @@ const CreateFormPurchase = () => {
                                                     <input
                                                         {...control.register(`purchaseDetails.${index}.unitMeasurement`)}
                                                         placeholder="pcs, ea,.."
-                                                        className={`p-2 text-sm border rounded w-full ${errors?.unitMeasurement ? 'border-red-500 bg-red-50' : ''}`}
+                                                        className={`p-2 text-sm border rounded w-full border-gray-300 ${errors?.unitMeasurement ? 'border-red-500 bg-red-50' : ''}`}
                                                     />
                                                 </div>
 
@@ -467,7 +467,7 @@ const CreateFormPurchase = () => {
                                                         <input
                                                             {...control.register(`purchaseDetails.${index}.note`)}
                                                             placeholder={t("create.note")}
-                                                            className={`p-2 text-sm border rounded w-full`}
+                                                            className={`p-2 text-sm border rounded w-full border-gray-300`}
                                                         />
                                                     </div>
 

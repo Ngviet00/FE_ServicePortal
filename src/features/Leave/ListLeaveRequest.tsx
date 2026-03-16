@@ -3,14 +3,6 @@ import { ChangeEvent, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import leaveRequestApi, { GetMyLeaveRequest } from "@/api/leaveRequestApi"
 import { useAuthStore } from "@/store/authStore"
@@ -61,7 +53,7 @@ export default function ListLeaveRequest () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {lang == 'vi' ? 'Đơn nghỉ phép của tôi' : 'My Leave Requests'}
                 </h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black text-white hover:bg-black">
                     <Link to="/leave/create">
                         {lang == 'vi' ? 'Tạo đơn nghỉ phép' : 'Create leave request'}
                     </Link>
@@ -71,7 +63,7 @@ export default function ListLeaveRequest () {
             <div className="mb-5 pb-3">
                 <div className="mb-2">
                     <Label className="mb-2">{t('list_leave_request.status')}</Label>
-					<select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer">
+					<select value={status} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded cursor-pointer border-gray-300">
 						<option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                         <option value="1">{ lang == 'vi' ? 'Đang chờ' : 'Pending' }</option>
                         <option value="2">{ lang == 'vi' ? 'Đang xử lý' : 'In Process' }</option>
@@ -82,89 +74,122 @@ export default function ListLeaveRequest () {
 
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('list_leave_request.usercode')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.name')}</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{t('list_leave_request.department')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('list_leave_request.position')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.from')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.to')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('list_leave_request.type_leave')}</TableHead>
-                                    <TableHead className="w-[120px] text-center border">{t('list_leave_request.time_leave')}</TableHead>
-                                    <TableHead className="w-[200px] text-center border">{t('list_leave_request.reason')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.write_leave_name')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.created_at')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('list_leave_request.status')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 3 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: 13 }).map((_, i) => (
-                                            <TableCell key={i}>
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
+                        <table className="min-w-full text-sm border border-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
+                                    <th className="w-[100px] text-center border border-gray-300 py-2">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</th>
+                                    <th className="w-[100px] text-center border border-gray-300 py-2">{t('list_leave_request.usercode')}</th>
+                                    <th className="w-[150px] text-center border border-gray-300 py-2">{t('list_leave_request.name')}</th>
+                                    <th className="w-[130px] text-center border border-gray-300 py-2">{t('list_leave_request.department')}</th>
+                                    <th className="w-[100px] text-center border border-gray-300 py-2">{t('list_leave_request.position')}</th>
+                                    <th className="w-[80px] text-center border border-gray-300 py-2">{t('list_leave_request.from')}</th>
+                                    <th className="w-[80px] text-center border border-gray-300 py-2">{t('list_leave_request.to')}</th>
+                                    <th className="w-[120px] text-center border border-gray-300 py-2">{t('list_leave_request.type_leave')}</th>
+                                    <th className="w-[120px] text-center border border-gray-300 py-2">{t('list_leave_request.time_leave')}</th>
+                                    <th className="w-[200px] text-center border border-gray-300 py-2">{t('list_leave_request.reason')}</th>
+                                    <th className="w-[150px] text-center border border-gray-300 py-2">{t('list_leave_request.write_leave_name')}</th>
+                                    <th className="w-[150px] text-center border border-gray-300 py-2">{t('list_leave_request.created_at')}</th>
+                                    <th className="w-[150px] text-center border border-gray-300 py-2">{t('list_leave_request.status')}</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            {Array.from({ length: 13 }).map((_, i) => (
+                                                <td key={i} className="border">
+                                                    <div className="flex justify-center">
+                                                        <Skeleton className="h-4 w-[100px] bg-gray-300" />
+                                                    </div>
+                                                </td>
+                                            ))}
+                                        </tr>
                                     ))
                                 ) : isError || leaveRequests.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={13} className="text-red-700 border text-center font-medium dark:text-white">
+                                    <tr>
+                                        <td colSpan={13} className="text-red-700 border text-center font-medium ">
                                             {error?.message ?? t('list_leave_request.no_result')}
-                                        </TableCell>
-                                    </TableRow>
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    leaveRequests.map((item: GetMyLeaveRequest) => {
-                                        return (
-                                            <TableRow key={item.leaveRequestId}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/view/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">{item?.code}</Link>
-                                                </TableCell>
-                                                <TableCell className="text-center border">{item?.userCode}</TableCell>
-                                                <TableCell className="text-center border">{item?.userName}</TableCell>
-                                                <TableCell className="text-center border">{item?.departmentName}</TableCell>
-                                                <TableCell className="text-center border">{item.position}</TableCell>
-                                                <TableCell className="text-center border">{ formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-center border">{ formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-left border">{lang == 'vi' ? item?.typeLeaveName : item?.typeLeaveNameE}</TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.timeLeaveName : item?.timeLeaveNameE}</TableCell>
-                                                <TableCell className="text-center border">{item?.reason}</TableCell>
-                                                <TableCell className="text-center font-bold text-red-700 border">{item?.userNameCreatedForm}</TableCell>
-                                                <TableCell className="text-left border">{ formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss") }</TableCell>
-                                                <TableCell className="text-center border">
-                                                    <StatusLeaveRequest 
-                                                        status={item.requestStatusId == 1 ? 'Pending' : item.requestStatusId == 3 ? 'Completed' : item.requestStatusId == 5 ? 'Reject' : 'In Process'}
-                                                    />
-                                                    </TableCell>
-                                            </TableRow>
-                                        )
-                                    })
+                                    leaveRequests.map((item: GetMyLeaveRequest) => (
+                                        <tr key={item.leaveRequestId}>
+                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                                <Link
+                                                    to={`/view/${item?.code}?requestType=${item?.requestTypeId}`}
+                                                    className="text-blue-600 underline"
+                                                >
+                                                    {item?.code}
+                                                </Link>
+                                            </td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">{item?.userCode}</td>
+                                            <td className="text-center border border-gray-300 px-4 py-2">{item?.userName}</td>
+                                            <td className="text-center border border-gray-300 px-4 py-2">{item?.departmentName}</td>
+                                            <td className="text-center border border-gray-300 px-4 py-2">{item.position}</td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                                {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                            </td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                                {formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                            </td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                                {lang == 'vi' ? item?.typeLeaveName : item?.typeLeaveNameE}
+                                            </td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                                {lang == 'vi' ? item?.timeLeaveName : item?.timeLeaveNameE}
+                                            </td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">{item?.reason}</td>
+
+                                            <td className="text-center font-bold text-red-700 border border-gray-300 px-4 py-2">
+                                                {item?.userNameCreatedForm}
+                                            </td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                                {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                            </td>
+
+                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                                <StatusLeaveRequest
+                                                    status={
+                                                        item.requestStatusId == 1
+                                                            ? 'Pending'
+                                                            : item.requestStatusId == 3
+                                                            ? 'Completed'
+                                                            : item.requestStatusId == 5
+                                                            ? 'Reject'
+                                                            : 'In Process'
+                                                    }
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 6 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                     </div>
                                 ))
                             ) : isError || leaveRequests.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
+                                <div className="p-2 text-red-700 border text-center font-medium  mt-5">{error?.message ?? t('list_leave_request.no_result')}</div>
                             ) : (
                                 leaveRequests.map((item: GetMyLeaveRequest) => {
                                     return (
-                                        <div key={item.leaveRequestId} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={item.leaveRequestId} className="border rounded p-4 shadow bg-white  mt-5">
                                             <div className="mb-1 font-bold">{item?.userName} ({item?.userCode})</div>
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>

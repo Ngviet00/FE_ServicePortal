@@ -49,7 +49,7 @@ export default function Sidebar() {
 	return (
 		<div className={`sidebar ${isOpen ? "collapsed" : ""} bg-white  w-[300px]`}>
 			<div className="relative">
-				<a href="/" className="block text-black text-3xl py-4 font-bold h-[65px] line-h-[50px] ">
+				<a href="/" className="block text-black text-3xl py-4 font-bold h-[65px] line-h-[50px] border-b border-gray-300">
 					Service Portal
 				</a>
 				<button className="toggle-btn-mobile absolute top-[45%] right-2 hover:cursor-pointer" onClick={closeSidebar}>

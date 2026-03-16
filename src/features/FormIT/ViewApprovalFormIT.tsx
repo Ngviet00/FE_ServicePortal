@@ -334,7 +334,7 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                                                     dateFormat="Y-m-d"
                                                     initialDateTime={field.value}
                                                     onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 bg-gray-50 text-sm rounded-[5px] hover:cursor-pointer`}
+                                                    className={` w-full shadow-xs border border-gray-300 p-2 bg-gray-50 text-sm rounded-[5px] hover:cursor-pointer`}
                                                 />
                                             )}
                                         />
@@ -354,7 +354,7 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                                                     dateFormat="Y-m-d"
                                                     initialDateTime={field.value}
                                                     onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 bg-gray-50 text-sm rounded-[5px] hover:cursor-pointer`}
+                                                    className={` w-full shadow-xs border border-gray-300 p-2 bg-gray-50 text-sm rounded-[5px] hover:cursor-pointer`}
                                                 />
                                             )}
                                         />
@@ -517,7 +517,7 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                                             dateFormat="Y-m-d"
                                             initialDateTime={field.value ?? new Date().toISOString().split("T")[0]}
                                             onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                            className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer 
+                                            className={` w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer 
                                                 ${mode == 'view' || formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Complete ? 'bg-gray-100' : ''}`
                                             }
                                         />
@@ -541,7 +541,7 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                                             dateFormat="Y-m-d"
                                             initialDateTime={field.value ?? new Date().toISOString().split("T")[0]}
                                             onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                            className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer 
+                                            className={` w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer 
                                                 ${mode == 'view' || formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Complete ? 'bg-gray-100' : ''}`
                                             }
                                         />

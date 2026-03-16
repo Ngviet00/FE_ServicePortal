@@ -105,10 +105,10 @@ export default function CreateTeamComponent () {
             <table className="min-w-full text-sm border border-gray-200">
                 <thead className="bg-gray-100">
                     <tr>
-                        <th className="px-4 py-2 border w-[70px]">Id</th>
-                        <th className="px-4 py-2 border w-[400px]">Tên</th>
-                        <th className="px-4 py-2 border w-[300px]">Bộ phận</th>
-                        <th className="px-4 py-2 border">Hành động</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[70px]">Id</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[400px]">Tên</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[300px]">Bộ phận</th>
+                        <th className="border-gray-300 px-4 py-2 border">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -131,12 +131,12 @@ export default function CreateTeamComponent () {
                         ) : (
                             getAllTeams?.map((item: any) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                         {item.id}
                                     </td>
-                                    <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
-                                    <td className="px-4 py-2 border whitespace-nowrap">{item?.parentOrgUnit?.name ?? '--'}</td>
-                                    <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.name}</td>
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.parentOrgUnit?.name ?? '--'}</td>
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                         <ModalCreateTeam departments={departments} team={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-teams'] })}/>
                                         <ButtonDeleteComponent id={item?.id} onDelete={() => handleDeleteDepartment(item?.id)}/>
                                     </td>
@@ -232,7 +232,7 @@ export function ModalCreateTeam({ team, onAction, departments }: PropsModalCreat
                 </button>
             </DialogTrigger>
 
-            <DialogContent className="w-[40em]" aria-describedby={undefined}>
+            <DialogContent className="w-[40em] bg-white" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle>Tổ/nhóm</DialogTitle>
                 </DialogHeader>
@@ -249,7 +249,7 @@ export function ModalCreateTeam({ team, onAction, departments }: PropsModalCreat
                                 <FormItem>
                                     <Label htmlFor="name">Tên</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="..." {...field} />
+                                        <Input id="name" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -279,7 +279,7 @@ export function ModalCreateTeam({ team, onAction, departments }: PropsModalCreat
                         />
                         
                         <div className="flex justify-end">
-                            <Button type="submit" className="hover:cursor-pointer">
+                            <Button type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white">
                                 Lưu
                             </Button>
                         </div>

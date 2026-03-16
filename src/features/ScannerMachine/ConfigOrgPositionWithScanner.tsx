@@ -101,7 +101,7 @@ const ConfigOrgPositionWithScanner: React.FC = () => {
                     <select 
                         value={typeScannerMachine} 
                         onChange={(e) => setScannerMachine(e.target.value)} 
-                        className="border border-gray-200 p-2.5 rounded-lg text-sm bg-white outline-none w-full cursor-pointer focus:border-indigo-500 transition-all"
+                        className="border border-gray-300 p-2.5 rounded-lg text-sm bg-white outline-none w-full cursor-pointer focus:border-indigo-500 transition-all"
                     >
                         <option value="All">{lang === 'vi' ? 'Tất cả loại máy' : 'All Types'}</option>
                         {TYPE_SCANNER_MACHINE.map((item: any) => (
@@ -118,7 +118,7 @@ const ConfigOrgPositionWithScanner: React.FC = () => {
                                 key={device.ddMa}
                                 onClick={() => handleToggleDevice(device.ddMa)}
                                 className={`w-full text-left p-2 rounded-lg border-2 transition-all flex items-center gap-3 cursor-pointer ${
-                                    active ? 'border-indigo-500 bg-indigo-50/50' : 'border-transparent bg-slate-50 hover:bg-slate-100'
+                                    active ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-300 bg-slate-100 hover:bg-slate-200'
                                 }`}
                             >
                                 {active ? <CheckSquare size={18} className="text-indigo-600" /> : <Square size={18} className="text-slate-300" />}
@@ -194,12 +194,12 @@ const ConfigOrgPositionWithScanner: React.FC = () => {
                                         key={orgPos.id}
                                         onClick={() => handleToggleDept(String(orgPos.id))}
                                         className={`p-4 rounded-xl border-2 flex flex-col gap-3 transition-all text-left cursor-pointer group ${
-                                            active ? 'border-indigo-500 bg-white shadow-md' : 'border-slate-100 bg-white/50 hover:border-slate-300'
+                                            active ? 'border-indigo-500 bg-white shadow-md' : 'border-gray-300 bg-white/50 hover:border-gray-400'
                                         }`}
                                     >
                                         <div className="flex justify-between items-center w-full">
                                             {active ? <CheckCircle2 size={20} className="text-indigo-600" /> : <Circle size={20} className="text-slate-200 group-hover:text-slate-300" />}
-                                            <span className="text-[9px] font-mono text-slate-300 uppercase">ID: {orgPos.id}</span>
+                                            <span className="text-[11px] font-mono text-black uppercase">ID: {orgPos.id}</span>
                                         </div>
                                         <p className={`font-bold text-sm leading-tight ${active ? 'text-indigo-900' : 'text-slate-600'}`}>
                                             {orgPos.name}

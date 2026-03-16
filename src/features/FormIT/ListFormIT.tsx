@@ -131,7 +131,7 @@ export default function ListFormIT () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">{isAllForm ? t('list.title_all_form_it') :  t('list.title')}</h3>
                 {
                     !isAllForm && (
-                        <Button asChild className="w-full md:w-auto">
+                        <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                             <Link to="/form-it/create">{t('list.btn_create')}</Link>
                         </Button>
                     )
@@ -142,7 +142,7 @@ export default function ListFormIT () {
                     <div className="flex">
                         <div className="w-[20%]">
                             <Label className="mb-2">{t('list.department')}</Label>
-                            <select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer">
+                            <select value={selectedDepartment} onChange={(e) => handleOnChangeDepartment(e)} className="border p-1 rounded w-full cursor-pointer border-gray-300">
                                 <option value="">
                                     { lang == 'vi' ? 'Tất cả' : 'All' }
                                 </option>
@@ -155,7 +155,7 @@ export default function ListFormIT () {
                         </div>
                         <div className="w-[20%] ml-2">
                             <Label className="mb-2">{t('list.status')}</Label>
-                            <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer">
+                            <select value={selectedStatus} onChange={(e) => handleOnChangeStatus(e)} className="border p-1 rounded w-full cursor-pointer border-gray-300">
                                 <option value="">{ lang == 'vi' ? 'Tất cả' : 'All' }</option>
                                 {
                                     Object.entries(StatusApplicationFormEnum).filter(([, value]) => typeof value === 'number' && [1, 2, 3, 5, 8].includes(value))
@@ -170,7 +170,7 @@ export default function ListFormIT () {
 
                         <div className="w-[20%] ml-2">
                             <label className="block mb-0.5 font-semibold text-sm text-gray-700">{t('statistical.time')}</label>
-                            <YearSelect onChange={handleYearChange} defaultYear={selectedYear} className="border p-1 rounded w-full cursor-pointer" />
+                            <YearSelect onChange={handleYearChange} defaultYear={selectedYear} className="border p-1 rounded w-full cursor-pointer border-gray-300" />
                         </div>
                     </div>
                 )
@@ -182,14 +182,14 @@ export default function ListFormIT () {
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('list.code')}</th>
-                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_requestor')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.department')}</th>
-                                    <th className="px-4 py-2 border w-[370px] text-center">{t('list.reason')}</th>
-                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.status')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('list.code')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[120px] text-center">{t('list.user_requestor')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[100px] text-center">{t('list.department')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[370px] text-center">{t('list.reason')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[120px] text-center">{t('list.created_at')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[100px] text-center">{t('list.status')}</th>
                                     {
-                                        !isAllForm && <th className="px-4 py-2 border w-[100px] text-center">{t('list.action')}</th>
+                                        !isAllForm && <th className="border-gray-300 px-4 py-2 border w-[100px] text-center">{t('list.action')}</th>
                                     }
                                 </tr>
                             </thead>
@@ -212,16 +212,16 @@ export default function ListFormIT () {
                                     itForms.map((item: any, idx: number) => {
                                         return (
                                             <tr key={idx}>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="border-gray-300 px-4 py-2 border text-center">
                                                     <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameCreatedForm ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
+                                                <td className="border-gray-300 px-4 py-2 border text-center">{item?.applicationForm?.userNameCreatedForm ?? '--'}</td>
+                                                <td className="border-gray-300 px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
+                                                <td className="border-gray-300 px-4 py-2 border text-left w-[260px] whitespace-normal break-words">
                                                     {item?.reason ?? '--'}
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="border-gray-300 px-4 py-2 border text-center">{formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
+                                                <td className="border-gray-300 px-4 py-2 border text-center">
                                                     <StatusLeaveRequest status={
                                                         [StatusApplicationFormEnum.Pending, StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(item?.applicationForm?.requestStatusId)
                                                         ? item?.applicationForm?.requestStatusId : StatusApplicationFormEnum.Inprocess
@@ -229,7 +229,7 @@ export default function ListFormIT () {
                                                 </td>
                                                 {
                                                     !isAllForm && 
-                                                        <td className="text-center border font-bold text-red-700">
+                                                        <td className="border-gray-300 text-center border font-bold text-red-700">
                                                         {
                                                             item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
                                                                 <>
@@ -253,17 +253,17 @@ export default function ListFormIT () {
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
-                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: isAllForm ? 6 : 7 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                 </div>
                             ))
                         ) : isError || itForms.length === 0 ? (
-                            <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? tCommon('no_results')}</div>
+                            <div className="pt-2 pl-4 text-red-700 font-medium ">{error?.message ?? tCommon('no_results')}</div>
                         ) : (
                             itForms.map((item: any) => (
-                                <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                <div key={item.id} className="border rounded p-4 shadow bg-white  mt-5">
                                     <div className="mb-1">
                                         <strong>{t('list.code')}: </strong>
                                         <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline font-semibold">{item?.applicationForm?.code ?? '--'}</Link>

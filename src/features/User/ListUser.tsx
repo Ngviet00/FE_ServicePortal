@@ -133,7 +133,7 @@ export default function ListUser () {
                 <h3 className="font-bold text-2xl m-0 pb-2">{t('list_user_page.title')}</h3>
                 <Link className="bg-black text-white px-4 py-2 rounded-md" to={`/user/create`}>{lang == 'vi' ? 'Thêm người dùng' : 'Add user'}</Link>
             </div>
-            <div className="flex flex-col md:flex-row items-start justify-start md:justify-start gap-4 p-4 pl-0 dark:bg-gray-800 rounded-lg">
+            <div className="flex flex-col md:flex-row items-start justify-start md:justify-start gap-4 p-4 pl-0  rounded-lg">
                 <div className="w-full md:w-1/4">
                     <Label htmlFor="search" className="mb-1">{t('list_user_page.search')}</Label>
                     <Input
@@ -141,7 +141,7 @@ export default function ListUser () {
                         placeholder={t('list_user_page.search')}
                         value={name}
                         onChange={handleSearchByName}
-                        className="w-full"
+                        className="w-full border border-gray-300"
                     />
                 </div>
                 <div className="w-full md:w-1/4">
@@ -155,7 +155,7 @@ export default function ListUser () {
                             setSelectedDepartment(val)
                             updateUrlParams({ department: val, page: 1 });
                         }}
-                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className=" shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="">--Chọn--</option>
                         {
@@ -176,7 +176,7 @@ export default function ListUser () {
                             updateUrlParams({ sex: val, page: 1 });
                         }}
                         id="sex"
-                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className=" shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="">--{t('list_user_page.select')}--</option>
                         <option value="0">{t('list_user_page.male')}</option>
@@ -194,7 +194,7 @@ export default function ListUser () {
                             updateUrlParams({ status: val, page: 1 });
                         }}
                         id="sex"
-                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className=" shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="">--{t('list_user_page.select')}--</option>
                         <option value="1">{t('list_user_page.active')}</option>
@@ -212,7 +212,7 @@ export default function ListUser () {
                             updateUrlParams({ setOrgPosition: val, page: 1 });
                         }}
                         id="sex"
-                        className="dark:bg-[#454545] shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className=" shadow-xs border border-[#ebebeb] p-2 rounded-[5px] w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                         <option value="">--{t('list_user_page.select')}--</option>
                         <option value="true">{lang == 'vi' ? 'Đã thiết lập' : 'Has set'}</option>
@@ -225,17 +225,17 @@ export default function ListUser () {
                     <table className="min-w-full text-sm border border-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="w-[160px] px-4 py-2 border">{t('list_user_page.usercode')}</th>
-                                <th className="w-[180px] px-4 py-2 border">{t('list_user_page.name')}</th>
-                                <th className="w-[130px] px-4 py-2 border">{t('list_user_page.department')}</th>
-                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.sex')}</th>
-                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.phone')}</th>
-                                <th className="w-[120px] px-4 py-2 border">{t('list_user_page.email')}</th>
-                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.dob')}</th>
-                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.date_join_company')}</th>
-                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.status_user')}</th>
-                                <th className="w-[150px] px-4 py-2 border">{t('list_user_page.termination_date')}</th>
-                                <th className="w-[120px] px-4 py-2 border">{t('list_user_page.action')}</th>
+                                <th className="border-gray-300 w-[160px] px-4 py-2 border">{t('list_user_page.usercode')}</th>
+                                <th className="border-gray-300 w-[180px] px-4 py-2 border">{t('list_user_page.name')}</th>
+                                <th className="border-gray-300 w-[130px] px-4 py-2 border">{t('list_user_page.department')}</th>
+                                <th className="border-gray-300 w-[150px] px-4 py-2 border">{t('list_user_page.sex')}</th>
+                                <th className="border-gray-300 w-[150px] px-4 py-2 border">{t('list_user_page.phone')}</th>
+                                <th className="border-gray-300 w-[120px] px-4 py-2 border">{t('list_user_page.email')}</th>
+                                <th className="border-gray-300 w-[150px] px-4 py-2 border">{t('list_user_page.dob')}</th>
+                                <th className="border-gray-300 w-[150px] px-4 py-2 border">{t('list_user_page.date_join_company')}</th>
+                                <th className="border-gray-300 w-[150px] px-4 py-2 border">{t('list_user_page.status_user')}</th>
+                                <th className="border-gray-300 w-[150px] px-4 py-2 border">{t('list_user_page.termination_date')}</th>
+                                <th className="border-gray-300 w-[120px] px-4 py-2 border">{t('list_user_page.action')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -265,29 +265,28 @@ export default function ListUser () {
                                 ) : (
                                     users.map((item: any, idx: number) => (
                                         <tr key={idx} className="hover:bg-gray-50">
-                                            <td className=" px-4 py-2 border whitespace-nowrap font-medium text-center">{item?.userCode}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.userName}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.departmentName}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.sex}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.phone ? item?.phone : "--"}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item?.email ? item?.email : "--"}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.dateOfBirth, 'yyyy-MM-dd') ?? "--"}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.entryDate, 'yyyy-MM-dd') ?? "--"}</td>
-                                            <td className={`${item.status == 1 ? 'text-green-800' : 'text-red-500'} font-semibold px-4 py-2 border whitespace-nowrap text-center`}>{item.status == 1 ? t('list_user_page.active') : t('list_user_page.in_active')}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">{item.status == 2 ? formatDate(item?.exitDate, 'yyyy-MM-dd') : "--"}</td>
-                                            <td className=" px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap font-medium text-center">{item?.userCode}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.userName}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.departmentName}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.sex}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.phone ? item?.phone : "--"}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.email ? item?.email : "--"}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.dateOfBirth, 'yyyy-MM-dd') ?? "--"}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{formatDate(item?.entryDate, 'yyyy-MM-dd') ?? "--"}</td>
+                                            <td className={`${item.status == 1 ? 'text-green-800' : 'text-red-500'} border-gray-300 font-semibold px-4 py-2 border whitespace-nowrap text-center`}>{item.status == 1 ? t('list_user_page.active') : t('list_user_page.in_active')}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item.status == 2 ? formatDate(item?.exitDate, 'yyyy-MM-dd') : "--"}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                 {
                                                     isSuperAdmin ? (<>
                                                         <Link to={`/user/role-and-permission/${item?.userCode}`} className="bg-blue-900 px-2 py-1.5 rounded text-white text-xs font-bold">
                                                             Role
                                                         </Link>
-                                                        <Button
-                                                            variant="outline" 
+                                                        <button
                                                             onClick={() => handleShowModal(item)}
-                                                            className="ml-2 text-xs p-[5px] h-[20x] rounded-[5px] bg-black text-white hover:cursor-pointer hover:bg-dark hover:text-white"
+                                                            className="bg-black ml-2 text-xs p-[5px] h-[20x] rounded-[5px] text-white hover:cursor-pointer"
                                                         >
                                                             Reset PW
-                                                        </Button>
+                                                        </button>
                                                     </>
                                                     ) : "--"
                                                 }
@@ -307,7 +306,7 @@ export default function ListUser () {
                                     setNewPasswordReset("")
                                 }
                             }}>
-                            <DialogContent className="sm:max-w-[50%] h-[250px] flex flex-col top-[20%]">
+                            <DialogContent className="sm:max-w-[50%] h-[250px] flex flex-col top-[20%] bg-white">
                                 <DialogHeader>
                                     <DialogTitle>{lang == 'vi' ? 'Đặt lại mật khẩu' : 'Reset password'}</DialogTitle>
                                     <DialogDescription></DialogDescription>
@@ -316,9 +315,9 @@ export default function ListUser () {
                                         <Input 
                                             placeholder={lang == 'vi' ? 'Nhập mật khẩu' : 'Input'}
                                             value={passwordReset} 
-                                            onChange={(e) => {setNewPasswordReset(e.target.value)}} className="mb-3"
+                                            onChange={(e) => {setNewPasswordReset(e.target.value)}} className="mb-3 border border-gray-300"
                                         />
-                                        <Button type="submit" disabled={resetPassword.isPending} onClick={() => handleResetPassword(selectedItem)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600">
+                                        <Button type="submit" disabled={resetPassword.isPending} onClick={() => handleResetPassword(selectedItem)} className="bg-blue-600 hover:cursor-pointer hover:bg-blue-600 text-white">
                                             {
                                                 resetPassword.isPending ? <Spinner className="text-white"/> : lang == 'vi' ? 'Xác nhận' : 'Confirm'
                                             }

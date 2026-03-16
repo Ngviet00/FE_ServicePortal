@@ -118,7 +118,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                 }
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
+            <DialogContent className="sm:max-w-[425px] bg-white" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle>{typeLeave?.id ? t('type_leave_page.btn_update_type_leave') : t('type_leave_page.btn_create_type_leave')}</DialogTitle>
                 </DialogHeader>
@@ -132,7 +132,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="name">{t('type_leave_page.name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="..." {...field} />
+                                        <Input id="name" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -146,7 +146,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="nameV">{t('type_leave_page.nameE')}</Label>
                                     <FormControl>
-                                        <Input id="nameV" placeholder="..." {...field} />
+                                        <Input id="nameV" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -160,7 +160,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="code">{t('type_leave_page.code')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder="..." {...field} />
+                                        <Input id="code" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -179,7 +179,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                                         defaultValue="USER"
                                     >
                                         <FormControl className="w-full">
-                                            <SelectTrigger className="hover:cursor-pointer">
+                                            <SelectTrigger className="hover:cursor-pointer border border-gray-300">
                                                 <SelectValue />
                                             </SelectTrigger>
                                         </FormControl>
@@ -194,7 +194,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
                         />
                         
                         <div className="flex justify-end">
-                            <Button type="submit" className="hover:cursor-pointer">
+                            <Button type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white">
                                 {t('submit')}
                             </Button>
                         </div>

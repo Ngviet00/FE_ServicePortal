@@ -157,7 +157,7 @@ const AddAttendanceData = () => {
                                     const newDate = e.target.value;
                                     setDate(newDate);
                                 }}
-                                className="dark:bg-[#454545] dark:text-white shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px] text-sm outline-none focus:ring-1 focus:ring-blue-500"
+                                className="shadow-xs border border-gray-300 p-1 rounded-[5px] hover:cursor-pointer w-full sm:w-[160px] text-sm outline-none focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
                         <div className="relative w-full md:w-96">

@@ -70,12 +70,12 @@ export default function ListTypeLeave () {
          			<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border w-[70px]">STT</th>
-								<th className="px-4 py-2 border w-[400px]">{t('type_leave_page.name')}</th>
-                                <th className="px-4 py-2 border w-[400px]">{t('type_leave_page.nameE')}</th>
-                                <th className="px-4 py-2 border w-[400px]">{t('type_leave_page.code')}</th>
-                                <th className="px-4 py-2 border w-[400px]">{lang == 'vi' ? 'Loại' : 'Type'}</th>
-								<th className="px-4 py-2 border w-[300px]">{t('type_leave_page.action')}</th>
+								<th className="border-gray-300 px-4 py-2 border w-[70px]">STT</th>
+								<th className="border-gray-300 px-4 py-2 border w-[400px]">{t('type_leave_page.name')}</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[400px]">{t('type_leave_page.nameE')}</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[400px]">{t('type_leave_page.code')}</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[400px]">{lang == 'vi' ? 'Loại' : 'Type'}</th>
+								<th className="border-gray-300 px-4 py-2 border w-[300px]">{t('type_leave_page.action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -100,14 +100,14 @@ export default function ListTypeLeave () {
                                 ) : (
                                     typeLeaves?.map((item: ITypeLeave, idx: number) => (
                                         <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                 {idx + 1}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.nameE}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item.code}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item.typeGroup}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.name}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.nameE}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item.code}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item.typeGroup}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                 <CreateTypeLeaveForm typeLeave={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-type-leave'] })}/>
                                                 <ButtonDeleteComponent id={item.id} onDelete={() => handleDelete(item.id)}/>
                                             </td>

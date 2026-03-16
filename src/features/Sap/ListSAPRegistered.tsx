@@ -103,7 +103,7 @@ export default function ListSAPRegistered () {
                                         ))
                                     ) : isError || listSAPRegistered.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
+                                            <TableCell colSpan={6} className="text-red-700 border text-center font-medium ">
                                                 {error?.message ?? tCommon('no_results')}
                                             </TableCell>
                                         </TableRow>
@@ -145,18 +145,18 @@ export default function ListSAPRegistered () {
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                         {Array.from({ length: 6 }).map((_, i) => (
                                             <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                         ))}
                                     </div>
                                 ))
                             ) : isError || listSAPRegistered.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{error?.message ?? tCommon('no_results')}</div>
+                                <div className="p-2 text-red-700 border text-center font-medium  mt-5">{error?.message ?? tCommon('no_results')}</div>
                             ) : (
                                 listSAPRegistered.map((item: any) => {
                                     return (
-                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={item.id} className="border rounded p-4 shadow bg-white  mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
                                                 <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>

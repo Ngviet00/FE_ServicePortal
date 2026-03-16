@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import orgUnitApi from '@/api/orgUnitApi';
@@ -7,6 +8,7 @@ import MemberList from './MemberList';
 import MemberDetail from './MemberDetail';
 import AddUserModal from './AddUserModal';
 import useHasRole from '@/hooks/useHasRole';
+import { useTranslation } from 'react-i18next';
 
 export interface Department { id: number; name: string }
 export interface UnionMember {
@@ -24,6 +26,7 @@ const MngMemberUnion: React.FC = () => {
     const [currentDeptId, setCurrentDeptId] = useState<number[]>([]);
     const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
     const [editingMember, setEditingMember] = useState<UnionMember | null>(null);
+    const lang = useTranslation().i18n.language.split('-')[0];
 
     const queryClient = useQueryClient();
 
@@ -75,10 +78,10 @@ const MngMemberUnion: React.FC = () => {
     }, []);
 
     const handleDeleteMember = useCallback(async (id: number) => {
-        if (!confirm('Bạn có chắc muốn xóa thành viên này không?')) return;
+        if (!confirm(lang == 'vi' ? 'Bạn có muốn xóa?' : 'Do you want to delete?')) return;
         try {
             await unionApi.deleteMemberUnion(id);
-            ShowToast('Xóa thành công', 'success');
+            ShowToast(lang == 'vi' ? 'Xóa thành công' : 'Delete success', 'success');
             queryClient.invalidateQueries({ queryKey: ['union-members'] });
             setSelectedMember(null)
         } catch (err) {
@@ -96,10 +99,13 @@ const MngMemberUnion: React.FC = () => {
 
     return (
         <div className="min-h-screen font-sans">
-            <h3 className="font-bold text-2xl mb-2">Quản lý thành viên, bộ phận</h3>
+            <h3 className="font-bold text-2xl mb-2">
+                {lang === 'vi' ? 'Quản lý thành viên, bộ phận' : 'Union Member & Dept Management'}
+            </h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[80vh]">
                 <div className="lg:col-span-1">
                     <MemberList
+                        lang={lang}
                         members={unionMembers}
                         isLoading={isPending}
                         selectedMember={selectedMember}
@@ -112,6 +118,7 @@ const MngMemberUnion: React.FC = () => {
                 </div>
                 <div className="lg:col-span-2">
                     <MemberDetail
+                        lang={lang}
                         member={selectedMember}
                         isEditing={isEditing}
                         setIsEditing={setIsEditing}

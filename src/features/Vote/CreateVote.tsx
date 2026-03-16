@@ -226,7 +226,7 @@ export const CreateVote: React.FC = () => {
                 <h2 className="text-2xl font-semibold text-gray-800 mb-3">
                     {t("create.title_page")}
                 </h2>
-            	<button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition hover:cursor-pointer">
+            	<button className="bg-black text-white px-4 py-2 rounded-md transition hover:cursor-pointer">
                     <Link to={`/vote?role=${roleCode}`}>{t("list.title")}</Link>
 				</button>
 			</div>
@@ -237,7 +237,7 @@ export const CreateVote: React.FC = () => {
                     id="title"
                     {...register("title")}
                     placeholder={t("create.title")}
-                    className={`w-full ${errors.title ? "border-red-500" : ""}`}
+                    className={`w-full ${errors.title ? "border-red-500" : "border-gray-300"}`}
                 />
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
             </div>
@@ -248,7 +248,7 @@ export const CreateVote: React.FC = () => {
                     id="note"
                     {...register("note")}
                     placeholder={t("create.description")}
-                    className="w-full min-h-[80px]"
+                    className="w-full min-h-[80px] border-gray-300"
                 />
             </div>
 
@@ -262,7 +262,7 @@ export const CreateVote: React.FC = () => {
                         return (
                             <div className={fieldState.invalid ? "border border-red-500 rounded-[5px]" : ""}>
                                 <MultiSelect
-                                    className="dark:text-black"
+                                    className=""
                                     options={departments}
                                     value={selectedOptions}
                                     onChange={(selected: any[]) => {
@@ -292,44 +292,46 @@ export const CreateVote: React.FC = () => {
 
             <div className="flex flex-col md:flex-row md:items-end md:space-x-6 gap-y-4">
                 <div className="flex-1 space-y-2">
-                <Label>{t("create.publish_date")}</Label>
-                <Controller
-                    control={control}
-                    name="publishDate"
-                    render={({ field }) => (
-                        <DateTimePicker
-                            enableTime={true}
-                            dateFormat="Y-m-d"
-                            initialDateTime={field.value}
-                            onChange={(_s, dateStr) => field.onChange(dateStr)}
-                            className="dark:bg-[#454545] shadow-xs text-sm border rounded border-gray-300 p-2 w-full"
-                        />
-                    )}
-                />
-                </div>
-
-                <div className="flex-1 space-y-2">
-                    <Label>{t("create.date_range")}</Label>
+                    <Label>{t("create.publish_date")}</Label>
                     <Controller
                         control={control}
-                        name="dateRange"
-                        render={({ field }) => {
-                        const from = field.value?.from;
-                        const to = field.value?.to;
-                        const key = from?.toISOString() + to?.toISOString();
-                            return (
-                                <DateRangePicker
-                                    key={key}
-                                    initialDateFrom={field.value.from}
-                                    initialDateTo={field.value.to}
-                                    onUpdate={({ range }) => field.onChange(range)}
-                                    align="start"
-                                    locale="vi-VN"
-                                    showCompare={false}
-                                />
-                            );
-                        }}
+                        name="publishDate"
+                        render={({ field }) => (
+                            <DateTimePicker
+                                enableTime={true}
+                                dateFormat="Y-m-d"
+                                initialDateTime={field.value}
+                                onChange={(_s, dateStr) => field.onChange(dateStr)}
+                                className=" shadow-xs text-sm border rounded border-gray-300 p-2 w-full"
+                            />
+                        )}
                     />
+                </div>
+
+                <div className="flex-1 space-y-2 border">
+                    <Label>{t("create.date_range")}</Label>
+                    <div className="border border-gray-300">
+                        <Controller
+                            control={control}
+                            name="dateRange"
+                            render={({ field }) => {
+                            const from = field.value?.from;
+                            const to = field.value?.to;
+                            const key = from?.toISOString() + to?.toISOString();
+                                return (
+                                    <DateRangePicker
+                                        key={key}
+                                        initialDateFrom={field.value.from}
+                                        initialDateTo={field.value.to}
+                                        onUpdate={({ range }) => field.onChange(range)}
+                                        align="start"
+                                        locale="vi-VN"
+                                        showCompare={false}
+                                    />
+                                );
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -338,174 +340,168 @@ export const CreateVote: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-800">
                     {t("create.option")}
                 </h3>
-                <Button
-                    variant="outline"
+                <button
                     type="button"
                     onClick={addOption}
-                    className="cursor-pointer"
+                    className="cursor-pointer bg-blue-500 p-1 text-white rounded-sm"
                 >
                     + {t("create.add_options")}
-                </Button>
+                </button>
                 </div>
 
                 <div className="space-y-4 mt-3">
-                {fields.map((field, idx) => (
-                    <div
-                    key={field.id}
-                    className="border rounded-lg p-4 bg-gray-50 transition w-full"
-                    >
-                    <div className="flex justify-between items-center mb-2 flex-wrap gap-y-2">
-                        <Label className="font-semibold text-red-500 text-lg">
-                        {t("create.option")} #{idx + 1}
-                        </Label>
-                        {fields.length > 1 && (
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            type="button"
-                            onClick={() => removeOption(idx)}
-                            className="cursor-pointer"
-                        >
-                            <X />
-                        </Button>
-                        )}
-                    </div>
-
-                    <Input
-                        placeholder={t("create.title")}
-                        className={`w-full ${errors.options?.[idx]?.title ? "border-red-500" : ""}`}
-                        {...register(`options.${idx}.title` as const)}
-                    />
-                    {errors.options?.[idx]?.title && (
-                        <p className="text-red-500 text-sm mt-1">
-                        {errors.options[idx]?.title?.message}
-                        </p>
-                    )}
-
-                    <div className="my-3">
-                        <Label className="mb-2">{t("create.description")}</Label>
-                        <Controller
-                        control={control}
-                        name={`options.${idx}.note` as const}
-                        render={({ field }) => (
-                            <QuillEditorCDN
-                            initialContent={field.value || ""}
-                            onChange={field.onChange}
-                            height={250}
-                            />
-                        )}
-                        />
-                    </div>
-
-                    <div className="my-3">
-                        <Label className="mb-2">{t("create.img_option")}</Label>
-                        <Controller
-                        name={`options.${idx}.img` as const}
-                        control={control}
-                        render={({ field }) => {
-                            const imgs = field.value || [];
-                            const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                            const files = e.target.files;
-                            if (!files) return;
-                            field.onChange([...imgs, ...Array.from(files)]);
-                            };
-                            const handleRemoveFile = (i: number) => {
-                            field.onChange(imgs.filter((_, j) => j !== i));
-                            };
-
-                            return (
-                            <div>
-                                <Button
-                                type="button"
-                                variant="secondary"
-                                className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 mb-2 hover:cursor-pointer"
-                                onClick={() =>
-                                    document.getElementById(`file-upload-${idx}`)?.click()
-                                }
-                                >
-                                📸 {t("create.img_option")}
-                                </Button>
-                                <input
-                                id={`file-upload-${idx}`}
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleFileChange}
-                                className="hidden"
-                                />
-
-                                {/* preview ảnh */}
-                                <div className="flex flex-wrap gap-2">
-                                {(watch(`options.${idx}.existingImgs`) ?? []).map((f: any, i: number) => (
-                                    <div key={`server-${f.id}`} className="relative">
-                                    <img
-                                        src={`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`}
-                                        alt={f.fileName}
-                                        className="w-20 h-20 object-cover rounded-md border cursor-pointer"
-                                        onClick={() =>
-                                        setPreviewImage(`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`)
-                                        }
-                                    />
+                    {fields.map((field, idx) => (
+                        <div key={field.id} className="border rounded-lg p-4 border-gray-300 transition w-full">
+                            <div className="flex justify-between items-center mb-2 flex-wrap gap-y-2">
+                                <Label className="font-semibold text-red-500 text-lg">
+                                    {t("create.option")} #{idx + 1}
+                                </Label>
+                                {fields.length > 1 && (
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                        const cur = watch(`options.${idx}.existingImgs`) || [];
-                                        setValue(
-                                            `options.${idx}.existingImgs`,
-                                            cur.filter((_: any, j: number) => j !== i)
-                                        );
-                                        }}
-                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center cursor-pointer"
+                                        onClick={() => removeOption(idx)}
+                                        className="cursor-pointer bg-red-600 text-white p-1 rounded-sm"
                                     >
-                                        <X size={18} />
+                                        <X />
                                     </button>
-                                    </div>
-                                ))}
-                                {imgs.map((file: File, i: number) => {
-                                    const url = URL.createObjectURL(file);
+                                )}
+                            </div>
+
+                            <Input
+                                placeholder={t("create.title")}
+                                className={`w-full ${errors.options?.[idx]?.title ? "border-red-500" : ""} border border-gray-300`}
+                                {...register(`options.${idx}.title` as const)}
+                            />
+                            {errors.options?.[idx]?.title && (
+                                <p className="text-red-500 text-sm mt-1">
+                                {errors.options[idx]?.title?.message}
+                                </p>
+                            )}
+
+                            <div className="my-3">
+                                <Label className="mb-2">{t("create.description")}</Label>
+                                <Controller
+                                control={control}
+                                name={`options.${idx}.note` as const}
+                                render={({ field }) => (
+                                    <QuillEditorCDN
+                                    initialContent={field.value || ""}
+                                    onChange={field.onChange}
+                                    height={250}
+                                    />
+                                )}
+                                />
+                            </div>
+
+                            <div className="my-3">
+                                <Label className="mb-2">{t("create.img_option")}</Label>
+                                <Controller
+                                name={`options.${idx}.img` as const}
+                                control={control}
+                                render={({ field }) => {
+                                    const imgs = field.value || [];
+                                    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const files = e.target.files;
+                                    if (!files) return;
+                                    field.onChange([...imgs, ...Array.from(files)]);
+                                    };
+                                    const handleRemoveFile = (i: number) => {
+                                    field.onChange(imgs.filter((_, j) => j !== i));
+                                    };
+
                                     return (
-                                    <div key={i} className="relative">
-                                        <img
-                                        src={url}
-                                        alt={file.name}
-                                        className="w-20 h-20 object-cover rounded-md border cursor-pointer"
-                                        onClick={() => setPreviewImage(url)}
-                                        />
-                                        <button
+                                    <div>
+                                        <Button
                                         type="button"
-                                        onClick={() => handleRemoveFile(i)}
-                                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                                        variant="secondary"
+                                        className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 mb-2 hover:cursor-pointer"
+                                        onClick={() =>
+                                            document.getElementById(`file-upload-${idx}`)?.click()
+                                        }
                                         >
-                                        <X size={18} />
-                                        </button>
+                                        📸 {t("create.img_option")}
+                                        </Button>
+                                        <input
+                                        id={`file-upload-${idx}`}
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                        />
+
+                                        {/* preview ảnh */}
+                                        <div className="flex flex-wrap gap-2">
+                                        {(watch(`options.${idx}.existingImgs`) ?? []).map((f: any, i: number) => (
+                                            <div key={`server-${f.id}`} className="relative">
+                                            <img
+                                                src={`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`}
+                                                alt={f.fileName}
+                                                className="w-20 h-20 object-cover rounded-md border cursor-pointer"
+                                                onClick={() =>
+                                                setPreviewImage(`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`)
+                                                }
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                const cur = watch(`options.${idx}.existingImgs`) || [];
+                                                setValue(
+                                                    `options.${idx}.existingImgs`,
+                                                    cur.filter((_: any, j: number) => j !== i)
+                                                );
+                                                }}
+                                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center cursor-pointer"
+                                            >
+                                                <X size={18} />
+                                            </button>
+                                            </div>
+                                        ))}
+                                        {imgs.map((file: File, i: number) => {
+                                            const url = URL.createObjectURL(file);
+                                            return (
+                                            <div key={i} className="relative">
+                                                <img
+                                                src={url}
+                                                alt={file.name}
+                                                className="w-20 h-20 object-cover rounded-md border cursor-pointer"
+                                                onClick={() => setPreviewImage(url)}
+                                                />
+                                                <button
+                                                type="button"
+                                                onClick={() => handleRemoveFile(i)}
+                                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                                                >
+                                                <X size={18} />
+                                                </button>
+                                            </div>
+                                            );
+                                        })}
+                                        </div>
                                     </div>
                                     );
-                                })}
-                                </div>
+                                }}
+                                />
                             </div>
-                            );
-                        }}
-                        />
-                    </div>
-                    </div>
-                ))}
+                        </div>
+                    ))}
                 </div>
             </div>
 
             <div className="pt-3 flex justify-end">
                 <Button
-                disabled={createVote.isPending || updateVote.isPending}
-                type="submit"
-                className="bg-primary text-white px-6 rounded-md cursor-pointer w-full md:w-auto"
+                    disabled={createVote.isPending || updateVote.isPending}
+                    type="submit"
+                    className="bg-black text-white px-6 rounded-md cursor-pointer w-full md:w-auto hover:bg-black"
                 >
-                {createVote.isPending || updateVote.isPending ? <Spinner /> : t("create.save")}
+                    {createVote.isPending || updateVote.isPending ? <Spinner /> : t("create.save")}
                 </Button>
             </div>
 
             {previewImage && (
                 <div
-                className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-999"
-                onClick={() => setPreviewImage(null)}
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-999"
+                    onClick={() => setPreviewImage(null)}
                 >
                 <img
                     src={previewImage}

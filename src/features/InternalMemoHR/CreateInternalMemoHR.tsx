@@ -347,7 +347,7 @@ export default function CreateInternalMemoHR() {
                         </h3>
                     </div>
                 </div>
-                <Button onClick={() => navigate("/internal-memo-hr")} className="w-full md:w-auto hover:cursor-pointer">
+                <Button onClick={() => navigate("/internal-memo-hr")} className="w-full md:w-auto hover:cursor-pointer bg-black hover:bg-black text-white">
                     { lang == 'vi' ? 'Danh sách nội bộ' : 'List internal memo' }
                 </Button>
             </div>
@@ -385,7 +385,7 @@ export default function CreateInternalMemoHR() {
                             <input
                                 {...register("otherTitle")}
                                 placeholder={t('internal_memo_hr.title_other')}
-                                className={`dark:bg-[#454545] w-full p-2 border-gray-300 text-sm border rounded`}
+                                className={` w-full p-2 border-gray-300 text-sm border rounded`}
                             />
                         </div>
                     }
@@ -401,7 +401,7 @@ export default function CreateInternalMemoHR() {
                     <input
                         {...register('save')}
                         placeholder={t('internal_memo_hr.save')}
-                        className={`dark:bg-[#454545] w-full p-2 text-sm border rounded`}
+                        className={` w-full p-2 text-sm border rounded border-gray-300`}
                     />
                 </div>
                 <div className="mt-1.5">
@@ -409,7 +409,7 @@ export default function CreateInternalMemoHR() {
                     <textarea
                         {...register('note')}
                         placeholder={t('internal_memo_hr.note')}
-                        className={`w-full p-2 border rounded`}
+                        className={`w-full p-2 border rounded border-gray-300`}
                     />
                 </div>
                 {detechFormType === 'register_door' && (

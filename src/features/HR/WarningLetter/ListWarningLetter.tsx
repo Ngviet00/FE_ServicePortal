@@ -3,14 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
 import { StatusApplicationFormEnum } from "@/lib"
@@ -78,7 +70,7 @@ export default function ListWarningLetter () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {type == 'Registered' ? t('warning_letter.list.title') : t('warning_letter.list.my_warning_letter') }
                 </h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                     <Link to="/warningletter/create">
                         {lang == 'vi' ? 'Tạo đơn kỷ luật' : 'Create warning letter'}
                     </Link>
@@ -88,104 +80,105 @@ export default function ListWarningLetter () {
             <div className="mb-5 pb-3">
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{t('warning_letter.list.code')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('warning_letter.create.usercode')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('warning_letter.create.username')}</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{t('warning_letter.create.department')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('warning_letter.create.position')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('warning_letter.create.unit')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('warning_letter.create.reason')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('warning_letter.list.created_at')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('warning_letter.list.status')}</TableHead>
-                                    {type == TYPE_REGISTERED && <TableHead className="w-[150px] text-center border">{t('warning_letter.list.action')}</TableHead>}
-                                </TableRow>
-                            </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 3 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: type == TYPE_REGISTERED ? 10 : 9 }).map((_, i) => (
-                                            <TableCell key={i} className="border">
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
+                        <table className="min-w-full text-sm border border-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
+                                    <th className="border-gray-300 w-[100px] px-4 py-2 border text-center">{t('warning_letter.list.code')}</th>
+                                    <th className="border-gray-300 w-[100px] px-4 py-2 border text-center">{t('warning_letter.create.usercode')}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{t('warning_letter.create.username')}</th>
+                                    <th className="border-gray-300 w-[130px] px-4 py-2 border text-center">{t('warning_letter.create.department')}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{t('warning_letter.create.position')}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{t('warning_letter.create.unit')}</th>
+                                    <th className="border-gray-300 w-[200px] px-4 py-2 border text-center">{t('warning_letter.create.reason')}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{t('warning_letter.list.created_at')}</th>
+                                    <th className="border-gray-300 w-[120px] px-4 py-2 border text-center">{t('warning_letter.list.status')}</th>
+                                    {type == TYPE_REGISTERED && (
+                                        <th className="border-gray-300 w-[150px] px-4 py-2 border text-center">{t('warning_letter.list.action')}</th>
+                                    )}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            {Array.from({ length: type == TYPE_REGISTERED ? 10 : 9 }).map((_, i) => (
+                                                <td key={i} className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                    <div className="flex justify-center">
+                                                        <Skeleton className="h-4 w-[80px] bg-gray-300" />
+                                                    </div>
+                                                </td>
+                                            ))}
+                                        </tr>
                                     ))
                                 ) : isError || listWarningLetters.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={type == TYPE_REGISTERED ? 10 : 9} className="text-red-700 border text-center font-medium dark:text-white">
-                                            { error?.message ?? tCommon('no_results') } 
-                                        </TableCell>
-                                    </TableRow>
+                                    <tr>
+                                        <td colSpan={type == TYPE_REGISTERED ? 10 : 9} className="px-4 py-4 text-center font-bold text-red-700 border border-gray-300">
+                                            {error?.message ?? tCommon('no_results')}
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    listWarningLetters.map((item: any) => {
-                                        return (
-                                            <TableRow key={item.id}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">
-                                                        {item?.applicationForm?.code}
-                                                    </Link>
-                                                </TableCell>
-                                                <TableCell className="text-center border">{item?.userCode}</TableCell>
-                                                <TableCell className="text-center border">{item?.userName}</TableCell>
-                                                <TableCell className="text-center border">{item?.departmentName}</TableCell>
-                                                <TableCell className="text-center border">{item?.position}</TableCell>
-                                                <TableCell className="text-center border">{item?.unit}</TableCell>
-                                                <TableCell className="text-center border whitespace-normal min-w-sm max-w-4xl">{item?.reason}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                                <TableCell className="text-center border">
-                                                    <StatusLeaveRequest 
-                                                        status={item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending 
-                                                            ? 'Pending' : item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Complete 
-                                                            ? 'Completed' : item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Reject 
-                                                            ? 'Reject' : 'In Process'}
-                                                    />
-                                                </TableCell>
-                                                {
-                                                    type == TYPE_REGISTERED && 
-                                                        <TableCell className="text-center border">
-                                                        {
-                                                            item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
-                                                                <>
-                                                                    <Link to={`/warningletter/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                        {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                                                    </Link>
-                                                                    <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id ?? "")} />
-                                                                </>
-                                                            ) : (
-                                                                <span>--</span>
-                                                            )
-                                                        }
-                                                    </TableCell>
-                                                }
-                                            </TableRow>
-                                        )
-                                    })
+                                    listWarningLetters.map((item: any) => (
+                                        <tr key={item.id} className="hover:bg-gray-50 text-black">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center font-medium">
+                                                <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">
+                                                    {item?.applicationForm?.code}
+                                                </Link>
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.userCode}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.userName}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.departmentName}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.position}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.unit}</td>
+                                            <td className="border-gray-300 px-4 py-2 border text-left whitespace-normal break-words min-w-[200px]">
+                                                {item?.reason}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {formatDate(item?.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                <StatusLeaveRequest 
+                                                    status={item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending 
+                                                        ? 'Pending' : item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Complete 
+                                                        ? 'Completed' : item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Reject 
+                                                        ? 'Reject' : 'In Process'}
+                                                />
+                                            </td>
+                                            {type == TYPE_REGISTERED && (
+                                                <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                    {item?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Pending ? (
+                                                        <div className="flex justify-center space-x-2">
+                                                            <Link to={`/warningletter/edit/${item?.applicationForm?.code}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-xs">
+                                                                {lang == 'vi' ? 'Sửa' : 'Edit'}
+                                                            </Link>
+                                                            <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item?.id ?? "")} />
+                                                        </div>
+                                                    ) : (
+                                                        <span>--</span>
+                                                    )}
+                                                </td>
+                                            )}
+                                        </tr>
+                                    ))
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                         {Array.from({ length: 6 }).map((_, i) => (
                                             <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                         ))}
                                     </div>
                                 ))
                             ) : isError || listWarningLetters.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') } </div>
+                                <div className="p-2 text-red-700 border text-center font-medium  mt-5">{ error?.message ?? tCommon('no_results') } </div>
                             ) : (
                                 listWarningLetters.map((item: any) => {
                                     return (
-                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 space-y-1">
+                                        <div key={item.id} className="border rounded p-4 shadow bg-white  space-y-1">
                                             <div>
                                                 <strong>{t('warning_letter.list.code')}: </strong>
                                                 <Link

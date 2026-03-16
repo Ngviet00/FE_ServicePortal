@@ -36,10 +36,10 @@ export default function ListITCategory () {
                     <table className="min-w-full text-sm border border-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-4 py-2 border w-[70px]">ID</th>
-                                <th className="px-4 py-2 border w-[400px]">{t('it_category_page.name')}</th>
-                                <th className="px-4 py-2 border w-[300px]">{t('it_category_page.code')}</th>
-                                <th className="px-4 py-2 border">{t('it_category_page.action')}</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[70px]">ID</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[400px]">{t('it_category_page.name')}</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[300px]">{t('it_category_page.code')}</th>
+                                <th className="border-gray-300 px-4 py-2 border">{t('it_category_page.action')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,12 +62,12 @@ export default function ListITCategory () {
                                 ) : (
                                     itCategories?.map((item: ITCategoryInterface) => (
                                         <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                 {item.id}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.code}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.name}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.code}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                 <CreateITCategoryForm itCategory={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-it-category'] })}/>
                                                 <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
                                             </td>

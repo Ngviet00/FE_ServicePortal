@@ -131,7 +131,7 @@ export default function ListAbsentOverDay () {
                                     ))
                                 ) : isError || listAbsentWithoutNotices.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
+                                        <TableCell colSpan={6} className="text-red-700 border text-center font-medium ">
                                             { error?.message ?? tCommon('no_results') } 
                                         </TableCell>
                                     </TableRow>
@@ -174,18 +174,18 @@ export default function ListAbsentOverDay () {
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                         {Array.from({ length: 6 }).map((_, i) => (
                                             <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                         ))}
                                     </div>
                                 ))
                             ) : isError || listAbsentWithoutNotices.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') } </div>
+                                <div className="p-2 text-red-700 border text-center font-medium  mt-5">{ error?.message ?? tCommon('no_results') } </div>
                             ) : (
                                 listAbsentWithoutNotices.map((item: any) => {
                                     return (
-                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 space-y-1">
+                                        <div key={item.id} className="border rounded p-4 shadow bg-white  space-y-1">
                                             <div>
                                                 <strong>{t('absent_overday.user_code')}: </strong>
                                                 {item?.nvMaNV}

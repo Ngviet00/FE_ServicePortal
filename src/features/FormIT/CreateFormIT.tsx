@@ -292,7 +292,7 @@ const CreateFormIT = () => {
         <div className="p-1 pl-1 pt-0 space-y-4">
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-1">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{isEdit ? 'Cập nhật' : t('create.title')}</h3>
-                <Button onClick={() => navigate("/form-it")} className="w-full md:w-auto hover:cursor-pointer">
+                <Button onClick={() => navigate("/form-it")} className="w-full md:w-auto hover:cursor-pointer bg-black hover:bg-black text-white">
                     {t('create.btn_list')}
                 </Button>
             </div>
@@ -398,7 +398,7 @@ const CreateFormIT = () => {
                                                     dateFormat="Y-m-d"
                                                     initialDateTime={field.value}
                                                     onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                                    className={` w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                                                 />
                                             )}
                                         />
@@ -417,7 +417,7 @@ const CreateFormIT = () => {
                                                     dateFormat="Y-m-d"
                                                     initialDateTime={field.value}
                                                     onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                                    className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                                    className={` w-full shadow-xs border border-gray-300 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                                                 />
                                             )}
                                         />

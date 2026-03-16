@@ -102,6 +102,7 @@ export default function MngTimekeeping() {
                     <div className="flex flex-wrap items-center gap-3">
                         <MonthYearFlatPickr
                             value={month}
+                            className="border-gray-300"
                             onChange={setMonth}
                         />
                     </div>

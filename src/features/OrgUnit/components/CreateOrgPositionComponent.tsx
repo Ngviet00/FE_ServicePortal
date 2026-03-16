@@ -111,13 +111,13 @@ export default function CreateOrgPositionComponent () {
             <table className="min-w-full text-sm border border-gray-200">
                 <thead className="bg-gray-100">
                     <tr>
-                        <th className="px-4 py-2 border w-[70px]">Id</th>
-                        <th className="px-4 py-2 border w-[400px]">Mã</th>
-                        <th className="px-4 py-2 border w-[400px]">Tên</th>
-                        <th className="px-4 py-2 border w-[300px]">Bộ phận</th>
-                        <th className="px-4 py-2 border w-[300px]">Tổ</th>
-                        <th className="px-4 py-2 border w-[300px]">Vị trí cha</th>
-                        <th className="px-4 py-2 border">Hành động</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[70px]">Id</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[400px]">Mã</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[400px]">Tên</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[300px]">Bộ phận</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[300px]">Tổ</th>
+                        <th className="border-gray-300 px-4 py-2 border w-[300px]">Vị trí cha</th>
+                        <th className="border-gray-300 px-4 py-2 border">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -143,15 +143,15 @@ export default function CreateOrgPositionComponent () {
                         ) : (
                             getAllOrgPositions?.map((item: any) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                         {item.id}
                                     </td>
-                                    <td className="px-4 py-2 border whitespace-nowrap">{item?.positionCode}</td>
-                                    <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
-                                    <td className="px-4 py-2 border whitespace-nowrap">{item?.orgUnit?.parentOrgUnit?.name ?? item?.orgUnit?.name ?? '--'}</td>
-                                    <td className="px-4 py-2 border whitespace-nowrap">{item?.orgUnit?.name && item?.orgUnit?.unitId == UnitEnum.Team ? (item?.orgUnit?.name ?? '--') : '--'}</td>
-                                     <td className="px-4 py-2 border whitespace-nowrap">{item?.parentOrgPosition?.name ?? '--'}</td>
-                                    <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.positionCode}</td>
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.name}</td>
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.orgUnit?.parentOrgUnit?.name ?? item?.orgUnit?.name ?? '--'}</td>
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.orgUnit?.name && item?.orgUnit?.unitId == UnitEnum.Team ? (item?.orgUnit?.name ?? '--') : '--'}</td>
+                                     <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.parentOrgPosition?.name ?? '--'}</td>
+                                    <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                         <ModalCreateOrgPosition departments={departments} orgPosition={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-org-position'] })}/>
                                         <ButtonDeleteComponent id={item?.id} onDelete={() => handleDeleteDepartment(item?.id)}/>
                                     </td>
@@ -352,7 +352,7 @@ export function ModalCreateOrgPosition({
                 </button>
             </DialogTrigger>
 
-            <DialogContent className="w-[50em]">
+            <DialogContent className="w-[50em] bg-white">
                 <DialogHeader>
                     <DialogTitle>Vị trí</DialogTitle>
                 </DialogHeader>
@@ -367,7 +367,7 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem>
                                     <Label>Mã</Label>
-                                    <Input {...field} />
+                                    <Input {...field} className="border border-gray-300"/>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -380,8 +380,8 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem>
                                     <Label>Tên</Label>
-                                    <Input {...field} />
-                                    <FormMessage />
+                                    <Input {...field} className="border border-gray-300"/>
+                                    <FormMessage/>
                                 </FormItem>
                             )}
                         />
@@ -391,10 +391,10 @@ export function ModalCreateOrgPosition({
                             control={form.control}
                             name="departmentId"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem >
                                     <Label>Phòng ban</Label>
-                                    <select {...field} className="w-full border rounded px-2 py-1">
-                                        <option value="">--Chọn--</option>
+                                    <select {...field} className="w-full rounded px-2 py-1 border border-gray-300">
+                                        <option className="border border-gray-300">--Chọn--</option>
                                         {departments?.map(d => (
                                             <option key={d.id} value={d.id.toString()}>
                                                 {d.name}
@@ -413,7 +413,7 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem>
                                     <Label>Team</Label>
-                                    <select {...field} value={field.value ?? ""} className="w-full border rounded px-2 py-1">
+                                    <select {...field} value={field.value ?? ""} className="w-full rounded px-2 py-1 border border-gray-300">
                                         <option value="">--Chọn--</option>
                                         {teamsByDept.map((t: any) => (
                                             <option key={t.id} value={t.id.toString()}>
@@ -432,7 +432,7 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem>
                                     <Label>Vị trí cha</Label>
-                                    <select {...field} value={field.value ?? ""} className="w-full border rounded px-2 py-1">
+                                    <select {...field} value={field.value ?? ""} className="w-full border border-gray-300 rounded px-2 py-1">
                                         <option value="">--Chọn--</option>
                                         {allOrgPositions.map((p: any) => (
                                             <option key={p.id} value={p.id.toString()}>
@@ -451,7 +451,7 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem>
                                     <Label>Đơn vị</Label>
-                                    <select {...field} className="w-full border rounded px-2 py-1">
+                                    <select {...field} className="w-full border border-gray-300 rounded px-2 py-1">
                                         <option value="">--Chọn--</option>
                                         {allUnits.map((u: any) => (
                                             <option key={u.id} value={u.id.toString()}>
@@ -471,16 +471,18 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem className="flex gap-2 items-center">
                                     <Checkbox
+                                        id="is_staff"
+                                        className="bg-red-800 border border-gray-800 hover:cursor-pointer"
                                         checked={field.value ?? false}
                                         onCheckedChange={field.onChange}
                                     />
-                                    <Label>Is Staff</Label>
+                                    <Label htmlFor="is_staff" className="hover:cursor-pointer">Is Staff</Label>
                                 </FormItem>
                             )}
                         />
 
                         <div className="flex justify-end">
-                            <Button type="submit">Lưu</Button>
+                            <Button type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white">Lưu</Button>
                         </div>
                     </form>
                 </Form>

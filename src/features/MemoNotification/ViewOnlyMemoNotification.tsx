@@ -56,27 +56,27 @@ const ViewOnlyMemoNotification: React.FC = () => {
             <div className={`p-1 mt-2 space-y-4 ${isDislayInHomePage ? 'pl-0' : 'p-4 border'}  rounded-[3px] border-gray-200`}>
                 <h2 className="text-[24px] sm:text-[30px] font-bold mb-1">{memo.title}</h2>
                 <div className="text-sm text-gray-600 flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className='dark:text-white'>
-                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black dark:text-white">{memo?.userNameCreated}</span>
+                    <span className=''>
+                        {t('memo_notification.list.created_by')}: <span className="font-bold text-black ">{memo?.userNameCreated}</span>
                     </span>
-                    <span className='dark:text-white'>•</span>
-                    <span className='dark:text-white'>
+                    <span className=''>•</span>
+                    <span className=''>
                        {t('memo_notification.list.created_at')}:{" "}
-                        <span className="font-bold text-black dark:text-white">
+                        <span className="font-bold text-black ">
                             {formatDate(memo.createdAt, "yyyy/MM/dd HH:mm:ss")}
                         </span>
                     </span>
-                    <span className='dark:text-white'>•</span>
-                    <span className='dark:text-white'>
+                    <span className=''>•</span>
+                    <span className=''>
                         {t('memo_notification.list.display')}:{" "}
-                        <span className="font-bold text-black dark:text-white">
+                        <span className="font-bold text-black ">
                             {formatDate(memo.fromDate, "yyyy-MM-dd")} ___ {formatDate(memo.toDate, "yyyy-MM-dd")}
                         </span>
                     </span>
-                    <span className='dark:text-white'>•</span>
-                    <span className='dark:text-white'>
+                    <span className=''>•</span>
+                    <span className=''>
                         {t('memo_notification.list.department_apply')}: {" "}
-                        <span className="font-bold text-black dark:text-white">
+                        <span className="font-bold text-black ">
                             { memo.applyAllDepartment == true ? lang == 'vi' ? 'Tất cả bộ phận' : 'All department' : memo?.memoNotificationDepartments?.map((item: { orgUnit: { name: any; }; }) => item?.orgUnit?.name)?.join(', ') }
                         </span>
                     </span>

@@ -274,7 +274,7 @@ const CreateRequisition: React.FC = () => {
                 <div>
                     <Button 
                         onClick={() => navigate("/requisition")} 
-                        className="w-full md:w-auto hover:cursor-pointer"
+                        className="w-full md:w-auto hover:cursor-pointer bg-black text-white hover:bg-black"
                     >
                         {t('requisition.list.title')}
                     </Button>
@@ -329,7 +329,7 @@ const CreateRequisition: React.FC = () => {
                                 dateFormat="Y-m-d"
                                 initialDateTime={getValues(`dateRequired`)}
                                 onChange={(_selectedDates, dateStr) => setValue("dateRequired", dateStr)}
-                                className={`dark:bg-[#454545] text-sm border rounded-md border-gray-300 p-2 w-full`}
+                                className={`text-sm border rounded-md border-gray-300 p-2 w-full`}
                             />
                         </div>
                     </div>

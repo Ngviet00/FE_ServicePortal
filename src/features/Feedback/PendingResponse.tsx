@@ -47,10 +47,10 @@ export default function PendingResponse () {
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.code')}</th>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.content')}</th>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('feedback.list.action')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.code')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.content')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.created_at')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('feedback.list.action')}</th>
                                 </tr>
                             </thead>
                         <tbody>
@@ -72,14 +72,14 @@ export default function PendingResponse () {
                                     myFeedbacks.map((item: any, idx: number) => {
                                         return (
                                             <tr key={idx}>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border text-center border-gray-300">
                                                     <Link to={`/feedback/view/${item?.code ?? '1'}`} className="text-blue-700 underline">{item?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center whitespace-normal break-words w-[260px]">{item?.content ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border text-center whitespace-normal break-words w-[260px] border-gray-300">{item?.content ?? '--'}</td>
+                                                <td className="px-4 py-2 border text-center border-gray-300">
                                                     {formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border text-center border-gray-300">
                                                     <Link to={`/feedback/view/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
                                                         {lang == 'vi' ? 'Phản hồi' : 'Response'}
                                                     </Link>
@@ -95,17 +95,17 @@ export default function PendingResponse () {
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
-                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 4 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                 </div>
                             ))
                         ) : isError || myFeedbacks.length === 0 ? (
-                            <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{error?.message ?? tCommon('no_results')}</div>
+                            <div className="pt-2 pl-4 text-red-700 font-medium ">{error?.message ?? tCommon('no_results')}</div>
                         ) : (
                             myFeedbacks.map((item: any) => (
-                                <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                <div key={item.id} className="border rounded p-4 shadow bg-white  mt-5">
                                     <div className="mb-1">
                                         <strong>{t('feedback.list.code')}: </strong>
                                         <Link to={`/feedback/view/${item?.code ?? '1'}`} className="text-blue-700 underline font-semibold">{item?.code ?? '--'}</Link>

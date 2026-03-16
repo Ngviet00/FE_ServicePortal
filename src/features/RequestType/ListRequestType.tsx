@@ -79,10 +79,10 @@ export default function ListRequestType () {
          			<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border w-[70px]">STT</th>
-								<th className="px-4 py-2 border w-[400px]">{t('name')}</th>
-								<th className="px-4 py-2 border w-[300px]">{t('nameE')}</th>
-								<th className="px-4 py-2 border">{t('action')}</th>
+								<th className="px-4 py-2 border border-gray-300 w-[70px]">STT</th>
+								<th className="px-4 py-2 border border-gray-300 w-[400px]">{t('name')}</th>
+								<th className="px-4 py-2 border border-gray-300 w-[300px]">{t('nameE')}</th>
+								<th className="px-4 py-2 border border-gray-300">{t('action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -90,10 +90,10 @@ export default function ListRequestType () {
                                 isPending ? (
                                     Array.from({ length: 3 }).map((_, index) => (
                                         <tr key={index}>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300 text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[30px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300 text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[100px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300 text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[80px] bg-gray-300" /></div></td>
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300 text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
                                         </tr>  
                                     ))
                                 ) : isError || permissions.length == 0 ? (
@@ -105,12 +105,12 @@ export default function ListRequestType () {
                                 ) : (
                                     permissions?.map((item: IRequestType, idx: number) => (
                                         <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
                                                 {(page - 1) * pageSize + idx + 1}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item.nameE ?? "--"}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300">{item.name}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300">{item.nameE ?? "--"}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
                                                 <CreateRequestTypeForm requestType={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-request-type'] })}/>
                                                 <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
                                             </td>

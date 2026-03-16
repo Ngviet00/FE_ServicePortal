@@ -315,7 +315,7 @@ const ViewApprovalRequisition: React.FC<ViewApprovalTerminationLetterProps> = ({
                                 dateFormat="Y-m-d"
                                 initialDateTime={getValues(`dateRequired`)}
                                 onChange={(_selectedDates, dateStr) => setValue("dateRequired", dateStr)}
-                                className={`dark:bg-[#454545] text-sm border rounded-md border-gray-300 p-2 w-full bg-gray-50`}
+                                className={`text-sm border rounded-md border-gray-300 p-2 w-full bg-gray-50`}
                             />
                         </div>
                     </div>

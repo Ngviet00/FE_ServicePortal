@@ -79,7 +79,7 @@ const SetUserToDoor: React.FC = () => {
                     <select 
                         value={typeScannerMachine} 
                         onChange={(e) => setScannerMachine(e.target.value)} 
-                        className="w-full border border-slate-200 p-2.5 rounded-lg text-sm outline-none focus:border-indigo-500 transition-all cursor-pointer"
+                        className="w-full border border-gray-300 p-2.5 rounded-lg text-sm outline-none focus:border-indigo-500 transition-all cursor-pointer"
                     >
                         <option value="All">{lang === 'vi' ? 'Tất cả loại máy' : 'All Types'}</option>
                         {TYPE_SCANNER_MACHINE.map((item: any) => (
@@ -96,7 +96,7 @@ const SetUserToDoor: React.FC = () => {
                                 key={device.ddMa}
                                 onClick={() => setSelectedDeviceIds(prev => active ? prev.filter(id => id !== device.ddMa) : [...prev, device.ddMa])}
                                 className={`w-full text-left p-2 rounded-lg border-2 transition-all flex items-center gap-3 cursor-pointer ${
-                                    active ? 'border-indigo-500 bg-indigo-50/50' : 'border-transparent bg-slate-50 hover:bg-slate-100'
+                                    active ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-300 bg-slate-100 hover:bg-slate-200'
                                 }`}
                             >
                                 {active ? <CheckSquare size={18} className="text-indigo-600" /> : <Square size={18} className="text-slate-300" />}

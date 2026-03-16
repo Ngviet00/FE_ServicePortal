@@ -36,10 +36,10 @@ export default function ListPriority () {
                     <table className="min-w-full text-sm border border-gray-200">
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="px-4 py-2 border w-[70px]">ID</th>
-                                <th className="px-4 py-2 border w-[400px]">{t('priority_page.name')}</th>
-                                <th className="px-4 py-2 border w-[300px]">{t('priority_page.nameE')}</th>
-                                <th className="px-4 py-2 border">{t('priority_page.action')}</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[70px]">ID</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[400px]">{t('priority_page.name')}</th>
+                                <th className="border-gray-300 px-4 py-2 border w-[300px]">{t('priority_page.nameE')}</th>
+                                <th className="border-gray-300 px-4 py-2 border">{t('priority_page.action')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,12 +62,12 @@ export default function ListPriority () {
                                 ) : (
                                     priorities?.map((item: IPriority) => (
                                         <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                 {item.id}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item?.nameE}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.name}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap">{item?.nameE}</td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                                 <CreatePriorityForm priority={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-priority'] })}/>
                                                 <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
                                             </td>

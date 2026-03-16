@@ -84,6 +84,7 @@ const StatisticalLeaveRqForm = () => {
                     <div>
                         <label className="block text-sm font-medium mb-1">{lang == 'vi' ? 'Tháng' : 'Month'}</label>
                         <MonthYearFlatPickr
+                            className='border border-gray-300'
                             value={month}
                             onChange={setMonth}
                         />
@@ -93,7 +94,7 @@ const StatisticalLeaveRqForm = () => {
                         <select
                             value={department}
                             onChange={(e) => setDepartment(e.target.value)}
-                            className="border rounded px-3 py-1.5 text-sm cursor-pointer"
+                            className="border rounded px-3 py-1.5 text-sm cursor-pointer border-gray-300"
                         >
                             <option value="">--{lang == 'vi' ? 'Chọn bộ phận' : 'Choose department'}--</option>
                             {

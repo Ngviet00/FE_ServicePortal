@@ -67,7 +67,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 							<PaginationPrevious
 								onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
 								tabIndex={-1}
-								className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : ''} hover:cursor-pointer select-none`}
+								className={`hover:bg-black hover:text-white ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''} hover:cursor-pointer`}
 							/>
 						</PaginationItem>
 
@@ -129,7 +129,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 						<PaginationItem>
 							<PaginationNext
 								onClick={() => onPageChange(currentPage + 1)}
-								className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''} hover:cursor-pointer select-none`}
+								className={`hover:bg-black hover:text-white ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''} hover:cursor-pointer`}
 								tabIndex={-1}
 							/>
 						</PaginationItem>
@@ -137,7 +137,7 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 				</Pagination>
 			</div>
 
-			<div className="ml-4 flex items-center space-x-2">
+			<div className="ml-4 flex items-center space-x-2 ">
 				<Label htmlFor="page-size">{t('per_page')}</Label>
 				<Select
 					value={pageSize.toString()}
@@ -145,10 +145,10 @@ const PaginationControl: FC<PaginationWithPageSizeProps> = React.memo(({currentP
 						onPageSizeChange(Number(val));
 					}}
 				>
-					<SelectTrigger className="w-[70px]" id="page-size">
+					<SelectTrigger className="w-[70px] border border-gray-300 hover:cursor-pointer" id="page-size">
 						<SelectValue />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="border border-gray-300">
 						{ListPerPage.map((size) => (
 							<SelectItem key={size} value={size.toString()}>
 								{size}

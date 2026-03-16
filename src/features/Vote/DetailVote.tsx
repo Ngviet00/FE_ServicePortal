@@ -220,11 +220,11 @@ const DetailVote: React.FC = () => {
 						</div>
 					)
 				}
-				<div className='mt-2 text-gray-500'>
+				<div className='mt-2'>
 					{lang == 'vi' ? 'Người tạo' : 'Created By'}: <span className='font-bold'>{voteDetail?.vote?.CreatedBy}</span>
 					, {lang == 'vi' ? 'Thời gian tạo' : 'Created At'}: <span className='font-bold'>{formatDate(voteDetail?.vote?.CreatedAt ?? '', 'yyyy-MM-dd HH:mm:ss')}</span>
 				</div>
-				<div className='mt-2 text-gray-500'>
+				<div className='mt-2'>
 					{lang == 'vi' ? 'Bộ phận áp dụng' : 'Department apply'}: <span className='font-bold'>
 						{
 							voteDetail?.vote?.IsGlobalCompany == false ? voteDetail?.departmentApplies?.map((item: {Id: number, Name: string}) => item.Name)?.join(', ') : (lang == 'vi' ? 'Tất cả phòng ban' : 'All department')
@@ -259,7 +259,7 @@ const DetailVote: React.FC = () => {
 				return (
 					<div
 						key={opt?.optionId}
-						className="border rounded-lg p-4 bg-white hover:bg-gray-50 transition-all duration-300 w-full"
+						className="border rounded-lg p-4 bg-white hover:bg-gray-50 transition-all duration-300 w-full border-gray-300"
 					>
 						<div
 							className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-2xl bg-white hover:shadow-sm transition-all duration-300 gap-2 cursor-pointer select-none"
@@ -365,7 +365,7 @@ const DetailVote: React.FC = () => {
 								const isExpanded = expandedDeptId === dept.DepartmentId;
 
 								return (
-									<div key={idx} className="border rounded-lg bg-white p-4 transition-all duration-300">
+									<div key={idx} className="border rounded-lg bg-white border-gray-300 p-4 transition-all duration-300">
 										<div className="flex justify-between items-center cursor-pointer" onClick={() => toggleDept(dept?.DepartmentId)}>
 											<h4 className="font-semibold text-gray-700">
 												{dept?.DepartmentName}{" "}

@@ -366,7 +366,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
                             <label className="mb-1 block text-sm font-medium text-gray-700">
                                 {lang == 'vi' ? 'Phòng ban yêu cầu' : 'Department request'}<DotRequireComponent />
                             </label>
-                            <select disabled={hasId} {...register('departmentId')} className={`border w-full cursor-pointer rounded-[5px] p-1.5 ${form?.formState?.errors?.departmentId ? 'border-red-500 bg-red-50': ''} ${hasId ? 'bg-gray-100' : ''}`}>
+                            <select disabled={hasId} {...register('departmentId')} className={`border border-gray-300 w-full cursor-pointer rounded-[5px] p-1.5 ${form?.formState?.errors?.departmentId ? 'border-red-500 bg-red-50': ''} ${hasId ? 'bg-gray-100' : ''}`}>
                                 <option value="">{lang == 'vi' ? '--Chọn--' : '--Select--'}</option>
                                 {departments?.map((item: {id: string, name: string}, idx: number) => (
                                     <option key={idx} value={item.id}>{item.name}</option>
@@ -388,7 +388,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
                                         dateFormat="Y-m-d"
                                         initialDateTime={field.value}
                                         onChange={(_selectedDates, dateStr) => field.onChange(dateStr)}
-                                        className={`dark:bg-[#454545] w-full shadow-xs border border-gray-300 bg-gray-100 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
+                                        className={` w-full shadow-xs border border-gray-300 bg-gray-100 p-2 text-sm rounded-[5px] hover:cursor-pointer`}
                                     />
                                 )}
                             />
@@ -417,7 +417,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
                                     <select
                                         {...register('status')}
                                         disabled={mode == 'view' || formDataDetail?.purchase?.requestStatusId == StatusApplicationFormEnum.Complete}
-                                        className={`border w-full cursor-pointer rounded-[5px] ${mode == 'view' || formDataDetail?.purchase?.requestStatusId == StatusApplicationFormEnum.Complete ? 'bg-gray-100' : ''}`}
+                                        className={`border border-gray-300 w-full cursor-pointer rounded-[5px] ${mode == 'view' || formDataDetail?.purchase?.requestStatusId == StatusApplicationFormEnum.Complete ? 'bg-gray-100' : ''}`}
                                         style={{ padding: '6.7px' }}
                                     >
                                         {requestStatus?.map((item: any, idx: number) => (
@@ -489,7 +489,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
 
                                 return (
                                     <div key={item.id} className="bg-white mb-1">
-                                        <h2 className="font-bold text-xl text-red-600 dark:text-white mb-1 block xl:hidden">
+                                        <h2 className="font-bold text-xl text-red-600  mb-1 block xl:hidden">
                                             {`#` + (index + 1)}
                                         </h2>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap gap-3 items-end">
@@ -499,7 +499,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
                                                     disabled
                                                     {...control.register(`purchaseDetails.${index}.nameCategory`)}
                                                     placeholder={t("create.name_category")}
-                                                    className={`p-2 text-sm border rounded w-full bg-gray-100  ${errors?.nameCategory ? 'border-red-500 bg-red-50' : ''}`}
+                                                    className={`p-2 border-gray-300 text-sm border rounded w-full bg-gray-100  ${errors?.nameCategory ? 'border-red-500 bg-red-50' : ''}`}
                                                 />
                                             </div>
 
@@ -511,7 +511,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
                                                     disabled
                                                     {...control.register(`purchaseDetails.${index}.description`)}
                                                     placeholder={t("create.description")}
-                                                    className={`p-2 text-sm border rounded w-full bg-gray-100`}
+                                                    className={`p-2 text-sm border-gray-300 border rounded w-full bg-gray-100`}
                                                 />
                                             </div>
 
@@ -536,7 +536,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
                                                     disabled
                                                     {...control.register(`purchaseDetails.${index}.unitMeasurement`)}
                                                     placeholder="pcs, ea,.."
-                                                    className={`p-2 text-sm border rounded w-full bg-gray-100 ${errors?.unitMeasurement ? 'border-red-500 bg-red-50' : ''}`}
+                                                    className={`p-2 text-sm border-gray-300 border rounded w-full bg-gray-100 ${errors?.unitMeasurement ? 'border-red-500 bg-red-50' : ''}`}
                                                 />
                                             </div>
 
@@ -601,7 +601,7 @@ const ViewApprovalFormPurchase = ({id, mode}: ViewApprovalProps) => {
                                                         disabled
                                                         {...control.register(`purchaseDetails.${index}.note`)}
                                                         placeholder={t("create.note")}
-                                                        className={`p-2 text-sm border rounded w-full bg-gray-100`}
+                                                        className={`p-2 text-sm border border-gray-300 rounded w-full bg-gray-100`}
                                                     />
                                                 </div>
                                             </div>

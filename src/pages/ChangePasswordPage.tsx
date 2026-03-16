@@ -88,14 +88,14 @@ export default function ChangePasswordPage() {
     };
 
     return <>
-        <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white change-password-page dark:bg-[#454545]">
+        <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white change-password-page">
             <h2 className="font-bold text-2xl mb-3">{t('change_password_page.title')}</h2>
             <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm" style={{ margin: 'initial'}}>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {
                         !hasEmail && (
                             <div>
-                                <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
+                                <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
                                     Email <DotRequireComponent/>
                                 </label>
                                 <div className="mt-2 relative">
@@ -116,7 +116,7 @@ export default function ChangePasswordPage() {
                     }
                     
                     <div className="mb-5">
-                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
+                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
                             {t('change_password_page.new_password')} <DotRequireComponent/>
                         </label>
                         <div className="mt-2 relative">
@@ -142,7 +142,7 @@ export default function ChangePasswordPage() {
         
                     <div className="mb-3">
                         <div className="flex items-center justify-between">
-                            <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:text-white">
+                            <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
                                 {t('change_password_page.confirm_password')} <DotRequireComponent/>
                             </label>
                         </div>

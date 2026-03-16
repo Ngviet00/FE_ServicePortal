@@ -3,14 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
 import PaginationControl from "@/components/PaginationControl/PaginationControl"
@@ -73,7 +65,7 @@ export default function ListTimeKeeping () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     { lang == 'vi' ? 'Danh sách BCC đã đăng ký' : 'List timesheet register'}
                 </h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                     <Link to="/management-time-keeping">
                         {lang == 'vi' ? 'Bảng chấm công' : 'Timesheet'}
                     </Link>
@@ -83,84 +75,88 @@ export default function ListTimeKeeping () {
             <div className="mb-5 pb-3">
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{ lang == 'vi' ? 'Mã nhân viên' : 'Usercode' }</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{ lang == 'vi' ? 'Họ tên' : 'Username' }</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Năm tháng' : 'Year month' }</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Bộ phận' : 'Department' }</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Thời gian tạo' : 'Created at' }</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{ lang == 'vi' ? 'Trạng thái' : 'Status' }</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{lang == 'vi' ? 'Hành động' : 'Action'} </TableHead>
-                                </TableRow>
-                            </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 3 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: 8 }).map((_, i) => (
-                                            <TableCell key={i} className="border">
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
+                        <table className="min-w-full text-sm border border-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
+                                    <th className="border-gray-300 w-[120px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Mã đơn' : 'Code'}</th>
+                                    <th className="border-gray-300 w-[110px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Mã NV' : 'Usercode'}</th>
+                                    <th className="border-gray-300 w-[160px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Họ tên' : 'Username'}</th>
+                                    <th className="border-gray-300 w-[120px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Năm tháng' : 'Year month'}</th>
+                                    <th className="border-gray-300 w-[150px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Bộ phận' : 'Department'}</th>
+                                    <th className="border-gray-300 w-[160px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Thời gian tạo' : 'Created at'}</th>
+                                    <th className="border-gray-300 w-[130px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Trạng thái' : 'Status'}</th>
+                                    <th className="border-gray-300 w-[100px] px-3 py-2 border text-center font-semibold">{lang == 'vi' ? 'Hành động' : 'Action'}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            {Array.from({ length: 8 }).map((_, i) => (
+                                                <td key={i} className="border-gray-300 px-3 py-2 border text-center">
+                                                    <div className="flex justify-center">
+                                                        <Skeleton className="h-4 w-[80px] bg-gray-300" />
+                                                    </div>
+                                                </td>
+                                            ))}
+                                        </tr>
                                     ))
                                 ) : isError || listTimeKeepings.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={8} className="text-red-700 border text-center font-medium dark:text-white">
-                                            { error?.message ?? tCommon('no_results') }
-                                        </TableCell>
-                                    </TableRow>
+                                    <tr>
+                                        <td colSpan={8} className="px-4 py-4 text-center font-bold text-red-700 border border-gray-300">
+                                            {error?.message ?? tCommon('no_results')}
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    listTimeKeepings.map((item: any) => {
-                                        return (
-                                            <TableRow key={item.id}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">{item?.applicationForm?.code}</Link>
-                                                </TableCell>
-                                                <TableCell className="text-center border">{item?.applicationForm?.userCodeCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{item?.applicationForm?.userNameCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{item?.yearMonth}</TableCell>
-                                                <TableCell className="text-center border">{item?.departmentName}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(item?.createdAt ?? "", 'yyyy-MM-dd HH:mm:ss')}</TableCell>
-                                                <TableCell className="text-center border">
-                                                    <StatusLeaveRequest 
-                                                        status={item?.applicationForm?.requestStatusId == 1 ? 'Pending' : item?.applicationForm?.requestStatusId == 3 ? 'Completed' : item?.applicationForm?.requestStatusId == 5 ? 'Reject' : 'In Process'}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className="text-center border">
-                                                    {
-                                                        item?.applicationForm?.requestStatusId == 1 ? <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId ?? "")} /> :  <span>--</span> 
-                                                    }
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    })
+                                    listTimeKeepings.map((item: any) => (
+                                        <tr key={item.id} className="hover:bg-gray-50 text-black">
+                                            <td className="border-gray-300 px-3 py-2 border text-center font-medium">
+                                                <Link to={`/view/${item?.applicationForm?.code}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-600 underline">
+                                                    {item?.applicationForm?.code}
+                                                </Link>
+                                            </td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">{item?.applicationForm?.userCodeCreatedForm}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">{item?.applicationForm?.userNameCreatedForm}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">{item?.yearMonth}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">{item?.departmentName}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center whitespace-nowrap">{formatDate(item?.createdAt ?? "", 'yyyy-MM-dd HH:mm:ss')}</td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">
+                                                <StatusLeaveRequest 
+                                                    status={item?.applicationForm?.requestStatusId == 1 ? 'Pending' : item?.applicationForm?.requestStatusId == 3 ? 'Completed' : item?.applicationForm?.requestStatusId == 5 ? 'Reject' : 'In Process'}
+                                                />
+                                            </td>
+                                            <td className="border-gray-300 px-3 py-2 border text-center">
+                                                <div className="flex justify-center">
+                                                    {item?.applicationForm?.requestStatusId == 1 ? (
+                                                        <ButtonDeleteComponent id={item?.applicationFormId} onDelete={() => handleDelete(item?.applicationFormId ?? "")} />
+                                                    ) : (
+                                                        <span className="text-gray-400">--</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
-                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 6 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                 </div>
                             ))
                         ) : isError || listTimeKeepings.length === 0 ? (
-                            <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">
+                            <div className="p-2 text-red-700 border text-center font-medium  mt-5">
                                 {error?.message ?? tCommon('no_results')}
                             </div>
                         ) : (
                             listTimeKeepings.map((item: any) => (
-                                <div key={item.id} className="border rounded-xl p-4 shadow bg-white dark:bg-gray-800 space-y-2">
+                                <div key={item.id} className="border rounded-xl p-4 shadow bg-white  space-y-2">
                                     <div>
                                         <strong>{lang === 'vi' ? 'Mã đơn' : 'Code'}:</strong>{' '}
                                         <Link

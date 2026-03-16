@@ -298,7 +298,7 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                                 {...register("otherTitle")}
                                 disabled
                                 placeholder={t('internal_memo_hr.title_other')}
-                                className={`dark:bg-[#454545] w-full p-2 border-gray-300 text-sm border rounded bg-gray-50`}
+                                className={` w-full p-2 border-gray-300 text-sm border rounded bg-gray-50`}
                             />
                         </div>
                     }
@@ -315,7 +315,7 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                         {...register('save')}
                         disabled
                         placeholder={t('internal_memo_hr.save')}
-                        className={`dark:bg-[#454545] w-full p-2 text-sm border rounded bg-gray-50`}
+                        className={` w-full p-2 text-sm border rounded bg-gray-50 border-gray-300`}
                     />
                 </div>
                 <div className="mt-1.5">
@@ -324,7 +324,7 @@ export default function ViewApprovalInternalMemoHR({id, mode}: ViewApprovalProps
                         {...register('note')}
                         disabled
                         placeholder={t('internal_memo_hr.note')}
-                        className={`w-full p-2 border rounded bg-gray-50`}
+                        className={`w-full p-2 border rounded bg-gray-50 border-gray-300`}
                     />
                 </div>
                 {detechFormType === 'register_door' && (

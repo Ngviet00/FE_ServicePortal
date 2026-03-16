@@ -89,7 +89,7 @@ export default function CreateRoleComponent({ itCategory, onAction }: Props) {
                 }
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
+            <DialogContent className="sm:max-w-[425px] bg-white" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle>{itCategory?.id ? t('it_category_page.update') : t('it_category_page.create')}</DialogTitle>
                 </DialogHeader>
@@ -103,7 +103,7 @@ export default function CreateRoleComponent({ itCategory, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="name">{t('it_category_page.name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="..." {...field} />
+                                        <Input id="name" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -117,7 +117,7 @@ export default function CreateRoleComponent({ itCategory, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="code">{t('it_category_page.code')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder="..." {...field} />
+                                        <Input id="code" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -125,7 +125,7 @@ export default function CreateRoleComponent({ itCategory, onAction }: Props) {
                         />
                         
                         <div className="flex justify-end">
-                            <Button type="submit" className="hover:cursor-pointer">
+                            <Button type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white">
                                 {t('it_category_page.submit')}
                             </Button>
                         </div>

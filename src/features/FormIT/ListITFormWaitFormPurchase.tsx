@@ -68,11 +68,11 @@ export default function ListITFormWaitFormPurchase() {
                 <table className="min-w-full text-sm border border-gray-200">
                     <thead className="bg-gray-100">
                         <tr>
-                            <th className="px-4 py-2 border">{t("pending_approval.code")}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.user_request")}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.created_at")}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.status")}</th>
-                            <th className="px-4 py-2 border text-center">{t("pending_approval.action")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.code")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.user_request")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.created_at")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.status")}</th>
+                            <th className="px-4 py-2 border border-gray-300 text-center">{t("pending_approval.action")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,19 +97,19 @@ export default function ListITFormWaitFormPurchase() {
                         ) : (
                             ListWaitApprovals.map((item: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-gray-50">
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="border-gray-300 px-4 py-2 border text-center">
                                         <Link to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-700 underline">
                                             {item?.code}
                                         </Link>
                                     </td>
-                                    <td className="px-4 py-2 border text-center">{item?.userNameCreatedForm}</td>
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="border-gray-300 px-4 py-2 border text-center">{item?.userNameCreatedForm}</td>
+                                    <td className="border-gray-300 px-4 py-2 border text-center">
                                         {item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : "--"}
                                     </td>
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="border-gray-300 px-4 py-2 border text-center">
                                         <StatusLeaveRequest status={item?.requestStatusId} />
                                     </td>
-                                    <td className="px-4 py-2 border text-center space-x-1">
+                                    <td className="border-gray-300 px-4 py-2 border text-center space-x-1">
                                         <Link
                                             to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"

@@ -71,7 +71,7 @@ const MonthYearFlatPickr: React.FC<MonthPickerProps> = ({
             disabled={disabled}
             readOnly
             placeholder={placeholder}
-            className={`border rounded px-3 py-1.5 text-sm w-[160px]
+            className={`border border-gray-300 rounded px-3 py-1.5 text-sm w-[160px]
                 ${disabled ? 'cursor-not-allowed bg-gray-100' : ''}
                 ${className || ''}
             `}

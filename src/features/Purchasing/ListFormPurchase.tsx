@@ -60,7 +60,7 @@ export default function ListFormPurchase () {
         <div className="p-4 pl-1 pt-0 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('list.title')}</h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                     <Link to="/purchase/create">{t('list.btn_create')}</Link>
                 </Button>
             </div>
@@ -71,12 +71,12 @@ export default function ListFormPurchase () {
                         <table className="min-w-full text-sm border border-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-4 py-2 border w-[70px] text-center">{t('list.code')}</th>
-                                    <th className="px-4 py-2 border w-[120px] text-center">{t('list.user_requestor')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.department')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.created_at')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.status')}</th>
-                                    <th className="px-4 py-2 border w-[100px] text-center">{t('list.action')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[70px] text-center">{t('list.code')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[120px] text-center">{t('list.user_requestor')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[100px] text-center">{t('list.department')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[100px] text-center">{t('list.created_at')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[100px] text-center">{t('list.status')}</th>
+                                    <th className="px-4 py-2 border border-gray-300 w-[100px] text-center">{t('list.action')}</th>
                                 </tr>
                             </thead>
                         <tbody>
@@ -104,16 +104,16 @@ export default function ListFormPurchase () {
 
                                         return (
                                             <tr key={item?.id}>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border border-gray-300 text-center">
                                                     <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
                                                 </td>
-                                                <td className="px-4 py-2 border text-center">{item?.applicationForm?.userNameCreatedForm ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-center">{item?.orgUnit?.name ?? '--'}</td>
-                                                <td className="px-4 py-2 border text-center">{formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
-                                                <td className="px-4 py-2 border text-center">
+                                                <td className="px-4 py-2 border border-gray-300 text-center">{item?.applicationForm?.userNameCreatedForm ?? '--'}</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-center">{item?.orgUnit?.name ?? '--'}</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-center">{formatDate(item?.createdAt, 'yyyy-MM-dd HH:mm:ss')}</td>
+                                                <td className="px-4 py-2 border border-gray-300 text-center">
                                                     <StatusLeaveRequest status={status}/>
                                                 </td>
-                                                <td className="text-center border font-bold text-red-700">
+                                                <td className="text-center border border-gray-300 font-bold text-red-700">
                                                     {
                                                         status == StatusApplicationFormEnum.Pending ? (
                                                             <>
@@ -136,14 +136,14 @@ export default function ListFormPurchase () {
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                             Array.from({ length: 3 }).map((_, index) => (
-                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 6 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                 </div>
                             ))
                         ) : isError || purchases.length === 0 ? (
-                            <div className="pt-2 pl-4 text-red-700 font-medium dark:text-white">{tCommon('no_results')}</div>
+                            <div className="pt-2 pl-4 text-red-700 font-medium ">{tCommon('no_results')}</div>
                         ) : (
                             purchases.map((item: any) => {
                                 let status = item?.applicationForm?.requestStatusId;
@@ -152,7 +152,7 @@ export default function ListFormPurchase () {
                                     status = item?.requestStatusId
                                 }
                                 return (
-                                    <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                    <div key={item.id} className="border rounded p-4 shadow bg-white  mt-5">
                                         <div className="mb-1"><strong>{t('list.code')}: </strong> 
                                             <Link to={`/view/${item?.applicationForm?.code ?? '1'}?requestType=${item?.applicationForm?.requestTypeId}`} className="text-blue-700 underline">{item?.applicationForm?.code ?? '--'}</Link>
                                         </div>

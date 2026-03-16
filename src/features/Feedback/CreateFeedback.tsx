@@ -145,7 +145,7 @@ export default function CreateFeedback () {
                             {...register('content')}
                             placeholder={lang == 'vi' ? 'Nội dung' : 'Feedback content'}
                             rows={7}
-                            className={`mt-1 w-full p-2 rounded-md text-sm border ${errors?.content ? 'border border-red-300 bg-red-100' : ''}`}
+                            className={`mt-1 w-full p-2 rounded-md text-sm border ${errors?.content ? 'border border-red-300 bg-red-100' : 'border-gray-300'}`}
                         ></textarea>
                     </div>
                     <div className="my-3">

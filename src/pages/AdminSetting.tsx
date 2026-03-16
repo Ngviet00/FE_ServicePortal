@@ -5,8 +5,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { ShowToast } from "@/lib";
+import { useTranslation } from "react-i18next";
 
 export default function AdminSetting() {
+    const lang = useTranslation().i18n.language.split('-')[0]
     const [configs, setConfigs] = useState<SystemConfig[]>([]);
     const queryClient = useQueryClient();
 
@@ -37,7 +39,7 @@ export default function AdminSetting() {
                     (c, i) => c.configKey === newValue && i !== index
                 );
                 if (isDuplicate) {
-                    ShowToast("Key đã tồn tại", "error");
+                    ShowToast(lang == 'vi' ? 'Key đã tồn tại' : 'Key is exists', "error");
                     return prev;
                 }
                 updated[index] = { ...current, configKey: newValue };
@@ -60,7 +62,7 @@ export default function AdminSetting() {
 
     const handleSave = async (config: SystemConfig) => {
         if (!config.configKey || !config.configValue) {
-            ShowToast("Không được để trống", "error");
+            ShowToast(lang == 'vi' ? 'Không được để trống' : 'Can not empty', "error");
             return;
         }
 
@@ -70,8 +72,8 @@ export default function AdminSetting() {
 
     return (
         <>
-            <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white dark:bg-[#454545]">
-                <h2 className="font-bold text-2xl mb-3">Cài đặt dữ liệu</h2>
+            <div className="flex min-h-full flex-1 flex-col justify-start pb-12 lg:px-1 bg-white">
+                <h2 className="font-bold text-2xl mb-3">{lang == 'vi' ? 'Cài đặt' : 'Settong'}</h2>
 
                 <div className="mb-4">
                     <Button
@@ -81,9 +83,9 @@ export default function AdminSetting() {
                                 { configKey: "", configValue: "" } as SystemConfig,
                             ]);
                         }}
-                        className="bg-green-600 text-white cursor-pointer"
+                        className="bg-green-600 hover:bg-green-700 text-white cursor-pointer"
                     >
-                        + Thêm cài đặt mới
+                        + {lang == 'vi' ? 'Thêm cài đặt mới' : 'Add new setting'} 
                     </Button>
                 </div>
 
@@ -91,9 +93,9 @@ export default function AdminSetting() {
                     {configs.map((setting, index) => (
                         <div key={index} className="flex items-center space-x-3">
                             <Input
-                                className="w-64"
+                                className="w-64 border border-gray-300"
                                 type="text"
-                                placeholder="Nhập key..."
+                                placeholder={lang == 'vi'? 'Nhập' : 'Input'}
                                 value={setting.configKey}
                                 onChange={(e) =>
                                     handleChange(index, "key", e.target.value)
@@ -101,32 +103,24 @@ export default function AdminSetting() {
                             />
 
                             <Input
-                                className="w-100"
+                                className="w-100 border-gray-300"
                                 type="text"
-                                placeholder="Nhập value..."
+                                placeholder={lang == 'vi'? 'Nhập' : 'Input'}
                                 value={setting.configValue ?? ""}
                                 onChange={(e) =>
                                     handleChange(index, "value", e.target.value)
                                 }
                             />
 
-                            <Button
-                                disabled={createOrUpdateConfig.isPending}
-                                onClick={() => handleSave(setting)}
-                                className="cursor-pointer"
-                            >
-                                {createOrUpdateConfig.isPending ? (
-                                    <Spinner className="text-white" size="small" />
-                                ) : (
-                                    "Lưu"
-                                )}
+                            <Button disabled={createOrUpdateConfig.isPending} onClick={() => handleSave(setting)} className="cursor-pointer bg-black text-white hover:bg-black">
+                                {createOrUpdateConfig.isPending ? <Spinner className="text-white" size="small"/> : lang == 'vi' ? 'Lưu' : 'Save'}
                             </Button>
 
                             <Button
-                                className="bg-red-600 text-white cursor-pointer"
+                                className="bg-red-600 hover:bg-red-700 text-white cursor-pointer"
                                 onClick={() => handleDelete(setting, index)}
                             >
-                                Xóa
+                                { lang == 'vi' ? 'Xóa' : 'Delete'}
                             </Button>
                         </div>
                     ))}

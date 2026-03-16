@@ -3,14 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
 import { getErrorMessage, ShowToast, StatusApplicationFormEnum } from "@/lib"
@@ -96,7 +88,7 @@ export default function ListOverTimeRegister () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {t('overtime.list_register.title')}
                 </h3>
-                <Button asChild className="w-full md:w-auto">
+                <Button asChild className="w-full md:w-auto bg-black hover:bg-black text-white">
                     <Link to="/overtime/create">
                         {t('overtime.create.title_create')}
                     </Link>
@@ -106,92 +98,95 @@ export default function ListOverTimeRegister () {
             <div className="mb-5 pb-3">
                 <div className="mt-2">
                     <div className="overflow-x-auto max-h-[500px] hidden md:block">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-[#f3f4f6] border">
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list_register.code')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list_register.RequestTypeEnum')}</TableHead>
-                                    <TableHead className="w-[100px] text-center border">{t('overtime.list_register.created_by')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list_register.created_at')}</TableHead>
-                                    <TableHead className="w-[130px] text-center border">{t('overtime.list_register.status')}</TableHead>
-                                    <TableHead className="w-[150px] text-center border">{t('overtime.list_register.action')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                        <TableBody>
-                            {isPending ? (
-                                Array.from({ length: 3 }).map((_, index) => (
-                                    <TableRow key={index}>
-                                        {Array.from({ length: 6 }).map((_, i) => (
-                                            <TableCell key={i} className="border">
-                                                <div className="flex justify-center">
-                                                    <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                </div>
-                                            </TableCell>
-                                        ))}
-                                        </TableRow>
+                        <table className="min-w-full text-sm border border-gray-200">
+                            <thead className="bg-gray-100">
+                                <tr className="text-black">
+                                    <th className="border-gray-300 w-[100px] px-4 py-2 border text-center font-semibold">{t('overtime.list_register.code')}</th>
+                                    <th className="border-gray-300 w-[120px] px-4 py-2 border text-center font-semibold">{t('overtime.list_register.RequestTypeEnum')}</th>
+                                    <th className="border-gray-300 w-[120px] px-4 py-2 border text-center font-semibold">{t('overtime.list_register.created_by')}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center font-semibold">{t('overtime.list_register.created_at')}</th>
+                                    <th className="border-gray-300 w-[130px] px-4 py-2 border text-center font-semibold">{t('overtime.list_register.status')}</th>
+                                    <th className="border-gray-300 w-[150px] px-4 py-2 border text-center font-semibold">{t('overtime.list_register.action')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isPending ? (
+                                    Array.from({ length: 3 }).map((_, index) => (
+                                        <tr key={index}>
+                                            {Array.from({ length: 6 }).map((_, i) => (
+                                                <td key={i} className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                    <div className="flex justify-center">
+                                                        <Skeleton className="h-4 w-[80px] bg-gray-300" />
+                                                    </div>
+                                                </td>
+                                            ))}
+                                        </tr>
                                     ))
                                 ) : isError || overTimeRegisters.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-red-700 border text-center font-medium dark:text-white">
-                                            { error?.message ?? tCommon('no_results') } 
-                                        </TableCell>
-                                    </TableRow>
+                                    <tr>
+                                        <td colSpan={6} className="px-4 py-4 text-center font-bold text-red-700 border border-gray-300">
+                                            {error?.message ?? tCommon('no_results')}
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    overTimeRegisters.map((item: any) => {
-                                        return (
-                                            <TableRow key={item.id}>
-                                                <TableCell className="text-center border">
-                                                    <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">{item?.code}</Link>
-                                                </TableCell>
-                                                <TableCell className="text-center border">{lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}</TableCell>
-                                                <TableCell className="text-center border">{item?.userNameCreatedForm}</TableCell>
-                                                <TableCell className="text-center border">{formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}</TableCell>
-                                                <TableCell className="text-center border">
-                                                    <StatusLeaveRequest 
-                                                        status={item.requestStatus?.id == StatusApplicationFormEnum.Pending 
-                                                            ? 'Pending' 
-                                                            : item?.requestStatus?.id == StatusApplicationFormEnum.Complete ? 'Completed' 
-                                                            : item?.requestStatus?.id == StatusApplicationFormEnum.Reject ? 'Reject' : 'In Process'}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className="text-center border">
-                                                    {
-                                                        item?.requestStatus?.id == StatusApplicationFormEnum.Pending ? (
-                                                            <>
-                                                                <Link to={`/overtime/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[2px] rounded-[3px] text-sm">
-                                                                    {lang == 'vi' ? 'Sửa' : 'Edit'}
-                                                                </Link>
-                                                                <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
-                                                            </>
-                                                        ) : (
-                                                            <span>--</span>
-                                                        )
-                                                    }
-                                                </TableCell>
-                                                
-                                            </TableRow>
-                                        )
-                                    })
+                                    overTimeRegisters.map((item: any) => (
+                                        <tr key={item.id} className="hover:bg-gray-50 text-black">
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center font-medium">
+                                                <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">
+                                                    {item?.code}
+                                                </Link>
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {lang == 'vi' ? item?.requestType?.name : item?.requestType?.nameE}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {item?.userNameCreatedForm}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                <StatusLeaveRequest 
+                                                    status={item.requestStatus?.id == StatusApplicationFormEnum.Pending 
+                                                        ? 'Pending' 
+                                                        : item?.requestStatus?.id == StatusApplicationFormEnum.Complete ? 'Completed' 
+                                                        : item?.requestStatus?.id == StatusApplicationFormEnum.Reject ? 'Reject' : 'In Process'}
+                                                />
+                                            </td>
+                                            <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
+                                                {item?.requestStatus?.id == StatusApplicationFormEnum.Pending ? (
+                                                    <div className="flex justify-center space-x-2">
+                                                        <Link to={`/overtime/edit/${item?.code}`} className="bg-black text-white px-[10px] py-[4px] rounded-[3px] text-xs">
+                                                            {lang == 'vi' ? 'Sửa' : 'Edit'}
+                                                        </Link>
+                                                        <ButtonDeleteComponent id={item?.code} onDelete={() => handleDelete(item?.code ?? "")} />
+                                                    </div>
+                                                ) : (
+                                                    <span>--</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div className="block md:hidden space-y-4">
                         {isPending ? (
                                 Array.from({ length: 3 }).map((_, index) => (
-                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white dark:bg-gray-800">
+                                    <div key={index} className="border rounded p-4 space-y-2 shadow bg-white ">
                                     {Array.from({ length: 6 }).map((_, i) => (
                                         <div key={i} className="h-4 w-full bg-gray-300 rounded animate-pulse" />
                                     ))}
                                     </div>
                                 ))
                             ) : isError || overTimeRegisters.length === 0 ? (
-                                <div className="p-2 text-red-700 border text-center font-medium dark:text-white mt-5">{ error?.message ?? tCommon('no_results') } </div>
+                                <div className="p-2 text-red-700 border text-center font-medium  mt-5">{ error?.message ?? tCommon('no_results') } </div>
                             ) : (
                                 overTimeRegisters.map((item: GetMyLeaveRequestRegistered) => {
                                     return (
-                                        <div key={item.id} className="border rounded p-4 shadow bg-white dark:bg-gray-800 mt-5">
+                                        <div key={item.id} className="border rounded p-4 shadow bg-white  mt-5">
                                             <div className="mb-1">
                                                 <strong>{lang == 'vi' ? 'Mã đơn' : 'Code'}: </strong>
                                                 <Link to={`/view/${item?.code}?requestType=${item?.requestType?.id}`} className="text-blue-600 underline">

@@ -193,6 +193,7 @@ const MngShift = () => {
                             <div className="">
                                 <MonthYearFlatPickr
                                     value={month}
+                                    className='border border-gray-300'
                                     onChange={setMonth}
                                 />
                             </div>
@@ -208,7 +209,7 @@ const MngShift = () => {
                                     setSelectedDepartment(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="border py-1.5 px-2 rounded text-sm focus:outline-none min-w-[160px] hover:cursor-pointer"
+                                className="border py-1.5 px-2 rounded text-sm focus:outline-none min-w-[160px] hover:cursor-pointer border-gray-300"
                             >
                                 <option value="">-- {lang == 'vi' ? 'Tất cả' : 'All'} --</option>
                                 {departments.map((item: {id: number, name: string}) => (
@@ -224,7 +225,7 @@ const MngShift = () => {
                             <input 
                                 type="text" 
                                 placeholder={lang == 'vi' ? 'Tìm kiếm theo mã,...' : 'Search by usercode,...'}
-                                className="pl-3 py-1.5 border rounded text-[14px] w-60 focus:outline-none"
+                                className="pl-3 py-1.5 border rounded text-[14px] w-60 focus:outline-none border-gray-300"
                                 value={searchTerm}
                                 onChange={(e) => {setSearchTerm(e.target.value); setCurrentPage(1);}}
                             />

@@ -164,7 +164,7 @@ export default function AssignedTasks() {
 					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border text-center w-[40px]">
+								<th className="px-4 py-2 border text-center w-[40px] border-gray-300">
 									<input
 										className="scale-[1.3] hover:cursor-pointer accent-black"
 										type="checkbox"
@@ -172,12 +172,12 @@ export default function AssignedTasks() {
 										onChange={toggleSelectAll}
 									/>
 								</th>
-								<th className="px-4 py-2 border">{t("pending_approval.code")}</th>
-								<th className="px-4 py-2 border">{t("pending_approval.RequestTypeEnum")}</th>
-								<th className="px-4 py-2 border">{t("pending_approval.user_request")}</th>
-								<th className="px-4 py-2 border">{t("pending_approval.created_at")}</th>
-								<th className="px-4 py-2 border">{t("pending_approval.status")}</th>
-								<th className="px-4 py-2 border text-center">{t("pending_approval.action")}</th>
+								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.code")}</th>
+								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.RequestTypeEnum")}</th>
+								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.user_request")}</th>
+								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.created_at")}</th>
+								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.status")}</th>
+								<th className="px-4 py-2 border border-gray-300 text-center">{t("pending_approval.action")}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -209,7 +209,7 @@ export default function AssignedTasks() {
 								ListAssignedTask.map((item: any, idx: number) => {
 									return (
 										<tr key={idx} className="hover:bg-gray-50">
-											<td className="px-4 py-2 border text-center">
+											<td className="px-4 py-2 border text-center border-gray-300">
 												<input
 													className="scale-[1.3] hover:cursor-pointer accent-black"
 													type="checkbox"
@@ -217,7 +217,7 @@ export default function AssignedTasks() {
 													onChange={() => toggleSelect(item.code)}
 												/>
 											</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">
+											<td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
 												<Link
 													to={`/view-approval/${item.code}?requestType=${item.requestTypeId}`}
 													className="text-blue-700 underline"
@@ -225,21 +225,21 @@ export default function AssignedTasks() {
 													{item?.code}
 												</Link>
 											</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">
+											<td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
 												{lang == "vi"
 													? item?.requestTypeName
 													: item?.requestTypeNameE}
 											</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">
+											<td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
 												{item?.userNameCreatedForm}
 											</td>
-											<td className="px-4 py-2 border whitespace-nowrap text-center">
+											<td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
 												{item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : "--"}
 											</td>
-											<td className="px-4 py-2 border text-center">
+											<td className="px-4 py-2 border text-center border-gray-300">
 												<StatusLeaveRequest status={StatusApplicationFormEnum.Assigned} />
 											</td>
-											<td className="px-4 py-2 border text-center space-x-1">
+											<td className="px-4 py-2 border text-center space-x-1 border-gray-300">
 												<Link
 													to={`/view-approval/${item.code}?requestType=${item.requestTypeId}`}
 													className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"

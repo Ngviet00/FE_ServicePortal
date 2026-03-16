@@ -428,7 +428,7 @@ export default function LeaveRequestFormForOthers() {
                                         checked={checkReceiveEmail}
                                         onCheckedChange={(checked) => handleCheckChange(!!checked)}
                                         id="receive-mail"
-                                        className="w-5 h-5 md:w-6 md:h-6 hover:cursor-pointer"
+                                        className="w-5 h-5 md:w-6 md:h-6 hover:cursor-pointer border border-gray-700"
                                     />
                                     <label
                                         htmlFor="receive-mail"
@@ -442,8 +442,8 @@ export default function LeaveRequestFormForOthers() {
                     </div>
                 </div>
                 <div>
-                    <Button onClick={() => navigate("/leave")} className="w-full md:w-auto hover:cursor-pointer mr-1 mb-1">{ lang == 'vi' ? 'Đơn nghỉ phép của tôi' : 'My Leave Requests'}</Button>
-                    <Button onClick={() => navigate("/leave/leave-registered")} className="w-full md:w-auto hover:cursor-pointer"> { lang == 'vi' ? 'Danh sách đơn đã đăng ký' : 'Registered Leave Requests'}</Button>
+                    <Button onClick={() => navigate("/leave")} className="w-full md:w-auto hover:cursor-pointer mr-1 mb-1 bg-black hover:bg-black text-white">{ lang == 'vi' ? 'Đơn nghỉ phép của tôi' : 'My Leave Requests'}</Button>
+                    <Button onClick={() => navigate("/leave/leave-registered")} className="w-full md:w-auto hover:cursor-pointer bg-black hover:bg-black text-white"> { lang == 'vi' ? 'Danh sách đơn đã đăng ký' : 'Registered Leave Requests'}</Button>
                 </div>
             </div>
             {
@@ -573,7 +573,7 @@ export default function LeaveRequestFormForOthers() {
                         return (
                             <div key={index} className="bg-white mb-3">
                                 <div className="mb-1 grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap gap-1 items-center">
-                                    <h2 className="font-bold text-xl text-red-600 dark:text-white mb-1 block">
+                                    <h2 className="font-bold text-xl text-red-600  mb-1 block">
                                         {`#` + (index + 1)}
                                     </h2>
                                     <div className="flex flex-col w-full sm:w-full lg:max-w-[105px]">
@@ -604,7 +604,7 @@ export default function LeaveRequestFormForOthers() {
                                             {...control.register(`userLeaveRequest.${index}.userName`)}
                                             disabled
                                             placeholder={t("name")}
-                                            className={`dark:bg-[#454545] p-2 text-sm border rounded border-gray-300 bg-gray-50 w-full ${userNameErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                            className={` p-2 text-sm border rounded border-gray-300 bg-gray-50 w-full ${userNameErr ? 'border border-red-300 bg-red-100' : ''}`}
                                         />
                                     </div>
 
@@ -616,7 +616,7 @@ export default function LeaveRequestFormForOthers() {
                                             {...control.register(`userLeaveRequest.${index}.department`)}
                                             disabled
                                             placeholder={t("department")}
-                                            className={`dark:bg-[#454545] p-2 text-sm border rounded border-gray-300 bg-gray-50 w-full ${departmentErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                            className={` p-2 text-sm border rounded border-gray-300 bg-gray-50 w-full ${departmentErr ? 'border border-red-300 bg-red-100' : ''}`}
                                         />
                                     </div>
 
@@ -627,7 +627,7 @@ export default function LeaveRequestFormForOthers() {
                                         <input
                                             {...control.register(`userLeaveRequest.${index}.position`)}
                                             placeholder={t("position")}
-                                            className={`p-2 text-sm border rounded w-full ${positionErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                            className={`p-2 text-sm border rounded w-full ${positionErr ? 'border border-red-300 bg-red-100' : ''} border-gray-300`}
                                         />
                                     </div>
 
@@ -649,7 +649,7 @@ export default function LeaveRequestFormForOthers() {
                                                 setValue(`userLeaveRequest.${index}.fromDate`, `${baseDate} 08:00`);
                                                 setValue(`userLeaveRequest.${index}.toDate`, `${baseDate} 17:00`);
                                             }}
-                                            className={`p-2 text-sm border rounded hover:cursor-pointer w-full ${errors.userLeaveRequest?.[index]?.typeLeave ? 'border-red-300 bg-red-100' : ''}`}
+                                            className={`p-2 text-sm border rounded hover:cursor-pointer w-full border-gray-300 ${errors.userLeaveRequest?.[index]?.typeLeave ? 'border-red-300 bg-red-100' : ''}`}
                                         >
                                             <option value="">{t("choose")}</option>
                                             {typeLeaves?.map((item) => (
@@ -683,7 +683,7 @@ export default function LeaveRequestFormForOthers() {
                                         </label>
                                         <select
                                             {...control.register(`userLeaveRequest.${index}.timeLeave`)}
-                                            className={`p-2 text-sm border rounded hover:cursor-pointer w-full ${timeLeaveErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                            className={`p-2 text-sm border rounded hover:cursor-pointer w-full border-gray-300 ${timeLeaveErr ? 'border border-red-300 bg-red-100' : ''}`}
                                         >
                                         <option value="">{t("choose")}</option>
                                             {TIME_LEAVE.map((item) => (
@@ -706,7 +706,7 @@ export default function LeaveRequestFormForOthers() {
                                             onChange={(_selectedDates, dateStr) =>
                                                 setValue(`userLeaveRequest.${index}.fromDate`, dateStr)
                                             }
-                                            className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
+                                            className={` text-sm border rounded border-gray-300 p-2 w-full`}
                                         />
                                     </div>
 
@@ -722,7 +722,7 @@ export default function LeaveRequestFormForOthers() {
                                             onChange={(_selectedDates, dateStr) =>
                                                 setValue(`userLeaveRequest.${index}.toDate`, dateStr)
                                             }
-                                            className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
+                                            className={` text-sm border rounded border-gray-300 p-2 w-full`}
                                         />
                                     </div> */}
 
@@ -741,7 +741,7 @@ export default function LeaveRequestFormForOthers() {
                                                     onChange={(_selectedDates, dateStr) =>
                                                         setValue(`userLeaveRequest.${index}.fromDate`, dateStr)
                                                     }
-                                                    className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
+                                                    className={` text-sm border rounded border-gray-300 p-2 w-full`}
                                                 />
                                             </div>
 
@@ -757,7 +757,7 @@ export default function LeaveRequestFormForOthers() {
                                                     onChange={(_selectedDates, dateStr) =>
                                                         setValue(`userLeaveRequest.${index}.toDate`, dateStr)
                                                     }
-                                                    className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
+                                                    className={` text-sm border rounded border-gray-300 p-2 w-full`}
                                                 />
                                             </div>
                                         </>
@@ -771,7 +771,7 @@ export default function LeaveRequestFormForOthers() {
                                             <input
                                                 {...control.register(`userLeaveRequest.${index}.reason`)}
                                                 placeholder={t("reason")}
-                                                className={`p-2 text-sm border rounded w-full ${reasonErr ? 'border border-red-300 bg-red-100' : ''}`}
+                                                className={`p-2 text-sm border rounded w-full border-gray-300 ${reasonErr ? 'border border-red-300 bg-red-100' : ''}`}
                                             />
                                         </div>
 

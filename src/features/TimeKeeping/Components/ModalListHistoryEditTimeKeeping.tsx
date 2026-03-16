@@ -97,7 +97,7 @@ const ModalListHistoryEditTimeKeeping: React.FC<ModalListHistoryEditTimeKeepingP
                                     ))
                                 ) : isError || listHistories.length == 0 ? (
                                     <TableRow>
-                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center dark:text-white`} colSpan={9}>{error?.message ?? "No results"}</TableCell>
+                                        <TableCell className={`${isError ? "text-red-700" : "text-black"} font-medium text-center  colSpan={9}>{error?.message ?? "No results"}</TableCell>
                                     </TableRow>
                                 )
                                 : 

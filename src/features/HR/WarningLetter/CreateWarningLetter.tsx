@@ -268,10 +268,10 @@ const CreateWarningLetter: React.FC = () => {
             <div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-3">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('warning_letter.create.title')}</h3>
                 <div>
-                    <Button onClick={() => navigate("/warningletter")} className="w-full md:w-auto hover:cursor-pointer mr-2">
+                    <Button onClick={() => navigate("/warningletter")} className="w-full md:w-auto hover:cursor-pointer mr-2 bg-black hover:bg-black text-white">
                         {t('warning_letter.list.my_warning_letter')}
                     </Button>
-                    <Button onClick={() => navigate("/warningletter?type=Registered")} className="w-full md:w-auto hover:cursor-pointer">
+                    <Button onClick={() => navigate("/warningletter?type=Registered")} className="w-full md:w-auto hover:cursor-pointer bg-black hover:bg-black text-white">
                         {t('warning_letter.list.title')}
                     </Button>
                 </div>
@@ -291,7 +291,7 @@ const CreateWarningLetter: React.FC = () => {
                                     onBlur={handleFindUser}
                                     type='text'
                                     placeholder={t('warning_letter.create.usercode')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm ${isEdit ? 'bg-gray-50' : ''} ${errors.userCode ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border border-gray-300 rounded-sm transition duration-150 ease-in-out text-sm ${isEdit ? 'bg-gray-50' : ''} ${errors.userCode ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -304,7 +304,7 @@ const CreateWarningLetter: React.FC = () => {
                                     disabled
                                     type='text'
                                     placeholder={t('warning_letter.create.username')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userName ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border border-gray-300 rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userName ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -316,7 +316,7 @@ const CreateWarningLetter: React.FC = () => {
                                     disabled
                                     type='text'
                                     placeholder={t('warning_letter.create.department')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.department ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border border-gray-300 rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.department ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -328,7 +328,7 @@ const CreateWarningLetter: React.FC = () => {
                                     {...register("position")}
                                     type='text'
                                     placeholder={t('warning_letter.create.position')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm ${isEdit ? 'bg-gray-50' : ''} ${errors.position ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border rounded-sm border-gray-300 transition duration-150 ease-in-out text-sm ${isEdit ? 'bg-gray-50' : ''} ${errors.position ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -340,7 +340,7 @@ const CreateWarningLetter: React.FC = () => {
                                     disabled
                                     type='text'
                                     placeholder={t('warning_letter.create.unit')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.unit ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border rounded-sm border-gray-300 transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.unit ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -355,7 +355,7 @@ const CreateWarningLetter: React.FC = () => {
                                     onChange={(_selectedDates, dateStr) =>
                                         setValue("dateWarningLetter", dateStr, { shouldValidate: true })
                                     }
-                                    className={`dark:bg-[#454545] text-sm border rounded border-gray-300 p-2 w-full`}
+                                    className={` text-sm border rounded border-gray-300 p-2 w-full`}
                                 />
                             </div>
                         </div>
@@ -368,7 +368,7 @@ const CreateWarningLetter: React.FC = () => {
                             id="lyDo"
                             rows={3} 
                             placeholder={t('warning_letter.create.reason')}
-                            className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm ${errors.reason ? 'border-red-500 bg-red-50' : ''}`}
+                            className={`w-full p-2 border rounded-sm transition border-gray-300 duration-150 ease-in-out text-sm ${errors.reason ? 'border-red-500 bg-red-50' : ''}`}
                         ></textarea>
                     </div>
 

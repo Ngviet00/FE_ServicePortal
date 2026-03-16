@@ -28,11 +28,11 @@ export default function MainLayout({ children }: Props) {
             <div className={`overlay fixed inset-0 bg-black z-40 transition-opacity duration-300 ease-in-out 
                 ${isOpen ? "opacity-50 visible" : "opacity-0 invisible"}`} onClick={closeSidebar}></div>
 
-			<div ref={mainRef} className="main dark:bg-[#1b1b1f]">
+			<div ref={mainRef} className="main">
 				<Header/>
                 <div className="wrap-main-layout mt-2 mx-2 min-h-[95%]">
                     <BreadCrumbComponent/>
-                    <div className="main-content mt-2 bg-white dark:bg-[#454545] min-h-[90%]">
+                    <div className="main-content mt-2 bg-white min-h-[90%]">
                         {children}
                     </div>
                 </div>

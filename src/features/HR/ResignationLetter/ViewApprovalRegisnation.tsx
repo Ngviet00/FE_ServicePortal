@@ -258,7 +258,7 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                                     {...register("userCode")}
                                     type='text'
                                     placeholder={t('resignation.create.usercode')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userCode ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm border-gray-300 bg-gray-50 ${errors.userCode ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -271,7 +271,7 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                                     disabled
                                     type='text'
                                     placeholder={t('resignation.create.username')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.userName ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm border-gray-300 bg-gray-50 ${errors.userName ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -283,7 +283,7 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                                     disabled
                                     type='text'
                                     placeholder={t('resignation.create.department')}
-                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm bg-gray-50 ${errors.department ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border rounded-sm transition duration-150 ease-in-out text-sm border-gray-300 bg-gray-50 ${errors.department ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -295,7 +295,7 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                                     type='text'
                                     disabled
                                     placeholder={t('resignation.create.position')}
-                                    className={`w-full p-2 border rounded-sm transition bg-gray-50 duration-150 ease-in-out text-sm  ${errors.position ? 'border-red-500 bg-red-50' : ''}`}
+                                    className={`w-full p-2 border rounded-sm transition bg-gray-50 duration-150 ease-in-out border-gray-300 text-sm  ${errors.position ? 'border-red-500 bg-red-50' : ''}`}
                                 />
                             </div>
                         </div>
@@ -311,7 +311,7 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                                     onChange={(_selectedDates, dateStr) =>
                                         setValue("dateJoinCompany", dateStr)
                                     }
-                                    className={`dark:bg-[#454545] text-sm border rounded bg-gray-50 border-gray-300 p-2 w-full`}
+                                    className={`text-sm border rounded bg-gray-50 border-gray-300 p-2 w-full`}
                                 />
                             </div>
                         </div>
@@ -327,7 +327,7 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                                     onChange={(_selectedDates, dateStr) =>
                                         setValue("lastWorkingDate", dateStr)
                                     }
-                                    className={`dark:bg-[#454545] text-sm border rounded bg-gray-50 border-gray-300 p-2 w-full`}
+                                    className={`text-sm border rounded bg-gray-50 border-gray-300 p-2 w-full`}
                                 />
                             </div>
                         </div>
@@ -387,37 +387,39 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                         </div>
                     </div>
                     <div className='p-4 pt-0 border border-gray-200 rounded-lg shadow-sm bg-white'>
-                        <h2 className="text-xl font-bold border-b border-gray-300 pb-1 my-2">{t('resignation.create.handover')}</h2>
-                        <div className="grid grid-cols-2 gap-x-10">
+                        <h2 className="text-xl font-bold border-b border-gray-300 pb-2 mb-4 text-gray-800">{t('resignation.create.handover')}</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-10">
                             <div className="flex flex-col space-y-3">
                                 <CheckboxItem name="handover_uniform" label={t('resignation.create.uniform')} />
                                 <CheckboxItem name="handover_id_card" label={t('resignation.create.ID_card')} />
                             </div>
                             <div className="flex flex-col space-y-3">
                                 <div className="flex items-start space-x-4">
-                                    <CheckboxItem name="handover_other_checked" label={t('resignation.create.other')} />
-                                    <div className='flex flex-col w-64'>
-                                        <input 
-                                            type="text" 
-                                            {...register("handover.handover_other1")}
-                                            disabled={!handoverOtherChecked} 
-                                            className={`border-b border-dotted border-gray-500 focus:border-solid focus:outline-none mb-1 p-0.5 ${!handoverOtherChecked ? 'bg-gray-100 text-gray-400' : ''}`}
-                                            placeholder="1."
-                                        />
-                                        <input 
-                                            type="text" 
-                                            {...register("handover.handover_other2")}
-                                            disabled={!handoverOtherChecked} 
-                                            className={`border-b border-dotted border-gray-500 focus:border-solid focus:outline-none mb-1 p-0.5 ${!handoverOtherChecked ? 'bg-gray-100 text-gray-400' : ''}`}
-                                            placeholder="2."
-                                        />
-                                        <input 
-                                            type="text" 
-                                            {...register("handover.handover_other3")}
-                                            disabled={!handoverOtherChecked} 
-                                            className={`border-b border-dotted border-gray-500 focus:border-solid focus:outline-none mb-1 p-0.5 ${!handoverOtherChecked ? 'bg-gray-100 text-gray-400' : ''}`}
-                                            placeholder="3."
-                                        />
+                                    <div className='flex flex-col w-full'>
+                                        <CheckboxItem name="handover_other_checked" label={t('resignation.create.other')} />
+                                        <div className='mt-2 pl-6 space-y-2'>
+                                            <input 
+                                                type="text" 
+                                                {...register("handover.handover_other1")}
+                                                disabled={!handoverOtherChecked} 
+                                                className={`w-full border-b border-dotted border-gray-500 focus:border-solid focus:outline-none p-0.5 text-sm ${!handoverOtherChecked ? 'bg-gray-100 text-gray-400' : 'bg-transparent'}`}
+                                                placeholder="1."
+                                            />
+                                            <input 
+                                                type="text" 
+                                                {...register("handover.handover_other2")}
+                                                disabled={!handoverOtherChecked} 
+                                                className={`w-full border-b border-dotted border-gray-500 focus:border-solid focus:outline-none p-0.5 text-sm ${!handoverOtherChecked ? 'bg-gray-100 text-gray-400' : 'bg-transparent'}`}
+                                                placeholder="2."
+                                            />
+                                            <input 
+                                                type="text" 
+                                                {...register("handover.handover_other3")}
+                                                disabled={!handoverOtherChecked} 
+                                                className={`w-full border-b border-dotted border-gray-500 focus:border-solid focus:outline-none p-0.5 text-sm ${!handoverOtherChecked ? 'bg-gray-100 text-gray-400' : 'bg-transparent'}`}
+                                                placeholder="3."
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -83,7 +82,7 @@ export default function PersonalInfo () {
                                         {lang == 'vi' ? 'Số điện thoai' : 'Phone'}
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Số điện thoại" {...field} value={field.value ?? ""} />
+                                        <Input placeholder={lang == 'vi' ? 'Số điện thoai' : 'Phone'} {...field} value={field.value ?? ""} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -99,7 +98,7 @@ export default function PersonalInfo () {
                                         Email <DotRequireComponent/>
                                     </FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Email" {...field} />
+                                        <Input placeholder="Email" {...field} className="border border-gray-300" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -117,12 +116,10 @@ export default function PersonalInfo () {
                                             enableTime={false}
                                             dateFormat="Y-m-d"
                                             initialDateTime={rhfField.value as string || undefined}
-                                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                            onChange={(_selectedDates, dateStr, _instance) => {
+                                            onChange={(_selectedDates, dateStr) => {
                                                 rhfField.onChange(dateStr);
-                                                console.log(dateStr, 8);
                                             }}
-                                            className={`dark:bg-[#454545] shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] hover:cursor-pointer`}
+                                            className={`shadow-xs border ${fieldState.invalid ? "border-red-500" : "border-gray-300"} p-1 rounded-[5px] hover:cursor-pointer`}
                                         />
                                     </FormControl>
                                     <FormMessage className="text-sm text-red-500 mt-1" />
@@ -130,12 +127,12 @@ export default function PersonalInfo () {
                             )}
                         />
 
-                        <Button 
+                        <button 
                             disabled={updatePersonalInfo.isPending} 
                             type="submit" 
-                            className="hover:cursor-pointer w-full sm:w-[50%] md:w-[30%]">
+                            className="cursor-pointer flex px-10 bg-black hover:bg-gray-800 justify-center rounded-md py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2">
                             {updatePersonalInfo.isPending ? <Spinner className="text-white" /> : 'Save'}
-                        </Button>
+                        </button>
                     </form>
                 </Form>
             </div>

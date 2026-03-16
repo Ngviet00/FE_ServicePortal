@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
-    Search, ChevronDown, ChevronRight, Save, Loader2, MapPin, Building2, UserCheck,
+    Search, ChevronDown, ChevronRight, Loader2, MapPin, Building2, UserCheck,
     ChevronLeft, ChevronsLeft, ChevronsRight,
     Users,
     Briefcase
@@ -10,8 +10,10 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import positionApi, { useSubmitChangeOrgUnitAndOrgPositionOfUser } from '@/api/orgPositionApi';
 import { ShowToast, useDebounce } from '@/lib';
+import { useTranslation } from 'react-i18next';
 
 const ChangeOrgUnit = () => {
+    const lang = useTranslation().i18n.language.split("-")[0];
     const [openDepts, setOpenDepts] = useState<Record<string, boolean>>({});
     const [activeSource, setActiveSource] = useState<{ 
         id: number | null; 
@@ -93,14 +95,14 @@ const ChangeOrgUnit = () => {
         <div className="flex h-[85vh] gap-4 font-sans text-slate-700">
             <div className="w-72 bg-white rounded-3xl border border-slate-200 flex flex-col shadow-sm">
                 <div className="p-5 border-b font-bold text-slate-800 flex items-center gap-2">
-                    <Building2 size={18} className="text-blue-600" /> Thay đổi vị trí
+                    <Building2 size={18} className="text-blue-600" /> {lang == 'vi' ? 'Thay đổi vị trí' : 'Change org position'}
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-1">
                     {isLoadingDataPage ? (
                         <div className="flex flex-col items-center justify-center py-10 space-y-3">
                             <Loader2 className="animate-spin text-blue-500" size={32} />
                             <span className="text-xs font-medium text-slate-400 animate-pulse">
-                                Đang tải...
+                                {lang == 'vi' ? 'Đang tải' : 'Loading'}
                             </span>
                         </div>
                     ) : (
@@ -116,7 +118,7 @@ const ChangeOrgUnit = () => {
                                 >
                                     <div className="flex items-center gap-3 font-bold text-sm z-10">
                                         <div>
-                                            <div className="text-sm tracking-tight">Chưa thiết lập vị trí 
+                                            <div className="text-sm tracking-tight">  {lang == 'vi' ? 'Chưa thiết lập vị trí' : 'Not set position'} 
                                                 {
                                                     dataPageChangeOrgUnitAndOrgPosition?.totalUserNotSetOrgPos > 0 && (<span className='ml-1'>({dataPageChangeOrgUnitAndOrgPosition?.totalUserNotSetOrgPos})</span>)
                                                 }
@@ -160,7 +162,7 @@ const ChangeOrgUnit = () => {
                                                         activeSource.id === dept.id && activeSource.type === 'direct' ? 'bg-amber-100 text-amber-700' : 'text-slate-500 hover:bg-slate-50'
                                                     }`}
                                                 >
-                                                    <UserCheck size={14} /> Văn phòng
+                                                    <UserCheck size={14} /> {lang == 'vi' ? 'Văn phòng' : 'Office'}
                                                 </div>
                                                 {dept.teams.map((team: any) => (
                                                     <div 
@@ -188,7 +190,7 @@ const ChangeOrgUnit = () => {
                 <div className="p-5 border-b bg-white space-y-4">
                     <div className="flex justify-between items-center">
                         <h2 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                            Nhân sự <span className="text-blue-500 text-sm font-normal">({employees.length} kết quả)</span>
+                            {lang == 'vi' ? 'Nhân sự' : 'User'} <span className="text-blue-500 text-sm font-normal">({employees.length} {lang == 'vi' ? 'Kết quả' : 'Result'})</span>
                         </h2>
                     </div>
                     
@@ -196,7 +198,7 @@ const ChangeOrgUnit = () => {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                         <input 
                             type="text"
-                            placeholder="Tìm kiếm theo tên, mã nhân viên..."
+                            placeholder={lang == 'vi' ? 'Tìm kiếm' : 'Search'}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
@@ -206,10 +208,10 @@ const ChangeOrgUnit = () => {
                         selectedUsers.size > 0 && (
                             <div>
                                 <div className="text-sm text-slate-600">
-                                    Đã chọn <span className="font-bold text-blue-600">{selectedUsers.size}</span> nhân viên | <span><button onClick={() => setSelectedUsers(new Map())} className='text-red-500 underline cursor-pointer'>Xóa đã chọn</button></span>
+                                    {lang == 'vi' ? 'Đã chọn' : 'Selected'} <span className="font-bold text-blue-600">{selectedUsers.size}</span> {lang == 'vi' ? 'Nhân viên' : 'Employee'} | <span><button onClick={() => setSelectedUsers(new Map())} className='text-red-500 underline cursor-pointer'>{lang == 'vi' ? 'Xóa đã chọn' : 'Delete'}</button></span>
                                 </div>
                                  <div>
-                                    <strong>Người đã chọn: </strong>
+                                    <strong>{lang == 'vi' ? 'Người đã chọn' : 'User selected'}: </strong>
                                     <span className='text-sm'>{Array.from(selectedUsers.values(), item => `${item.UserCode}-${item.UserName}`).join(', ')}</span>
                                 </div>
                             </div>
@@ -219,11 +221,11 @@ const ChangeOrgUnit = () => {
 
                 <div className="flex-1 overflow-y-auto p-5 bg-slate-50/20">
                     {!activeSource.id ? (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-300 italic text-sm">Chọn đơn vị nguồn để hiển thị dữ liệu</div>
+                        <div className="h-full flex flex-col items-center justify-center text-slate-300 italic text-sm">{lang == 'vi' ? 'Chọn bộ phận hoặc tổ để hiển thị' : 'Choose department or team to view'}</div>
                     ) : isEmpFetching ? (
                         <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin text-blue-500" /></div>
                     ) : employees.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400 text-sm">Không tìm thấy nhân viên phù hợp</div>
+                        <div className="h-full flex flex-col items-center justify-center text-slate-400 text-sm">{lang == 'vi' ? 'không tìm thấy dữ liệu' : 'Not found data'}</div>
                     ) : (
                         <div className="grid grid-cols-4 gap-3 content-start">
                             {employees.map((user: any) => (
@@ -247,7 +249,7 @@ const ChangeOrgUnit = () => {
                 {totalPage > 1 && (
                 <div className="p-4 border-t bg-white flex items-center justify-between px-6">
                     <span className="text-xs text-slate-400 font-medium italic">
-                        Trang {page} / {totalPage}
+                        {lang == 'vi' ? 'Trang' : 'Page'} {page} / {totalPage}
                     </span>
                     <div className="flex items-center gap-1">
                     <button 
@@ -260,7 +262,7 @@ const ChangeOrgUnit = () => {
                         onClick={() => setPage(prev => Math.max(prev - 1, 1))} 
                         disabled={page === 1}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-20 text-xs font-bold transition-all text-slate-600 cursor-pointer"
-                    ><ChevronLeft size={16}/> Trước</button>
+                    ><ChevronLeft size={16}/> {lang == 'vi' ? 'Trước' : 'Pre'}</button>
 
                     <div className="flex gap-1 px-2">
                         {[...Array(totalPage)].map((_, i) => (
@@ -280,7 +282,7 @@ const ChangeOrgUnit = () => {
                         onClick={() => setPage(prev => Math.min(prev + 1, totalPage))} 
                         disabled={page === totalPage}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-20 text-xs font-bold transition-all text-slate-600 cursor-pointer"
-                    >Sau <ChevronRight size={16}/></button>
+                    >{lang == 'vi' ? 'Sau' : 'Next'} <ChevronRight size={16}/></button>
 
                     <button 
                         onClick={() => setPage(totalPage)} 
@@ -295,11 +297,11 @@ const ChangeOrgUnit = () => {
             {/* CỘT 3: Vị trí chuyển đến */}    
             <div className="w-80 bg-white rounded-3xl border border-slate-200 flex flex-col shadow-sm overflow-hidden">
                 <div className="p-5 border-b bg-slate-900 text-white">
-                    <h2 className="font-bold uppercase text-[10px] tracking-widest opacity-60">Vị trí chuyển đến</h2>
+                    <h2 className="font-bold uppercase text-[10px] tracking-widest opacity-60">{lang == 'vi' ? 'Vị trí chuyển đến' : 'To org position'}</h2>
                     <div className="mt-1 font-bold text-sm truncate flex items-center gap-2">
                         <MapPin size={14} className="text-blue-400" />
                         <span className="truncate">
-                            {selectedPosition ? selectedPosition?.name : "Chưa chọn vị trí"}
+                            {selectedPosition ? selectedPosition?.name : lang == 'vi' ? 'Chưa chọn vị trí' : 'Not select position'}
                         </span>
                     </div>
                 </div>
@@ -324,7 +326,7 @@ const ChangeOrgUnit = () => {
                                 <div className="p-2 bg-white border-t border-slate-50 space-y-3">
                                     {dept.positions && dept.positions.length > 0 ? (
                                         <div className="space-y-1">
-                                            <div className="px-2 py-1 text-[11px] font-black uppercase">Văn phòng</div>
+                                            <div className="px-2 py-1 text-[11px] font-black uppercase">{lang == 'vi' ? 'Văn phòng' : 'Office'}</div>
                                             {dept.positions.map((pos: any) => (
                                                 <button
                                                     key={pos.id}
@@ -341,7 +343,7 @@ const ChangeOrgUnit = () => {
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-[13px] text-red-500 italic pl-2 py-1">Chưa có vị trí</div>
+                                        <div className="text-[13px] text-red-500 italic pl-2 py-1">{lang == 'vi' ? 'Chưa có vị trí' : 'No position available'}</div>
                                     )
                                     }
 
@@ -367,7 +369,7 @@ const ChangeOrgUnit = () => {
                                                         </button>
                                                     ))
                                                 ) : (
-                                                    <div className="text-[13px] text-red-500 italic pl-6 py-1">Chưa có vị trí</div>
+                                                    <div className="text-[13px] text-red-500 italic pl-6 py-1">{lang == 'vi' ? 'Chưa có vị trí' : 'No position available'}</div>
                                                 )}
                                             </div>
                                         </div>
@@ -384,7 +386,7 @@ const ChangeOrgUnit = () => {
                         disabled={selectedUsers.size === 0 || !selectedPosition}
                         className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                     >
-                        <Save size={18} /> Lưu thay đổi ({selectedUsers.size})
+                        {lang == 'vi' ? 'Lưu' : 'Save'} ({selectedUsers.size})
                     </button>
                 </div>
             </div>

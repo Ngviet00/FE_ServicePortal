@@ -3,6 +3,7 @@ import { Save, Edit, Check, UserCheck } from 'lucide-react';
 import { Department, UnionMember } from './MngMemberUnion';
 
 interface Props {
+    lang: string;
     member: UnionMember | null;
     isEditing: boolean;
     setIsEditing: (v: boolean) => void;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const MemberDetail: React.FC<Props> = ({
+    lang,
     member,
     isEditing,
     setIsEditing,
@@ -32,8 +34,7 @@ const MemberDetail: React.FC<Props> = ({
         return (
             <div className="flex flex-col items-center justify-center h-full bg-white rounded-2xl shadow-xl p-8">
                 <UserCheck className="w-16 h-16 text-indigo-300 mb-4" />
-                <p className="text-xl font-semibold text-gray-500">Vui lòng chọn một thành viên</p>
-                <p className="text-sm text-gray-400 mt-2">Để xem & chỉnh sửa trách nhiệm phân công.</p>
+                <p className="text-xl font-semibold text-gray-500">{lang === 'vi' ? 'Vui lòng chọn một thành viên' : 'Please select a member'}</p>
             </div>
         );
     }
@@ -51,7 +52,7 @@ const MemberDetail: React.FC<Props> = ({
                             onClick={() => setSelectedMember(null)}
                             className="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer"
                         >
-                            Bỏ chọn
+                            {lang === 'vi' ? 'Bỏ chọn' : 'Unselect'}
                         </button>
                     </div>
                 </div>
@@ -63,7 +64,7 @@ const MemberDetail: React.FC<Props> = ({
                                 onClick={() => setIsEditing(false)}
                                 className="px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer"
                             >
-                                Hủy
+                                {lang === 'vi' ? 'Hủy' : 'Cancel'}
                             </button>
 
                             <button
@@ -74,7 +75,7 @@ const MemberDetail: React.FC<Props> = ({
                                 `}
                             >
                                 <Save size={16} className="mr-2" />
-                                Lưu
+                                 {lang === 'vi' ? 'Lưu' : 'Save'}
                             </button>
                         </>
                     ) : (
@@ -83,14 +84,14 @@ const MemberDetail: React.FC<Props> = ({
                             className="flex items-center px-4 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-md cursor-pointer"
                         >
                             <Edit size={16} className="mr-2" />
-                            Chỉnh Sửa
+                             {lang === 'vi' ? 'Chỉnh sửa' : 'Edit'}
                         </button>
                     )}
                 </div>
             </div>
 
             <div className="p-6 pt-3 flex-grow overflow-y-auto">
-                <h3 className="text-lg font-bold text-gray-800 mb-2">Bộ phận / Phòng ban phụ trách</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-2"> {lang === 'vi' ? 'Bộ phận' : 'Department'}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {departments.map(dept => {
@@ -128,7 +129,7 @@ const MemberDetail: React.FC<Props> = ({
 
                 {!departments.length && (
                     <div className="mt-6 text-center text-gray-500 p-4 border border-dashed rounded-lg">
-                        Chưa có bộ phận nào.
+                         {lang === 'vi' ? 'Chưa có bộ phận nào' : 'Not selected department'}
                     </div>
                 )}
             </div>

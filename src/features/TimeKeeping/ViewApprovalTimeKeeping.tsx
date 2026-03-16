@@ -102,10 +102,10 @@ export default function ViewApprovalTimeKeeping ({ id, mode }: ViewApprovalTimeK
 
     const renderTableHeader = useMemo(() => (
         <tr className="bg-slate-50 font-bold text-slate-500">
-            <th className="sticky text-[14px] top-0 z-40 w-50 bg-slate-50 border-b border-r border-slate-200 px-4 py-3 text-center shadow-[1px_0_0_rgba(0,0,0,0.05)]">{lang == 'vi' ? 'Họ tên' : 'Employee'}</th>
-            <th className="sticky top-0 z-20 text-[14px] w-50 bg-slate-50 border-b border-r border-slate-200 px-3 py-3 text-center">{lang == 'vi' ? 'Bộ phận' : 'Department'}</th>
+            <th className="sticky text-[14px] top-0 z-40 w-50 bg-slate-50 border-b border-r border-gray-300 px-4 py-3 text-center shadow-[1px_0_0_rgba(0,0,0,0.05)]">{lang == 'vi' ? 'Họ tên' : 'Employee'}</th>
+            <th className="sticky top-0 z-20 text-[14px] w-50 bg-slate-50 border-b border-r border-gray-300 px-3 py-3 text-center">{lang == 'vi' ? 'Bộ phận' : 'Department'}</th>
             {daysInMonth.map((item) => (
-                <th key={item.day} className={`sticky top-0 z-20 min-w-[38px] border-b border-r border-slate-200 py-1.5 text-center ${item.isSun ? 'bg-pink-100 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
+                <th key={item.day} className={`sticky top-0 z-20 min-w-[38px] border-b border-r border-gray-300 py-1.5 text-center ${item.isSun ? 'bg-pink-100 text-red-600' : 'bg-slate-50 text-slate-400'}`}>
                     <div className="text-[13px] font-bold">{item.dayDisplay}</div>
                     <div className="text-[9px] uppercase font-medium">{item.dayName}</div>
                 </th>
@@ -137,7 +137,7 @@ export default function ViewApprovalTimeKeeping ({ id, mode }: ViewApprovalTimeK
                 rowCells.push(
                     <td
                         key={`${emp.UserCode}-${dayKey}`}
-                        className={`border-r border-slate-100 text-center text-[13px] font-bold py-2.5 border-b ${isABS ? 'text-red-600 bg-red-100' : ''}`}
+                        className={`border-r border-gray-300 text-center text-[13px] font-bold py-2.5 border-b ${isABS ? 'text-red-600 bg-red-100' : ''}`}
                     >
                         {cellValue || '-'}
                     </td>
@@ -146,13 +146,13 @@ export default function ViewApprovalTimeKeeping ({ id, mode }: ViewApprovalTimeK
 
             return (
                 <tr key={`${emp.UserCode}-${idx}`} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="sticky left-0 z-10 bg-white border-r border-slate-200 px-4 py-2 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] border-b">
+                    <td className="sticky left-0 z-10 bg-white border-r border-gray-300 px-4 py-2 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] border-b">
                         <div className="flex flex-col">
                             <span className="text-[11px] font-bold text-slate-400 leading-none">{emp?.UserCode}</span>
                             <span className="text-[13px] font-bold text-slate-700">{emp?.UserName}</span>
                         </div>
                     </td>
-                    <td className="px-3 py-2 border-r text-center border-slate-100 text-[13px] font-bold border-b">
+                    <td className="px-3 py-2 border-r text-center border-gray-300 text-[13px] font-bold border-b">
                         {detailTimekeeping?.timeKeeping?.departmentName}
                     </td>
                     {rowCells}

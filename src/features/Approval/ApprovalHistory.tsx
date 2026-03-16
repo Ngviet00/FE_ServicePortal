@@ -5,44 +5,13 @@ import PaginationControl from '@/components/PaginationControl/PaginationControl'
 import { StatusLeaveRequest } from '@/components/StatusLeaveRequest/StatusLeaveRequestComponent';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RequestTypeEnum, StatusApplicationFormEnum } from '@/lib';
+import { StatusApplicationFormEnum } from '@/lib';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate } from 'date-fns';
 import React, { ChangeEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-
-function GetUrlDetailWaitApproval(item: any) {
-	let result = ''
-
-	if (item?.requestTypeId == RequestTypeEnum.LEAVE_REQUEST) {
-		result = `/view/leave-request/${item?.code ?? '-1'}`
-	}
-	else if (item?.requestTypeId == RequestTypeEnum.MEMO_NOTIFICATION) {
-		result = `/view/memo-notify/${item?.code ?? '1'}`
-	}
-	else if (item?.requestTypeId == RequestTypeEnum.FORM_IT) {
-		result = `/view/form-it/${item?.code ?? '1'}`
-	}
-	else if (item?.requestTypeId == RequestTypeEnum.PURCHASE) {
-		result = `/view/purchase/${item?.code ?? '1'}`
-	}
-	else if (item?.requestTypeId == RequestTypeEnum.OVERTIME) {
-		result = `/view/overtime/${item?.code ?? '1'}`
-	}
-	else if (item?.requestTypeId == RequestTypeEnum.MISS_TIMEKEEPING) {
-		result = `/view/miss-timekeeping/${item?.code ?? '1'}`
-	}
-	else if (item?.requestTypeId == RequestTypeEnum.INTERNAL_MEMO_HR) {
-		result = `/internal-memo-hr/${item?.code ?? '1'}?mode=view`
-	}
-	else if (item?.requestTypeId == RequestTypeEnum.TIMEKEEPING) {
-		result = `/view/timekeeping/${item?.code ?? '1'}?mode=view`
-	}
-
-	return result
-}
 
 const ApprovalHistory: React.FC = () => {
 	const { t } = useTranslation('pendingApproval')
@@ -156,12 +125,12 @@ const ApprovalHistory: React.FC = () => {
 					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border text-center">{t('history_approval_processed.code')}</th>
-								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.RequestTypeEnum')}</th>
-								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.user_request')}</th>
-								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.approval_at')}</th>
-								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.action')}</th>
-								<th className="px-4 py-3 border text-center whitespace-nowrap">{t('history_approval_processed.result')}</th>
+								<th className="px-4 py-2 border border-gray-300 text-center">{t('history_approval_processed.code')}</th>
+								<th className="px-4 py-3 border border-gray-300 text-center whitespace-nowrap">{t('history_approval_processed.RequestTypeEnum')}</th>
+								<th className="px-4 py-3 border border-gray-300 text-center whitespace-nowrap">{t('history_approval_processed.user_request')}</th>
+								<th className="px-4 py-3 border border-gray-300 text-center whitespace-nowrap">{t('history_approval_processed.approval_at')}</th>
+								<th className="px-4 py-3 border border-gray-300 text-center whitespace-nowrap">{t('history_approval_processed.action')}</th>
+								<th className="px-4 py-3 border border-gray-300 text-center whitespace-nowrap">{t('history_approval_processed.result')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -189,21 +158,21 @@ const ApprovalHistory: React.FC = () => {
 
 										return (
 											<tr key={idx} className="hover:bg-gray-50">
-												<td className="px-4 py-2 border whitespace-nowrap text-center">
+												<td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
 													<Link to={`/view/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-700 underline">
 														{item?.code}
 													</Link>
 												</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestTypeName : item?.requestTypeNameE}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreatedForm}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">{item?.actionAt ? formatDate(item?.actionAt, "yyyy/MM/dd HH:mm:ss") : '--'}</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">
+												<td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{lang == 'vi' ? item?.requestTypeName : item?.requestTypeNameE}</td>
+												<td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.userNameCreatedForm}</td>
+												<td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">{item?.actionAt ? formatDate(item?.actionAt, "yyyy/MM/dd HH:mm:ss") : '--'}</td>
+												<td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
 													{ item?.action }
 												</td>
-												<td className="px-4 py-2 border whitespace-nowrap text-center">
+												<td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
 													<StatusLeaveRequest status={
-                                                        reqStatusId == StatusApplicationFormEnum.ASSIGNED || reqStatusId == StatusApplicationFormEnum.FINAL_APPROVAL 
-                                                            ? StatusApplicationFormEnum.IN_PROCESS 
+                                                        reqStatusId == StatusApplicationFormEnum.Assigned || reqStatusId == StatusApplicationFormEnum.FinalApproval 
+                                                            ? StatusApplicationFormEnum.Inprocess 
                                                         : reqStatusId
                                                     }/>
 												</td>
@@ -238,16 +207,16 @@ const ApprovalHistory: React.FC = () => {
 								>
 									<div className="flex justify-between items-center">
 										<Link
-										to={GetUrlDetailWaitApproval(item)}
-										className="font-semibold text-blue-700 underline"
+											to={`/view/${item?.code}?requestType=${item?.requestTypeId}`}
+											className="font-semibold text-blue-700 underline"
 										>
-										{item.code}
+											{item.code}
 										</Link>
 										<StatusLeaveRequest
 										status={
-											reqStatusId == StatusApplicationFormEnum.ASSIGNED ||
-											reqStatusId == StatusApplicationFormEnum.FINAL_APPROVAL
-											? StatusApplicationFormEnum.IN_PROCESS
+											reqStatusId == StatusApplicationFormEnum.Assigned ||
+											reqStatusId == StatusApplicationFormEnum.FinalApproval
+											? StatusApplicationFormEnum.Inprocess
 											: reqStatusId
 										}
 										/>
@@ -288,7 +257,7 @@ const ApprovalHistory: React.FC = () => {
 
 									<div className="mt-3 flex justify-end">
 										<Link
-											to={GetUrlDetailWaitApproval(item)}
+											to={`/view/${item?.code}?requestType=${item?.requestTypeId}`}
 											className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
 										>
 											{lang == 'vi' ? 'Chi tiết' : 'Detail'}

@@ -89,7 +89,7 @@ export default function RoleAndPermissionUser () {
                         lang == 'vi' ? 'Cấu hình vai trò và quyền của người dùng' : 'Config user role and permission'
                     }
                 </h3>
-                <Button onClick={() => navigate("/user")} className="w-full md:w-auto hover:cursor-pointer">
+                <Button onClick={() => navigate("/user")} className="w-full md:w-auto hover:cursor-pointer bg-black text-white hover:bg-black">
                     {lang == 'vi' ? 'Danh sách người dùng' : 'List user'}
                 </Button>
             </div>

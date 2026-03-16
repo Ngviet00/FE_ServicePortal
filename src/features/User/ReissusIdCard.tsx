@@ -103,7 +103,7 @@ const ReissueIdCard = () => {
                     <input
                         type="text"
                         placeholder={lang === 'vi' ? 'Nhập mã nhân viên...' : 'Enter employee code...'}
-                        className="flex-1 px-4 py-2 rounded-lg border outline-none text-lg font-medium focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="flex-1 px-4 py-2 rounded-lg border outline-none text-lg font-medium focus:ring-2 focus:ring-blue-500 transition-all border-gray-300"
                         value={searchCode}
                         onChange={(e) => setSearchCode(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}

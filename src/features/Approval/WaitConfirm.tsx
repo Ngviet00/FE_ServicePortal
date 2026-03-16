@@ -71,13 +71,13 @@ export default function WaitConfirm() {
                 <table className="min-w-full text-sm border border-gray-200">
                     <thead className="bg-gray-100">
                         <tr>
-                            <th className="px-4 py-2 border">{t("pending_approval.code")}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.RequestTypeEnum")}</th>
-                            <th className="px-4 py-2 border w-[200px]">{lang == "vi" ? "Danh mục" : "Category"}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.user_request")}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.created_at")}</th>
-                            <th className="px-4 py-2 border">{t("pending_approval.status")}</th>
-                            <th className="px-4 py-2 border text-center">{t("pending_approval.action")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.code")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.RequestTypeEnum")}</th>
+                            <th className="px-4 py-2 border border-gray-300 w-[200px]">{lang == "vi" ? "Danh mục" : "Category"}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.user_request")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.created_at")}</th>
+                            <th className="px-4 py-2 border border-gray-300">{t("pending_approval.status")}</th>
+                            <th className="px-4 py-2 border border-gray-300 text-center">{t("pending_approval.action")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,25 +102,25 @@ export default function WaitConfirm() {
                         ) : (
                             ListWaitApprovals.map((item: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-gray-50">
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="px-4 py-2 border text-center border-gray-300">
                                         <Link to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-700 underline">
                                             {item?.code}
                                         </Link>
                                     </td>
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="px-4 py-2 border text-center border-gray-300">
                                         {lang == "vi" ? item?.requestTypeName : item?.requestTypeNameE}
                                     </td>
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="px-4 py-2 border text-center border-gray-300">
                                         {item?.noteCategories || "--"}
                                     </td>
-                                    <td className="px-4 py-2 border text-center">{item?.userNameCreatedForm}</td>
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="px-4 py-2 border text-center border-gray-300">{item?.userNameCreatedForm}</td>
+                                    <td className="px-4 py-2 border text-center border-gray-300">
                                         {item?.createdAt ? formatDate(item?.createdAt, "yyyy/MM/dd HH:mm") : "--"}
                                     </td>
-                                    <td className="px-4 py-2 border text-center">
+                                    <td className="px-4 py-2 border text-center border-gray-300">
                                         <StatusLeaveRequest status={StatusApplicationFormEnum.WaitConfirm} />
                                     </td>
-                                    <td className="px-4 py-2 border text-center space-x-1">
+                                    <td className="px-4 py-2 border text-center space-x-1 border-gray-300">
                                         <Link
                                             to={`/view-approval/${item?.code}?requestType=${item?.requestTypeId}`}
                                             className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"

@@ -130,14 +130,14 @@ const HRManagementTimekeeping = () => {
                 <div className="flex-1 flex overflow-hidden p-6 gap-6 bg-white">
                     <div className="w-1/2 bg-white rounded-[2rem] border border-slate-200 shadow-sm flex flex-col overflow-hidden">
                         <div className="p-6 border-b bg-slate-50/50">
-                            <h3 className="text-sm text-slate-600 flex items-center gap-2"><Users size={16}/>Danh sách quản lý chấm công</h3>
+                            <h3 className="text-sm text-slate-600 flex items-center gap-2"><Users size={16}/>{lang == 'vi' ? 'Danh sách quản lý chấm công' : 'List user mng timekeeping'}</h3>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 space-y-3">
                             {availableManagers.map((m: any, idx: number) => {
                                 const isAssigned = assignedCodes.has(m.UserCode);
 
                                 return (
-                                    <div key={idx} className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all group ${isAssigned ? 'border-blue-500 bg-blue-300/50' : ''}`}>
+                                    <div key={idx} className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all group ${isAssigned ? 'border-blue-500 bg-blue-300/50' : 'border-gray-300'}`}>
                                         <div className="flex items-center gap-4">
                                             <div>
                                                 <p className="text-sm font-black text-slate-800">{m.UserCode} - {m.UserName}</p>
@@ -150,12 +150,12 @@ const HRManagementTimekeeping = () => {
                                                         {
                                                             !isAssigned && 
                                                             <button disabled={handleUserOrgUnit.isPending} onClick={() => handleUserMngOrgUnit(m.UserCode, 'attach')} className="mr-2 flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-xl text-[11px] hover:bg-green-600 cursor-pointer disabled:bg-gray-400">
-                                                                <CheckCircle2 size={16}/> Gán
+                                                                <CheckCircle2 size={16}/> {lang == 'vi' ? 'Gán' : 'Assign'} 
                                                             </button>
                                                         }
                                                         {
                                                             isAssigned && <button disabled={handleUserOrgUnit.isPending} onClick={() => handleUserMngOrgUnit(m.UserCode, 'remove')} className="mx-3 flex items-center gap-2 bg-red-600 text-white px-3 py-2 rounded-xl text-[11px] hover:bg-red-700 cursor-pointer disabled:bg-gray-400">
-                                                                <X size={16}/> Hủy
+                                                                <X size={16}/> {lang == 'vi' ? 'Hủy' : 'Cancel'} 
                                                             </button>
                                                         }
                                                     </>
@@ -173,13 +173,13 @@ const HRManagementTimekeeping = () => {
 
                     <div className="w-1/2 bg-white rounded-[2rem] border border-slate-200 shadow-sm flex flex-col overflow-hidden">
                         <div className="p-6 border-b bg-slate-50/50 flex items-center justify-between">
-                            <h3 className="text-sm flex items-center gap-2"><Search size={16}/>Thêm người mới</h3>
+                            <h3 className="text-sm flex items-center gap-2"><Search size={16}/>{lang == 'vi' ? 'Thêm người mới' : 'Add new'}</h3>
                         </div>
                         <div className="p-2 border-b">
                             <div className="relative group">
                                 <Search className="absolute left-4 top-3.5 text-slate-400 group-focus-within:text-blue-600" size={18} />
                                 <input 
-                                    type="text" placeholder="Tìm kiếm theo mã hoặc tên nhân viên..."
+                                    type="text" placeholder={lang == 'vi' ? 'Tìm kiếm' : 'Search'} 
                                     value={searchKey} onChange={(e) => setSearchKey(e.target.value)}
                                     className="w-full pl-12 pr-4 py-4 bg-slate-100 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all text-sm font-medium"
                                 />
@@ -206,19 +206,19 @@ const HRManagementTimekeeping = () => {
                             {!searchKey && !isSearching && (
                                 <div className="h-full flex flex-col items-center justify-center italic text-slate-400">
                                     <Search size={48} className="mb-2"/>
-                                    <p className="text-xs font-bold">Tìm tất cả nhân viên</p>
+                                    <p className="text-xs font-bold">{lang == 'vi' ? 'TÌm tất cả nhân viên' : 'Search all'} </p>
                                 </div>
                             )}
 
                             {!isSearching && searchKey && users.length === 0 && (
                                 <div className="h-full flex flex-col items-center justify-center text-red-400 mt-10">
                                     <UserCircle2 size={48} className="mb-2 opacity-20"/>
-                                    <p className="text-xs font-bold">Không tìm thấy người dùng nào phù hợp</p>
+                                    <p className="text-xs font-bold">{lang == 'vi' ? 'Không tìm thấy dữ liệu' : 'Not found data'} </p>
                                 </div>
                             )}
 
                             {isSearching && (
-                                <div className="text-center py-4 text-blue-500 text-xs italic font-medium">Đang tìm dữ liệu...</div>
+                                <div className="text-center py-4 text-blue-500 text-xs italic font-medium">{lang == 'vi' ? 'Đang tìm' : 'Searching'} </div>
                             )}
                         </div>
                     </div>

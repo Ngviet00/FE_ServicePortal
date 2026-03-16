@@ -79,10 +79,10 @@ export default function ListPermission () {
          			<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border w-[70px]">STT</th>
-								<th className="px-4 py-2 border w-[400px]">{t('name')}</th>
-								<th className="px-4 py-2 border w-[300px]">{t('description')}</th>
-								<th className="px-4 py-2 border">{t('action')}</th>
+								<th className="px-4 py-2 border w-[70px] border-gray-300">STT</th>
+								<th className="px-4 py-2 border w-[400px] border-gray-300">{t('name')}</th>
+								<th className="px-4 py-2 border w-[300px] border-gray-300">{t('description')}</th>
+								<th className="px-4 py-2 border border-gray-300">{t('action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -105,12 +105,12 @@ export default function ListPermission () {
                                 ) : (
                                     permissions?.map((item: IPermission, idx: number) => (
                                         <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
                                                 {(page - 1) * pageSize + idx + 1}
                                             </td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item.name}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap">{item.group}</td>
-                                            <td className="px-4 py-2 border whitespace-nowrap text-center">
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300">{item.name}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap border-gray-300">{item.group}</td>
+                                            <td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
                                                 <CreatePermissionForm permission={item} onAction={() => queryClient.invalidateQueries({ queryKey: ['get-all-permissions'] })}/>
                                                 <ButtonDeleteComponent id={item?.id} onDelete={() => handleDelete(item.id)}/>
                                             </td>

@@ -89,7 +89,7 @@ export default function CreatePriorityForm({ priority, onAction }: Props) {
                 }
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
+            <DialogContent className="sm:max-w-[425px] bg-white" aria-describedby={undefined}>
                 <DialogHeader>
                     <DialogTitle>{priority?.id ? t('priority_page.update') : t('priority_page.create')}</DialogTitle>
                 </DialogHeader>
@@ -103,7 +103,7 @@ export default function CreatePriorityForm({ priority, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="name">{t('priority_page.name')}</Label>
                                     <FormControl>
-                                        <Input id="name" placeholder="..." {...field} />
+                                        <Input id="name" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -117,7 +117,7 @@ export default function CreatePriorityForm({ priority, onAction }: Props) {
                                 <FormItem>
                                     <Label htmlFor="name">{t('priority_page.nameE')}</Label>
                                     <FormControl>
-                                        <Input id="code" placeholder="..." {...field} />
+                                        <Input id="code" placeholder="..." {...field} className="border border-gray-300"/>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -125,7 +125,7 @@ export default function CreatePriorityForm({ priority, onAction }: Props) {
                         />
                         
                         <div className="flex justify-end">
-                            <Button type="submit" className="hover:cursor-pointer">
+                            <Button type="submit" className="hover:cursor-pointer hover:bg-black bg-black text-white">
                                 {t('priority_page.submit')}
                             </Button>
                         </div>

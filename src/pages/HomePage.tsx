@@ -86,27 +86,27 @@ export default function HomePage() {
                     data && data.length > 0 && data.map((item: any, idx: number) => (
                         <Link key={idx} to={`/view/memo-notify/${item.id}?locate=home`}>
                             <div
-                                className="bg-[#eff6ff] py-4 px-5 mb-3 rounded-md font-inter shadow-sm hover:shadow-md transition dark:bg-[#1e1e1e69]"
+                                className="bg-[#eff6ff] py-4 px-5 mb-3 rounded-md font-inter shadow-sm hover:shadow-md transition "
                             >
                                 <div className="flex flex-wrap justify-between items-center gap-x-2 gap-y-1 title-memo-notify">
-                                    <span className="text-sm sm:text-base font-bold leading-snug text-[oklch(48.8%_.243_264.376)] dark:text-white">
+                                    <span className="text-sm sm:text-base font-bold leading-snug text-[oklch(48.8%_.243_264.376)] ">
                                         {item.title}
                                     </span>
                                     <span className="flex items-center text-sm font-medium whitespace-nowrap">
-                                        <span className="hidden sm:inline text-[oklch(48.8%_.243_264.376)] dark:text-white">Details</span>
-                                        <ArrowRight size={16} className="ml-1 text-[oklch(48.8%_.243_264.376)] dark:text-white" />
+                                        <span className="hidden sm:inline text-[oklch(48.8%_.243_264.376)] ">Details</span>
+                                        <ArrowRight size={16} className="ml-1 text-[oklch(48.8%_.243_264.376)] " />
                                     </span>
                                 </div>
 
                                 <div className="pt-3 text-sm line-clamp-5 content-memo-notify" dangerouslySetInnerHTML={{ __html: item.content }}/>
 
                                 <div className="flex flex-nowrap items-center mt-4 text-xs text-gray-600 gap-2">
-                                    <span className="whitespace-nowrap dark:text-white">
-                                        Created By <strong className="text-gray-800 dark:text-white">{item.userNameCreatedForm}</strong>
+                                    <span className="whitespace-nowrap ">
+                                        Created By <strong className="text-gray-800 ">{item.userNameCreatedForm}</strong>
                                     </span>
-                                    <span className="whitespace-nowrap dark:text-white">-</span>
-                                    <span className="whitespace-nowrap dark:text-white">
-                                        Created At <strong className="text-black dark:text-white">{formatDate(item?.createdAt, "yyyy/MM/dd HH:mm")}</strong>
+                                    <span className="whitespace-nowrap ">-</span>
+                                    <span className="whitespace-nowrap ">
+                                        Created At <strong className="text-black ">{formatDate(item?.createdAt, "yyyy/MM/dd HH:mm")}</strong>
                                     </span>
                                 </div>
                             </div>
@@ -116,28 +116,28 @@ export default function HomePage() {
             </div>
 
             <div className="wrap-home-page rounded-3xl bg-[#f3f4ff] flex flex-col md:flex-row md:h-[240px]">
-                <div className="wrap-avatar w-[20%] dark:bg-[#454545]">
-                    <div className='bg-[#f3f4ff] dark:bg-[#454545] flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
+                <div className="wrap-avatar w-[20%] ">
+                    <div className='bg-[#f3f4ff]  flex justify-center items-center flex-col' style={{borderRight: '#e1e1e1'}}>
                         <img src="/img-employee.png" className="w-30 h-30  rounded-full"/>
                         <div>
-                            <Label className='text-base font-bold dark:text-white'>{user?.sex ? t('home_page.sex.female') : t('home_page.sex.male')}</Label>
+                            <Label className='text-base font-bold '>{user?.sex ? t('home_page.sex.female') : t('home_page.sex.male')}</Label>
                         </div>
                     </div>
                 </div>
-                <div className="py-4 px-2 flex-1 bg-[#f3f4ff] dark:bg-[#454545] flex flex-col md:flex-row gap-4">
+                <div className="py-4 px-2 flex-1 bg-[#f3f4ff]  flex flex-col md:flex-row gap-4">
                     <div className="flex-1 flex justify-around wrap-info-1">
                         <div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.code')}</label>
+                                <label className='text-base text-gray-500 '>{t('home_page.code')}</label>
                             </div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.dob')}</label>
+                                <label className='text-base text-gray-500 '>{t('home_page.dob')}</label>
                             </div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.phone')}</label>
+                                <label className='text-base text-gray-500 '>{t('home_page.phone')}</label>
                             </div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.department')}</label>
+                                <label className='text-base text-gray-500 '>{t('home_page.department')}</label>
                             </div>
                         </div>
                         <div>
@@ -162,10 +162,10 @@ export default function HomePage() {
                                 <label className='text-base text-gray-500'>{t('home_page.name')}</label>
                             </div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.email')}</label>
+                                <label className='text-base text-gray-500 '>{t('home_page.email')}</label>
                             </div>
                             <div className='mb-5'>
-                                <label className='text-base text-gray-500 dark:text-white'>{t('home_page.date_join_company')}</label>
+                                <label className='text-base text-gray-500 '>{t('home_page.date_join_company')}</label>
                             </div>
                         </div>
                         <div>

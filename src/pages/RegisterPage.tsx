@@ -180,7 +180,7 @@ export default function RegisterPage() {
                         </div>
                         <input 
                             autoFocus type="text" placeholder={lang == 'vi' ? 'Mã nhân viên' : 'Employee code'}
-                            className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black"
+                            className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black"
                             value={formData.userCode}
                             onChange={(e) => setFormData({...formData, userCode: e.target.value.toUpperCase()})}
                             required
@@ -206,7 +206,7 @@ export default function RegisterPage() {
                         </div>
                         <input 
                             autoFocus type="text" maxLength={6} placeholder="● ● ● ● ● ●"
-                            className="w-full p-3 border rounded-xl text-center text-2xl tracking-[0.5em] font-mono font-bold outline-none focus:ring-2 focus:ring-black"
+                            className="w-full p-3 border border-gray-300 rounded-xl text-center text-2xl tracking-[0.5em] font-mono font-bold outline-none focus:ring-2 focus:ring-black"
                             value={formData.otp}
                             onChange={(e) => setFormData({...formData, otp: e.target.value})}
                         />
@@ -244,7 +244,7 @@ export default function RegisterPage() {
                                 autoFocus 
                                 type='text' 
                                 placeholder='Email'
-                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
+                                className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
                                 value={formData.fullEmail}
                                 onChange={(e) => setFormData({...formData, fullEmail: e.target.value})}
                                 required
@@ -258,7 +258,7 @@ export default function RegisterPage() {
                                 tabIndex={1}
                                 type={showPassword ? "text" : "password"} 
                                 placeholder={lang === 'vi' ? 'Mật khẩu mới' : 'New password'}
-                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
+                                className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
                                 value={formData.password}
                                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                                 required
@@ -278,7 +278,7 @@ export default function RegisterPage() {
                                 tabIndex={2}
                                 type={showPassword ? "text" : "password"} 
                                 placeholder={lang === 'vi' ? 'Xác nhận mật khẩu' : 'Confirm password'}
-                                className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
+                                className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
                                 value={formData.confirmPassword}
                                 onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                                 required
