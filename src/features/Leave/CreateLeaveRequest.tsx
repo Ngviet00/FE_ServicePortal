@@ -32,13 +32,18 @@ export const userLeaveRequestSchema = z.object({
     dateJoinCompany: z.string().nonempty({ message: "Bắt buộc." }),
     availableAnnualLeave: z.number(),
     totalDays: z.number(),
+
     fromDate: z.string().nonempty({ message: "Bắt buộc." }),
     toDate: z.string().nonempty({ message: "Bắt buộc." }),
+
     typeLeave: z.string().nonempty({ message: "Bắt buộc." }),
-    timeLeaveFrom: z.string().nonempty({ message: "Bắt buộc." }),
-    timeLeaveTo: z.string().nonempty({ message: "Bắt buộc." }),
-    timeLeaveFromSession: z.string().nonempty({ message: "Bắt buộc." }),
-    timeLeaveToSession: z.string().nonempty({ message: "Bắt buộc." }),
+
+    startPeriod: z.string().nonempty({ message: "Bắt buộc." }),
+    endPeriod: z.string().nonempty({ message: "Bắt buộc." }),
+
+    startSession: z.string().nonempty({ message: "Bắt buộc." }),
+    endSession: z.string().nonempty({ message: "Bắt buộc." }),
+
     reason: z.string().nonempty({ message: "Bắt buộc." }),
     image: z.instanceof(File).nullable().optional(),
     existingImgs: z.string().nullable().optional(),
@@ -77,10 +82,12 @@ export default function CreateLeaveRequest() {
                 departmentId: -1,
                 position: '',
                 dateJoinCompany: '',
-                timeLeaveFrom: '1',
-                timeLeaveTo: '1',
-                timeLeaveFromSession: 'ALL',
-                timeLeaveToSession: 'ALL',
+                fromDate: todayStr,
+                toDate: todayStr,
+                startPeriod: '1', //1 công
+                endPeriod: '1', //1 công
+                startSession: '1', //cả ngày
+                endSession: '1', //cả ngày
                 availableAnnualLeave: 0,
                 totalDays: 0,
                 reason: '',
@@ -155,10 +162,10 @@ export default function CreateLeaveRequest() {
                         availableAnnualLeave: myUserInfoLeave?.available,
                         fromDate: todayStr,
                         toDate: todayStr,
-                        timeLeaveFrom: '1',
-                        timeLeaveTo: '1',
-                        timeLeaveFromSession: 'ALL',
-                        timeLeaveToSession: 'ALL',
+                        startPeriod: '1',
+                        endPeriod: '1',
+                        startSession: 'ALL',
+                        endSession: 'ALL',
                         totalDays: 0,
                         reason: '',
                         typeLeave: ''
@@ -170,30 +177,20 @@ export default function CreateLeaveRequest() {
 
     const watchedRequests = watch("userLeaveRequest");
     
-    const getDynamicAvailableAnnualLeave = (currentIndex: number) => {
+    const getDynamicAvailableAnnualLeave = (userCode: string) => {
         const allRequests = watch("userLeaveRequest") || [];
-        const currentRow = allRequests[currentIndex];
-        
-        if (!currentRow || !currentRow.userCode) return 0;
-
-        const userCode = currentRow.userCode;
-
-        const firstRowWithData = allRequests.find(r => r.userCode === userCode && r.availableAnnualLeave !== undefined);
-        let baseAvailableLeave = Number(firstRowWithData?.availableAnnualLeave || 0);
-
-        for (let i = 0; i < currentIndex; i++) {
-            const prevRow = allRequests[i];
-            const prevType = typeLeaves?.find(t => t.id.toString() === prevRow.typeLeave?.toString());
-            
-            if (
-                prevRow.userCode === userCode && 
-                ['AL', 'ALM'].includes(prevType?.code ?? '')
-            ) {
-                baseAvailableLeave -= Number(prevRow.totalDays || 0);
+    
+        const firstRow = allRequests.find(r => r.userCode === userCode && r.availableAnnualLeave !== undefined);
+        const baseAvailable = Number(firstRow?.availableAnnualLeave || 0);
+        const totalDeductedInForm = allRequests.reduce((sum, row) => {
+            const type = typeLeaves?.find(t => t.id.toString() === row.typeLeave?.toString());
+            if (row.userCode === userCode && ['AL', 'ALM'].includes(type?.code ?? '')) {
+                return sum + Number(row.totalDays || 0);
             }
-        }
+            return sum;
+        }, 0);
 
-        return baseAvailableLeave;
+        return baseAvailable - totalDeductedInForm;
     };
 
     const handleAddRow = () => {
@@ -207,8 +204,10 @@ export default function CreateLeaveRequest() {
             typeLeave: '',
             fromDate: todayStr,
             toDate: todayStr,
-            timeLeaveFrom: '1',
-            timeLeaveTo: '1',
+            startPeriod: '1',
+            endPeriod: '1',
+            startSession: '1',
+            endSession: '1',
             reason: '',
             dateJoinCompany: '',
             availableAnnualLeave: -1,
@@ -232,8 +231,10 @@ export default function CreateLeaveRequest() {
                         availableAnnualLeave: myUserInfoLeave?.available,
                         fromDate: todayStr,
                         toDate: todayStr,
-                        timeLeaveFrom: '1',
-                        timeLeaveTo: '1',
+                        startPeriod: '1',
+                        endPeriod: '1',
+                        startSession: '1',
+                        endSession: '1',
                         totalDays: 0,
                         reason: '',
                         typeLeave: ''
@@ -312,21 +313,32 @@ export default function CreateLeaveRequest() {
     }
 
     const onSubmit: SubmitHandler<LeaveRequestForm> = async (data) => {
-        const errorRequestIndex = data.userLeaveRequest.findIndex((item: any, index: number) => {
+        const userUsageMap = data.userLeaveRequest.reduce((acc: any, item: any) => {
             const selectedType = typeLeaves?.find((t: any) => t.id == item.typeLeave);
-            if (!selectedType) return false;
-            const isAnnualLeave = selectedType.code === 'AL' || selectedType.code === 'ALM';
+            const isAnnualLeave = selectedType?.code === 'AL' || selectedType?.code === 'ALM';
+            
             if (isAnnualLeave) {
-                const available = getDynamicAvailableAnnualLeave(index);
-                const remaining = available - item.totalDays;
-                return remaining < 0;
+                acc[item.userCode] = (acc[item.userCode] || 0) + Number(item.totalDays || 0);
+            }
+            return acc;
+        }, {});
+
+        const errorRequestIndex = data.userLeaveRequest.findIndex((item: any) => {
+            const selectedType = typeLeaves?.find((t: any) => t.id == item.typeLeave);
+            const isAnnualLeave = selectedType?.code === 'AL' || selectedType?.code === 'ALM';
+
+            if (isAnnualLeave) {
+                const baseAvailable = Number(item.availableAnnualLeave || 0);
+                const totalDeductedForThisUser = userUsageMap[item.userCode] || 0;
+
+                return totalDeductedForThisUser > baseAvailable;
             }
             return false;
         });
 
         if (errorRequestIndex !== -1) {
             const rowNumber = errorRequestIndex + 1;
-            ShowToast(lang === 'vi' ? `Dòng số ${rowNumber}: Bạn không thể đăng ký vượt quá số phép năm còn lại!` : `Row ${rowNumber}: Cannot register more than available annual leave!`, 'error');
+            ShowToast(lang === 'vi' ? `Dòng số ${rowNumber}: Tổng phép đăng ký vượt quá số phép còn lại!` : `Row ${rowNumber}: Total leave exceeds available!`, 'error');
             return;
         }
         
@@ -429,57 +441,57 @@ export default function CreateLeaveRequest() {
 
     const calculateAnnualLeaveDeducted = async (index: number) => {
         const rowData = getValues(`userLeaveRequest.${index}`);
-            const { userCode, typeLeave, fromDate, toDate, timeLeaveFrom, timeLeaveTo } = rowData;
+        const { userCode, typeLeave, fromDate, toDate, startPeriod, endPeriod } = rowData;
 
-            const selectedType = typeLeaves?.find(t => t.id.toString() === typeLeave?.toString());
-            const typeCode = selectedType?.code;
+        const selectedType = typeLeaves?.find(t => t.id.toString() === typeLeave?.toString());
+        const typeCode = selectedType?.code;
 
-            if (['AL', 'ALM'].includes(typeCode ?? '') && fromDate && toDate && userCode) {
-                try {
-                    const res = await leaveRequestApi.getListHolidayOfUser({
-                        userCode: userCode,
-                        fromDate: fromDate,
-                        toDate: toDate
-                    });
+        if (['AL', 'ALM'].includes(typeCode ?? '') && fromDate && toDate && userCode) {
+            try {
+                const res = await leaveRequestApi.getListHolidayOfUser({
+                    userCode: userCode,
+                    fromDate: fromDate,
+                    toDate: toDate
+                });
+                
+                const offDaysList: string[] = res.data.data || []; 
+
+                const startDayStr = moment(fromDate).format('YYYY-MM-DD');
+                const endDayStr = moment(toDate).format('YYYY-MM-DD');
+                
+                const diffDays = moment(toDate).diff(moment(fromDate), 'days') + 1;
+
+                const isStartOff = offDaysList.includes(startDayStr);
+                const isEndOff = offDaysList.includes(endDayStr);
+
+                const startDayVal = isStartOff ? 0 : (startPeriod == '1' ? 1 : 0.5);
+                const endDayVal = isEndOff ? 0 : (endPeriod == '1' ? 1 : 0.5);
+
+                let totalDeducted = 0;
+
+                if (diffDays === 1) {
+                    totalDeducted = endDayVal;
+                } else {
+                    let middleDaysCount = 0;
                     
-                    const offDaysList: string[] = res.data.data || []; 
-
-                    const startDayStr = moment(fromDate).format('YYYY-MM-DD');
-                    const endDayStr = moment(toDate).format('YYYY-MM-DD');
-                    
-                    const diffDays = moment(toDate).diff(moment(fromDate), 'days') + 1;
-
-                    const isStartOff = offDaysList.includes(startDayStr);
-                    const isEndOff = offDaysList.includes(endDayStr);
-
-                    const startDayVal = isStartOff ? 0 : (timeLeaveFrom === '1' ? 1 : 0.5);
-                    const endDayVal = isEndOff ? 0 : (timeLeaveTo === '1' ? 1 : 0.5);
-
-                    let totalDeducted = 0;
-
-                    if (diffDays === 1) {
-                        totalDeducted = endDayVal;
-                    } else {
-                        let middleDaysCount = 0;
+                    for (let i = 1; i < diffDays - 1; i++) {
+                        const currentDayStr = moment(fromDate).add(i, 'days').format('YYYY-MM-DD');
                         
-                        for (let i = 1; i < diffDays - 1; i++) {
-                            const currentDayStr = moment(fromDate).add(i, 'days').format('YYYY-MM-DD');
-                            
-                            if (!offDaysList.includes(currentDayStr)) {
-                                middleDaysCount++;
-                            }
+                        if (!offDaysList.includes(currentDayStr)) {
+                            middleDaysCount++;
                         }
-                        
-                        totalDeducted = middleDaysCount + startDayVal + endDayVal;
                     }
-                    setValue(`userLeaveRequest.${index}.totalDays`, Math.max(0, totalDeducted));
-                } catch (error) {
-                    ShowToast(getErrorMessage(error), 'error');
-                    setValue(`userLeaveRequest.${index}.totalDays`, 0);
+                    
+                    totalDeducted = middleDaysCount + startDayVal + endDayVal;
                 }
-            } else {
+                setValue(`userLeaveRequest.${index}.totalDays`, Math.max(0, totalDeducted));
+            } catch (error) {
+                ShowToast(getErrorMessage(error), 'error');
                 setValue(`userLeaveRequest.${index}.totalDays`, 0);
             }
+        } else {
+            setValue(`userLeaveRequest.${index}.totalDays`, 0);
+        }
     }
 
     const handleTypeLeaveChange = async (e: React.ChangeEvent<HTMLSelectElement>, index: number) => {
@@ -527,8 +539,8 @@ export default function CreateLeaveRequest() {
         }
 
         if (fromDate && finalToDate.split(' ')[0] === fromDate.split(' ')[0]) {
-            const currentTimeTo = getValues(`userLeaveRequest.${index}.timeLeaveTo`);
-            setValue(`userLeaveRequest.${index}.timeLeaveFrom`, currentTimeTo);
+            const currentTimeTo = getValues(`userLeaveRequest.${index}.startPeriod`);
+            setValue(`userLeaveRequest.${index}.startPeriod`, currentTimeTo);
         }
 
         if (['AL', 'ALM'].includes(selectedTypeLeave?.code ?? '')) {
@@ -612,11 +624,11 @@ export default function CreateLeaveRequest() {
             <form id="batch-leave-form" onSubmit={handleSubmit(onSubmit, (errors) => {console.log("Submit bị chặn vì lỗi:", errors)})}>
                 <div className="bg-white"> 
                     {fields.map((_field, index) => {
-                        const currentAvailableLeave = getDynamicAvailableAnnualLeave(index);
                         const isDisabledUserCode = (!isEdit && !selfRegister);
 
                         const currentTypeLeave = watch(`userLeaveRequest.${index}.typeLeave`);
                         const currentUserName = watch(`userLeaveRequest.${index}.userName`);
+                        const currentUserCode = watch(`userLeaveRequest.${index}.userCode`);
                         const typeLeaveSeleceted = typeLeaves?.find(t => t.id.toString() === currentTypeLeave);
                         const codeTypeLeave = typeLeaveSeleceted?.code
 
@@ -631,7 +643,7 @@ export default function CreateLeaveRequest() {
 
                         const deduceDay = watch(`userLeaveRequest.${index}.totalDays`);
 
-                        const remainingAfterThisRow = currentAvailableLeave - deduceDay;
+                        const remainingAfterThisRow = getDynamicAvailableAnnualLeave(currentUserCode);
 
                         return (
                             <div key={_field.id} className="bg-white mb-4 border border-gray-200 rounded-lg p-3">
@@ -711,7 +723,7 @@ export default function CreateLeaveRequest() {
                                         >
                                             <option value="">{t("choose")}</option>
                                             {typeLeaves?.map(item => {
-                                                const isDisabled = (item.code == 'AL' || item.code === 'ALM') && currentAvailableLeave <= 0;
+                                                const isDisabled = false //?? (item.code == 'AL' || item.code === 'ALM') && remainingAfterThisRow <= 0;
                                                 return (
                                                     <option key={item.id} value={item.id} disabled={isDisabled} className={`${isDisabled ? 'text-gray-300' : ''} text-sm`}>
                                                         {(lang === "vi" ? item.name : item.nameE)}_{item.code}
@@ -746,17 +758,17 @@ export default function CreateLeaveRequest() {
                                                         {t("time_leave")} <DotRequireComponent />
                                                     </label>
                                                     <select
-                                                        {...control.register(`userLeaveRequest.${index}.timeLeaveFrom`, {
+                                                        {...control.register(`userLeaveRequest.${index}.startPeriod`, {
                                                             onChange: (e) => {
                                                                 const selectedValue = e.target.value;
                                                                 const selectedItem = TIME_LEAVE.find(item => item.value === selectedValue);
                                                                 if (selectedItem) {
-                                                                    setValue(`userLeaveRequest.${index}.timeLeaveFromSession`, selectedItem.session);
+                                                                    setValue(`userLeaveRequest.${index}.startSession`, selectedItem?.session?.toString());
                                                                 }
                                                                 calculateAnnualLeaveDeducted(index);
                                                             }
                                                         })}
-                                                        className={`p-2 text-sm border rounded hover:cursor-pointer w-full border-gray-300 ${errors?.userLeaveRequest?.[index]?.timeLeaveFrom ? 'border border-red-300 bg-red-100' : ''}`}
+                                                        className={`p-2 text-sm border rounded hover:cursor-pointer w-full border-gray-300 ${errors?.userLeaveRequest?.[index]?.startPeriod ? 'border border-red-300 bg-red-100' : ''}`}
                                                     >
                                                         {TIME_LEAVE.map((item, idx: number) => (
                                                             <option key={idx} value={item.value}>
@@ -795,17 +807,17 @@ export default function CreateLeaveRequest() {
                                                 </label>
                                                 <select
                                                     disabled={watchedRequests[index]?.typeLeave == ''}
-                                                    {...control.register(`userLeaveRequest.${index}.timeLeaveTo`, {
+                                                    {...control.register(`userLeaveRequest.${index}.endPeriod`, {
                                                         onChange: (e) => {
                                                             const selectedValue = e.target.value;
                                                             const selectedItem = TIME_LEAVE.find(item => item.value === selectedValue);
                                                             if (selectedItem) {
-                                                                setValue(`userLeaveRequest.${index}.timeLeaveToSession`, selectedItem.session);
+                                                                setValue(`userLeaveRequest.${index}.endSession`, selectedItem?.session?.toString());
                                                             }
                                                             calculateAnnualLeaveDeducted(index)
                                                         }
                                                     })}
-                                                    className={`p-2 text-sm disabled:bg-gray-200 border rounded hover:cursor-pointer w-full border-gray-300 ${errors?.userLeaveRequest?.[index]?.timeLeaveTo ? 'border border-red-300 bg-red-100' : ''}`}
+                                                    className={`p-2 text-sm disabled:bg-gray-200 border rounded hover:cursor-pointer w-full border-gray-300 ${errors?.userLeaveRequest?.[index]?.endPeriod ? 'border border-red-300 bg-red-100' : ''}`}
                                                 >
                                                     {TIME_LEAVE.map((item, idx: number) => (
                                                         <option key={idx} value={item.value}>
