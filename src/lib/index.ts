@@ -79,16 +79,22 @@ export const TYPE_LEAVE = [
 
 export const TIME_LEAVE = [
     {
-        label: "all_day",
+        session: 'ALL',
+        label: "Cả ngày",
+        labelE: 'All day',
         value: "1"
     },
     {
-        label: "morning",
-        value: "2"
+        session: 'FIRST',
+        label: 'Nửa ca đầu',
+        labelE: 'First half',
+        value: "0.5"
     },
     {
-        label: "afternoon",
-        value: "3"
+        session: 'SECOND',
+        label: "Nửa ca sau",
+        labelE: 'Second half',
+        value: "0.5"
     }
 ]
 

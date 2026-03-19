@@ -36,21 +36,8 @@ export default function LoginPage() {
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const input = e.target.value;
-        if (showPassword) {
-            setPassword(input);
-        } else {
-            const prev = password;
-            if (input.length < prev.length) {
-                setPassword(prev.slice(0, -1));
-            } else {
-                const newChar = input[input.length - 1];
-                setPassword(prev + newChar);
-            }
-        }
+        setPassword(e.target.value)
     };
-
-    const displayValue = showPassword ? password : "•".repeat(password.length);
 
     return (
         <div className="flex h-[100vh] min-h-screen items-start justify-center py-12 lg:px-8 bg-white p-4">
@@ -96,11 +83,10 @@ export default function LoginPage() {
                                 id="password"
                                 name="password"
                                 type="text"
-                                value={displayValue}
+                                value={password}
                                 onChange={handleChange}
                                 required
-                                autoComplete="off"
-                                className="w-full p-3 text-black border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black"
+                                className={`${!showPassword ? 'input-password-hide' : ''} w-full p-3 text-black border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black`}
                             />
                             <button
                                 type="button"

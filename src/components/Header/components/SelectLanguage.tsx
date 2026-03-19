@@ -10,9 +10,9 @@ export default function SelectedLanguage() {
 
     return <>
         <div className="pr-3 flex items-center">
-            <div className="border">
+            <div className="">
                 <Select onValueChange={handleLanguageChange}>
-                    <SelectTrigger className="w-[70px] hover:cursor-pointer border-gray-300">
+                    <SelectTrigger className="w-[70px] hover:cursor-pointer border border-gray-300">
                         <img
                             src={i18n.language === 'vi' ? '/icon-vi.png' : '/icon-en.png'}
                             className="w-7 h-6 rounded-md"

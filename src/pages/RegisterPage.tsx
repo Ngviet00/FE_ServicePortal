@@ -256,9 +256,9 @@ export default function RegisterPage() {
                             <input 
                                 autoFocus 
                                 tabIndex={1}
-                                type={showPassword ? "text" : "password"} 
+                                type='text' 
                                 placeholder={lang === 'vi' ? 'Mật khẩu mới' : 'New password'}
-                                className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
+                                className={`${!showPassword ? 'input-password-hide' : ''} w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black pr-12`}
                                 value={formData.password}
                                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                                 required
@@ -276,9 +276,9 @@ export default function RegisterPage() {
                             <label htmlFor="" className="font-medium text-[15px]">{lang === 'vi' ? 'Xác nhận mật khẩu' : 'Confirm password'}</label>
                             <input 
                                 tabIndex={2}
-                                type={showPassword ? "text" : "password"} 
+                                type='text'
                                 placeholder={lang === 'vi' ? 'Xác nhận mật khẩu' : 'Confirm password'}
-                                className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black pr-12"
+                                className={`${!showPassword ? 'input-password-hide' : ''} w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-black pr-12`}
                                 value={formData.confirmPassword}
                                 onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                                 required

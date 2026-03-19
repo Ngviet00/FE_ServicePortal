@@ -20,7 +20,6 @@ import MemoNotification from '@/features/MemoNotification/MemoNotification';
 import CreateMemoNotification from '@/features/MemoNotification/CreateMemoNotification';
 import AdminSetting from '@/pages/AdminSetting';
 import HRManagementTimekeeping from '@/features/TimeKeeping/HRManagementTimekeeping';
-import LeaveRequestFormForOthers from '@/features/Leave/LeaveRequestFormForOthers';
 import PersonalInfo from '@/pages/PersonalInfo';
 import './App.css'
 import HRManagementLeaveRequest from '@/features/Leave/HRManagementLeaveRequest';
@@ -95,6 +94,7 @@ import CheckDataUserScan from '@/features/ScannerMachine/CheckDataUserScan';
 import AddAttendanceData from '@/features/ScannerMachine/AddAttendanceData';
 import CreateManualLoginAccount from '@/features/User/CreateManualLoginAccount';
 import HRReport from '@/features/HR/Report/HRReport';
+import CreateLeaveRequest from '@/features/Leave/CreateLeaveRequest';
 
 function App() {
 	const location = useLocation();
@@ -142,8 +142,8 @@ function App() {
 		//leave + timekeeping
 		{ path: "/leave/statistics", element: <StatisticalLeaveRqForm/> },
 		{ path: "/leave", element: <ListLeaveRequest/> },
-		{ path: "/leave/create", element: <LeaveRequestFormForOthers/> },
-		{ path: "/leave/edit/:id", element: <LeaveRequestFormForOthers/> },
+		{ path: "/leave/create", element: <CreateLeaveRequest/> },
+		{ path: "/leave/edit/:id", element: <CreateLeaveRequest/> },
 		{ path: "/leave/leave-registered", element: <ListLeaveRequestRegistered/> },
 
 		//overtime

@@ -31,7 +31,7 @@ export default function ChangePasswordPage() {
         e.preventDefault();
 
         if (newPassword != confirmPassword) {
-            ShowToast(t("change_password_page.password_dont_match"), "error")
+            ShowToast(lang == 'vi' ? 'Mật khẩu không giống nhau' : 'Password does not match', "error")
             return
         }
         
@@ -78,13 +78,11 @@ export default function ChangePasswordPage() {
     }
 
     const handleChangeNewPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newPassword = event.target.value;
-        setNewPassword(newPassword);
+        setNewPassword(event.target.value);
     };
 
     const handleChangeConfirmNewPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newPassword = event.target.value;
-        setConfirmNewPassword(newPassword);
+        setConfirmNewPassword(event.target.value)
     };
 
     return <>
@@ -123,12 +121,12 @@ export default function ChangePasswordPage() {
                             <input
                                 id="new_password"
                                 name="new_password"
-                                type={showPassword ? "text" : "password"}
+                                type='text'
                                 value={newPassword}
                                 required
                                 placeholder={t('change_password_page.new_password')}
                                 onChange={handleChangeNewPassword}
-                                className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
+                                className={`${!showPassword ? 'input-password-hide' : ''} h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6`}
                             />
                             <button
                                 type="button"
@@ -150,13 +148,13 @@ export default function ChangePasswordPage() {
                             <input
                                 id="confirm_password"
                                 name="confirm_password"
-                                type={showConfirmPw ? "text" : "password"}
+                                type='text'
                                 value={confirmPassword}
                                 required
                                 placeholder={t('change_password_page.confirm_password')}
                                 onChange={handleChangeConfirmNewPassword}
                                 autoComplete="current-password"
-                                className="h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
+                                className={`${!showConfirmPw ? 'input-password-hide' : ''} h-[36px] block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6`}
                             />
                             <button
                                 type="button"
@@ -176,7 +174,7 @@ export default function ChangePasswordPage() {
                             !hasAlphanumeric(newPassword) ||
                             !hasSpecialCharacter(newPassword)
                         }
-                            className="cursor-pointer flex w-full bg-black hover:bg-gray-800 justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
+                            className="cursor-pointer disabled:bg-gray-800 disabled:hover:cursor-not-allowed flex w-full bg-black hover:bg-gray-800 justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2"
                         >
                             { loading ? <Spinner size='small' className="text-white"/> : t('update') }
                         </button>

@@ -110,7 +110,7 @@ export default function Timekeeping () {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                tooltip: { enabled: true },
+                tooltip: { enabled: false },
                 legend: {
                     position: "right" as const,
                     labels: { font: { size: 14 }, boxWidth: 12 }
