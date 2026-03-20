@@ -33,6 +33,8 @@ export const userLeaveRequestSchema = z.object({
     availableAnnualLeave: z.number(),
     totalDays: z.number(),
 
+    nationalityId: z.string().optional(),
+
     fromDate: z.string().nonempty({ message: "Bắt buộc." }),
     toDate: z.string().nonempty({ message: "Bắt buộc." }),
 
@@ -87,7 +89,8 @@ export default function CreateLeaveRequest() {
                 startPeriod: '1', //1 công
                 endPeriod: '1', //1 công
                 startSession: '1', //cả ngày
-                endSession: '1', //cả ngày
+                endSession: '1', //cả ngày,
+                nationalityId: '1',
                 availableAnnualLeave: 0,
                 totalDays: 0,
                 reason: '',
@@ -164,8 +167,9 @@ export default function CreateLeaveRequest() {
                         toDate: todayStr,
                         startPeriod: '1',
                         endPeriod: '1',
-                        startSession: 'ALL',
-                        endSession: 'ALL',
+                        startSession: '1',
+                        endSession: '1',
+                        nationalityId: myUserInfoLeave?.nationalityId?.toString() ?? '1',
                         totalDays: 0,
                         reason: '',
                         typeLeave: ''
@@ -208,6 +212,7 @@ export default function CreateLeaveRequest() {
             endPeriod: '1',
             startSession: '1',
             endSession: '1',
+            nationalityId: '1',
             reason: '',
             dateJoinCompany: '',
             availableAnnualLeave: -1,
@@ -235,6 +240,7 @@ export default function CreateLeaveRequest() {
                         endPeriod: '1',
                         startSession: '1',
                         endSession: '1',
+                        nationalityId: '1',
                         totalDays: 0,
                         reason: '',
                         typeLeave: ''
@@ -262,6 +268,7 @@ export default function CreateLeaveRequest() {
             setValue(`userLeaveRequest.${index}.availableAnnualLeave`, -1);
             setValue(`userLeaveRequest.${index}.totalDays`, 0);
             setValue(`userLeaveRequest.${index}.typeLeave`, '');
+            setValue(`userLeaveRequest.${index}.nationalityId`, '1');
             lastUserCodesRef.current[index] = "";
             return;
         }
@@ -282,6 +289,7 @@ export default function CreateLeaveRequest() {
             setValue(`userLeaveRequest.${index}.departmentId`, result?.departmentId ?? -1, {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.position`, result?.unitNameV ?? "", {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.dateJoinCompany`, result?.entryDate ?? '', {shouldValidate: true});
+            setValue(`userLeaveRequest.${index}.nationalityId`, result?.nationalityId?.toString() ?? '1');
             setValue(`userLeaveRequest.${index}.availableAnnualLeave`, result?.available ?? '');
         } catch (err) {
             ShowToast(getErrorMessage(err), "error");
@@ -292,6 +300,7 @@ export default function CreateLeaveRequest() {
             setValue(`userLeaveRequest.${index}.dateJoinCompany`, '', {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.availableAnnualLeave`, -1);
             setValue(`userLeaveRequest.${index}.totalDays`, 0);
+            setValue(`userLeaveRequest.${index}.nationalityId`, '1');
             setValue(`userLeaveRequest.${index}.typeLeave`, '');
         } finally {
             setIsSearchingUser(false);
@@ -341,47 +350,45 @@ export default function CreateLeaveRequest() {
             ShowToast(lang === 'vi' ? `Dòng số ${rowNumber}: Tổng phép đăng ký vượt quá số phép còn lại!` : `Row ${rowNumber}: Total leave exceeds available!`, 'error');
             return;
         }
+
+        const fd = new FormData()
+        fd.append('OrgPositionIdUserCreatedForm', String(user?.orgPositionId ?? ''))
+        fd.append('UserCodeCreatedForm', user?.userCode ?? '')
+        fd.append('UserNameCreatedForm', user?.userName ?? '')
+        fd.append('DepartmentIdUserCreatedForm', String(user?.departmentId ?? '-1'))
+
+        data?.userLeaveRequest?.forEach((item, index) => {
+            const startPeriod = TIME_LEAVE.find(p => p.id.toString() == item.startPeriod?.toString());
+            const endPeriod = TIME_LEAVE.find(p => p.id.toString() == item.endPeriod?.toString());
+
+            fd.append(`CreateListLeaveRequests[${index}].Id`, String(item?.id ?? ''));
+            fd.append(`CreateListLeaveRequests[${index}].UserCode`, item?.userCode);
+            fd.append(`CreateListLeaveRequests[${index}].UserName`, item?.userName);
+            fd.append(`CreateListLeaveRequests[${index}].DepartmentId`, String(item?.departmentId ?? -1));
+            fd.append(`CreateListLeaveRequests[${index}].Position`, item?.position);
+            fd.append(`CreateListLeaveRequests[${index}].DateJoinCompany`, item?.dateJoinCompany);
+            fd.append(`CreateListLeaveRequests[${index}].NationalityId`, String(item?.nationalityId));
+            fd.append(`CreateListLeaveRequests[${index}].TypeLeaveId`, item?.typeLeave);
+            fd.append(`CreateListLeaveRequests[${index}].FromDate`, item?.fromDate);
+            fd.append(`CreateListLeaveRequests[${index}].ToDate`, item?.toDate);
+            fd.append(`CreateListLeaveRequests[${index}].StartPeriod`, startPeriod?.value ?? '1');
+            fd.append(`CreateListLeaveRequests[${index}].EndPeriod`, endPeriod?.value ?? '1');
+            fd.append(`CreateListLeaveRequests[${index}].StartSession`, item?.startSession);
+            fd.append(`CreateListLeaveRequests[${index}].EndSession`, item?.endSession);
+            fd.append(`CreateListLeaveRequests[${index}].TotalDays`, String(item?.totalDays));
+            fd.append(`CreateListLeaveRequests[${index}].Reason`, item?.reason);
+            if (item.image) { 
+                fd.append(`CreateListLeaveRequests[${index}].Images`, item.image);
+            }
+        });
         
-        ShowToast('ok')
-        console.log(data);
+        console.table(Object.fromEntries(fd.entries()));
 
-        // const fd = new FormData()
-        // fd.append('OrgPositionIdUserCreatedForm', String(user?.orgPositionId ?? ''))
-        // fd.append('UserCodeCreatedForm', user?.userCode ?? '')
-        // fd.append('UserNameCreatedForm', user?.userName ?? '')
-        // fd.append('DepartmentIdUserCreatedForm', String(user?.departmentId ?? '-1'))
-
-        // data?.userLeaveRequest?.forEach((item, index) => {
-        //     fd.append(`CreateListLeaveRequests[${index}].Id`, String(item?.id ?? ''));
-        //     fd.append(`CreateListLeaveRequests[${index}].UserCode`, item?.userCode);
-        //     fd.append(`CreateListLeaveRequests[${index}].UserName`, item?.userName);
-        //     fd.append(`CreateListLeaveRequests[${index}].DepartmentId`, String(item?.departmentId ?? -1));
-        //     fd.append(`CreateListLeaveRequests[${index}].Position`, item?.position);
-        //     fd.append(`CreateListLeaveRequests[${index}].FromDate`, item?.fromDate);
-        //     fd.append(`CreateListLeaveRequests[${index}].ToDate`, item?.toDate);
-        //     fd.append(`CreateListLeaveRequests[${index}].DateJoinCompany`, item?.dateJoinCompany);
-        //     fd.append(`CreateListLeaveRequests[${index}].TypeLeaveId`, item?.typeLeave);
-        //     fd.append(`CreateListLeaveRequests[${index}].TimeLeaveId`, item?.timeLeave);
-        //     fd.append(`CreateListLeaveRequests[${index}].Reason`, item?.reason);
-        //     fd.append(`CreateListLeaveRequests[${index}].IsUrgent`, String(item?.isUrgent));
-
-        //     item.existingImgs?.forEach((img, i) => {
-        //         fd.append(
-        //             `CreateListLeaveRequests[${index}].ExistingImgIds[${i}]`,
-        //             img?.id?.toString()
-        //         );
-        //     });
-
-        //     item?.images?.forEach(file => {
-        //         fd.append(`CreateListLeaveRequests[${index}].Images`, file);
-        //     });
-        // });
-
-        // if (isEdit) {
-        //     await updateLeaveRequest.mutateAsync({id: id, data: fd})
-        // } else {
-        //     await createLeaveRequest.mutateAsync(fd);
-        // }
+        if (isEdit) {
+            await updateLeaveRequest.mutateAsync({id: id, data: fd})
+        } else {
+            await createLeaveRequest.mutateAsync(fd);
+        }
 
         // navigate("/leave/leave-registered");
     }
@@ -760,10 +767,10 @@ export default function CreateLeaveRequest() {
                                                     <select
                                                         {...control.register(`userLeaveRequest.${index}.startPeriod`, {
                                                             onChange: (e) => {
-                                                                const selectedValue = e.target.value;
-                                                                const selectedItem = TIME_LEAVE.find(item => item.value === selectedValue);
+                                                                const selectedId = e.target.value;
+                                                                const selectedItem = TIME_LEAVE.find(item => item.id.toString() == selectedId);
                                                                 if (selectedItem) {
-                                                                    setValue(`userLeaveRequest.${index}.startSession`, selectedItem?.session?.toString());
+                                                                    setValue(`userLeaveRequest.${index}.startSession`, selectedItem.session.toString());
                                                                 }
                                                                 calculateAnnualLeaveDeducted(index);
                                                             }
@@ -771,7 +778,7 @@ export default function CreateLeaveRequest() {
                                                         className={`p-2 text-sm border rounded hover:cursor-pointer w-full border-gray-300 ${errors?.userLeaveRequest?.[index]?.startPeriod ? 'border border-red-300 bg-red-100' : ''}`}
                                                     >
                                                         {TIME_LEAVE.map((item, idx: number) => (
-                                                            <option key={idx} value={item.value}>
+                                                            <option key={idx} value={item.id}>
                                                                 {lang == 'vi' ? item.label : item.labelE}
                                                             </option>
                                                         ))}
@@ -809,18 +816,20 @@ export default function CreateLeaveRequest() {
                                                     disabled={watchedRequests[index]?.typeLeave == ''}
                                                     {...control.register(`userLeaveRequest.${index}.endPeriod`, {
                                                         onChange: (e) => {
-                                                            const selectedValue = e.target.value;
-                                                            const selectedItem = TIME_LEAVE.find(item => item.value === selectedValue);
+                                                            const selectedId = e.target.value;
+                                                            const selectedItem = TIME_LEAVE.find(item => item.id.toString() == selectedId);
+                                                            
                                                             if (selectedItem) {
-                                                                setValue(`userLeaveRequest.${index}.endSession`, selectedItem?.session?.toString());
+                                                                setValue(`userLeaveRequest.${index}.endSession`, selectedItem.session.toString());
                                                             }
-                                                            calculateAnnualLeaveDeducted(index)
+                                                            
+                                                            calculateAnnualLeaveDeducted(index);
                                                         }
                                                     })}
                                                     className={`p-2 text-sm disabled:bg-gray-200 border rounded hover:cursor-pointer w-full border-gray-300 ${errors?.userLeaveRequest?.[index]?.endPeriod ? 'border border-red-300 bg-red-100' : ''}`}
                                                 >
                                                     {TIME_LEAVE.map((item, idx: number) => (
-                                                        <option key={idx} value={item.value}>
+                                                        <option key={idx} value={item.id}>
                                                             {lang == 'vi' ? item.label : item.labelE}
                                                         </option>
                                                     ))}

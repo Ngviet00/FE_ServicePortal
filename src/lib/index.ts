@@ -79,18 +79,21 @@ export const TYPE_LEAVE = [
 
 export const TIME_LEAVE = [
     {
+        id: 1,
         session: 1,
         label: "Cả ngày",
         labelE: 'All day',
         value: "1"
     },
     {
+        id: 2,
         session: 2,
         label: 'Nửa ca đầu',
         labelE: 'First half',
         value: "0.5"
     },
     {
+        id: 3,
         session: 3,
         label: "Nửa ca sau",
         labelE: 'Second half',
