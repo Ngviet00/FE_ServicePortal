@@ -78,13 +78,13 @@ export default function ListLeaveRequest () {
                             <thead className="bg-gray-100">
                                 <tr className="text-black">
                                     <th className="w-[100px] text-center border border-gray-300 py-2">{ lang == 'vi' ? 'Mã đơn' : 'Code' }</th>
-                                    <th className="w-[100px] text-center border border-gray-300 py-2">{t('list_leave_request.usercode')}</th>
-                                    <th className="w-[150px] text-center border border-gray-300 py-2">{t('list_leave_request.name')}</th>
+                                    <th className="w-[125px] text-center border border-gray-300 py-2">{t('list_leave_request.usercode')}</th>
+                                    <th className="w-[180px] text-center border border-gray-300 py-2">{t('list_leave_request.name')}</th>
                                     <th className="w-[130px] text-center border border-gray-300 py-2">{t('list_leave_request.department')}</th>
                                     <th className="w-[100px] text-center border border-gray-300 py-2">{t('list_leave_request.position')}</th>
                                     <th className="w-[80px] text-center border border-gray-300 py-2">{t('list_leave_request.from')}</th>
                                     <th className="w-[80px] text-center border border-gray-300 py-2">{t('list_leave_request.to')}</th>
-                                    <th className="w-[120px] text-center border border-gray-300 py-2">{t('list_leave_request.type_leave')}</th>
+                                    <th className="w-[200px] text-center border border-gray-300 py-2">{t('list_leave_request.type_leave')}</th>
                                     <th className="w-[120px] text-center border border-gray-300 py-2">{t('list_leave_request.time_leave')}</th>
                                     <th className="w-[200px] text-center border border-gray-300 py-2">{t('list_leave_request.reason')}</th>
                                     <th className="w-[150px] text-center border border-gray-300 py-2">{t('list_leave_request.write_leave_name')}</th>
@@ -96,19 +96,15 @@ export default function ListLeaveRequest () {
                             <tbody>
                                 {isPending ? (
                                     Array.from({ length: 3 }).map((_, index) => (
-                                        <tr key={index}>
+                                        <tr key={index} className="">
                                             {Array.from({ length: 13 }).map((_, i) => (
-                                                <td key={i} className="border">
-                                                    <div className="flex justify-center">
-                                                        <Skeleton className="h-4 w-[100px] bg-gray-300" />
-                                                    </div>
-                                                </td>
+                                                <td key={i} className="border py-2 px-4"><div className="flex justify-center"><Skeleton className="h-4 w-[65px] bg-gray-300" /></div></td>
                                             ))}
                                         </tr>
                                     ))
                                 ) : isError || leaveRequests.length === 0 ? (
                                     <tr>
-                                        <td colSpan={13} className="text-red-700 border text-center font-medium ">
+                                        <td colSpan={13} className="text-red-700 border text-center font-medium py-2 px-4">
                                             {error?.message ?? t('list_leave_request.no_result')}
                                         </td>
                                     </tr>
@@ -116,45 +112,33 @@ export default function ListLeaveRequest () {
                                     leaveRequests.map((item: GetMyLeaveRequest) => (
                                         <tr key={item.leaveRequestId}>
                                             <td className="text-center border border-gray-300 px-4 py-2">
-                                                <Link
-                                                    to={`/view/${item?.code}?requestType=${item?.requestTypeId}`}
-                                                    className="text-blue-600 underline"
-                                                >
+                                                <Link to={`/view/${item?.code}?requestType=${item?.requestTypeId}`} className="text-blue-600 underline">
                                                     {item?.code}
                                                 </Link>
                                             </td>
-
                                             <td className="text-center border border-gray-300 px-4 py-2">{item?.userCode}</td>
                                             <td className="text-center border border-gray-300 px-4 py-2">{item?.userName}</td>
                                             <td className="text-center border border-gray-300 px-4 py-2">{item?.departmentName}</td>
                                             <td className="text-center border border-gray-300 px-4 py-2">{item.position}</td>
-
                                             <td className="text-center border border-gray-300 px-4 py-2">
                                                 {formatDate(item.fromDate ?? "", "yyyy/MM/dd HH:mm:ss")}
                                             </td>
-
                                             <td className="text-center border border-gray-300 px-4 py-2">
                                                 {formatDate(item.toDate ?? "", "yyyy/MM/dd HH:mm:ss")}
                                             </td>
-
-                                            <td className="text-center border border-gray-300 px-4 py-2">
+                                            <td className="text-center border border-gray-300 px-4 py-2 text-[13px]">
                                                 {lang == 'vi' ? item?.typeLeaveName : item?.typeLeaveNameE}
                                             </td>
-
                                             <td className="text-center border border-gray-300 px-4 py-2">
                                                 {lang == 'vi' ? item?.timeLeaveName : item?.timeLeaveNameE}
                                             </td>
-
                                             <td className="text-center border border-gray-300 px-4 py-2">{item?.reason}</td>
-
                                             <td className="text-center font-bold text-red-700 border border-gray-300 px-4 py-2">
                                                 {item?.userNameCreatedForm}
                                             </td>
-
                                             <td className="text-center border border-gray-300 px-4 py-2">
                                                 {formatDate(item.createdAt ?? "", "yyyy/MM/dd HH:mm:ss")}
                                             </td>
-
                                             <td className="text-center border border-gray-300 px-4 py-2">
                                                 <StatusLeaveRequest
                                                     status={

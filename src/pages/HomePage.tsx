@@ -56,7 +56,8 @@ export default function HomePage() {
                     unitId: result?.unitId,
                     unitName: result?.unitName,
                     unitNameV: result?.unitNameV,
-                    dateJoinCompany: result?.dateJoinCompany
+                    dateJoinCompany: result?.dateJoinCompany,
+                    nationalityId: result?.nationalityId
                 })
 
                 return res.data.data;

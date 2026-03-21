@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import typeLeaveApi, { ITypeLeave } from "@/api/typeLeaveApi";
-import { Checkbox } from "@/components/ui/checkbox";
-import userConfigApi from "@/api/userConfigApi";
+// import { Checkbox } from "@/components/ui/checkbox";
+// import userConfigApi from "@/api/userConfigApi";
 import FullscreenLoader from "@/components/FullscreenLoader";
 import { z } from "zod";
 import { Controller, SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -32,8 +32,6 @@ export const userLeaveRequestSchema = z.object({
     dateJoinCompany: z.string().nonempty({ message: "Bắt buộc." }),
     availableAnnualLeave: z.number(),
     totalDays: z.number(),
-
-    nationalityId: z.string().optional(),
 
     fromDate: z.string().nonempty({ message: "Bắt buộc." }),
     toDate: z.string().nonempty({ message: "Bắt buộc." }),
@@ -62,7 +60,7 @@ export default function CreateLeaveRequest() {
     const navigate = useNavigate();
     const createLeaveRequest = useCreateLeaveRequest()
     const updateLeaveRequest = useUpdateLeaveRq()
-    const [checkReceiveEmail, setCheckReceiveEmail] = useState(false)
+    // const [checkReceiveEmail, setCheckReceiveEmail] = useState(false)
     const [selfRegister, setSelfRegister] = useState(false)
     const lastUserCodesRef = useRef<Record<number, string>>({})
     const [isSearchingUser, setIsSearchingUser] = useState(false)
@@ -90,7 +88,6 @@ export default function CreateLeaveRequest() {
                 endPeriod: '1', //1 công
                 startSession: '1', //cả ngày
                 endSession: '1', //cả ngày,
-                nationalityId: '1',
                 availableAnnualLeave: 0,
                 totalDays: 0,
                 reason: '',
@@ -110,22 +107,22 @@ export default function CreateLeaveRequest() {
         select: (data) => data.filter(item => item.typeGroup === 'USER')
     });
 
-    const { data: receiveEmail } = useQuery({
-        queryKey: ['get-email-by-usercode-and-key'],
-        queryFn: async () => {
-            const res = await userConfigApi.getConfigByUsercodeAndkey({ userCode: user?.userCode, key: "RECEIVE_MAIL_LEAVE_REQUEST" });
-            return res.data.data;
-        },
-        enabled: false// mode == 'create'
-    });
+    // const { data: receiveEmail } = useQuery({
+    //     queryKey: ['get-email-by-usercode-and-key'],
+    //     queryFn: async () => {
+    //         const res = await userConfigApi.getConfigByUsercodeAndkey({ userCode: user?.userCode, key: "RECEIVE_MAIL_LEAVE_REQUEST" });
+    //         return res.data.data;
+    //     },
+    //     enabled: false// mode == 'create'
+    // });
 
-    useEffect(() => {
-        if (receiveEmail) {
-            setCheckReceiveEmail(receiveEmail.value == "true")
-        } else {
-            setCheckReceiveEmail(true); 
-        }
-    }, [receiveEmail])
+    // useEffect(() => {
+    //     if (receiveEmail) {
+    //         setCheckReceiveEmail(receiveEmail.value == "true")
+    //     } else {
+    //         setCheckReceiveEmail(true); 
+    //     }
+    // }, [receiveEmail])
     
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['leaveRequestForm', id],
@@ -169,7 +166,6 @@ export default function CreateLeaveRequest() {
                         endPeriod: '1',
                         startSession: '1',
                         endSession: '1',
-                        nationalityId: myUserInfoLeave?.nationalityId?.toString() ?? '1',
                         totalDays: 0,
                         reason: '',
                         typeLeave: ''
@@ -212,7 +208,6 @@ export default function CreateLeaveRequest() {
             endPeriod: '1',
             startSession: '1',
             endSession: '1',
-            nationalityId: '1',
             reason: '',
             dateJoinCompany: '',
             availableAnnualLeave: -1,
@@ -240,7 +235,6 @@ export default function CreateLeaveRequest() {
                         endPeriod: '1',
                         startSession: '1',
                         endSession: '1',
-                        nationalityId: '1',
                         totalDays: 0,
                         reason: '',
                         typeLeave: ''
@@ -268,7 +262,6 @@ export default function CreateLeaveRequest() {
             setValue(`userLeaveRequest.${index}.availableAnnualLeave`, -1);
             setValue(`userLeaveRequest.${index}.totalDays`, 0);
             setValue(`userLeaveRequest.${index}.typeLeave`, '');
-            setValue(`userLeaveRequest.${index}.nationalityId`, '1');
             lastUserCodesRef.current[index] = "";
             return;
         }
@@ -289,7 +282,6 @@ export default function CreateLeaveRequest() {
             setValue(`userLeaveRequest.${index}.departmentId`, result?.departmentId ?? -1, {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.position`, result?.unitNameV ?? "", {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.dateJoinCompany`, result?.entryDate ?? '', {shouldValidate: true});
-            setValue(`userLeaveRequest.${index}.nationalityId`, result?.nationalityId?.toString() ?? '1');
             setValue(`userLeaveRequest.${index}.availableAnnualLeave`, result?.available ?? '');
         } catch (err) {
             ShowToast(getErrorMessage(err), "error");
@@ -300,26 +292,25 @@ export default function CreateLeaveRequest() {
             setValue(`userLeaveRequest.${index}.dateJoinCompany`, '', {shouldValidate: true});
             setValue(`userLeaveRequest.${index}.availableAnnualLeave`, -1);
             setValue(`userLeaveRequest.${index}.totalDays`, 0);
-            setValue(`userLeaveRequest.${index}.nationalityId`, '1');
             setValue(`userLeaveRequest.${index}.typeLeave`, '');
         } finally {
             setIsSearchingUser(false);
         }
     }
     
-    const handleCheckChange = async (checked: boolean) => {
-        try {
-            await userConfigApi.saveOrUpdate({
-                userCode: user?.userCode,
-                key: "RECEIVE_MAIL_LEAVE_REQUEST",
-                value: checked ? "true" : "false",
-            });
-            setCheckReceiveEmail(checked)
-            ShowToast(lang == 'vi' ? "Cập nhật thành công" : "Success")
-        } catch (error) {
-            ShowToast(getErrorMessage(error), "error")
-        }
-    }
+    // const handleCheckChange = async (checked: boolean) => {
+    //     try {
+    //         await userConfigApi.saveOrUpdate({
+    //             userCode: user?.userCode,
+    //             key: "RECEIVE_MAIL_LEAVE_REQUEST",
+    //             value: checked ? "true" : "false",
+    //         });
+    //         setCheckReceiveEmail(checked)
+    //         ShowToast(lang == 'vi' ? "Cập nhật thành công" : "Success")
+    //     } catch (error) {
+    //         ShowToast(getErrorMessage(error), "error")
+    //     }
+    // }
 
     const onSubmit: SubmitHandler<LeaveRequestForm> = async (data) => {
         const userUsageMap = data.userLeaveRequest.reduce((acc: any, item: any) => {
@@ -356,6 +347,7 @@ export default function CreateLeaveRequest() {
         fd.append('UserCodeCreatedForm', user?.userCode ?? '')
         fd.append('UserNameCreatedForm', user?.userName ?? '')
         fd.append('DepartmentIdUserCreatedForm', String(user?.departmentId ?? '-1'))
+        fd.append('NationalityId', String(user?.nationalityId ?? '1'))
 
         data?.userLeaveRequest?.forEach((item, index) => {
             const startPeriod = TIME_LEAVE.find(p => p.id.toString() == item.startPeriod?.toString());
@@ -367,7 +359,6 @@ export default function CreateLeaveRequest() {
             fd.append(`CreateListLeaveRequests[${index}].DepartmentId`, String(item?.departmentId ?? -1));
             fd.append(`CreateListLeaveRequests[${index}].Position`, item?.position);
             fd.append(`CreateListLeaveRequests[${index}].DateJoinCompany`, item?.dateJoinCompany);
-            fd.append(`CreateListLeaveRequests[${index}].NationalityId`, String(item?.nationalityId));
             fd.append(`CreateListLeaveRequests[${index}].TypeLeaveId`, item?.typeLeave);
             fd.append(`CreateListLeaveRequests[${index}].FromDate`, item?.fromDate);
             fd.append(`CreateListLeaveRequests[${index}].ToDate`, item?.toDate);
@@ -572,22 +563,22 @@ export default function CreateLeaveRequest() {
                             <span>{ isEdit ? t('title_update') : t('sub_title') } </span>
                         </h3>
                         {
-                            !isEdit && (
-                                <div className="flex items-center mt-2 md:mt-0">
-                                    <Checkbox
-                                        checked={checkReceiveEmail}
-                                        onCheckedChange={(checked) => handleCheckChange(!!checked)}
-                                        id="receive-mail"
-                                        className="w-5 h-5 md:w-6 md:h-6 hover:cursor-pointer border border-gray-700"
-                                    />
-                                    <label
-                                        htmlFor="receive-mail"
-                                        className="ml-2 text-sm md:text-base font-medium leading-tight hover:cursor-pointer"
-                                    >
-                                        {lang == 'vi' ? 'Nhận thông báo qua email' : 'Receive notifications via email'}
-                                    </label>
-                                </div>
-                            )
+                            // !isEdit && (
+                            //     <div className="flex items-center mt-2 md:mt-0">
+                            //         <Checkbox
+                            //             checked={checkReceiveEmail}
+                            //             onCheckedChange={(checked) => handleCheckChange(!!checked)}
+                            //             id="receive-mail"
+                            //             className="w-5 h-5 md:w-6 md:h-6 hover:cursor-pointer border border-gray-700"
+                            //         />
+                            //         <label
+                            //             htmlFor="receive-mail"
+                            //             className="ml-2 text-sm md:text-base font-medium leading-tight hover:cursor-pointer"
+                            //         >
+                            //             {lang == 'vi' ? 'Nhận thông báo qua email' : 'Receive notifications via email'}
+                            //         </label>
+                            //     </div>
+                            // )
                         }
                     </div>
                 </div>
