@@ -9,7 +9,6 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { Switch } from "@/components/ui/switch";
 import memoNotificationApi, { useCreateMemoNotification, useUpdateMemoNotification } from "@/api/memoNotificationApi";
 import { useAuthStore } from "@/store/authStore";
 import { getVietnamTime } from "@/lib/time";
@@ -23,8 +22,8 @@ import FileListPreview from "@/components/ComponentCustom/FileListPreviewMemoNot
 import systemConfigApi from "@/api/systemConfigApi";
 import useHasPermission from "@/hooks/useHasPermission";
 import orgUnitApi from "@/api/orgUnitApi";
+import { Checkbox } from "@/components/ui/checkbox";
 
-// Remove all HTML tags to check empty
 const isQuillContentEmpty = (html: string) => {
     const text = html.replace(/<[^>]*>/g, "").trim(); 
     return text === "";
@@ -174,12 +173,13 @@ export default function CreateMemoNotification () {
             form.setValue("attachments", []);
             (async () => {
                 try {
-                    const data = await memoNotificationApi.getById(Number(id));
-                    const result = data.data.data;
+                    const res = await memoNotificationApi.getById(Number(id));
+                    const result = res.data.data;
 
                     const selectedDepartments = result.applyAllDepartment
-                        ? options.map((opt: {value: string}) => opt.value)
-                        : result?.memoNotificationDepartments?.map((item: { orgUnit: { id: any; }; }) => item?.orgUnit?.id);
+                        ? options.map((opt: any) => opt.value)
+                        : result?.memoNotificationDepartments?.map((item: any) => item?.orgUnit?.id) || [];
+                    
                     form.reset({
                         title: result.title,
                         content: result.content,
@@ -191,26 +191,37 @@ export default function CreateMemoNotification () {
                         status: result.status,
                     });
 
-                    setUploadedFiles(result.files || []);
+                    setUploadedFiles(result.systemFiles || []); 
                 } catch (err) {
                     ShowToast(getErrorMessage(err), "error");
                 }
             })();
-         }
-    }, [form, id, options])
+        }
+    }, [form, id, options]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files && files.length > 0) {
             const newFiles = Array.from(files);
-            const oversizedFiles = newFiles.filter(file => file.size > (dataMaxUploadFileMemo ?? 5) * 1024 * 1024);
+            
+            // Check size
+            const limitSize = (dataMaxUploadFileMemo ?? 5) * 1024 * 1024;
+            const oversizedFiles = newFiles.filter(file => file.size > limitSize);
+            
             if (oversizedFiles.length > 0) {
-                alert(`File phải nhỏ hơn ${dataMaxUploadFileMemo ?? 5}MB.`)
+                alert(`File phải nhỏ hơn ${dataMaxUploadFileMemo ?? 5}MB.`);
                 return;
             }
-            const newLocalFiles = [...localFiles, ...newFiles];
-            setLocalFiles(newLocalFiles);
-            form.setValue("attachments", newLocalFiles);
+
+            // Cập nhật state cục bộ để hiển thị preview
+            const updatedLocalFiles = [...localFiles, ...newFiles];
+            setLocalFiles(updatedLocalFiles);
+            
+            // Cập nhật vào react-hook-form để submit
+            form.setValue("attachments", updatedLocalFiles, { shouldValidate: true });
+            
+            // Reset input để có thể chọn lại cùng 1 file nếu lỡ tay xóa
+            e.target.value = ""; 
         }
     };
 
@@ -345,30 +356,32 @@ export default function CreateMemoNotification () {
                                 </FormItem>
                             )}
                         />
-
                         <FormField
                             control={form.control}
                             name="status"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-center space-x-3 space-y-0 mt-4">
-                                    <FormLabel htmlFor="status" className="font-bold hover:cursor-pointer">
-                                        {t('memo_notification.list.status')}
-                                    </FormLabel>
                                     <FormControl>
-                                        <Switch
-                                            className="border border-gray-300 data-[state=checked]:bg-gray-400 data-[state=unchecked]:bg-gray-200 hover:cursor-pointer"
+                                        <Checkbox
                                             id="status"
                                             checked={field.value}
                                             onCheckedChange={field.onChange}
+                                            className="h-5 w-5 border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 transition-all cursor-pointer"
                                         />
                                     </FormControl>
+                                    <FormLabel 
+                                        htmlFor="status" 
+                                        className="font-bold hover:cursor-pointer text-sm select-none"
+                                    >
+                                        {t('memo_notification.list.status')}
+                                    </FormLabel>
                                 </FormItem>
                             )}
                         />
 
                         <FormItem className="w-[18%] mt-4">
                             <FormLabel>{t('memo_notification.list.display')}</FormLabel>
-                            <div className="border border-gray-300">
+                            <div className="">
                                 <FormControl>
                                     <Controller
                                         control={form.control}
