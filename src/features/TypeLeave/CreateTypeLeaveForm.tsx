@@ -74,7 +74,7 @@ export default function CreateTypeLeaveForm({ typeLeave, onAction }: Props) {
         if (typeLeave && open) {
             form.reset({ name: typeLeave.name, nameE: typeLeave.nameE, code: typeLeave.code, typeGroup: typeLeave.typeGroup || "USER" });
         } else {
-            form.reset({ name: "" });
+            form.reset({ name: "", typeGroup: "USER" });
         }
     }, [typeLeave, open, form]);
 

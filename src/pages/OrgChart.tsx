@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -33,59 +34,53 @@ const nodeStyle: React.CSSProperties = {
 	boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function groupUsersByOrgUnit(rawNodes: any[]): OrgChartNode[] {
-    const grouped: { [key: number]: OrgChartNode } = {};
-
-    rawNodes.forEach((raw) => {
-        const orgPositionId = raw.orgPositionId;
-        if (!grouped[orgPositionId]) {
-            grouped[orgPositionId] = {
-                orgPositionId: orgPositionId,
-                teamName: raw.teamName,
-                positionName: raw.positionName,
-                people: [],
-                children: [],
-            };
-        }
-
-        grouped[orgPositionId].people.push({
-            userName: raw.userName ?? "--",
-            userCode: raw.userCode ?? "--",
-            orgPositionId: orgPositionId,
+    return rawNodes.map((raw) => {
+        return {
+            orgPositionId: raw.orgPositionId,
             teamName: raw.teamName,
-            parentOrgPositionId: raw.parentOrgPositionId,
             positionName: raw.positionName,
-        });
-
-        if (raw.children && raw.children.length > 0) {
-            grouped[orgPositionId].children.push(...groupUsersByOrgUnit(raw.children));
-        }
+            people: raw.users && raw.users.length > 0 
+                ? raw.users.map((u: any) => ({
+                    ...u,
+                    orgPositionId: raw.orgPositionId,
+                    positionName: raw.positionName,
+                    teamName: raw.teamName
+                }))
+                : [{ 
+                    userName: "--", 
+                    userCode: "--", 
+                    orgPositionId: raw.orgPositionId, 
+                    positionName: raw.positionName, 
+                    teamName: raw.teamName 
+                }],
+            children: groupUsersByOrgUnit(raw.children || [])
+        };
     });
-
-    return Object.values(grouped);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function convertToOrgChartNode(rawRoot: any): OrgChartNode {
-	const root: OrgChartNode = {
-		orgPositionId: rawRoot.orgPositionId,
-		teamName: rawRoot.teamName,
-		people: [{
-			userName: rawRoot.userName,
-			userCode: rawRoot.userCode,
-			orgPositionId: rawRoot.orgPositionId,
-			teamName: rawRoot.teamName,
-			parentOrgPositionId: rawRoot.parentOrgPositionId,
-			positionName: rawRoot.positionName,
-		}],
-		children: [],
-		positionName: rawRoot.positionName
-	};
-
-	const flatChildren = groupUsersByOrgUnit(rawRoot.children || []);
-	root.children = flatChildren;
-	return root;
+    return {
+        orgPositionId: rawRoot.orgPositionId,
+        teamName: rawRoot.teamName,
+        positionName: rawRoot.positionName,
+        people: rawRoot.users && rawRoot.users.length > 0 
+            ? rawRoot.users.map((u: any) => ({
+                ...u,
+                orgPositionId: rawRoot.orgPositionId,
+                positionName: rawRoot.positionName,
+                teamName: rawRoot.teamName,
+                parentOrgPositionId: rawRoot.parentOrgPositionId
+            }))
+            : [{ 
+                userName: rawRoot.userName, 
+                userCode: rawRoot.userCode, 
+                orgPositionId: rawRoot.orgPositionId, 
+                positionName: rawRoot.positionName, 
+                teamName: rawRoot.teamName 
+            }],
+        children: groupUsersByOrgUnit(rawRoot.children || [])
+    };
 }
 
 const NodeContent: React.FC<{ people: Person[]; orgPositionId: number }> = ({ people }) => {

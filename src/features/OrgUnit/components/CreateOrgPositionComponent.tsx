@@ -20,7 +20,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod"
 
 export default function CreateOrgPositionComponent () {
-    const [totalPage, setTotalPage] = useState(0);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [deptId, setDeptId] = useState('');
@@ -34,7 +33,7 @@ export default function CreateOrgPositionComponent () {
         }
     });
 
-    const { data: getAllOrgPositions, isPending, error } = useQuery({
+    const { data: allOrgPositionResponse, isPending, error } = useQuery({
         queryKey: ['get-org-position', page, pageSize, deptId],
         queryFn: async () => {
             const res = await positionApi.GetOrgPositionsByDepartmentId({
@@ -42,19 +41,12 @@ export default function CreateOrgPositionComponent () {
                 page: page,
                 pageSize: pageSize
             })
-            setTotalPage(res.data.total_pages);
             return res.data.data
         },
     });
 
-    function setCurrentPage(page: number): void {
-        setPage(page);
-    }
-
-    function handlePageSizeChange(size: number): void {
-        setPage(1);
-        setPageSize(size);
-    }
+    const orgPosList = allOrgPositionResponse?.data ?? [];
+    const totalPages = allOrgPositionResponse?.totalPages ?? 0;
 
     const mutation = useMutation({
         mutationFn: async (id: number) => {
@@ -78,7 +70,7 @@ export default function CreateOrgPositionComponent () {
 
     const handleDeleteDepartment = async (id: number) => {
         try {
-            const shouldGoBack = getAllOrgPositions.length === 1;
+            const shouldGoBack = orgPosList.length === 1;
             await mutation.mutateAsync(id);
             handleSuccessDelete(shouldGoBack);
         } catch (error) {
@@ -134,14 +126,14 @@ export default function CreateOrgPositionComponent () {
                                     <td className="px-4 py-2 border whitespace-nowrap text-center"><div className="flex justify-center"><Skeleton className="h-4 w-[90px] bg-gray-300" /></div></td>
                                 </tr>  
                             ))
-                        ) : isPending || getAllOrgPositions.length == 0 ? (
+                        ) : isPending || orgPosList.length == 0 ? (
                             <tr>
                                 <td colSpan={7} className="px-4 py-2 text-center font-bold text-red-700">
                                     { error?.message ?? 'Không có kết quả' } 
                                 </td>
                             </tr>
                         ) : (
-                            getAllOrgPositions?.map((item: any) => (
+                            orgPosList?.map((item: any) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
                                     <td className="border-gray-300 px-4 py-2 border whitespace-nowrap text-center">
                                         {item.id}
@@ -161,15 +153,18 @@ export default function CreateOrgPositionComponent () {
                     }
                 </tbody>
             </table>
-            {
-                getAllOrgPositions?.length > 0 ? (<PaginationControl
+            {orgPosList.length > 0 && (
+                <PaginationControl
                     currentPage={page}
-                    totalPages={totalPage}
+                    totalPages={totalPages}
                     pageSize={pageSize}
-                    onPageChange={setCurrentPage}
-                    onPageSizeChange={handlePageSizeChange}
-                />) : (null)
-            }
+                    onPageChange={setPage}
+                    onPageSizeChange={(size) => {
+                        setPageSize(size);
+                        setPage(1);
+                    }}
+                />
+            )}
         </div>
     )
 }
@@ -222,7 +217,7 @@ export function ModalCreateOrgPosition({
 
     /* ================= QUERY ================= */
 
-    const { data: teamsByDept = [] } = useQuery({
+    const { data: teamsByDept } = useQuery({
         queryKey: ["modal-teams", departmentId],
         queryFn: async () => {
             const res = await orgUnitApi.GetAllTeam({
@@ -235,7 +230,7 @@ export function ModalCreateOrgPosition({
         enabled: open && !!departmentId
     })
 
-    const { data: allOrgPositions = [] } = useQuery({
+    const { data: allOrgPositionsResponse } = useQuery({
         queryKey: ['modal-all-org-position'],
         queryFn: async () => {
             const res = await positionApi.GetOrgPositionsByDepartmentId({
@@ -246,6 +241,7 @@ export function ModalCreateOrgPosition({
         },
         enabled: open
     })
+    const allOrgPositions = allOrgPositionsResponse?.data ?? []
 
     const { data: allUnits = [] } = useQuery({
         queryKey: ['modal-all-units'],
@@ -367,7 +363,7 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem>
                                     <Label>Mã</Label>
-                                    <Input {...field} className="border border-gray-300"/>
+                                    <Input {...field} className="border border-gray-300" placeholder="..."/>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -380,7 +376,7 @@ export function ModalCreateOrgPosition({
                             render={({ field }) => (
                                 <FormItem>
                                     <Label>Tên</Label>
-                                    <Input {...field} className="border border-gray-300"/>
+                                    <Input {...field} className="border border-gray-300" placeholder="..."/>
                                     <FormMessage/>
                                 </FormItem>
                             )}
@@ -415,7 +411,7 @@ export function ModalCreateOrgPosition({
                                     <Label>Team</Label>
                                     <select {...field} value={field.value ?? ""} className="w-full rounded px-2 py-1 border border-gray-300">
                                         <option value="">--Chọn--</option>
-                                        {teamsByDept.map((t: any) => (
+                                        {teamsByDept?.map((t: any) => (
                                             <option key={t.id} value={t.id.toString()}>
                                                 {t.name}
                                             </option>

@@ -17,7 +17,7 @@ const ConfigOrgPositionRole: React.FC = () => {
 			const res = await positionApi.GetOrgPositionsByDepartmentId({
                 departmentId: null
             })
-			return res.data.data
+			return res.data.data.data
 		},
 	});
 
