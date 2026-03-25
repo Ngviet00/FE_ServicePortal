@@ -48,9 +48,7 @@ const DetailVote: React.FC = () => {
 	}>({});
 
 	const user = useAuthStore(u => u.user)
-
 	const vote = useVote();
-
     const { id } = useParams();
 
 	const { data: voteDetail, isLoading: isLoadingVote } = useQuery({
@@ -74,7 +72,7 @@ const DetailVote: React.FC = () => {
 		if (voteDetail?.options?.length > 0) {
 			const selectedOpt = voteDetail.options.find((opt: any) => opt.isSelected == 1);
 			if (selectedOpt) {
-				setSelectedOptionId(selectedOpt.optionId);
+				setSelectedOptionId(selectedOpt.id);
 				setShowResult(true)
 			}
 		}
@@ -98,11 +96,11 @@ const DetailVote: React.FC = () => {
 	};
 
 	const loadUsersByDept = async (deptId: number, page: number) => {
-		const cache = deptUsersCache[deptId] || { users: [], loadedPages: 0, loading: false };
+		const currentCache = deptUsersCache[deptId] || { users: [], loadedPages: 0, loading: false };
 
 		setDeptUsersCache(prev => ({
 			...prev,
-			[deptId]: { ...cache, loading: true }
+			[deptId]: { ...currentCache, loading: true }
 		}));
 
 		try {
@@ -113,34 +111,42 @@ const DetailVote: React.FC = () => {
 				PageSize: PAGE_SIZE
 			});
 
-			const users = res.data.data;
+			const newUsers = res.data.data.data; 
 
-			setDeptUsersCache(prev => ({
-				...prev,
-				[deptId]: {
-					users: [...(prev[deptId]?.users || []), ...users],
-					loadedPages: page,
-					loading: false
-				}
-			}));
+			setDeptUsersCache(prev => {
+				const existingUsers = prev[deptId]?.users || [];
+				const filteredNewUsers = newUsers.filter(
+					(nu: any) => !existingUsers.some((eu) => eu.UserCode === nu.UserCode)
+				);
+
+				return {
+					...prev,
+					[deptId]: {
+						users: [...existingUsers, ...filteredNewUsers],
+						loadedPages: page,
+						loading: false
+					}
+				};
+			});
+
 		} catch (err) {
 			console.error(err);
 			setDeptUsersCache(prev => ({
 				...prev,
-				[deptId]: { ...cache, loading: false }
+				[deptId]: { ...(prev[deptId] || currentCache), loading: false }
 			}));
 		}
 	};
 
 	const loadMoreUsers = async (deptId: number) => {
-		const cache = deptUsersCache[deptId];
-		if (!cache) return;
-
-		const dept = voteDetail?.departments?.find((d: any) => d.DepartmentId === deptId);
+		const cache = deptUsersCache[deptId] || { users: [], loadedPages: 0, loading: false };
+		
+		const dept = voteDetail?.notVotedByDepartments?.find((d: any) => d.DepartmentId === deptId);
 		if (!dept) return;
 
 		const totalPages = Math.ceil(dept.NotVotedCount / PAGE_SIZE);
 		const nextPage = cache.loadedPages + 1;
+
 		if (nextPage > totalPages) return;
 
 		loadUsersByDept(deptId, nextPage);
@@ -258,12 +264,12 @@ const DetailVote: React.FC = () => {
 			{voteDetail?.options.map((opt: any, idx: number) => {
 				return (
 					<div
-						key={opt?.optionId}
+						key={idx}
 						className="border rounded-lg p-4 bg-white hover:bg-gray-50 transition-all duration-300 w-full border-gray-300"
 					>
 						<div
 							className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-2xl bg-white hover:shadow-sm transition-all duration-300 gap-2 cursor-pointer select-none"
-							onClick={() => toggleExpand(opt?.optionId)}
+							onClick={() => toggleExpand(opt?.id)}
 						>
 							<div className="flex flex-col sm:flex-row sm:items-center gap-2">
 								<div className="flex items-center gap-2 flex-wrap">
@@ -274,7 +280,7 @@ const DetailVote: React.FC = () => {
 										{opt.title}
 									</h3>
 
-									{expandedId === opt?.optionId ? (
+									{expandedId === opt?.id ? (
 										<ChevronUp className="w-4 h-4 text-gray-500 transition-transform" />
 									) : (
 										<ChevronDown className="w-4 h-4 text-gray-500 transition-transform" />
@@ -291,24 +297,24 @@ const DetailVote: React.FC = () => {
 									disabled={selectedOptionId != null || vote.isPending}
 									onClick={(e) => {
 										e.stopPropagation();
-										handleVote(opt?.optionId);
+										handleVote(opt?.id);
 									}}
 									className={`px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 ${
 										selectedOptionId != null ? "cursor-not-allowed" : "hover:scale-105 hover:cursor-pointer"
 									} ${
-										selectedOptionId === opt?.optionId
+										selectedOptionId === opt?.id
 										? "bg-blue-600 text-white shadow-sm"
 										: "bg-gray-300 hover:bg-gray-500 font-bold"
 									}`}
 								>
-								{selectedOptionId === opt?.optionId
+								{selectedOptionId === opt?.id
 									? t("detail.selected")
 									: t("detail.select")}
 								</button>
 							</div>
 						</div>
 
-						<div className={`overflow-hidden ${	expandedId === opt.optionId ? "max-h-[600px] opacity-100 mt-3" : "max-h-0 opacity-0"}`}>
+						<div className={`overflow-hidden ${	expandedId === opt.id ? "max-h-[600px] opacity-100 mt-3" : "max-h-0 opacity-0"}`}>
 							<div className={`pt-3 ${opt?.description != '' && opt?.description != null ? 'border' : ''} text-gray-700  rounded-md max-h-[400px] overflow-y-auto p-3`}>
 								<div className="ql-editor text-sm leading-relaxed whitespace-pre-line" 
 									dangerouslySetInnerHTML={{ __html: opt?.description ?? (lang == 'vi' ? 'Không có mô tả' : 'Not description') }}
@@ -316,10 +322,10 @@ const DetailVote: React.FC = () => {
 								<div className="mt-3">
 									{opt?.files?.length > 0 && (
 										<div className="flex flex-wrap gap-4">
-											{opt.files.map((f: any) => {
-												const fileUrl = `${import.meta.env.VITE_API_URL}/vote/get-file/${f.fileId}`;
+											{opt.files.map((f: any, idx: number) => {
+												const fileUrl = `${import.meta.env.VITE_API_URL}/file/${f.fileId}`;
 												return (
-													<div key={f.fileId} className="relative group">
+													<div key={idx} className="relative group">
 														<img
 															src={fileUrl}
 															alt={f.fileName}
@@ -360,7 +366,7 @@ const DetailVote: React.FC = () => {
 						</h3>
 
 						<div className="space-y-3">
-							{voteDetail?.departments?.map((dept: any, idx: number) => {
+							{voteDetail?.notVotedByDepartments?.map((dept: any, idx: number) => {
 								const cache = deptUsersCache[dept.DepartmentId];
 								const isExpanded = expandedDeptId === dept.DepartmentId;
 

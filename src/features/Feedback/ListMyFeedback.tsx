@@ -33,7 +33,7 @@ export default function ListMyFeedback () {
         if (shouldGoBack && page > 1) {
             setPage(prev => prev - 1);
         } else {
-            queryClient.invalidateQueries({ queryKey: ['get-all-it-form']});
+            queryClient.invalidateQueries({ queryKey: ['get-my-feedback']});
         }
     }
 

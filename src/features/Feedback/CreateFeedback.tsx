@@ -3,6 +3,7 @@ import feedbackApi, { useCreateFeedback, useUpdateFeedback } from "@/api/feedbac
 import DotRequireComponent from "@/components/DotRequireComponent";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/store/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -80,6 +81,11 @@ export default function CreateFeedback () {
         });
 
         if (isEdit) {
+            if (isEdit && data?.existingImgs) {
+                data.existingImgs.forEach((img) => {
+                    fd.append("ExistingImgIds", img.id.toString());
+                });
+            }
             await updateFb.mutateAsync({id: formDataDetail?.feedback?.id, data: fd})
         }
         else {
@@ -104,7 +110,11 @@ export default function CreateFeedback () {
         if (formDataDetail) {
             reset({
                 content: formDataDetail?.feedback?.content,
-                existingImgs: formDataDetail?.files ?? []
+                existingImgs: formDataDetail?.files?.map((f: any) => ({
+                    id: f.Id,
+                    fileName: f.FileName,
+                    contentType: f.ContentType
+                })) || []
             })
         }        
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,13 +200,13 @@ export default function CreateFeedback () {
 
                                         <div className="flex flex-wrap gap-2">
                                             {(watch(`existingImgs`) ?? []).map((f: any, i: number) => (
-                                                <div key={`server-${f.id}`} className="relative">
+                                                <div key={`server-${i}`} className="relative">
                                                     <img
-                                                        src={`${import.meta.env.VITE_API_URL}/file/get-file/${f.id}`}
+                                                        src={`${import.meta.env.VITE_API_URL}/file/${f.id}`}
                                                         alt={f.fileName}
                                                         className="w-20 h-20 object-cover rounded-md border cursor-pointer"
                                                         onClick={() =>
-                                                            setPreviewImage(`${import.meta.env.VITE_API_URL}/file/get-file/${f.id}`)
+                                                            setPreviewImage(`${import.meta.env.VITE_API_URL}/file/${f.id}`)
                                                         }
                                                     />
                                                     <button
@@ -246,7 +256,7 @@ export default function CreateFeedback () {
                             disabled={isSubmitting}
                             className="cursor-pointer w-full sm:w-auto py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                            {tCommon('save')}
+                            {isSubmitting ? <Spinner/> : tCommon('save')}
                         </button>
                     </div>
                     <div>

@@ -24,7 +24,6 @@ export default function Sidebar() {
 	const { user } = useAuthStore()
 
 	const isMobile = useIsReponsive()
-	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgPositionId !== null && user.orgPositionId !== undefined;
 
 	const { data: countWaitApprovalSidebar } = useQuery({
 		queryKey: ["count-wait-approval-sidebar", user?.userCode],
@@ -35,8 +34,7 @@ export default function Sidebar() {
 				OrgPositionId: user?.orgPositionId ?? -9999,
 			});
 			return res.data.data;
-		},
-		enabled: isOrgUnitIdAvailable
+		}
 	});
 
 	useEffect(() => {
