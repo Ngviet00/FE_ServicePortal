@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,16 +9,12 @@ import { Textarea } from '@/components/ui/textarea';
 import ModalConfirm from '@/components/ModalConfirm';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import { ShowToast, StatusApplicationFormEnum } from '@/lib';
+import { StatusApplicationFormEnum } from '@/lib';
 import DateTimePicker from '@/components/ComponentCustom/Flatpickr';
 import { Spinner } from '@/components/ui/spinner';
 import HistoryApproval from '@/features/Approval/Components/HistoryApproval';
 import { ResignationFormSchema, TResignationForm } from './CreateResignation';
-import resignationLetterApi, { useApprovalResignationLetter, useAssignedTasResignationLetter, useExportExcelResignation, useResolvedTaskResignationLetter } from '@/api/HR/resignationLetterApi';
-import DotRequireComponent from '@/components/DotRequireComponent';
-import warningLetterApi from '@/api/HR/warningLetterApi';
-import { ISelectedUserAssigned } from '@/api/userApi';
-
+import resignationLetterApi, { useApprovalResignationLetter, useExportExcelResignation } from '@/api/HR/resignationLetterApi';
 interface ViewApprovalTerminationLetterProps {
     id: string;
     mode?: string
@@ -31,7 +28,6 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
     const [note, setNote] = useState("")
     const [statusModalConfirm, setStatusModalConfirm] = useState('')
     const queryClient = useQueryClient()
-    const [selectedUserAssigned, setSelectedUserAssigned] = useState<ISelectedUserAssigned[]>([]);
 
     const { 
         register,
@@ -139,8 +135,6 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
     const handoverOtherChecked = watch("handover.handover_other_checked");
 
     const approvalResignationLetter = useApprovalResignationLetter()
-    const resolvedTask = useResolvedTaskResignationLetter()
-    const assignResignationLetter = useAssignedTasResignationLetter()
 
     const handleSaveModalConfirm = async (type: string) => {
         setStatusModalConfirm('')
@@ -153,39 +147,18 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
             UserNameApproval: user?.userName ?? "",
             OrgPositionId: user?.orgPositionId,
             Status: type == 'approval' ? true : false,
-            Note: note,
-            UserAssignedTasks: selectedUserAssigned ?? []
+            Note: note
         }
 
-        if (type == 'resolved') {
-            await resolvedTask.mutateAsync(payload)
-        }
-        else if (type == 'reject' || type == 'approval') {
-            await approvalResignationLetter.mutateAsync(payload);
-        }
-        else if (type == 'assigned') {
-            if (selectedUserAssigned.length == 0) {
-                ShowToast(lang == 'vi' ? 'Vui lòng chọn ít nhất 1 người để giao việc' : 'Please select at least 1 person', 'error')
-                return 
-            }
-            await assignResignationLetter.mutateAsync(payload)
-        }
-
+        await approvalResignationLetter.mutateAsync(payload)
         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] })
-
-        if (formDataDetail?.resignationLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned) {
-            navigate("/approval/assigned-tasks")
-        }
-        else {
-            navigate("/approval/pending-approval")
-        }
+        navigate("/approval/pending-approval")
     }
       
     const CheckboxItem: React.FC<{ name: keyof TResignationForm['reasons'] | keyof TResignationForm['handover'], label: string, isParent?: boolean }> = ({ name, label, isParent }) => {
         const isReason = name.startsWith('reason');
         const fieldName = isReason ? `reasons.${name}` : `handover.${name}`;
         const isDisabled = false
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const isChecked = watch(fieldName as any) || false;
 
         return (
@@ -193,7 +166,6 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                 <input
                     id={name}
                     type="checkbox"
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     {...register(fieldName as any)}
                     checked={isDisabled ? isChecked : false} 
                     disabled={true} 
@@ -208,24 +180,9 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
     const handleExport = async () => {
         await exportExcel.mutateAsync(id)
     };
-
-    const { data: hrMembers = [] } = useQuery({
-        queryKey: ['get-all-hr-member'],
-        queryFn: async () => {
-            const res = await warningLetterApi.getMemberHrs()
-            return res.data.data
-        }
-    });
-
-    const handleCheckboxChangeUserAssigned = (event: React.ChangeEvent<HTMLInputElement>, item: {userCode: string, userName: string, email: string}) => {
-        const isChecked = event.target.checked;
-        if (isChecked) {
-            setSelectedUserAssigned(prevSelected => [...prevSelected, { userCode: item.userCode, userName: item.userName, email: item.email }]);
-        } else {
-            setSelectedUserAssigned(prevSelected => prevSelected.filter(u => u.userCode !== item.userCode));
-        }
-    };
     
+    const activeStep = formDataDetail?.defineSteps?.find((step: any) => step.IsActive === true);
+    const isFinalStep = activeStep?.IsFinal === true;
 
     if (isEdit && !formDataDetail) {
         return  <div className='text-red-700 font-semibold'>{lang == 'vi' ? 'Không tìm thấy dữ liệu' : 'Not found data'}</div>;
@@ -240,7 +197,7 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
             <div className="flex flex-wrap justify-between items-center gap-y-3 gap-x-4 mb-2">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('resignation.create.title')}</h3>
                 {
-                    [StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete].includes(formDataDetail?.resignationLetter?.applicationForm?.requestStatusId)
+                    (formDataDetail?.resignationLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Complete || isFinalStep)
                         &&
                         <button disabled={exportExcel.isPending} onClick={handleExport} className='btn bg-blue-600 cursor-pointer p-2 rounded-sm text-white hover:bg-blue-700 disabled:bg-gray-400'>
                             {exportExcel.isPending ? <Spinner/> : lang == 'vi' ? 'Xuất excel' : 'Export excel'}
@@ -435,101 +392,28 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                         isOpen={statusModalConfirm != ''}
                         onClose={() => setStatusModalConfirm('')}
                         onSave={handleSaveModalConfirm}
-                        isPending={approvalResignationLetter.isPending || resolvedTask.isPending}
+                        isPending={approvalResignationLetter.isPending}
                     />
-                    <div className='mt-2'>
-                        {
-                            [StatusApplicationFormEnum.FinalApproval, StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete]
-                                .includes(formDataDetail?.resignationLetter?.applicationForm?.requestStatusId) && 
-                                <label className="block text-sm font-medium text-gray-700">
-                                    {lang == 'vi' ? 'Được giao cho' : 'Assigned to'}<DotRequireComponent />
-                                </label>
-                        }
-                        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 mt-2">
-                            {
-                                formDataDetail?.assigns?.length > 0
-                                ? (
-                                    formDataDetail?.assigns?.map((item: {userCode: string, userName: string}, idx: number) => (
-                                        <label
-                                            key={idx}
-                                            className="flex cursor-pointer"
-                                        >
-                                            <span>
-                                                <strong>({item.userCode})</strong> {item.userName}
-                                            </span>
-                                        </label>
-                                    ))
-                                ) : formDataDetail?.resignationLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FinalApproval ?
-                                (
-                                    hrMembers?.map((item: {userCode: string, userName: string, email: string}, idx: number) => (
-                                        <label
-                                            key={idx}
-                                            className="flex items-center space-x-2 cursor-pointer w-full sm:w-[48%]"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedUserAssigned.some(
-                                                    (e) => e.userCode == item.userCode
-                                                )}
-                                                value={item.userCode}
-                                                className="border-gray-300 scale-[1.4] accent-black"
-                                                onChange={(e) =>
-                                                    handleCheckboxChangeUserAssigned(e, item)
-                                                }
-                                            />
-                                            <span>
-                                                <strong>({item.userCode})</strong> {item.userName}
-                                            </span>
-                                        </label>
-                                    ))
-                                ) : (null)
-                            }
-                        </div>
-                    </div>
                     <div className='flex justify-end mt-2'>
                         {
-                            formDataDetail?.resignationLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FinalApproval ?
-                            <>
-                                {
-                                    mode != 'view' &&
-                                    <button
-                                        onClick={() => setStatusModalConfirm('assigned')}
-                                        disabled={approvalResignationLetter.isPending}
-                                        className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
-                                    >
-                                        {lang == 'vi' ? 'Giao việc' : 'Assigned'}
-                                    </button>
-                                }
-                            </> :
-                            formDataDetail?.resignationLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned ?
-                            (
-                                <>
+                            [StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(formDataDetail?.resignationLetter?.applicationForm?.requestStatusId) ? (null) : (
+                                mode != 'view' && <>
                                     {
-                                        mode != 'view' &&
+                                        !isFinalStep &&
                                         <button
-                                            onClick={() => setStatusModalConfirm('resolved')}
+                                            onClick={() => setStatusModalConfirm('reject')}
                                             disabled={approvalResignationLetter.isPending}
-                                            className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
+                                            className="mr-2 cursor-pointer w-full sm:w-auto py-1 px-4 bg-red-600 text-white font-semibold rounded-sm shadow-lg hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
                                         >
-                                            {lang == 'vi' ? 'Đóng' : 'Closed'}
+                                            {lang == 'vi' ? 'Từ chối' : 'Reject'}
                                         </button>
                                     }
-                                </>
-                            ) : [StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(formDataDetail?.resignationLetter?.applicationForm?.requestStatusId) ? (null) : (
-                                mode != 'view' && <>
-                                    <button
-                                        onClick={() => setStatusModalConfirm('reject')}
-                                        disabled={approvalResignationLetter.isPending}
-                                        className="mr-2 cursor-pointer w-full sm:w-auto py-1 px-4 bg-red-600 text-white font-semibold rounded-sm shadow-lg hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
-                                    >
-                                        {lang == 'vi' ? 'Từ chối' : 'Reject'}
-                                    </button>
                                     <button
                                         onClick={() => setStatusModalConfirm('approval')}
                                         disabled={approvalResignationLetter.isPending}
                                         className="cursor-pointer w-full sm:w-auto py-3 px-5 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400"
                                     >
-                                        {lang == 'vi' ? 'Duyệt đơn' : 'Approval'}
+                                        {lang === 'vi' ? (isFinalStep ? 'Xác nhận' : 'Duyệt đơn') : (isFinalStep ? 'Confirm' : 'Approve')}
                                     </button>
                                 </>
                             )
@@ -540,14 +424,12 @@ const ViewApprovalRegisnation: React.FC<ViewApprovalTerminationLetterProps> = ({
                     <span className="font-bold text-black">
                         {lang === 'vi' ? 'Quy trình' : 'Approval flow'}:
                     </span>{' '}
-                    {formDataDetail?.defineAction
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        .map((item: any, idx: number) => (
-                            <span key={idx} className="font-bold text-orange-700">
-                                ({idx + 1}) {item?.Name ?? item?.UserCode ?? 'HR'}
-                                {idx < formDataDetail?.defineAction?.length - 1 ? ', ' : ''}
-                            </span>
-                        ))}
+                    {formDataDetail?.defineSteps?.map((item: any, idx: number) => (
+                        <span key={idx} className="font-bold text-orange-700">
+                            ({idx + 1}) {item?.Name ?? item?.UserCode ?? 'HR'}
+                            {idx < formDataDetail?.defineSteps?.length - 1 ? ', ' : ''}
+                        </span>
+                    ))}
                 </div>
                 <HistoryApproval historyApplicationForm={formDataDetail?.resignationLetter?.applicationForm?.historyApplicationForms}/>
             </div>

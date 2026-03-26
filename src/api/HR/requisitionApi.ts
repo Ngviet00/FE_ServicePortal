@@ -2,7 +2,7 @@ import { ShowToast, getErrorMessage } from '@/lib';
 import { useMutation } from '@tanstack/react-query';
 import axiosClient from '../axiosClient';
 import { ApprovalRequest } from '../approvalApi';
-import { ApplicationForm, IAssignedTask, IResolvedTask } from '../itFormApi';
+import { ApplicationForm } from '../itFormApi';
 
 interface GetAll {
     UserCode?: string,
@@ -80,14 +80,6 @@ const requisitionLetterApi = {
         return axiosClient.post(`/requisition-letter/approval`, data)
     },
 
-    assigedTask(data: IAssignedTask) {
-        return axiosClient.post(`/requisition-letter/assigned-task`, data)
-    },
-
-    resolvedTask(data: IResolvedTask) {
-        return axiosClient.post(`/requisition-letter/resolved-task`, data)
-    },
-
     exportExcel(applicationFormCode: string) {
         return axiosClient.get(`/requisition-letter/export-excel/${applicationFormCode}`, {
             responseType: 'blob'
@@ -119,34 +111,6 @@ export function useExportExcelRequisition() {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useResolvedTaskRequisitionLetter () {
-    return useMutation({
-        mutationFn: async (data: IResolvedTask) => {
-            await requisitionLetterApi.resolvedTask(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useAssignedTaskRequisitionLetter () {
-    return useMutation({
-        mutationFn: async (data: IAssignedTask) => {
-            await requisitionLetterApi.assigedTask(data)
         },
         onSuccess: () => {
             ShowToast("Success");
