@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent"
 import { useAuthStore } from "@/store/authStore"
@@ -11,6 +11,7 @@ import ButtonDeleteComponent from "@/components/ButtonDeleteComponent"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/time"
 import terminationLetterApi, { useDeleteTerminationLetter } from "@/api/HR/terminationLetterApi"
+import { Button } from "@/components/ui/button"
 
 export default function ListTermination () {
     const { t } = useTranslation('hr')
@@ -21,6 +22,7 @@ export default function ListTermination () {
     const [pageSize, setPageSize] = useState(20)
     const {user} = useAuthStore()
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     
     const { data: listTerminationLetters = [], isPending, isError, error } = useQuery({
         queryKey: ['get-list-termination-letter', { page, pageSize }],
@@ -65,6 +67,14 @@ export default function ListTermination () {
                 <h3 className="font-bold text-xl md:text-2xl m-0">
                     {t('termination.list.title')}
                 </h3>
+                <div>
+                    <Button 
+                        onClick={() => navigate("/termination/create")} 
+                        className="w-full md:w-auto hover:cursor-pointer bg-black text-white hover:bg-black"
+                    >
+                        {t('termination.create.title')}
+                    </Button>
+                </div>
             </div>
 
             <div className="mb-5 pb-3">

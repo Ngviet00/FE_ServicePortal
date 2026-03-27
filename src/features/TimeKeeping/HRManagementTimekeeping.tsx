@@ -24,14 +24,16 @@ const HRManagementTimekeeping = () => {
     const [expandedNodes, setExpandedNodes] = useState<number[]>([]);
     const debouncedName = useDebounce(searchKey, 300);
 
-    const { data: users = [], isFetching: isSearching } = useQuery({
+    const { data: userResponse, isFetching: isSearching } = useQuery({
         queryKey: ['hr-mng-search-user', debouncedName],
         queryFn: async () => {
             const res = await userApi.getAll({ Name: debouncedName });
             return res.data.data;
         },
-        enabled: debouncedName != ''
+        enabled: debouncedName.trim() !== ''
     });
+
+    const userLists = userResponse?.data ?? []
 
     const orgData = useMemo(() => data?.deptResults || [], [data]);
     const availableManagers = useMemo(() => data?.userMngTimeKeepings || [], [data]);
@@ -186,7 +188,7 @@ const HRManagementTimekeeping = () => {
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                            {!isSearching && users.length > 0 && users.map((user: any, idx: number) => (
+                            {!isSearching && userLists.length > 0 && userLists?.map((user: any, idx: number) => (
                                 <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-blue-200 transition-all group">
                                     <div className="flex items-center gap-4">
                                         <div>
@@ -210,7 +212,7 @@ const HRManagementTimekeeping = () => {
                                 </div>
                             )}
 
-                            {!isSearching && searchKey && users.length === 0 && (
+                            {!isSearching && searchKey && userLists.length === 0 && (
                                 <div className="h-full flex flex-col items-center justify-center text-red-400 mt-10">
                                     <UserCircle2 size={48} className="mb-2 opacity-20"/>
                                     <p className="text-xs font-bold">{lang == 'vi' ? 'Không tìm thấy dữ liệu' : 'Not found data'} </p>

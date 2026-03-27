@@ -14,6 +14,7 @@ import warningLetterApi, { useCreateWarningLetter, useUpdateWarningLetter } from
 import { useAuthStore } from '@/store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import DateTimePicker from '@/components/ComponentCustom/Flatpickr';
+import { Spinner } from '@/components/ui/spinner';
 
 const defaultValues = {
     userCode: '',
@@ -345,7 +346,7 @@ const CreateWarningLetter: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex-1 min-w-[150px] relative">
-                            <label className="block text-sm font-medium text-gray-500 mb-1">{t('warning_letter.create.unit')}</label>
+                            <label className="block text-sm font-medium text-gray-500 mb-1">{t('warning_letter.create.date')}</label>
                             <div className="relative">
                                 <DateTimePicker
                                     {...register("dateWarningLetter")}
@@ -426,7 +427,7 @@ const CreateWarningLetter: React.FC = () => {
                             type="submit"
                             className="cursor-pointer w-full sm:w-auto py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400"
                         >
-                            {t('warning_letter.create.confirm')}
+                            {createWarningLetter.isPending || updateWarningLetter.isPending ? <Spinner/> : t('warning_letter.create.confirm')}
                         </button>
                     </div>
                 </form>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +13,7 @@ import { StatusApplicationFormEnum } from '@/lib';
 import DateTimePicker from '@/components/ComponentCustom/Flatpickr';
 import { Spinner } from '@/components/ui/spinner';
 import HistoryApproval from '@/features/Approval/Components/HistoryApproval';
-import terminationLetterApi, { useApprovalTerminationLetter, useExportExcelTerminationLetter, useResolvedTaskTerminationLetter } from '@/api/HR/terminationLetterApi';
+import terminationLetterApi, { useApprovalTerminationLetter, useExportExcelTerminationLetter } from '@/api/HR/terminationLetterApi';
 import { TerminationFormSchema, TTerminationLetterForm } from './CreateTermination';
 
 interface ViewApprovalTerminationLetterProps {
@@ -140,27 +141,15 @@ const ViewApprovalTermination: React.FC<ViewApprovalTerminationLetterProps> = ({
             Note: note
         }
 
-        if (type == 'resolved') {
-            await resolvedTask.mutateAsync(payload)
-        }
-        else if (type == 'reject' || type == 'approval') {
-            await approvalTerminationLetter.mutateAsync(payload);
-        }
-
-        if (formDataDetail?.terminationLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned) {
-            navigate("/approval/assigned-tasks")
-        } else {
-            navigate("/approval/pending-approval")
-        }
-        
+        await approvalTerminationLetter.mutateAsync(payload);
         queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] })
+        navigate("/approval/pending-approval")
     }
       
     const CheckboxItem: React.FC<{ name: keyof TTerminationLetterForm['reasons'] | keyof TTerminationLetterForm['handover'], label: string, isParent?: boolean }> = ({ name, label, isParent }) => {
         const isReason = name.startsWith('reason');
         const fieldName = isReason ? `reasons.${name}` : `handover.${name}`;
         const isDisabled = false
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const isChecked = watch(fieldName as any) || false;
 
         return (
@@ -168,7 +157,6 @@ const ViewApprovalTermination: React.FC<ViewApprovalTerminationLetterProps> = ({
                 <input
                     id={name}
                     type="checkbox"
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     {...register(fieldName as any)}
                     checked={isDisabled ? isChecked : false} 
                     disabled={true} 
@@ -180,12 +168,14 @@ const ViewApprovalTermination: React.FC<ViewApprovalTerminationLetterProps> = ({
     };
 
     const approvalTerminationLetter = useApprovalTerminationLetter()
-    const resolvedTask = useResolvedTaskTerminationLetter()
 
     const exportExcel = useExportExcelTerminationLetter()
     const handleExport = async () => {
         await exportExcel.mutateAsync(id)
     };
+
+    const activeStep = formDataDetail?.defineSteps?.find((step: any) => step.IsActive === true);
+    const isFinalStep = activeStep?.IsFinal === true;
 
     if (isEdit && !formDataDetail) {
         return  <div className='text-red-700 font-semibold'>{lang == 'vi' ? 'Không tìm thấy dữ liệu' : 'Not found data'}</div>;
@@ -200,7 +190,7 @@ const ViewApprovalTermination: React.FC<ViewApprovalTerminationLetterProps> = ({
             <div className="flex flex-wrap justify-between items-center gap-y-3 gap-x-4 mb-2">
                 <h3 className="font-bold text-xl md:text-2xl m-0">{t('termination.create.title')}</h3>
                 {
-                    [StatusApplicationFormEnum.Assigned, StatusApplicationFormEnum.Complete].includes(formDataDetail?.terminationLetter?.applicationForm?.requestStatusId)
+                    [StatusApplicationFormEnum.Complete].includes(formDataDetail?.terminationLetter?.applicationForm?.requestStatusId) || isFinalStep
                      &&
                         <button disabled={exportExcel.isPending} onClick={handleExport} className='btn bg-blue-600 cursor-pointer p-2 rounded-sm text-white hover:bg-blue-700 disabled:bg-gray-400'>
                             {exportExcel.isPending ? <Spinner/> : lang == 'vi' ? 'Xuất excel' : 'Export excel'}
@@ -394,35 +384,28 @@ const ViewApprovalTermination: React.FC<ViewApprovalTerminationLetterProps> = ({
                         isOpen={statusModalConfirm != ''}
                         onClose={() => setStatusModalConfirm('')}
                         onSave={handleSaveModalConfirm}
-                        isPending={approvalTerminationLetter.isPending || resolvedTask.isPending}
+                        isPending={approvalTerminationLetter.isPending}
                     />
                     <div className='flex justify-end mt-2'>
                         {
-                            formDataDetail?.terminationLetter?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned ?
-                            (
-                                 mode != 'view' &&
-                                    <button
-                                        onClick={() => setStatusModalConfirm('resolved')}
-                                        disabled={approvalTerminationLetter.isPending || resolvedTask.isPending}
-                                        className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
-                                    >
-                                        {lang == 'vi' ? 'Đóng' : 'Closed'}
-                                    </button>
-                            ) : [StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(formDataDetail?.terminationLetter?.applicationForm?.requestStatusId) ? (null) : (
+                            [StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(formDataDetail?.terminationLetter?.applicationForm?.requestStatusId) ? (null) : (
                                  mode != 'view' && <>
-                                    <button
-                                        onClick={() => setStatusModalConfirm('reject')}
-                                        disabled={approvalTerminationLetter.isPending}
-                                        className="mr-2 cursor-pointer w-full sm:w-auto py-1 px-4 bg-red-600 text-white font-semibold rounded-sm shadow-lg hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
-                                    >
-                                        {lang == 'vi' ? 'Từ chối' : 'Reject'}
-                                    </button>
+                                    {
+                                        !isFinalStep && 
+                                            <button
+                                                onClick={() => setStatusModalConfirm('reject')}
+                                                disabled={approvalTerminationLetter.isPending}
+                                                className="mr-2 cursor-pointer w-full sm:w-auto py-1 px-4 bg-red-600 text-white font-semibold rounded-sm shadow-lg hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
+                                            >
+                                                {lang == 'vi' ? 'Từ chối' : 'Reject'}
+                                            </button>
+                                    }
                                     <button
                                         onClick={() => setStatusModalConfirm('approval')}
                                         disabled={approvalTerminationLetter.isPending}
                                         className="cursor-pointer w-full sm:w-auto py-3 px-5 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400"
                                     >
-                                        {lang == 'vi' ? 'Duyệt đơn' : 'Approval'}
+                                        {lang === 'vi' ? (isFinalStep ? 'Xác nhận' : 'Duyệt đơn') : (isFinalStep ? 'Confirm' : 'Approve')}
                                     </button>
                                 </>
                             )
@@ -433,12 +416,11 @@ const ViewApprovalTermination: React.FC<ViewApprovalTerminationLetterProps> = ({
                     <span className="font-bold text-black">
                         {lang === 'vi' ? 'Quy trình' : 'Approval flow'}:
                     </span>{' '}
-                    {formDataDetail?.defineAction
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    {formDataDetail?.defineSteps
                         .map((item: any, idx: number) => (
                             <span key={idx} className="font-bold text-orange-700">
                                 ({idx + 1}) {item?.Name ?? item?.UserCode ?? 'HR'}
-                                {idx < formDataDetail?.defineAction?.length - 1 ? ', ' : ''}
+                                {idx < formDataDetail?.defineSteps?.length - 1 ? ', ' : ''}
                             </span>
                         ))}
                 </div>

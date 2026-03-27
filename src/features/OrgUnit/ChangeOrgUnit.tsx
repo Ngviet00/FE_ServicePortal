@@ -25,7 +25,6 @@ const ChangeOrgUnit = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
-    const [totalPage, setTotalPage] = useState(1);
     const pageSize = 50;
     const debouncedName = useDebounce(searchTerm, 300);
     const queryClient = useQueryClient();
@@ -38,7 +37,7 @@ const ChangeOrgUnit = () => {
         },
     });
 
-    const { data: employees = [], isFetching: isEmpFetching } = useQuery({
+    const { data: employeeResponse, isFetching: isEmpFetching } = useQuery({
         queryKey: ['employees', activeSource.id, activeSource.type, page, debouncedName],
         queryFn: async () => {
             const res = await positionApi.getDataUserPageChangeOrgUnitAndOrgPosition({
@@ -48,11 +47,13 @@ const ChangeOrgUnit = () => {
                 orgUnitId: activeSource.id,
                 type: activeSource.type
             })
-            setTotalPage(res.data.total_pages);
             return res.data.data
         },
         enabled: !!activeSource.id
     });
+
+    const employees = employeeResponse?.data ?? []
+    const totalPage = employeeResponse?.totalPages ?? 1
 
     useEffect(() => {
         setPage(1);
