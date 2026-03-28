@@ -1,27 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/authStore";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
-import approvalApi, { useApprovalAll } from "@/api/approvalApi";
+import approvalApi from "@/api/approvalApi";
 import { StatusLeaveRequest } from "@/components/StatusLeaveRequest/StatusLeaveRequestComponent";
 import KeysetPagination from "@/components/PaginationControl/PaginationControlKeySet";
 import { formatDate } from "@/lib/time";
-import { ShowToast, StatusApplicationFormEnum } from "@/lib";
-import { Button } from "@/components/ui/button";
+import { StatusApplicationFormEnum } from "@/lib";
 
 export default function AssignedTasks() {
 	const { t } = useTranslation("pendingApproval");
 	const { t: tCommon } = useTranslation("common");
 	const lang = useTranslation().i18n.language.split("-")[0];
-	const { user } = useAuthStore();
-	const approvalAll = useApprovalAll();
-	const [selectedCodes, setSelectedCodes] = useState<Set<string>>(new Set());
-	const [errorItems, setErrorItems] = useState<any[]>([]);	
-	const queryClient = useQueryClient()
-	const [isSelectAll, setIsSelectAll] = useState(false)
+	const { user } = useAuthStore();	
 
 	const [searchParams, setSearchParams] = useSearchParams();
 
@@ -78,100 +72,19 @@ export default function AssignedTasks() {
 		setSearchParams(searchParams);
 	};
 
-	const toggleSelect = (code: string) => {
-		setSelectedCodes((prev) => {
-			const next = new Set(prev);
-			if (next.has(code)) next.delete(code);
-			else next.add(code);
-			return next;
-		});
-	};
-
-	const toggleSelectAll = () => {
-		if (isSelectAll) {
-			setSelectedCodes(new Set());
-			setIsSelectAll(false);
-		} else {
-			const allCodes = ListAssignedTask.map((x: any) => x.code);
-			setSelectedCodes(new Set(allCodes));
-			setIsSelectAll(true);
-		}
-	};
-
-	const handleApproveAll = async () => {
-		if (selectedCodes.size === 0) {
-			ShowToast(lang == 'vi' ? `Chưa chọn đơn nào để duyệt` : 'Select item to approve', 'error');
-			return;
-		}
-
-		const selectedItems = ListAssignedTask
-			.filter((item: any) => selectedCodes.has(item.code))
-			.map((item: any) => ({
-				ApplicationFormId: item.id,
-				ApplicationFormCode: item.code,
-				RequestTypeId: item.requestTypeId,
-				RequestStatusId: item.requestStatusId
-			}));
-
-		const results = await approvalAll.mutateAsync({
-			Items: selectedItems,
-			UserCodeApproval: user?.userCode ?? '',
-			UserNameApproval: user?.userName ?? '',
-			OrgPositionId: user?.orgPositionId ?? -1,
-		});
-
-		const failedItems = results.filter(item => !item.success);
-		setErrorItems(failedItems);
-
-		queryClient.invalidateQueries({ queryKey: ['get-list-assigned-task'] })
-		queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] })
-		setSelectedCodes(new Set());
-		setIsSelectAll(false);
-	};
-
 	return (
 		<div className="p-1 pl-1 pt-0 space-y-4">
 			<div className="flex flex-wrap justify-between items-center gap-y-2 gap-x-4 mb-3">
 				<h3 className="font-bold text-xl md:text-2xl m-0">
 					{t("assigned.title")}
 				</h3>
-				<Button
-					disabled={approvalAll.isPending || selectedCodes.size === 0}
-					onClick={handleApproveAll}
-					className="bg-red-700 hover:bg-red-800 text-white text-sm cursor-pointer"
-				>
-					{approvalAll.isPending
-						? lang == 'vi' ? 'Đang duyệt' : 'Approving'
-						: lang == 'vi' ? `Duyệt tất cả (${selectedCodes.size})` : `Approval All (${selectedCodes.size})`}
-				</Button>
 			</div>
-
-			{errorItems.length > 0 && (
-				<div className="mt-4 p-2 border border-red-400 bg-red-50 text-red-700 rounded">
-					<h4 className="font-semibold mb-2">{lang == 'vi' ? 'Đơn lỗi' : 'Errors'}:</h4>
-					<ul className="list-disc list-inside">
-						{errorItems.map(item => (
-						<li key={item.code}>
-							{item.code}: {item.error}
-						</li>
-						))}
-					</ul>
-				</div>
-			)}
 
 			<div className="hidden md:block">
 				<div className="overflow-x-auto">
 					<table className="min-w-full text-sm border border-gray-200">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="px-4 py-2 border text-center w-[40px] border-gray-300">
-									<input
-										className="scale-[1.3] hover:cursor-pointer accent-black"
-										type="checkbox"
-										checked={isSelectAll}
-										onChange={toggleSelectAll}
-									/>
-								</th>
 								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.code")}</th>
 								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.RequestTypeEnum")}</th>
 								<th className="px-4 py-2 border border-gray-300">{t("pending_approval.user_request")}</th>
@@ -184,7 +97,7 @@ export default function AssignedTasks() {
 							{isPending ? (
 								Array.from({ length: 3 }).map((_, index) => (
 									<tr key={index}>
-										{Array.from({ length: 7 }).map((__, i) => (
+										{Array.from({ length: 6 }).map((__, i) => (
 											<td
 												key={i}
 												className="px-4 py-2 border whitespace-nowrap text-center"
@@ -199,7 +112,7 @@ export default function AssignedTasks() {
 							) : isError || ListAssignedTask?.length === 0 ? (
 								<tr>
 									<td
-										colSpan={7}
+										colSpan={6}
 										className="px-4 py-2 text-center font-bold text-red-700"
 									>
 										{error?.message ?? tCommon("no_results")}
@@ -209,14 +122,6 @@ export default function AssignedTasks() {
 								ListAssignedTask.map((item: any, idx: number) => {
 									return (
 										<tr key={idx} className="hover:bg-gray-50">
-											<td className="px-4 py-2 border text-center border-gray-300">
-												<input
-													className="scale-[1.3] hover:cursor-pointer accent-black"
-													type="checkbox"
-													checked={selectedCodes.has(item.code)}
-													onChange={() => toggleSelect(item.code)}
-												/>
-											</td>
 											<td className="px-4 py-2 border whitespace-nowrap text-center border-gray-300">
 												<Link
 													to={`/view-approval/${item.code}?requestType=${item.requestTypeId}`}

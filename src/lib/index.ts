@@ -316,7 +316,7 @@ export const handleDownloadTemplate = async (templateFileUrl: string ) => {
 
 export const handleDownloadFile = async (file: UploadedFileType) => {
     try {
-        const result = await fileApi.downloadFile(file.id)
+        const result = await fileApi.downloadFile(Number(file.id))
         const url = window.URL.createObjectURL(result.data);
         const a = document.createElement("a");
         a.href = url;

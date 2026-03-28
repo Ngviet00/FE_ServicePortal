@@ -2,10 +2,10 @@ import axiosClient from './axiosClient';;
 
 const fileApi = {
     getFile(id: number) {
-        return axiosClient.post(`/file/${id}`);
+        return axiosClient.get(`/file/${id}`);
     },
-    downloadFile(id: string) {
-        return axiosClient.get(`/file/download-file/${id}`, {
+    downloadFile(id: number) {
+        return axiosClient.get(`/file/${id}?download=true`, {
             responseType: 'blob',
         })
     },

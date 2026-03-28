@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
-import itFormApi, { useApprovalITForm, useApproveITPurchaseRequestForm, useAssignedTaskITForm, useConfirmITPurchaseRequirement, useResolvedTaskITForm } from '@/api/itFormApi';
+import itFormApi, { useApprovalITForm, useAssignedTaskITForm, useConfirmITRequestPurchase, useResolvedTaskITForm, useStaffITRequestFormPurchase } from '@/api/itFormApi';
 import { Link, useNavigate } from 'react-router-dom';
 import itCategoryApi, { ITCategoryInterface } from '@/api/itCategoryApi';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -61,16 +62,20 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
     const { data: formData, isLoading: isFormDataLoading } = useQuery({
         queryKey: ['itForm', id],
         queryFn: async () => {
-            const res = await itFormApi.getById(id ?? '');
-            return res.data.data;
+            try {
+                const res = await itFormApi.getById(id ?? '');
+                return res.data.data;
+            } catch {
+                return
+            }
         },
         enabled: hasId,
     });
     
     const { data: ItMembers = [] } = useQuery({
-        queryKey: ['get-all-it-member'],
+        queryKey: ['get-all-staff-it'],
         queryFn: async () => {
-            const res = await itFormApi.getMemberITAssigned()
+            const res = await itFormApi.getAllStaffIT()
             return res.data.data
         }
     });
@@ -89,13 +94,12 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                 itCategory: formData?.itForm?.itFormCategories?.map((item: any ) => item.itCategoryId),
                 reason: formData?.itForm?.reason,
                 attachments: [],
-                attachmentsUploaded: formData?.itForm?.files,
+                attachmentsUploaded: formData?.files,
                 attachmentQuoteApplicationFormUpload: formData?.itForm?.applicationForm?.files,
                 actualCompletionDate: formData?.itForm?.actualCompletionDate ?? new Date().toISOString().split('T')[0],
                 targetCompletionDate: formData?.itForm?.targetCompletionDate ?? new Date().toISOString().split('T')[0],
             })
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData])
 
     const { data: itCategories = [] } = useQuery({
@@ -114,8 +118,8 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
     const approvalFormIT = useApprovalITForm()
     const assignFormIT = useAssignedTaskITForm()
     const resolvedFormIT = useResolvedTaskITForm()
-    const confirmITPurchase = useConfirmITPurchaseRequirement()
-    const approvalITPurchase = useApproveITPurchaseRequestForm()
+    const staffITRequestPurchase = useStaffITRequestFormPurchase()
+    const confirmFormITRequestPurchase = useConfirmITRequestPurchase()
 
     const handleSaveModalConfirm = async (type: string) => {
         const { targetCompletionDate, actualCompletionDate } = getValues();
@@ -137,36 +141,28 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
 
         try {
             if (type == 'approval_purchase_request') {
-                
-                await approvalITPurchase.mutateAsync({
+                await confirmFormITRequestPurchase.mutateAsync({
                     applicationFormId: formData?.itForm?.applicationForm?.id,
                     userCodeApproval: user?.userCode ?? '',
                     userNameApproval: user?.userName ?? '',
-                    note: note
+                    note: note,
+                    orgPositionId: user?.orgPositionId
                 })
                 navigate('/approval/wait-confirm')
-                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
             }
-            if (type == 'confirm_purchase_request') {
-                const fd = new FormData()
-                fd.append('ApplicationFormId', String(formData?.itForm?.applicationForm?.id))
-                fd.append('UserCodeApproval', user?.userCode ?? '')
-                fd.append('UserNameApproval', user?.userName ?? '')
-                fd.append('Note', note)
-
-                await confirmITPurchase.mutateAsync(fd)
+            else if (type == 'staff_it_request_form_purchase') {
+                const payload = {
+                    applicationFormId: formData?.itForm?.applicationFormId,
+                    userCodeApproval: user?.userCode ?? '',
+                    userNameApproval: user?.userName ?? '',
+                    note: note
+                };
+                await staffITRequestPurchase.mutateAsync(payload)
                 navigate('/approval/assigned-tasks')
-                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
             }
-            if (type == 'resolved') {
+            else if (type == 'resolved') {
                 await resolvedFormIT.mutateAsync(payload);
-
-                if (formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned) {
-                    navigate('/approval/assigned-tasks')
-                } else {
-                    navigate('/form-it/list-item-wait-form-purchase')
-                }
-                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
+                navigate('/approval/assigned-tasks')
             }
             else if (type == 'assigned') {
                 if (selectedUserAssigned.length <= 0) {
@@ -175,13 +171,12 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                 }
                 await assignFormIT.mutateAsync(payload)
                 navigate('/approval/pending-approval')
-                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
             }
             else if (type == 'reject' || type == 'approval'){
                 await approvalFormIT.mutateAsync(payload)
                 navigate("/approval/pending-approval")
-                queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
             }
+            queryClient.invalidateQueries({ queryKey: ['count-wait-approval-sidebar'] });
         } catch (err) {
             console.log(err);
         }
@@ -195,7 +190,10 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
             setSelectedUserAssigned(prevSelected => prevSelected.filter(u => u.userCode !== item.userCode));
         }
     };
-        
+
+    const activeStep = formData?.defineSteps?.find((step: any) => step.IsActive === true);
+    const isFinalStep = activeStep?.IsFinal === true;
+
     if (hasId && isFormDataLoading) {
         return <div>{lang === 'vi' ? 'Đang tải dữ liệu...' : 'Loading data...'}</div>;
     }
@@ -424,11 +422,11 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                             <span className="font-bold text-black">
                                 {lang === 'vi' ? 'Quy trình' : 'Approval flow'}:
                             </span>{' '}
-                            {formData?.defineAction
+                            {formData?.defineSteps
                                 .map((item: any, idx: number) => (
                                     <span key={idx} className="font-bold text-orange-700">
                                         ({idx + 1}) {item?.Name ?? item?.UserCode ?? (item?.StepOrder == 3 ? 'Admin' : 'HR')}
-                                        {idx < formData?.defineAction?.length - 1 ? ', ' : ''}
+                                        {idx < formData?.defineSteps?.length - 1 ? ', ' : ''}
                                     </span>
                                 ))}
                         </div>
@@ -447,7 +445,7 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                         />
                     </div>
                     {
-                        (formData?.defineAssigned?.length > 0 || (mode != 'view' && formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FinalApproval))
+                        (formData?.defineAssigned?.length > 0 || (isFinalStep && activeStep.StatusId == StatusApplicationFormEnum.Pending && mode != 'view'))
                             && 
                             <label className="block text-sm font-medium text-gray-700 mb-0">
                                 {lang == 'vi' ? 'Được giao cho' : 'Assigned to'}<DotRequireComponent />
@@ -467,7 +465,7 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                                     </label>
                                 ))
                             ) :
-                            mode != 'view' && formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FinalApproval 
+                            isFinalStep && activeStep.StatusId == StatusApplicationFormEnum.Pending && mode != 'view'
                             ? (
                                 ItMembers?.map((item: {userCode: string, userName: string, email: string}, idx: number) => (
                                     <label
@@ -494,11 +492,7 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                         }
                     </div>
                     {
-                        (
-                            (formData?.itForm?.targetCompletionDate != null && formData?.itForm?.actualCompletionDate != null) ||
-                            (mode != 'view' && formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned ) ||
-                            (formData?.purchase?.purchaseOrder && mode != 'view' && formData?.itForm?.applicationForm?.requestStatusId != StatusApplicationFormEnum.Complete)
-                        )
+                        formData?.itForm?.actualCompletionDate == null && formData?.itForm?.targetCompletionDate == null
                         && 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
                             <div className="form-group">
@@ -553,73 +547,76 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                     
                     <div className="flex justify-end">
                         {
-                            formData?.purchase?.purchaseOrder && mode != 'view' && formData?.itForm?.applicationForm?.requestStatusId != StatusApplicationFormEnum.Complete ?
-                            (
-                                 <button
+                            //nếu như user xác nhận đã tạo link đơn mua bán, thì hiển thị button close
+                            formData?.itForm?.applicationForm?.reference != null ? (
+                                <button
                                     onClick={() => setStatusModalConfirm('resolved')}
                                     disabled={assignFormIT.isPending}
                                     className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
                                 >
                                     {lang == 'vi' ? 'Đóng' : 'Closed'}
                                 </button>
-                            ) : 
-                            formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.WaitConfirm && mode != 'view' ?
-                            (
-                                formData?.defineAction?.find((e: any) => e.StepOrder == formData?.defineInstance?.currentStep)?.UserCode == (user?.userCode ?? '') &&
-                                    (
-                                        formData?.defineAction?.find((e: any) => e.StepOrder == formData?.defineInstance?.currentStep)?.IsFinal == false ? 
-                                        <button
-                                            onClick={() => setStatusModalConfirm('approval_purchase_request')}
-                                            disabled={approvalITPurchase.isPending}
-                                            className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
-                                        >
-                                            {lang == 'vi' ? 'Xác nhận' : 'Confirm'}
-                                        </button>
-                                        :
-                                        <Link
-                                            to={`/purchase/create?applicationFormCode=${formData?.itForm?.applicationForm?.code}`}
-                                            className="px-4 py-2 sm:ml-2 bg-orange-600 text-white rounded-[3px] shadow-lg hover:bg-orange-700 transition-all duration-200 text-base hover:cursor-pointer"
-                                        >
-                                            {lang == "vi"
-                                                ? "Tạo đơn mua bán"
-                                                : "Create Purchase Request"}
-                                        </Link>
-                                    )
                             )
-                            : formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.FinalApproval ?
-                            (
-                                mode != 'view' &&
+                            //button confirm form
+                            : activeStep.StatusId == StatusApplicationFormEnum.WaitConfirm && mode != 'view' ? (
+                                <div>
+                                    {
+                                        isFinalStep ? (
+                                            <>
+                                                {
+                                                    activeStep?.UserCode == user?.userCode && 
+                                                    <Link
+                                                        to={`/purchase/create?applicationFormCode=${formData?.itForm?.applicationForm?.code}`}
+                                                        className="px-4 py-2 sm:ml-2 bg-orange-600 text-white rounded-[3px] shadow-lg hover:bg-orange-700 transition-all duration-200 text-base hover:cursor-pointer"
+                                                    >
+                                                        {lang == "vi" ? "Tạo đơn mua bán" : "Create Purchase Request"}
+                                                    </Link>
+                                                }
+                                            </>
+                                        ) : (
+                                            <button
+                                                onClick={() => setStatusModalConfirm('approval_purchase_request')}
+                                                disabled={confirmFormITRequestPurchase.isPending}
+                                                className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
+                                            >
+                                                {lang == 'vi' ? 'Xác nhận' : 'Confirm'}
+                                            </button>
+                                        )
+                                    }
+                                </div>
+                            )
+                            //staff IT can close or request form purchase
+                            : isFinalStep && activeStep.StatusId == StatusApplicationFormEnum.Assigned && mode != 'view' ? (
+                                <div>
                                     <button
-                                        onClick={() => setStatusModalConfirm('assigned')}
+                                        onClick={() => setStatusModalConfirm('resolved')}
                                         disabled={assignFormIT.isPending}
                                         className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
                                     >
-                                        {lang == 'vi' ? 'Giao việc' : 'Assigned task'}
+                                        {lang == 'vi' ? 'Đóng' : 'Closed'}
                                     </button>
+                                    <button
+                                        onClick={() => setStatusModalConfirm('staff_it_request_form_purchase')}
+                                        disabled={staffITRequestPurchase.isPending}
+                                        className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-orange-600 text-white font-semibold rounded-sm shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
+                                    >
+                                        {lang == 'vi' ? 'Yêu cầu đơn mua bán' : 'Purchase Request'}
+                                    </button>
+                                </div>
                             )
-                            : formData?.itForm?.applicationForm?.requestStatusId == StatusApplicationFormEnum.Assigned ?
-                            (
-                                mode != 'view' &&
-                                (
-                                    <div>
-                                        <button
-                                            onClick={() => setStatusModalConfirm('confirm_purchase_request')}
-                                            disabled={confirmITPurchase.isPending}
-                                            className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-orange-600 text-white font-semibold rounded-sm shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
-                                        >
-                                            {lang == 'vi' ? 'Yêu cầu đơn mua bán' : 'Purchase Request'}
-                                        </button>
-                                        <button
-                                            onClick={() => setStatusModalConfirm('resolved')}
-                                            disabled={assignFormIT.isPending}
-                                            className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
-                                        >
-                                            {lang == 'vi' ? 'Đóng' : 'Closed'}
-                                        </button>
-                                    </div>
-                                )
-                            ) : [StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(formData?.itForm?.applicationForm?.requestStatusId) ? (null) : (
-                                    mode != 'view' && <>
+                            //điều kiện manager assign to staff IT
+                            : isFinalStep && activeStep.StatusId == StatusApplicationFormEnum.Pending && mode != 'view' ? (
+                                <button
+                                    onClick={() => setStatusModalConfirm('assigned')}
+                                    disabled={assignFormIT.isPending}
+                                    className="mr-2 cursor-pointer w-full sm:w-auto py-3 px-4 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-sm tracking-wide uppercase disabled:bg-gray-400"
+                                >
+                                    {lang == 'vi' ? 'Giao việc' : 'Assigned task'}
+                                </button>
+                            ) 
+                            //điều kiện từ chối hoặc đồng ý
+                            : ![StatusApplicationFormEnum.Complete, StatusApplicationFormEnum.Reject].includes(formData?.itForm?.applicationForm?.requestStatusId) && mode != 'view' ? (
+                                <div>
                                     <button
                                         onClick={() => setStatusModalConfirm('reject')}
                                         disabled={approvalFormIT.isPending}
@@ -627,16 +624,17 @@ const ViewApprovalFormIT = ({id, mode}: ViewApprovalProps) => {
                                     >
                                         {lang == 'vi' ? 'Từ chối' : 'Reject'}
                                     </button>
-                                    {
-                                        <button
-                                            onClick={() => setStatusModalConfirm('approval')}
-                                            disabled={approvalFormIT.isPending}
-                                            className="cursor-pointer w-full sm:w-auto py-3 px-5 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400"
-                                        >
-                                            {lang == 'vi' ? 'Duyệt đơn' : 'Approval'}
-                                        </button>
-                                    }
-                                </>
+                                    <button
+                                        onClick={() => setStatusModalConfirm('approval')}
+                                        disabled={approvalFormIT.isPending}
+                                        className="cursor-pointer w-full sm:w-auto py-3 px-5 bg-blue-600 text-white font-semibold rounded-sm shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400"
+                                    >
+                                        {lang == 'vi' ? 'Duyệt đơn' : 'Approval'}
+                                    </button>
+                                </div>
+                            )
+                            : (
+                                null
                             )
                         }
                     </div>
