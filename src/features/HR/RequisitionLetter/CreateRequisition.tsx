@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import { ShowToast } from '@/lib';
 import { useQuery } from '@tanstack/react-query';
 import requisitionLetterApi, { useCreateRequisitionLetter, useUpdateRequisitionLetter } from '@/api/HR/requisitionApi';
+import { Spinner } from '@/components/ui/spinner';
 
 export const ReasonSchema = z.object({
     reason_expand: z.boolean().optional(),
@@ -504,7 +505,7 @@ const CreateRequisition: React.FC = () => {
                             disabled={isSubmitting}
                             className="cursor-pointer w-full sm:w-auto py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                            {t('resignation.create.confirm')}
+                            {isSubmitting ? <Spinner/> : t('resignation.create.confirm')}
                         </button>
                     </div>
                 </form>

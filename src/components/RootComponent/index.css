@@ -45,6 +45,17 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+
+.input-password-hide {
+    -webkit-text-security: disc !important;
+    text-security: disc !important;
+}
+
+.input-password-hide::selection {
+    background-color: #3b82f6;
+    color: white;
+}
+
 :root {
   /* Ép trình duyệt hiểu đây là trang Light */
   color-scheme: light !important;

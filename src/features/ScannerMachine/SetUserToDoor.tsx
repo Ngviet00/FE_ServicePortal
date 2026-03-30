@@ -6,6 +6,7 @@ import { TYPE_SCANNER_MACHINE, ShowToast, getProviderName } from '@/lib';
 import { useQuery } from '@tanstack/react-query';
 import scannerMachineApi, { usePushManualUserToMachine } from '@/api/HR/scannerMachineApi';
 import userApi from '@/api/userApi';
+import { Spinner } from '@/components/ui/spinner';
 
 const SetUserToDoor: React.FC = () => {
     const { i18n } = useTranslation('formIT');
@@ -135,11 +136,11 @@ const SetUserToDoor: React.FC = () => {
 
                     <button 
                         onClick={handleSave}
-                        disabled={selectedDeviceIds.length === 0 || selectedUsers.length === 0}
+                        disabled={selectedDeviceIds.length === 0 || selectedUsers.length === 0 || pushUserToMachine.isPending}
                         className="bg-indigo-600 text-white px-8 py-2.5 rounded-lg font-bold text-sm hover:bg-indigo-700 disabled:bg-slate-100 disabled:text-slate-400 transition-all cursor-pointer shadow-lg shadow-indigo-100 flex items-center gap-2"
                     >
                         <UserCheck size={18} />
-                        {lang === 'vi' ? 'Lưu cấu hình' : 'Save Config'}
+                        {pushUserToMachine.isPending ? <Spinner/> : lang === 'vi' ? 'Lưu cấu hình' : 'Save Config'}
                     </button>
                 </header>
 

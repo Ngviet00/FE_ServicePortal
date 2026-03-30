@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation } from '@tanstack/react-query';
 import axiosClient from './axiosClient';
 import { getErrorMessage, IApplicationForm, ShowToast } from '@/lib';
@@ -198,8 +197,8 @@ const leaveRequestApi = {
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/leave-request/approval`, data)
     },
-    SearchUserRegisterLeaveRequest(params: { userCodeRegister: string, usercode: string }) {
-        return axiosClient.get('/leave-request/search-user-register-leave-request', {params})
+    SearchUserForRegister(params: { userCodeRegister: string, usercode: string, type: string, requestType: string }) {
+        return axiosClient.get('/leave-request/search-user-for-register', {params})
     },
     Statistical(params: { departmentId: number, time: string, isCalReject: boolean}) {
         return axiosClient.get('/leave-request/statistical-leave-request', {params})
@@ -230,6 +229,12 @@ const leaveRequestApi = {
     resolvedTask(data: IResolvedTask) {
         return axiosClient.post(`/leave-request/resolved`, data)
     },
+    getUserLeaveBalance(params: { userCode: string, year: number}) {
+        return axiosClient.get(`/leave-request/get-user-leave-balance`, {params})
+    },
+    getListHolidayOfUser(params: { userCode: string, fromDate: string, toDate: string}) {
+        return axiosClient.get(`/leave-request/get-list-holiday-of-user`, {params})
+    }
 }
 
 export function useGetStatisticLeave () {

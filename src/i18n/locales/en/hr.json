@@ -111,7 +111,8 @@
             "union_member_responsibility": "Union member responsibility",
             "choose": "Choose",
             "note_approval_flow": "Approval process: (1) Union representative, (2) Department Manager, (3) HR & Administration Director",
-            "confirm": "Confirm"
+            "confirm": "Confirm",
+            "date": "Date"
         },
         "list": {
             "title": "List warning letter registered",

@@ -80,7 +80,7 @@
 			"hr_report": "Báo cáo",
 			"recruitment": {
 				"title": "Tuyển dụng",
-				"manpower": "Đơn xin bổ sung nhân lực"
+				"manpower": "Đơn đề xuất tuyển dụng"
 			},
 			"insurance": {
 				"title": "Bảo hiểm, nghỉ việc",
@@ -92,7 +92,7 @@
 			"leave_request": {
 				"title": "Nghỉ phép, chấm công",
 				"leave_statistics": "Thống kê nghỉ phép",
-				"create_leave": "Nghỉ phép, đi trễ về sớm",
+				"create_leave": "Nghỉ phép",
 				"create_leave_for_others" : "Tăng ca",
 				"over_time": "Tăng ca",
 				"missing_attendace_data": "Bù chấm công",

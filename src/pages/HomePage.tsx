@@ -12,6 +12,7 @@ import userApi from '@/api/userApi';
 import "./css/Homepage.css"
 import { getErrorMessage, ShowToast } from '@/lib';
 import systemConfigApi from '@/api/systemConfigApi';
+import leaveRequestApi from '@/api/leaveRequestApi';
 
 function formatData(data: string | null | undefined):string {
     if (data === "" || data === null || data === undefined) {
@@ -55,7 +56,8 @@ export default function HomePage() {
                     unitId: result?.unitId,
                     unitName: result?.unitName,
                     unitNameV: result?.unitNameV,
-                    dateJoinCompany: result?.dateJoinCompany
+                    dateJoinCompany: result?.dateJoinCompany,
+                    nationalityId: result?.nationalityId
                 })
 
                 return res.data.data;
@@ -76,10 +78,20 @@ export default function HomePage() {
         },
     });
 
+    const { data: getUserLeaveBalance } = useQuery({
+        queryKey: ['get-user-leave-balance', user?.userCode],
+        queryFn: async () => {
+            const res = await leaveRequestApi.getUserLeaveBalance({userCode: user?.userCode ?? '', year: new Date().getFullYear()})
+            return res.data.data;
+        },
+        enabled: !!user?.userCode
+    });
+
     return (
         <div className="p-1 pt-0 home-page">
             <div className="flex justify-between mb-3">
                 <h3 className="title font-bold text-2xl m-0 pb-2">{t('home_page.title')}</h3>
+                
             </div>
             <div className='mb-3'>
                 {
@@ -182,16 +194,56 @@ export default function HomePage() {
                     </div>
                 </div>
             </div>
-            <div className='mt-3'>
-                {
-                    filePathCompanyRule != '' && 
-                    <a 
-                        className='btn bg-orange-500 p-2 inline-block mt text-gray rounded-sm font-semibold'
-                        target="blank"
-                        href={filePathCompanyRule ?? ''}>
-                        {lang == 'vi' ? 'Nội quy công ty' : 'company regulations'}
-                    </a>
-                }
+            <div className='mt-3 flex'>
+                <div>
+                    <div className="w-56 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <div className="bg-gray-50 px-4 py-2 border-b border-gray-100">
+                            <span className="text-base font-bold text-black">
+                                {lang == 'vi' ? 'Nghỉ phép' : 'Leave'} {new Date().getFullYear()}
+                            </span>
+                        </div>
+
+                        <div className="px-4 pb-3 pt-1">
+                            <div className="flex justify-between items-end">
+                                <span className="text-sm text-gray-600 font-medium">{lang == 'vi' ? 'Tổng phép' : 'Total'}:</span>
+                                <span className="text-base font-medium black">
+                                    {getUserLeaveBalance 
+                                    ? (getUserLeaveBalance.annualLeaveCurrentYear + getUserLeaveBalance.carriedOver) 
+                                    : '0'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-end my-2">
+                                <span className="text-sm text-gray-600 font-medium">{lang == 'vi' ? 'Khả dụng' : 'Remaining'}:</span>
+                                <span className="text-base font-medium black">
+                                    {getUserLeaveBalance?.available ?? '0'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-end">
+                                <span className="text-sm text-gray-600 font-medium">{lang == 'vi' ? 'Đã sử dụng' : 'Used'}:</span>
+                                <span className="text-base font-medium black">
+                                    {getUserLeaveBalance?.used ?? '0'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-end mt-2">
+                                <span className="text-sm text-gray-600 font-medium">{lang == 'vi' ? 'Phép năm chờ duyệt' : 'Annual leave pending'}:</span>
+                                <span className="text-base font-medium black">
+                                    {getUserLeaveBalance?.planned ?? '0'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className='ml-5'>
+                    {
+                        filePathCompanyRule != '' && 
+                        <a 
+                            className='btn bg-orange-500 text-white p-2 inline-block mt text-gray rounded-sm font-semibold'
+                            target="blank"
+                            href={filePathCompanyRule ?? ''}>
+                            {lang == 'vi' ? 'Nội quy công ty' : 'Company regulations'}
+                        </a>
+                    }
+                </div>
             </div>
         </div>
     );

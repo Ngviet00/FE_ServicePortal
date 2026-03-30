@@ -48,7 +48,7 @@ export default function ListITFormWaitFormPurchase() {
     const { data: ListWaitApprovals = [], isPending, isError, error } = useQuery({
         queryKey: ['get-list-wait-approval', page, pageSize],
         queryFn: async () => {
-            const res = await itFormApi.listFormITWaitConfirm({
+            const res = await itFormApi.listFormITWaitConfirmFormPurchase({
                 Page: page,
                 PageSize: pageSize,
                 UserCode: user?.userCode,

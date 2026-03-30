@@ -110,7 +110,7 @@ export default function Timekeeping () {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                tooltip: { enabled: true },
+                tooltip: { enabled: false },
                 legend: {
                     position: "right" as const,
                     labels: { font: { size: 14 }, boxWidth: 12 }
@@ -167,7 +167,9 @@ export default function Timekeeping () {
                     </div>
                 )
             }
-            <span className="text-amber-700 font-semibold italic">{lang == 'vi' ? 'Số giờ tăng ca đang hiển thị theo giờ vào và giờ ra' : 'Overtime hours are currently displayed based on check in and check out times.'}</span>
+            <span className="text-amber-700 font-semibold italic">
+                {lang == 'vi' ? 'Số giờ tăng ca đang hiển thị theo giờ vào và giờ ra' : 'Overtime hours are currently displayed based on check in and check out times'} - <span className="text-black">{lang == 'vi' ? 'Dữ liệu cập nhật lúc 9h sáng hàng ngày' : 'Data updated at 9 AM daily.'}</span>
+            </span>
             <div className="mt-1">
                 <div className="overflow-auto max-h-[600px] border rounded">
                     <table className="min-w-full text-sm border-collapse">

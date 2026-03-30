@@ -22,7 +22,6 @@ export default function ListUser () {
     const { t: tCommon } = useTranslation('common')
     const lang = useTranslation().i18n.language.split('-')[0]
     const [name, setName] = useState("")
-    const [totalPage, setTotalPage] = useState(0)
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [selectedItem, setSelectedItem] = useState<GetListUserData | null>(null)
@@ -37,7 +36,7 @@ export default function ListUser () {
     const [searchParams, setSearchParams] = useSearchParams();
     
     //get list users 
-    const { data: users = [], isPending, isError, error } = useQuery({
+    const { data: userResponse, isPending, isError, error } = useQuery({
         queryKey: ['get-all-user', debouncedName, page, pageSize, selectedSex, selectedDepartment, selectedStatus, setOrgPosition],
         queryFn: async () => {
             const res = await userApi.getAll({
@@ -49,10 +48,12 @@ export default function ListUser () {
                 Status: selectedStatus == '' ? null : Number(selectedStatus),
                 SetOrgPosition: setOrgPosition == 'true' ? true : setOrgPosition == 'false' ? false : null
             });
-            setTotalPage(res.data.total_pages)
             return res.data.data;
         }
     });
+
+    const users = userResponse?.data ?? [];
+    const totalPages = userResponse?.totalPages ?? 0;
 
     useEffect(() => {
         setName(searchParams.get("name") ?? "");
@@ -328,15 +329,15 @@ export default function ListUser () {
                     )}
                 </div>
             </div>
-            {
-                users.length > 0 ? (<PaginationControl
+            {users.length > 0 && (
+                <PaginationControl
                     currentPage={page}
-                    totalPages={totalPage}
+                    totalPages={totalPages}
                     pageSize={pageSize}
                     onPageChange={setCurrentPage}
                     onPageSizeChange={handlePageSizeChange}
-                />) : (null)
-            }
+                />
+            )}
         </div>
     )
 }

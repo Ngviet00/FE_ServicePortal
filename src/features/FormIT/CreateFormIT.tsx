@@ -17,6 +17,7 @@ import FileListPreview, { FileListPreviewDownload, UploadedFileType } from '@/co
 import userApi from '@/api/userApi';
 import FullscreenLoader from '@/components/FullscreenLoader';
 import fileApi from '@/api/fileApi';
+import { Spinner } from '@/components/ui/spinner';
 
 export const ITFormSchema = z.object({
     userCode: z.string().min(1, 'Bắt buộc'),
@@ -101,7 +102,7 @@ const CreateFormIT = () => {
                 itCategory: formData?.itForm?.itFormCategories?.map((item: any ) => item.itCategoryId),
                 reason: formData?.itForm?.reason,
                 attachments: [],
-                attachmentsUploaded: formData?.itForm?.files
+                attachmentsUploaded: formData?.files
             })
             setIsInitialized(true);
         }
@@ -148,8 +149,6 @@ const CreateFormIT = () => {
             setIsSearchingUser(true)
             const fetchData = await userApi.getByCode(value)
             const result = fetchData?.data?.data
-
-            console.log(result);
 
             if (result == null || result == undefined || result?.userCode == null) {
                 ShowToast("Not found user", "error")
@@ -201,8 +200,6 @@ const CreateFormIT = () => {
         fd.append("Reason", data.reason);
         fd.append("RequestDate", data.dateRequired);
         fd.append("RequiredCompletionDate", data.dateCompleted);
-
-        console.log(data?.itCategory);
         
         data?.itCategory?.forEach((cat: any) => {
             fd.append(`ITCategories`, String(cat));
@@ -241,7 +238,7 @@ const CreateFormIT = () => {
 
     const handleDownloadFile = async (file: UploadedFileType) => {
         try {
-            const result = await fileApi.downloadFile(file.id)
+            const result = await fileApi.downloadFile(Number(file.id))
             const url = window.URL.createObjectURL(result.data);
             const a = document.createElement("a");
             a.href = url;
@@ -301,7 +298,7 @@ const CreateFormIT = () => {
             <div className="flex flex-col">
                 <div className="w-full max-w-3xl bg-white rounded-xl pl-0">
                     <form onSubmit={handleSubmit(onSubmit, (error) => {
-                        console.log("⛔ Submit bị chặn vì lỗi:", error);
+                        console.log(" Submit bị chặn vì lỗi:", error);
                     })} className="flex flex-col gap-6">
                         <div className="space-y-6">
                             <div>
@@ -529,7 +526,7 @@ const CreateFormIT = () => {
                                 disabled={isSubmitting}
                                 className="cursor-pointer w-full sm:w-auto py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
-                                {tCommon('save')}
+                                {isSubmitting ? <Spinner/> : tCommon('save')}
                             </button>
                         </div>
                     </form>

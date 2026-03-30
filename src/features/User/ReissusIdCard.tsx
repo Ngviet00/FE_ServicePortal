@@ -73,7 +73,7 @@ const ReissueIdCard = () => {
 			timeKeepingId: data.timeKeepingId,
 			cardNumber: data.cardNumber,
 			cardNumber2: data.cardNumber2 || null,
-			privilege: data.privilege
+			privilege: data.privilege ?? '0'
 		}
 
 		await updateUserReissueIdCard.mutateAsync(payload)

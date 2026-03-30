@@ -10,9 +10,9 @@ import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom";
 import { FeedbackSchema, FeedbackState } from "./CreateFeedback";
 import { formatDate } from "@/lib/time";
-import useHasRole from "@/hooks/useHasRole";
-import { RoleEnum, ShowToast } from "@/lib";
+import { ShowToast } from "@/lib";
 import ModalConfirm from "@/components/ModalConfirm";
+import { useAuthStore } from "@/store/authStore";
 
 export default function ViewFeedback () {
     const { t } = useTranslation();
@@ -48,13 +48,18 @@ export default function ViewFeedback () {
         },
     });
 
-    const isHR = useHasRole([RoleEnum.HR])
+    const roles = useAuthStore(state => state.user?.roles);
+    const isHR = roles?.some(r => r.includes('HR'));
 
     useEffect(() => {
         if (formDataDetail) {
             reset({
                 content: formDataDetail?.feedback?.content,
-                existingImgs: formDataDetail?.files ?? []
+                existingImgs: formDataDetail?.files?.map((f: any) => ({
+                    id: f.Id,
+                    fileName: f.FileName,
+                    contentType: f.ContentType
+                })) || []
             })
 
             if (formDataDetail?.feedback?.feedbackResponse?.responseContent) {
@@ -139,11 +144,11 @@ export default function ViewFeedback () {
                                             {(watch(`existingImgs`) ?? []).map((f: any) => (
                                                 <div key={`server-${f.id}`} className="relative">
                                                     <img
-                                                        src={`${import.meta.env.VITE_API_URL}/file/get-file/${f.id}`}
+                                                        src={`${import.meta.env.VITE_API_URL}/file/${f.id}`}
                                                         alt={f.fileName}
                                                         className="w-20 h-20 object-cover rounded-md border cursor-pointer"
                                                         onClick={() =>
-                                                            setPreviewImage(`${import.meta.env.VITE_API_URL}/file/get-file/${f.id}`)
+                                                            setPreviewImage(`${import.meta.env.VITE_API_URL}/file/${f.id}`)
                                                         }
                                                     />
                                                 </div>

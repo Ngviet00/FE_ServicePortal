@@ -112,7 +112,8 @@
             "union_member_responsibility": "Thành viên công đoàn phụ trách",
             "choose": "Chọn",
             "note_approval_flow" : "Quy trình phê duyệt: (1) Đại diện công đoàn, (2) Giám đốc bộ phận, (3) Giám đốc hành chính nhân sự",
-            "confirm": "Xác nhận"
+            "confirm": "Xác nhận",
+            "date": "Ngày"
         },
         "list": {
             "title": "Danh sách đơn kỷ luật đã đăng ký",

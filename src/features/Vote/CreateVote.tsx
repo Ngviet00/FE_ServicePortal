@@ -308,9 +308,9 @@ export const CreateVote: React.FC = () => {
                     />
                 </div>
 
-                <div className="flex-1 space-y-2 border">
+                <div className="flex-1 space-y-2">
                     <Label>{t("create.date_range")}</Label>
-                    <div className="border border-gray-300">
+                    <div className="">
                         <Controller
                             control={control}
                             name="dateRange"
@@ -435,11 +435,11 @@ export const CreateVote: React.FC = () => {
                                         {(watch(`options.${idx}.existingImgs`) ?? []).map((f: any, i: number) => (
                                             <div key={`server-${f.id}`} className="relative">
                                             <img
-                                                src={`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`}
+                                                src={`${import.meta.env.VITE_API_URL}/file/${f.id}`}
                                                 alt={f.fileName}
                                                 className="w-20 h-20 object-cover rounded-md border cursor-pointer"
                                                 onClick={() =>
-                                                setPreviewImage(`${import.meta.env.VITE_API_URL}/vote/get-file/${f.id}`)
+                                                setPreviewImage(`${import.meta.env.VITE_API_URL}/file/${f.id}`)
                                                 }
                                             />
                                             <button

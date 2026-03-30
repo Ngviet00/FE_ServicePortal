@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/authStore';
 import userApi from '@/api/userApi';
 import { ShowToast } from '@/lib';
 import resignationLetterApi, { useCreateResignationLetter, useUpdateResignationLetter } from '@/api/HR/resignationLetterApi';
+import { Spinner } from '@/components/ui/spinner';
 
 export const ReasonsResignationSchema = z.object({
     reason_contractExpired: z.boolean().optional(),
@@ -468,7 +469,7 @@ const CreateResignation: React.FC = () => {
                             disabled={isSubmitting}
                             className="cursor-pointer w-full sm:w-auto py-3 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out text-base tracking-wide uppercase disabled:bg-gray-400"
                         >
-                            {t('resignation.create.confirm')}
+                            {isSubmitting ? <Spinner/> : t('resignation.create.confirm')}
                         </button>
                     </div>
                 </form>

@@ -30,6 +30,7 @@ export default function ListVote() {
     const debounceSearchTitle = useDebounce(searchTitle, 300);
 
     const isUnion = useHasRole([RoleEnum.UNION])
+	const isHR = useHasRole([RoleEnum.HR])
 
 	const [searchParams] = useSearchParams();
 	const roleCode = searchParams.get("role");
@@ -209,7 +210,7 @@ export default function ListVote() {
                                                 {lang == 'vi' ? 'Chi tiết' : 'Detail'}
                                             </Link>
                                             {
-                                                isUnion && vote.Status != 3 && (
+                                                (isHR || isUnion)  && vote.Status != 3 && (
                                                     <>
                                                         <Link 
                                                             to={`/vote/edit/${vote?.Id}?role=${roleCode}`} 
@@ -289,7 +290,7 @@ export default function ListVote() {
 									{lang == 'vi' ? 'Chi tiết' : 'Detail'}
 								</Link>
 								{
-									isUnion && vote.Status != 3 && (
+									(isHR || isUnion) && vote.Status != 3 && (
 										<>
 											<Link 
 												to={`/vote/edit/${vote?.Id}?role=${roleCode}`} 

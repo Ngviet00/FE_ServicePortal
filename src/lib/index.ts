@@ -79,16 +79,25 @@ export const TYPE_LEAVE = [
 
 export const TIME_LEAVE = [
     {
-        label: "all_day",
+        id: 1,
+        session: 1,
+        label: "Cả ngày",
+        labelE: 'All day',
         value: "1"
     },
     {
-        label: "morning",
-        value: "2"
+        id: 2,
+        session: 2,
+        label: 'Nửa ca đầu',
+        labelE: 'First half',
+        value: "0.5"
     },
     {
-        label: "afternoon",
-        value: "3"
+        id: 3,
+        session: 3,
+        label: "Nửa ca sau",
+        labelE: 'Second half',
+        value: "0.5"
     }
 ]
 
@@ -307,7 +316,7 @@ export const handleDownloadTemplate = async (templateFileUrl: string ) => {
 
 export const handleDownloadFile = async (file: UploadedFileType) => {
     try {
-        const result = await fileApi.downloadFile(file.id)
+        const result = await fileApi.downloadFile(Number(file.id))
         const url = window.URL.createObjectURL(result.data);
         const a = document.createElement("a");
         a.href = url;

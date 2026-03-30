@@ -1,6 +1,6 @@
 import { ShowToast, getErrorMessage } from '@/lib';
 import { useMutation } from '@tanstack/react-query';
-import { ApplicationForm, IResolvedTask } from '../itFormApi';
+import { ApplicationForm } from '../itFormApi';
 import axiosClient from '../axiosClient';
 import { ApprovalRequest } from '../approvalApi';
 
@@ -79,10 +79,6 @@ const terminationLetterApi = {
         return axiosClient.post(`/termination-letter/approval`, data)
     },
 
-    resolvedTask(data: IResolvedTask) {
-        return axiosClient.post(`/termination-letter/resolved-task`, data)
-    },
-
     exportExcel(applicationFormCode: string) {
         return axiosClient.get(`/termination-letter/export-excel/${applicationFormCode}`, {
             responseType: 'blob'
@@ -137,20 +133,6 @@ export function useExportExcelTerminationLetter() {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useResolvedTaskTerminationLetter () {
-    return useMutation({
-        mutationFn: async (data: IResolvedTask) => {
-            await terminationLetterApi.resolvedTask(data)
         },
         onSuccess: () => {
             ShowToast("Success");

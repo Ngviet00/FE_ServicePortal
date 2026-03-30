@@ -24,7 +24,6 @@ export default function Sidebar() {
 	const { user } = useAuthStore()
 
 	const isMobile = useIsReponsive()
-	const isOrgUnitIdAvailable = user !== null && user !== undefined && user.orgPositionId !== null && user.orgPositionId !== undefined;
 
 	const { data: countWaitApprovalSidebar } = useQuery({
 		queryKey: ["count-wait-approval-sidebar", user?.userCode],
@@ -35,8 +34,7 @@ export default function Sidebar() {
 				OrgPositionId: user?.orgPositionId ?? -9999,
 			});
 			return res.data.data;
-		},
-		enabled: isOrgUnitIdAvailable
+		}
 	});
 
 	useEffect(() => {
@@ -49,7 +47,7 @@ export default function Sidebar() {
 	return (
 		<div className={`sidebar ${isOpen ? "collapsed" : ""} bg-white  w-[300px]`}>
 			<div className="relative">
-				<a href="/" className="block text-black text-3xl py-4 font-bold h-[65px] line-h-[50px] border-b border-gray-300">
+				<a href="/" className="block text-black text-3xl py-4 font-bold h-[65px] line-h-[50px]">
 					Service Portal
 				</a>
 				<button className="toggle-btn-mobile absolute top-[45%] right-2 hover:cursor-pointer" onClick={closeSidebar}>

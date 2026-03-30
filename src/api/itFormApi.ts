@@ -137,10 +137,6 @@ const itFormApi = {
         return axiosClient.get(`/it-form/${id}`)
     },
 
-    listFormITWaitConfirm(params: ListWaitApprovalRequest) {
-        return axiosClient.get('/it-form/list-form-it-wait-confirm', {params})
-    },
-
     create(data: FormData) {
         return axiosClient.post('/it-form', data, {
             headers: {
@@ -166,28 +162,30 @@ const itFormApi = {
     resolvedTask(data: IResolvedTask) {
         return axiosClient.post('/it-form/resolved-task', data)
     },
-    getMemberITAssigned() {
-        return axiosClient.get('/it-form/get-member-it-assigned')
+    getAllStaffIT() {
+        return axiosClient.get('/it-form/get-all-staff-it')
     },
     approval(data: ApprovalRequest) {
         return axiosClient.post(`/it-form/approval`, data)
     },
-    confirmITPurchaseRequirement(data: FormData) {
-        return axiosClient.post(`/it-form/confirm-it-purchase-requirement`, data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
+
+    listFormITWaitConfirmFormPurchase(params: ListWaitApprovalRequest) {
+        return axiosClient.get('/it-form/list-form-it-wait-confirm-form-purchase', {params})
     },
-    approveITPurchaseRequestForm (data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string}) {
-        return axiosClient.post(`/it-form/approve-it-purchase-request-form`, data)
+
+    staffITRequestFormPurchase(data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string}) {
+        return axiosClient.post(`/it-form/staff-it-request-form-purchase`, data)
+    },
+
+    confirmFormITRequestPurchase (data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string}) {
+        return axiosClient.post(`/it-form/confirm-form-it-request-purchase`, data)
     }
 }
 
-export function useConfirmITPurchaseRequirement() {
+export function useStaffITRequestFormPurchase() {
     return useMutation({
-        mutationFn: async (data: FormData) => {
-            await itFormApi.confirmITPurchaseRequirement(data)
+        mutationFn: async (data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string}) => {
+            await itFormApi.staffITRequestFormPurchase(data)
         },
         onSuccess: () => {
             ShowToast("Success");
@@ -198,10 +196,10 @@ export function useConfirmITPurchaseRequirement() {
     })
 }
 
-export function useApproveITPurchaseRequestForm() {
+export function useConfirmITRequestPurchase() {
     return useMutation({
-        mutationFn: async (data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string}) => {
-            await itFormApi.approveITPurchaseRequestForm(data)
+        mutationFn: async (data: {applicationFormId: number, userCodeApproval: string, userNameApproval: string, note?: string, orgPositionId?: number}) => {
+            await itFormApi.confirmFormITRequestPurchase(data)
         },
         onSuccess: () => {
             ShowToast("Success");

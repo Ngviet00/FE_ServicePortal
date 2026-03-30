@@ -19,7 +19,8 @@ export interface User {
     roles?: string[],
     permissions?: string[] ,
     unitName?: string,
-    unitNameV?: string
+    unitNameV?: string,
+    nationalityId: number,
 }
 
 interface AuthState {

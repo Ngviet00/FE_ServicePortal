@@ -2,7 +2,7 @@ import { ShowToast, getErrorMessage } from '@/lib';
 import { useMutation } from '@tanstack/react-query';
 import axiosClient from '../axiosClient';
 import { ApprovalRequest } from '../approvalApi';
-import { ApplicationForm, IAssignedTask, IResolvedTask } from '../itFormApi';
+import { ApplicationForm } from '../itFormApi';
 
 interface Create {
     OrgPositionIdUserCreatedForm: number;
@@ -66,14 +66,6 @@ const resignationLetterApi = {
         return axiosClient.post(`/resignation-letter/approval`, data)
     },
 
-    assigedTask(data: IAssignedTask) {
-        return axiosClient.post(`/resignation-letter/assigned-task`, data)
-    },
-
-    resolvedTask(data: IResolvedTask) {
-        return axiosClient.post(`/resignation-letter/resolved-task`, data)
-    },
-
     exportExcel(applicationFormCode: string) {
         return axiosClient.get(`/resignation-letter/export-excel/${applicationFormCode}`, {
             responseType: 'blob'
@@ -105,34 +97,6 @@ export function useExportExcelResignation() {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useResolvedTaskResignationLetter () {
-    return useMutation({
-        mutationFn: async (data: IResolvedTask) => {
-            await resignationLetterApi.resolvedTask(data)
-        },
-        onSuccess: () => {
-            ShowToast("Success");
-        },
-        onError: (err) => {
-            ShowToast(getErrorMessage(err), "error");
-        }
-    })
-}
-
-export function useAssignedTasResignationLetter () {
-    return useMutation({
-        mutationFn: async (data: IAssignedTask) => {
-            await resignationLetterApi.assigedTask(data)
         },
         onSuccess: () => {
             ShowToast("Success");
